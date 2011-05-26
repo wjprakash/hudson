@@ -24,7 +24,7 @@
 package hudson.model;
 
 import hudson.BulkChange;
-import hudson.DescriptorExtensionList;
+import hudson.DescriptorExtensionListExt;
 import hudson.Util;
 import hudson.XmlFile;
 import hudson.model.Descriptor.FormException;
@@ -51,14 +51,14 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Serves as the top of {@link Computer}s in the URL hierarchy.
+ * Serves as the top of {@link ComputerExt}s in the URL hierarchy.
  * <p>
  * Getter methods are prefixed with '_' to avoid collision with computer names.
  *
  * @author Kohsuke Kawaguchi
  */
 @ExportedBean
-public final class ComputerSet extends AbstractModelObject {
+public final class ComputerSet extends AbstractModelObjectExt {
     /**
      * This is the owner that persists {@link #monitors}.
      */
@@ -86,14 +86,14 @@ public final class ComputerSet extends AbstractModelObject {
     }
 
     @Exported(name="computer",inline=true)
-    public Computer[] get_all() {
+    public ComputerExt[] get_all() {
         return Hudson.getInstance().getComputers();
     }
 
     /**
      * Exposing {@link NodeMonitor#all()} for Jelly binding.
      */
-    public DescriptorExtensionList<NodeMonitor,Descriptor<NodeMonitor>> getNodeMonitorDescriptors() {
+    public DescriptorExtensionListExt<NodeMonitor,Descriptor<NodeMonitor>> getNodeMonitorDescriptors() {
         return NodeMonitor.all();
     }
 
@@ -138,7 +138,7 @@ public final class ComputerSet extends AbstractModelObject {
     @Exported
     public int getTotalExecutors() {
         int r=0;
-        for (Computer c : get_all()) {
+        for (ComputerExt c : get_all()) {
             if(c.isOnline())
                 r += c.countExecutors();
         }
@@ -151,7 +151,7 @@ public final class ComputerSet extends AbstractModelObject {
     @Exported
     public int getBusyExecutors() {
         int r=0;
-        for (Computer c : get_all()) {
+        for (ComputerExt c : get_all()) {
             if(c.isOnline())
                 r += c.countBusy();
         }
@@ -163,7 +163,7 @@ public final class ComputerSet extends AbstractModelObject {
      */
     public int getIdleExecutors() {
         int r=0;
-        for (Computer c : get_all())
+        for (ComputerExt c : get_all())
             if(c.isOnline() || c.isConnecting())
                 r += c.countIdle();
         return r;
@@ -173,14 +173,14 @@ public final class ComputerSet extends AbstractModelObject {
         return "/computers/";
     }
 
-    public Computer getDynamic(String token, StaplerRequest req, StaplerResponse rsp) {
+    public ComputerExt getDynamic(String token, StaplerRequest req, StaplerResponse rsp) {
         return Hudson.getInstance().getComputer(token);
     }
 
     public void do_launchAll(StaplerRequest req, StaplerResponse rsp) throws IOException {
         Hudson.getInstance().checkPermission(Hudson.ADMINISTER);
 
-        for(Computer c : get_all()) {
+        for(ComputerExt c : get_all()) {
             if(c.isLaunchSupported())
                 c.connect(true);
         }

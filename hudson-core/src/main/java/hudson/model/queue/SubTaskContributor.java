@@ -26,14 +26,14 @@ package hudson.model.queue;
 import hudson.Extension;
 import hudson.ExtensionList;
 import hudson.ExtensionPoint;
-import hudson.model.AbstractProject;
+import hudson.model.AbstractProjectExt;
 import hudson.model.Hudson;
 
 import java.util.Collection;
 import java.util.Collections;
 
 /**
- * Externally contributes {@link SubTask}s to {@link AbstractProject#getSubTasks()}.
+ * Externally contributes {@link SubTask}s to {@link AbstractProjectExt#getSubTasks()}.
  *
  * <p>
  * Put @{@link Extension} on your implementation classes to register them.
@@ -42,7 +42,7 @@ import java.util.Collections;
  * @since 1.377
  */
 public abstract class SubTaskContributor implements ExtensionPoint {
-    public Collection<? extends SubTask> forProject(AbstractProject<?,?> p) {
+    public Collection<? extends SubTask> forProject(AbstractProjectExt<?,?> p) {
         return Collections.emptyList();
     }
 

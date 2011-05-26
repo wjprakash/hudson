@@ -23,7 +23,7 @@
  */
 package hudson.util;
 
-import hudson.PluginManager.UberClassLoader;
+import hudson.PluginManagerExt.UberClassLoader;
 import hudson.model.Hudson;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;

@@ -57,9 +57,9 @@ public class Failure extends RuntimeException implements HttpResponse {
         req.setAttribute("message",getMessage());
         if(pre)
             req.setAttribute("pre",true);
-        if (node instanceof AbstractItem) // Maintain ancestors
-            rsp.forward(Hudson.getInstance(), ((AbstractItem)node).getUrl() + "error", req);
+        if (node instanceof AbstractItemExt) // Maintain ancestors
+            rsp.forward(Hudson.getInstance(), ((AbstractItemExt)node).getUrl() + "error", req);
         else
-            rsp.forward(node instanceof AbstractModelObject ? node : Hudson.getInstance() ,"error", req);
+            rsp.forward(node instanceof AbstractModelObjectExt ? node : Hudson.getInstance() ,"error", req);
     }
 }

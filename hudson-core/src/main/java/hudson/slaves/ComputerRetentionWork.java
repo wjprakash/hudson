@@ -26,7 +26,7 @@ package hudson.slaves;
 import java.util.Map;
 import java.util.WeakHashMap;
 
-import hudson.model.Computer;
+import hudson.model.ComputerExt;
 import hudson.model.Hudson;
 import hudson.model.Node;
 import hudson.model.PeriodicWork;
@@ -42,9 +42,9 @@ import hudson.Extension;
 public class ComputerRetentionWork extends PeriodicWork {
 
     /**
-     * Use weak hash map to avoid leaking {@link Computer}.
+     * Use weak hash map to avoid leaking {@link ComputerExt}.
      */
-    private final Map<Computer, Long> nextCheck = new WeakHashMap<Computer, Long>();
+    private final Map<ComputerExt, Long> nextCheck = new WeakHashMap<ComputerExt, Long>();
 
     public long getRecurrencePeriod() {
         return MIN;
@@ -56,7 +56,7 @@ public class ComputerRetentionWork extends PeriodicWork {
     @SuppressWarnings("unchecked")
     protected void doRun() {
         final long startRun = System.currentTimeMillis();
-        for (Computer c : Hudson.getInstance().getComputers()) {
+        for (ComputerExt c : Hudson.getInstance().getComputers()) {
             Node n = c.getNode();
             if (n!=null && n.isHoldOffLaunchUntilSave())
                 continue;

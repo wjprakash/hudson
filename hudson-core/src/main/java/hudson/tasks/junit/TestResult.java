@@ -25,7 +25,7 @@ package hudson.tasks.junit;
 
 import hudson.AbortException;
 import hudson.Util;
-import hudson.model.AbstractBuild;
+import hudson.model.AbstractBuildExt;
 import hudson.model.Run;
 import hudson.tasks.test.MetaTabulatedResult;
 import hudson.tasks.test.TestObject;
@@ -221,7 +221,7 @@ public final class TestResult extends MetaTabulatedResult {
     }
 
     @Override
-    public AbstractBuild<?,?> getOwner() {
+    public AbstractBuildExt<?,?> getOwner() {
         return (parentAction == null? null: parentAction.owner);
     }
 

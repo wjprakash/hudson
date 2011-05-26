@@ -23,7 +23,7 @@
  */
 package hudson.views;
 
-import hudson.DescriptorExtensionList;
+import hudson.DescriptorExtensionListExt;
 import hudson.ExtensionPoint;
 import hudson.model.AbstractDescribableImpl;
 import hudson.model.Descriptor;
@@ -50,7 +50,7 @@ public abstract class ViewsTabBar extends AbstractDescribableImpl<ViewsTabBar> i
     /**
      * Returns all the registered {@link ViewsTabBar} descriptors.
      */
-    public static DescriptorExtensionList<ViewsTabBar, Descriptor<ViewsTabBar>> all() {
+    public static DescriptorExtensionListExt<ViewsTabBar, Descriptor<ViewsTabBar>> all() {
         return Hudson.getInstance().<ViewsTabBar, Descriptor<ViewsTabBar>>getDescriptorList(ViewsTabBar.class);
     }
 

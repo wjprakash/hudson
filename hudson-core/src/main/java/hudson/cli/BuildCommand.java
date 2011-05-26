@@ -23,9 +23,9 @@
  */
 package hudson.cli;
 
-import hudson.model.AbstractBuild;
-import hudson.model.AbstractProject;
-import hudson.model.Cause;
+import hudson.model.AbstractBuildExt;
+import hudson.model.AbstractProjectExt;
+import hudson.model.CauseExt;
 import hudson.model.ParametersAction;
 import hudson.model.ParameterValue;
 import hudson.model.ParametersDefinitionProperty;
@@ -58,7 +58,7 @@ public class BuildCommand extends CLICommand {
     }
 
     @Argument(metaVar="JOB",usage="Name of the job to build",required=true)
-    public AbstractProject<?,?> job;
+    public AbstractProjectExt<?,?> job;
 
     @Option(name="-s",usage="Wait until the completion/abortion of the command")
     public boolean sync = false;
@@ -89,10 +89,10 @@ public class BuildCommand extends CLICommand {
             a = new ParametersAction(values);
         }
 
-        Future<? extends AbstractBuild> f = job.scheduleBuild2(0, new CLICause(), a);
+        Future<? extends AbstractBuildExt> f = job.scheduleBuild2(0, new CLICause(), a);
         if (!sync)  return 0;
 
-        AbstractBuild b = f.get();    // wait for the completion
+        AbstractBuildExt b = f.get();    // wait for the completion
         stdout.println("Completed "+b.getFullDisplayName()+" : "+b.getResult());
         return b.getResult().ordinal;
     }
@@ -109,7 +109,7 @@ public class BuildCommand extends CLICommand {
     }
 
     // TODO: CLI can authenticate as different users, so should record which user here..
-    public static class CLICause extends Cause {
+    public static class CLICause extends CauseExt {
         public String getShortDescription() {
             return "Started by command line";
         }

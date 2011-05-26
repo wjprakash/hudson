@@ -24,8 +24,9 @@
  */
 package hudson.tasks.test;
 
+import hudson.model.Api;
 import hudson.Util;
-import hudson.Functions;
+import hudson.FunctionsExt;
 import hudson.model.*;
 import hudson.tasks.junit.History;
 import hudson.tasks.junit.TestAction;
@@ -54,7 +55,7 @@ public abstract class TestObject extends hudson.tasks.junit.TestObject {
     private static final Logger LOGGER = Logger.getLogger(TestObject.class.getName());
     private volatile transient String id;
 
-    public abstract AbstractBuild<?, ?> getOwner();
+    public abstract AbstractBuildExt<?, ?> getOwner();
 
     /**
      * Reverse pointer of {@link TabulatedResult#getChildren()}.
@@ -159,7 +160,7 @@ public abstract class TestObject extends hudson.tasks.junit.TestObject {
             buf.insert(0,action.getUrlName());
 
             // Now the build
-            AbstractBuild<?,?> myBuild = cur.getOwner();
+            AbstractBuildExt<?,?> myBuild = cur.getOwner();
             if (myBuild ==null) {
                 LOGGER.warning("trying to get relative path, but we can't determine the build that owns this result.");
                 return ""; // this won't take us to the right place, but it also won't 404. 
@@ -167,13 +168,13 @@ public abstract class TestObject extends hudson.tasks.junit.TestObject {
             buf.insert(0,'/');
             buf.insert(0,myBuild.getUrl());
 
-            // If we're inside a stapler request, just delegate to Hudson.Functions to get the relative path!
+            // If we're inside a stapler request, just delegate to Hudson.FunctionsExt to get the relative path!
             StaplerRequest req = Stapler.getCurrentRequest();
             if (req!=null && myBuild instanceof Item) {
                 buf.insert(0, '/');
                 // Ugly but I don't see how else to convince the compiler that myBuild is an Item
                 Item myBuildAsItem = (Item) myBuild;
-                buf.insert(0, Functions.getRelativeLinkTo(myBuildAsItem));
+                buf.insert(0, FunctionsExt.getRelativeLinkTo(myBuildAsItem));
             } else {
                 // We're not in a stapler request. Okay, give up.
                 LOGGER.info("trying to get relative path, but it is not my ancestor, and we're not in a stapler request. Trying absolute hudson url...");
@@ -202,7 +203,7 @@ public abstract class TestObject extends hudson.tasks.junit.TestObject {
      */
     @Override
     public AbstractTestResultAction getTestResultAction() {
-        AbstractBuild<?, ?> owner = getOwner();
+        AbstractBuildExt<?, ?> owner = getOwner();
         if (owner != null) {
             return owner.getAction(AbstractTestResultAction.class);
         } else {
@@ -254,7 +255,7 @@ public abstract class TestObject extends hudson.tasks.junit.TestObject {
      *
      * @return null if no such counter part exists.
      */
-    public abstract TestResult getResultInBuild(AbstractBuild<?, ?> build);
+    public abstract TestResult getResultInBuild(AbstractBuildExt<?, ?> build);
 
     /**
      * Find the test result corresponding to the one identified by <code>id></code>

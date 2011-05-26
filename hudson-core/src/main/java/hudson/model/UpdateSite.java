@@ -25,8 +25,8 @@
 
 package hudson.model;
 
-import hudson.PluginWrapper;
-import hudson.PluginManager;
+import hudson.PluginWrapperExt;
+import hudson.PluginManagerExt;
 import hudson.model.UpdateCenter.UpdateCenterJob;
 import hudson.lifecycle.Lifecycle;
 import hudson.util.IOUtils;
@@ -263,7 +263,7 @@ public class UpdateSite {
      * Gets the information about a specific plugin.
      *
      * @param artifactId
-     *      The short name of the plugin. Corresponds to {@link PluginWrapper#getShortName()}.
+     *      The short name of the plugin. Corresponds to {@link PluginWrapperExt#getShortName()}.
      *
      * @return
      *      null if no such information is found.
@@ -302,7 +302,7 @@ public class UpdateSite {
         if(data==null)      return Collections.emptyList(); // fail to determine
         
         List<Plugin> r = new ArrayList<Plugin>();
-        for (PluginWrapper pw : Hudson.getInstance().getPluginManager().getPlugins()) {
+        for (PluginWrapperExt pw : Hudson.getInstance().getPluginManager().getPlugins()) {
             Plugin p = pw.getUpdateInfo();
             if(p!=null) r.add(p);
         }
@@ -317,7 +317,7 @@ public class UpdateSite {
         Data data = getData();
         if(data==null)      return false;
         
-        for (PluginWrapper pw : Hudson.getInstance().getPluginManager().getPlugins()) {
+        for (PluginWrapperExt pw : Hudson.getInstance().getPluginManager().getPlugins()) {
             if(!pw.isBundled() && pw.getUpdateInfo()!=null)
                 // do not advertize updates to bundled plugins, since we generally want users to get them
                 // as a part of hudson.war updates. This also avoids unnecessary pinning of plugins. 
@@ -514,11 +514,11 @@ public class UpdateSite {
         }
 
         /**
-         * If some version of this plugin is currently installed, return {@link PluginWrapper}.
+         * If some version of this plugin is currently installed, return {@link PluginWrapperExt}.
          * Otherwise null.
          */
-        public PluginWrapper getInstalled() {
-            PluginManager pm = Hudson.getInstance().getPluginManager();
+        public PluginWrapperExt getInstalled() {
+            PluginManagerExt pm = Hudson.getInstance().getPluginManager();
             return pm.getPlugin(name);
         }
 
@@ -530,7 +530,7 @@ public class UpdateSite {
          * specified, it'll return true.
          */
         public boolean isCompatibleWithInstalledVersion() {
-            PluginWrapper installedVersion = getInstalled();
+            PluginWrapperExt installedVersion = getInstalled();
             if (installedVersion != null) {
                 if (compatibleSinceVersion != null) {
                     if (new VersionNumber(installedVersion.getVersion())
@@ -553,7 +553,7 @@ public class UpdateSite {
                 VersionNumber requiredVersion = new VersionNumber(e.getValue());
                 
                 // Is the plugin installed already? If not, add it.
-                PluginWrapper current = depPlugin.getInstalled();
+                PluginWrapperExt current = depPlugin.getInstalled();
 
                 if (current ==null) {
                     deps.add(depPlugin);

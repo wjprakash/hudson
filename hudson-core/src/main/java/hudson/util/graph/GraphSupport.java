@@ -23,7 +23,7 @@
  */
 package hudson.util.graph;
 
-import hudson.DescriptorExtensionList;
+import hudson.DescriptorExtensionListExt;
 import hudson.ExtensionPoint;
 import hudson.model.AbstractDescribableImpl;
 import hudson.model.Descriptor;
@@ -48,7 +48,7 @@ public abstract class GraphSupport extends AbstractDescribableImpl<GraphSupport>
     /**
      * Returns all the registered {@link GraphSupport} descriptors.
      */
-    public static DescriptorExtensionList<GraphSupport, Descriptor<GraphSupport>> all() {
+    public static DescriptorExtensionListExt<GraphSupport, Descriptor<GraphSupport>> all() {
         return Hudson.getInstance().<GraphSupport, Descriptor<GraphSupport>>getDescriptorList(GraphSupport.class);
     }
 

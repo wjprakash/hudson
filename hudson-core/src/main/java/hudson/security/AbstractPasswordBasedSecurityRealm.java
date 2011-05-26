@@ -1,7 +1,7 @@
 package hudson.security;
 
 import groovy.lang.Binding;
-import hudson.FilePath;
+import hudson.FilePathExt;
 import hudson.cli.CLICommand;
 import hudson.model.Hudson;
 import hudson.remoting.Callable;
@@ -68,7 +68,7 @@ public abstract class AbstractPasswordBasedSecurityRealm extends SecurityRealm i
 
                 if (passwordFile!=null)
                     try {
-                        password = new FilePath(command.channel,passwordFile).readToString().trim();
+                        password = new FilePathExt(command.channel,passwordFile).readToString().trim();
                     } catch (IOException e) {
                         throw new BadCredentialsException("Failed to read "+passwordFile,e);
                     }

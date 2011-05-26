@@ -25,7 +25,7 @@ package hudson.node_monitors;
 
 import hudson.Util;
 import hudson.Extension;
-import hudson.model.Computer;
+import hudson.model.ComputerExt;
 import hudson.model.Hudson;
 import hudson.remoting.Callable;
 import hudson.util.jna.NativeAccessException;
@@ -82,7 +82,7 @@ public class SwapSpaceMonitor extends NodeMonitor {
 
     @Extension
     public static final AbstractNodeMonitorDescriptor<NativeSystemMemory> DESCRIPTOR = new AbstractNodeMonitorDescriptor<NativeSystemMemory>() {
-        protected NativeSystemMemory monitor(Computer c) throws IOException, InterruptedException {
+        protected NativeSystemMemory monitor(ComputerExt c) throws IOException, InterruptedException {
             return c.getChannel().call(new MonitorTask());
         }
 

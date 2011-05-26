@@ -24,7 +24,7 @@
 package hudson.model;
 
 import hudson.Util;
-import hudson.diagnosis.OldDataMonitor;
+import hudson.diagnosis.OldDataMonitorExt;
 import hudson.model.Descriptor.FormException;
 import hudson.tasks.BuildStep;
 import hudson.tasks.BuildStepDescriptor;
@@ -55,7 +55,7 @@ import java.util.Set;
  * @author Kohsuke Kawaguchi
  */
 public abstract class Project<P extends Project<P,B>,B extends Build<P,B>>
-    extends AbstractProject<P,B> implements SCMedItem, Saveable, ProjectWithMaven, BuildableItemWithBuildWrappers {
+    extends AbstractProjectExt<P,B> implements SCMedItem, Saveable, ProjectWithMaven, BuildableItemWithBuildWrappers {
 
     /**
      * List of active {@link Builder}s configured for this project.
@@ -89,14 +89,14 @@ public abstract class Project<P extends Project<P,B>,B extends Build<P,B>>
         if (buildWrappers==null) {
             // it didn't exist in < 1.64
             buildWrappers = new DescribableList<BuildWrapper, Descriptor<BuildWrapper>>(this);
-            OldDataMonitor.report(this, "1.64");
+            OldDataMonitorExt.report(this, "1.64");
         }
         builders.setOwner(this);
         publishers.setOwner(this);
         buildWrappers.setOwner(this);
     }
 
-    public AbstractProject<?, ?> asProject() {
+    public AbstractProjectExt<?, ?> asProject() {
         return this;
     }
 
@@ -221,7 +221,7 @@ public abstract class Project<P extends Project<P,B>,B extends Build<P,B>>
     private transient String slave;
 
     private Object readResolve() {
-        if (slave != null) OldDataMonitor.report(this, "1.60");
+        if (slave != null) OldDataMonitorExt.report(this, "1.60");
         return this;
     }
 }

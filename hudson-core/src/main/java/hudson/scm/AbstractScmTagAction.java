@@ -23,7 +23,7 @@
  */
 package hudson.scm;
 
-import hudson.model.AbstractBuild;
+import hudson.model.AbstractBuildExt;
 import hudson.model.TaskAction;
 import hudson.model.BuildBadgeAction;
 import hudson.security.Permission;
@@ -45,9 +45,9 @@ import java.io.IOException;
  * @author Kohsuke Kawaguchi
  */
 public abstract class AbstractScmTagAction extends TaskAction implements BuildBadgeAction {
-    protected final AbstractBuild build;
+    protected final AbstractBuildExt build;
 
-    protected AbstractScmTagAction(AbstractBuild build) {
+    protected AbstractScmTagAction(AbstractBuildExt build) {
         this.build = build;
     }
 
@@ -63,7 +63,7 @@ public abstract class AbstractScmTagAction extends TaskAction implements BuildBa
         return SCM.TAG;
     }
 
-    public AbstractBuild getBuild() {
+    public AbstractBuildExt getBuild() {
         return build;
     }
 

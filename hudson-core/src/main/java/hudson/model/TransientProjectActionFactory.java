@@ -31,17 +31,17 @@ import hudson.tasks.BuildStep;
 import java.util.Collection;
 
 /**
- * Extension point for inserting transient {@link Action}s into {@link AbstractProject}s.
+ * Extension point for inserting transient {@link Action}s into {@link AbstractProjectExt}s.
  *
  * <p>
  * Actions of projects are primarily determined by {@link BuildStep}s that are associated by configurations,
  * but sometimes it's convenient to be able to add actions across all or many projects, without being invoked
  * through configuration. This extension point provides such a mechanism.
  *
- * Actions of {@link AbstractProject}s are transient &mdash; they will not be persisted, and each time Hudson starts
+ * Actions of {@link AbstractProjectExt}s are transient &mdash; they will not be persisted, and each time Hudson starts
  * or the configuration of the job changes, they'll be recreated. Therefore, to maintain persistent data
  * per project, you'll need to do data serialization by yourself. Do so by storing a file
- * under {@link AbstractProject#getRootDir()}.
+ * under {@link AbstractProjectExt#getRootDir()}.
  *
  * <p>
  * To register your implementation, put {@link Extension} on your subtype.
@@ -59,7 +59,7 @@ public abstract class TransientProjectActionFactory implements ExtensionPoint {
      * @return
      *      Can be empty but must not be null.
      */
-    public abstract Collection<? extends Action> createFor(AbstractProject target);
+    public abstract Collection<? extends Action> createFor(AbstractProjectExt target);
 
     /**
      * Returns all the registered {@link TransientProjectActionFactory}s.

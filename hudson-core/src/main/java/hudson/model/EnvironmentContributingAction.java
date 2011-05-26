@@ -40,17 +40,17 @@ import hudson.tasks.BuildWrapper;
  *
  * @author Kohsuke Kawaguchi
  * @since 1.318
- * @see AbstractBuild#getEnvironment(TaskListener)
+ * @see AbstractBuildExt#getEnvironment(TaskListener)
  * @see BuildWrapper
  */
 public interface EnvironmentContributingAction extends Action {
     /**
-     * Called by {@link AbstractBuild} to allow plugins to contribute environment variables.
+     * Called by {@link AbstractBuildExt} to allow plugins to contribute environment variables.
      *
      * @param build
      *      The calling build. Never null.
      * @param env
      *      Environment variables should be added to this map.
      */
-    public void buildEnvVars(AbstractBuild<?,?> build, EnvVars env);
+    public void buildEnvVars(AbstractBuildExt<?,?> build, EnvVars env);
 }

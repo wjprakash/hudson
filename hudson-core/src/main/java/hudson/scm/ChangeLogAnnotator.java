@@ -30,7 +30,7 @@ import hudson.Extension;
 import hudson.ExtensionList;
 import hudson.util.CopyOnWriteList;
 import hudson.scm.ChangeLogSet.Entry;
-import hudson.model.AbstractBuild;
+import hudson.model.AbstractBuildExt;
 import hudson.model.Hudson;
 
 import java.util.logging.Logger;
@@ -76,7 +76,7 @@ public abstract class ChangeLogAnnotator implements ExtensionPoint {
      *      method is invoked. Never null. {@link MarkupText#getText()} on this instance
      *      will return the same string as {@link Entry#getMsgEscaped()}.
      */
-    public abstract void annotate(AbstractBuild<?,?> build, Entry change, MarkupText text );
+    public abstract void annotate(AbstractBuildExt<?,?> build, Entry change, MarkupText text );
 
     /**
      * Registers this annotator, so that Hudson starts using this object

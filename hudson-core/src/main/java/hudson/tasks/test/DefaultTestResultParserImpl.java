@@ -24,11 +24,11 @@
 package hudson.tasks.test;
 
 import hudson.AbortException;
-import hudson.FilePath;
-import hudson.FilePath.FileCallable;
+import hudson.FilePathExt;
+import hudson.FilePathExt.FileCallable;
 import hudson.Launcher;
 import hudson.Util;
-import hudson.model.AbstractBuild;
+import hudson.model.AbstractBuildExt;
 import hudson.model.TaskListener;
 import hudson.remoting.VirtualChannel;
 
@@ -73,7 +73,7 @@ public abstract class DefaultTestResultParserImpl extends TestResultParser imple
     protected abstract TestResult parse(List<File> reportFiles, Launcher launcher, TaskListener listener) throws InterruptedException, IOException;
 
     @Override
-    public TestResult parse(final String testResultLocations, final AbstractBuild build, final Launcher launcher, final TaskListener listener) throws InterruptedException, IOException {
+    public TestResult parse(final String testResultLocations, final AbstractBuildExt build, final Launcher launcher, final TaskListener listener) throws InterruptedException, IOException {
         return build.getWorkspace().act(new FileCallable<TestResult>() {
             final boolean ignoreTimestampCheck = IGNORE_TIMESTAMP_CHECK; // so that the property can be set on the master
             final long buildTime = build.getTimestamp().getTimeInMillis();
@@ -85,13 +85,13 @@ public abstract class DefaultTestResultParserImpl extends TestResultParser imple
                 // files older than this timestamp is considered stale
                 long localBuildTime = buildTime + (nowSlave - nowMaster);
 
-                FilePath[] paths = new FilePath(dir).list(testResultLocations);
+                FilePathExt[] paths = new FilePathExt(dir).list(testResultLocations);
                 if (paths.length==0)
                     throw new AbortException("No test reports that matches "+testResultLocations+" found. Configuration error?");
 
                 // since dir is local, paths all point to the local files
                 List<File> files = new ArrayList<File>(paths.length);
-                for (FilePath path : paths) {
+                for (FilePathExt path : paths) {
                     File report = new File(path.getRemote());
                     if (ignoreTimestampCheck || localBuildTime - 3000 /*error margin*/ < report.lastModified()) {
                         // this file is created during this build

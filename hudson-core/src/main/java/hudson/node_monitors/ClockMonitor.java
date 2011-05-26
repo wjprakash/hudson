@@ -23,7 +23,7 @@
  */
 package hudson.node_monitors;
 
-import hudson.model.Computer;
+import hudson.model.ComputerExt;
 import hudson.model.Node;
 import hudson.util.ClockDifference;
 import hudson.Extension;
@@ -41,13 +41,13 @@ import net.sf.json.JSONObject;
  * @since 1.123
  */
 public class ClockMonitor extends NodeMonitor {
-    public ClockDifference getDifferenceFor(Computer c) {
+    public ClockDifference getDifferenceFor(ComputerExt c) {
         return DESCRIPTOR.get(c);
     }
 
     @Extension
     public static final AbstractNodeMonitorDescriptor<ClockDifference> DESCRIPTOR = new AbstractNodeMonitorDescriptor<ClockDifference>() {
-        protected ClockDifference monitor(Computer c) throws IOException, InterruptedException {
+        protected ClockDifference monitor(ComputerExt c) throws IOException, InterruptedException {
             Node n = c.getNode();
             if(n==null) return null;
             return n.getClockDifference();

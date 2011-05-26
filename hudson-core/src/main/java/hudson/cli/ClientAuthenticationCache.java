@@ -23,8 +23,8 @@
  */
 package hudson.cli;
 
-import hudson.FilePath;
-import hudson.FilePath.FileCallable;
+import hudson.FilePathExt;
+import hudson.FilePathExt.FileCallable;
 import hudson.Util;
 import hudson.model.Hudson;
 import hudson.model.Hudson.MasterComputer;
@@ -60,7 +60,7 @@ public class ClientAuthenticationCache implements Serializable {
     /**
      * Where the store should be placed.
      */
-    private final FilePath store;
+    private final FilePathExt store;
 
     /**
      * Loaded contents of the store.
@@ -68,10 +68,10 @@ public class ClientAuthenticationCache implements Serializable {
     private final Properties props = new Properties();
 
     public ClientAuthenticationCache(Channel channel) throws IOException, InterruptedException {
-        store = (channel==null ? MasterComputer.localChannel :  channel).call(new Callable<FilePath, IOException>() {
-            public FilePath call() throws IOException {
+        store = (channel==null ? MasterComputer.localChannel :  channel).call(new Callable<FilePathExt, IOException>() {
+            public FilePathExt call() throws IOException {
                 File home = new File(System.getProperty("user.home"));
-                return new FilePath(new File(home, ".hudson/cli-credentials"));
+                return new FilePathExt(new File(home, ".hudson/cli-credentials"));
             }
         });
         if (store.exists()) {

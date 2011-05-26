@@ -25,7 +25,7 @@ package hudson.tasks._maven;
 
 import hudson.Extension;
 import hudson.MarkupText;
-import hudson.console.ConsoleAnnotationDescriptor;
+import hudson.ConsoleAnnotationDescriptor;
 import hudson.console.ConsoleAnnotator;
 import hudson.console.ConsoleNote;
 

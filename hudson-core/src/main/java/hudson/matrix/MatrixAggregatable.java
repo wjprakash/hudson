@@ -45,7 +45,7 @@ public interface MatrixAggregatable extends ExtensionPoint {
      *
      * <p>
      * This method is called during the build of
-     * {@link MatrixBuild} and the created aggregator
+     * {@link MatrixBuildExt} and the created aggregator
      * will perform the aggregation.
      *
      * @param build
@@ -63,5 +63,5 @@ public interface MatrixAggregatable extends ExtensionPoint {
      * @see MatrixAggregator#build
      * @see MatrixAggregator#listener
      */
-    MatrixAggregator createAggregator(MatrixBuild build, Launcher launcher, BuildListener listener);
+    MatrixAggregator createAggregator(MatrixBuildExt build, Launcher launcher, BuildListener listener);
 }

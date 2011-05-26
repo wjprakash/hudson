@@ -23,11 +23,11 @@
  */
 package hudson.tasks;
 
-import hudson.FilePath;
-import hudson.Functions;
+import hudson.FilePathExt;
+import hudson.FunctionsExt;
 import hudson.Util;
 import hudson.Extension;
-import hudson.model.AbstractProject;
+import hudson.model.AbstractProjectExt;
 import hudson.util.FormValidation;
 import net.sf.json.JSONObject;
 import org.kohsuke.stapler.DataBoundConstructor;
@@ -86,7 +86,7 @@ public class Shell extends CommandInterpreter {
         return s;
     }
 
-    public String[] buildCommandLine(FilePath script) {
+    public String[] buildCommandLine(FilePathExt script) {
         if(command.startsWith("#!")) {
             // interpreter override
             int end = command.indexOf('\n');
@@ -124,7 +124,7 @@ public class Shell extends CommandInterpreter {
             load();
         }
 
-        public boolean isApplicable(Class<? extends AbstractProject> jobType) {
+        public boolean isApplicable(Class<? extends AbstractProjectExt> jobType) {
             return true;
         }
 
@@ -134,7 +134,7 @@ public class Shell extends CommandInterpreter {
 
         public String getShellOrDefault() {
             if(shell==null)
-                return Functions.isWindows() ?"sh":"/bin/sh";
+                return FunctionsExt.isWindows() ?"sh":"/bin/sh";
             return shell;
         }
 

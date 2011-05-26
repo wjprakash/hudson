@@ -25,7 +25,7 @@ package hudson.model;
 
 import hudson.Util;
 import hudson.EnvVars;
-import hudson.diagnosis.OldDataMonitor;
+import hudson.diagnosis.OldDataMonitorExt;
 import hudson.model.Queue.QueueAction;
 import hudson.tasks.BuildStep;
 import hudson.tasks.BuildWrapper;
@@ -57,7 +57,7 @@ public class ParametersAction implements Action, Iterable<ParameterValue>, Queue
     /**
      * @deprecated since 1.283; kept to avoid warnings loading old build data, but now transient.
      */
-    private transient AbstractBuild<?, ?> build;
+    private transient AbstractBuildExt<?, ?> build;
 
     public ParametersAction(List<ParameterValue> parameters) {
         this.parameters = parameters;
@@ -67,14 +67,14 @@ public class ParametersAction implements Action, Iterable<ParameterValue>, Queue
         this(Arrays.asList(parameters));
     }
 
-    public void createBuildWrappers(AbstractBuild<?,?> build, Collection<? super BuildWrapper> result) {
+    public void createBuildWrappers(AbstractBuildExt<?,?> build, Collection<? super BuildWrapper> result) {
         for (ParameterValue p : parameters) {
             BuildWrapper w = p.createBuildWrapper(build);
             if(w!=null) result.add(w);
         }
     }
 
-    public void buildEnvVars(AbstractBuild<?,?> build, EnvVars env) {
+    public void buildEnvVars(AbstractBuildExt<?,?> build, EnvVars env) {
         for (ParameterValue p : parameters)
             p.buildEnvVars(build,env);
     }
@@ -82,7 +82,7 @@ public class ParametersAction implements Action, Iterable<ParameterValue>, Queue
     /**
      * Performs a variable subsitution to the given text and return it.
      */
-    public String substitute(AbstractBuild<?,?> build, String text) {
+    public String substitute(AbstractBuildExt<?,?> build, String text) {
         return Util.replaceMacro(text,createVariableResolver(build));
     }
 
@@ -90,9 +90,9 @@ public class ParametersAction implements Action, Iterable<ParameterValue>, Queue
      * Creates an {@link VariableResolver} that aggregates all the parameters.
      *
      * <p>
-     * If you are a {@link BuildStep}, most likely you should call {@link AbstractBuild#getBuildVariableResolver()}. 
+     * If you are a {@link BuildStep}, most likely you should call {@link AbstractBuildExt#getBuildVariableResolver()}. 
      */
-    public VariableResolver<String> createVariableResolver(AbstractBuild<?,?> build) {
+    public VariableResolver<String> createVariableResolver(AbstractBuildExt<?,?> build) {
         VariableResolver[] resolvers = new VariableResolver[parameters.size()+1];
         int i=0;
         for (ParameterValue p : parameters)
@@ -150,7 +150,7 @@ public class ParametersAction implements Action, Iterable<ParameterValue>, Queue
 
     private Object readResolve() {
         if (build != null)
-            OldDataMonitor.report(build, "1.283");
+            OldDataMonitorExt.report(build, "1.283");
         return this;
     }
 }

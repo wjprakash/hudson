@@ -62,7 +62,7 @@ import com.thoughtworks.xstream.io.HierarchicalStreamReader;
  * @see Hudson#getLabel(String) 
  */
 @ExportedBean
-public abstract class Label extends Actionable implements Comparable<Label>, ModelObject {
+public abstract class Label extends ActionableExt implements Comparable<Label>, ModelObject {
     /**
      * Display name of this label.
      */
@@ -238,7 +238,7 @@ public abstract class Label extends Actionable implements Comparable<Label>, Mod
     public int getTotalExecutors() {
         int r=0;
         for (Node n : getNodes()) {
-            Computer c = n.toComputer();
+            ComputerExt c = n.toComputer();
             if(c!=null && c.isOnline())
                 r += c.countExecutors();
         }
@@ -252,7 +252,7 @@ public abstract class Label extends Actionable implements Comparable<Label>, Mod
     public int getBusyExecutors() {
         int r=0;
         for (Node n : getNodes()) {
-            Computer c = n.toComputer();
+            ComputerExt c = n.toComputer();
             if(c!=null && c.isOnline())
                 r += c.countBusy();
         }
@@ -266,7 +266,7 @@ public abstract class Label extends Actionable implements Comparable<Label>, Mod
     public int getIdleExecutors() {
         int r=0;
         for (Node n : getNodes()) {
-            Computer c = n.toComputer();
+            ComputerExt c = n.toComputer();
             if(c!=null && (c.isOnline() || c.isConnecting()))
                 r += c.countIdle();
         }
@@ -324,9 +324,9 @@ public abstract class Label extends Actionable implements Comparable<Label>, Mod
      * Returns projects that are tied on this node.
      */
     @Exported
-    public List<AbstractProject> getTiedJobs() {
-        List<AbstractProject> r = new ArrayList<AbstractProject>();
-        for( AbstractProject p : Util.filter(Hudson.getInstance().getItems(),AbstractProject.class) ) {
+    public List<AbstractProjectExt> getTiedJobs() {
+        List<AbstractProjectExt> r = new ArrayList<AbstractProjectExt>();
+        for( AbstractProjectExt p : Util.filter(Hudson.getInstance().getItems(),AbstractProjectExt.class) ) {
             if(this.equals(p.getAssignedLabel()))
                 r.add(p);
         }

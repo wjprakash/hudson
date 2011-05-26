@@ -23,11 +23,11 @@
  */
 package hudson.scm;
 
-import hudson.FilePath;
+import hudson.FilePathExt;
 import hudson.Launcher;
 import hudson.Extension;
-import hudson.model.AbstractBuild;
-import hudson.model.AbstractProject;
+import hudson.model.AbstractBuildExt;
+import hudson.model.AbstractProjectExt;
 import hudson.model.BuildListener;
 import hudson.model.TaskListener;
 import net.sf.json.JSONObject;
@@ -42,15 +42,15 @@ import java.io.IOException;
  * @author Kohsuke Kawaguchi
  */
 public class NullSCM extends SCM {
-    public SCMRevisionState calcRevisionsFromBuild(AbstractBuild<?, ?> build, Launcher launcher, TaskListener listener) throws IOException, InterruptedException {
+    public SCMRevisionState calcRevisionsFromBuild(AbstractBuildExt<?, ?> build, Launcher launcher, TaskListener listener) throws IOException, InterruptedException {
         return null;
     }
 
-    protected PollingResult compareRemoteRevisionWith(AbstractProject project, Launcher launcher, FilePath workspace, TaskListener listener, SCMRevisionState baseline) throws IOException, InterruptedException {
+    protected PollingResult compareRemoteRevisionWith(AbstractProjectExt project, Launcher launcher, FilePathExt workspace, TaskListener listener, SCMRevisionState baseline) throws IOException, InterruptedException {
         return PollingResult.NO_CHANGES;
     }
 
-    public boolean checkout(AbstractBuild<?,?> build, Launcher launcher, FilePath remoteDir, BuildListener listener, File changeLogFile) throws IOException, InterruptedException {
+    public boolean checkout(AbstractBuildExt<?,?> build, Launcher launcher, FilePathExt remoteDir, BuildListener listener, File changeLogFile) throws IOException, InterruptedException {
         return createEmptyChangeLog(changeLogFile, listener, "log");
     }
 

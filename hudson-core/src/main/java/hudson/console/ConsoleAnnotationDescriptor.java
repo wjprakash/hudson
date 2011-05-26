@@ -23,7 +23,6 @@
  */
 package hudson.console;
 
-import hudson.DescriptorExtensionList;
 import hudson.ExtensionPoint;
 import hudson.model.Descriptor;
 import hudson.model.Hudson;
@@ -35,6 +34,7 @@ import org.kohsuke.stapler.WebMethod;
 import javax.servlet.ServletException;
 import java.io.IOException;
 import java.net.URL;
+import javax.jws.WebMethod;
 
 /**
  * Descriptor for {@link ConsoleNote}.

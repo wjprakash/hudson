@@ -25,7 +25,7 @@ package hudson.model;
 
 import hudson.model.Queue.Executable;
 import hudson.Util;
-import hudson.FilePath;
+import hudson.FilePathExt;
 import hudson.model.queue.Executables;
 import hudson.model.queue.SubTask;
 import hudson.model.queue.Tasks;
@@ -57,7 +57,7 @@ import static hudson.model.queue.Executables.*;
  */
 @ExportedBean
 public class Executor extends Thread implements ModelObject {
-    protected final Computer owner;
+    protected final ComputerExt owner;
     private final Queue queue;
 
     private long startTime;
@@ -67,7 +67,7 @@ public class Executor extends Thread implements ModelObject {
     private long finishTime;
 
     /**
-     * Executor number that identifies it among other executors for the same {@link Computer}.
+     * Executor number that identifies it among other executors for the same {@link ComputerExt}.
      */
     private int number;
     /**
@@ -81,7 +81,7 @@ public class Executor extends Thread implements ModelObject {
 
     private boolean induceDeath;
 
-    public Executor(Computer owner, int n) {
+    public Executor(ComputerExt owner, int n) {
         super("Executor #"+n+" for "+owner.getDisplayName());
         this.owner = owner;
         this.queue = Hudson.getInstance().getQueue();
@@ -136,9 +136,9 @@ public class Executor extends Thread implements ModelObject {
                 try {
                     workUnit.context.synchronizeStart();
 
-                    if (executable instanceof Actionable) {
+                    if (executable instanceof ActionableExt) {
                         for (Action action: workUnit.context.actions) {
-                            ((Actionable) executable).addAction(action);
+                            ((ActionableExt) executable).addAction(action);
                         }
                     }
                     setName(threadName+" : executing "+executable.toString());
@@ -215,15 +215,15 @@ public class Executor extends Thread implements ModelObject {
     }
 
     /**
-     * If {@linkplain #getCurrentExecutable() current executable} is {@link AbstractBuild},
+     * If {@linkplain #getCurrentExecutable() current executable} is {@link AbstractBuildExt},
      * return the workspace that this executor is using, or null if the build hasn't gotten
      * to that point yet.
      */
-    public FilePath getCurrentWorkspace() {
+    public FilePathExt getCurrentWorkspace() {
         Executable e = executable;
         if(e==null) return null;
-        if (e instanceof AbstractBuild) {
-            AbstractBuild ab = (AbstractBuild) e;
+        if (e instanceof AbstractBuildExt) {
+            AbstractBuildExt ab = (AbstractBuildExt) e;
             return ab.getWorkspace();
         }
         return null;
@@ -393,7 +393,7 @@ public class Executor extends Thread implements ModelObject {
         return e!=null && Tasks.getOwnerTaskOf(getParentOf(e)).hasAbortPermission();
     }
 
-    public Computer getOwner() {
+    public ComputerExt getOwner() {
         return owner;
     }
 

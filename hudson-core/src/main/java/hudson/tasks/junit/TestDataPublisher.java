@@ -23,7 +23,7 @@
  */
 package hudson.tasks.junit;
 
-import hudson.DescriptorExtensionList;
+import hudson.DescriptorExtensionListExt;
 import hudson.Extension;
 import hudson.ExtensionPoint;
 import hudson.Launcher;
@@ -51,10 +51,10 @@ public abstract class TestDataPublisher extends AbstractDescribableImpl<TestData
      *      can be null to indicate that there's nothing to contribute for this test result.
      */
 	public abstract TestResultAction.Data getTestData(
-			AbstractBuild<?, ?> build, Launcher launcher,
+			AbstractBuildExt<?, ?> build, Launcher launcher,
 			BuildListener listener, TestResult testResult) throws IOException, InterruptedException;
 
-	public static DescriptorExtensionList<TestDataPublisher, Descriptor<TestDataPublisher>> all() {
+	public static DescriptorExtensionListExt<TestDataPublisher, Descriptor<TestDataPublisher>> all() {
 		return Hudson.getInstance().<TestDataPublisher, Descriptor<TestDataPublisher>>getDescriptorList(TestDataPublisher.class);
 	}
 

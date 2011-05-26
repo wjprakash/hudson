@@ -26,7 +26,7 @@ package hudson.os;
 import com.sun.solaris.EmbeddedSu;
 import hudson.Launcher.LocalLauncher;
 import hudson.Util;
-import hudson.model.Computer;
+import hudson.model.ComputerExt;
 import hudson.model.TaskListener;
 import hudson.remoting.Callable;
 import hudson.remoting.Launcher;
@@ -115,7 +115,7 @@ public abstract class SU {
     }
 
     private static LocalChannel newLocalChannel() {
-        return new LocalChannel(Computer.threadPoolForRemoting);
+        return new LocalChannel(ComputerExt.threadPoolForRemoting);
     }
 
     /**
@@ -166,7 +166,7 @@ public abstract class SU {
             } else {
                 // try sudo with the given password. Also run in pfexec so that we can elevate the privileges
                 Process proc = sudoWithPass(args);
-                return Channels.forProcess(args.toStringWithQuote(), Computer.threadPoolForRemoting, proc,
+                return Channels.forProcess(args.toStringWithQuote(), ComputerExt.threadPoolForRemoting, proc,
                         listener.getLogger() );
             }
         }

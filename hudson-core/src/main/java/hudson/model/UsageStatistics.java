@@ -24,7 +24,7 @@
 package hudson.model;
 
 import com.trilead.ssh2.crypto.Base64;
-import hudson.PluginWrapper;
+import hudson.PluginWrapperExt;
 import hudson.Util;
 import hudson.Extension;
 import hudson.node_monitors.ArchitectureMonitor.DescriptorImpl;
@@ -126,7 +126,7 @@ public class UsageStatistics extends PageDecorator {
         o.put("version",Hudson.VERSION);
 
         List<JSONObject> nodes = new ArrayList<JSONObject>();
-        for( Computer c : h.getComputers() ) {
+        for( ComputerExt c : h.getComputers() ) {
             JSONObject  n = new JSONObject();
             if(c.getNode()==h) {
                 n.put("master",true);
@@ -141,7 +141,7 @@ public class UsageStatistics extends PageDecorator {
         o.put("nodes",nodes);
 
         List<JSONObject> plugins = new ArrayList<JSONObject>();
-        for( PluginWrapper pw : h.getPluginManager().getPlugins() ) {
+        for( PluginWrapperExt pw : h.getPluginManager().getPlugins() ) {
             if(!pw.isActive())  continue;   // treat disabled plugins as if they are uninstalled
             JSONObject p = new JSONObject();
             p.put("name",pw.getShortName());

@@ -23,7 +23,7 @@
  */
 package hudson.node_monitors;
 
-import hudson.model.AdministrativeMonitor;
+import hudson.model.AdministrativeMonitorExt;
 import hudson.Extension;
 
 /**
@@ -36,7 +36,7 @@ import hudson.Extension;
  * @since 1.301
  */
 @Extension
-public class MonitorMarkedNodeOffline extends AdministrativeMonitor {
+public class MonitorMarkedNodeOffline extends AdministrativeMonitorExt {
     public boolean active = false;
 
     public boolean isActivated() {

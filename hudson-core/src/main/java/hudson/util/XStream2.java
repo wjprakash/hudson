@@ -40,7 +40,7 @@ import com.thoughtworks.xstream.io.HierarchicalStreamDriver;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
 import com.thoughtworks.xstream.mapper.CannotResolveClassException;
-import hudson.diagnosis.OldDataMonitor;
+import hudson.diagnosis.OldDataMonitorExt;
 import hudson.model.Hudson;
 import hudson.model.Label;
 import hudson.model.Result;
@@ -80,7 +80,7 @@ public class XStream2 extends XStream {
         Object o = super.unmarshal(reader,root,dataHolder);
         if (oldData.get()!=null) {
             oldData.remove();
-            if (o instanceof Saveable) OldDataMonitor.report((Saveable)o, "1.106");
+            if (o instanceof Saveable) OldDataMonitorExt.report((Saveable)o, "1.106");
         }
         return o;
     }

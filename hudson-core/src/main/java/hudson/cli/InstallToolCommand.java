@@ -27,7 +27,7 @@ import hudson.Extension;
 import hudson.AbortException;
 import hudson.EnvVars;
 import hudson.model.Hudson;
-import hudson.model.AbstractProject;
+import hudson.model.AbstractProjectExt;
 import hudson.model.Run;
 import hudson.model.Executor;
 import hudson.model.Node;
@@ -73,7 +73,7 @@ public class InstallToolCommand extends CLICommand {
         if (!id.isComplete())
             throw new AbortException("This command can be only invoked from a build executing inside Hudson");
 
-        AbstractProject p = Hudson.getInstance().getItemByFullName(id.job, AbstractProject.class);
+        AbstractProjectExt p = Hudson.getInstance().getItemByFullName(id.job, AbstractProjectExt.class);
         if (p==null)
             throw new AbortException("No such job found: "+id.job);
         p.checkPermission(Item.CONFIGURE);
@@ -111,7 +111,7 @@ public class InstallToolCommand extends CLICommand {
     /**
      * Performs an installation.
      */
-    private int install(ToolInstallation t, BuildIDs id, AbstractProject p) throws IOException, InterruptedException {
+    private int install(ToolInstallation t, BuildIDs id, AbstractProjectExt p) throws IOException, InterruptedException {
 
         Run b = p.getBuildByNumber(Integer.parseInt(id.number));
         if (b==null)

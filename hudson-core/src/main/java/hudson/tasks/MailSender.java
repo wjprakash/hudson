@@ -24,9 +24,9 @@
  */
 package hudson.tasks;
 
-import hudson.FilePath;
+import hudson.FilePathExt;
 import hudson.Util;
-import hudson.Functions;
+import hudson.FunctionsExt;
 import hudson.model.*;
 import hudson.scm.ChangeLogSet;
 
@@ -55,7 +55,7 @@ public class MailSender {
      */
     private String recipients;
     
-    private List<AbstractProject> includeUpstreamCommitters = new ArrayList<AbstractProject>();
+    private List<AbstractProjectExt> includeUpstreamCommitters = new ArrayList<AbstractProjectExt>();
 
     /**
      * If true, only the first unstable build will be reported.
@@ -78,10 +78,10 @@ public class MailSender {
     }
 
     public MailSender(String recipients, boolean dontNotifyEveryUnstableBuild, boolean sendToIndividuals, String charset) {
-        this(recipients,dontNotifyEveryUnstableBuild,sendToIndividuals,charset, Collections.<AbstractProject>emptyList());
+        this(recipients,dontNotifyEveryUnstableBuild,sendToIndividuals,charset, Collections.<AbstractProjectExt>emptyList());
     }
   
-    public MailSender(String recipients, boolean dontNotifyEveryUnstableBuild, boolean sendToIndividuals, String charset, Collection<AbstractProject> includeUpstreamCommitters) {
+    public MailSender(String recipients, boolean dontNotifyEveryUnstableBuild, boolean sendToIndividuals, String charset, Collection<AbstractProjectExt> includeUpstreamCommitters) {
         this.recipients = recipients;
         this.dontNotifyEveryUnstableBuild = dontNotifyEveryUnstableBuild;
         this.sendToIndividuals = sendToIndividuals;
@@ -89,13 +89,13 @@ public class MailSender {
         this.includeUpstreamCommitters.addAll(includeUpstreamCommitters);
     }
 
-    public boolean execute(AbstractBuild<?, ?> build, BuildListener listener) throws InterruptedException {
+    public boolean execute(AbstractBuildExt<?, ?> build, BuildListener listener) throws InterruptedException {
         try {
             MimeMessage mail = getMail(build, listener);
             if (mail != null) {
                 // if the previous e-mail was sent for a success, this new e-mail
                 // is not a follow up
-                AbstractBuild<?, ?> pb = build.getPreviousBuild();
+                AbstractBuildExt<?, ?> pb = build.getPreviousBuild();
                 if(pb!=null && pb.getResult()==Result.SUCCESS) {
                     mail.removeHeader("In-Reply-To");
                     mail.removeHeader("References");
@@ -132,7 +132,7 @@ public class MailSender {
      * And since we are consulting the earlier result, we need to wait for the previous build
      * to pass the check point.
      */
-    private Result findPreviousBuildResult(AbstractBuild<?,?> b) throws InterruptedException {
+    private Result findPreviousBuildResult(AbstractBuildExt<?,?> b) throws InterruptedException {
         CHECKPOINT.block();
         do {
             b=b.getPreviousBuild();
@@ -141,7 +141,7 @@ public class MailSender {
         return b.getResult();
     }
 
-    protected MimeMessage getMail(AbstractBuild<?, ?> build, BuildListener listener) throws MessagingException, InterruptedException {
+    protected MimeMessage getMail(AbstractBuildExt<?, ?> build, BuildListener listener) throws MessagingException, InterruptedException {
         if (build.getResult() == Result.FAILURE) {
             return createFailureMail(build, listener);
         }
@@ -165,7 +165,7 @@ public class MailSender {
         return null;
     }
 
-    private MimeMessage createBackToNormalMail(AbstractBuild<?, ?> build, String subject, BuildListener listener) throws MessagingException {
+    private MimeMessage createBackToNormalMail(AbstractBuildExt<?, ?> build, String subject, BuildListener listener) throws MessagingException {
         MimeMessage msg = createEmptyMail(build, listener);
 
         msg.setSubject(getSubject(build, Messages.MailSender_BackToNormalMail_Subject(subject)),charset);
@@ -176,12 +176,12 @@ public class MailSender {
         return msg;
     }
 
-    private MimeMessage createUnstableMail(AbstractBuild<?, ?> build, BuildListener listener) throws MessagingException {
+    private MimeMessage createUnstableMail(AbstractBuildExt<?, ?> build, BuildListener listener) throws MessagingException {
         MimeMessage msg = createEmptyMail(build, listener);
 
         String subject = Messages.MailSender_UnstableMail_Subject();
 
-        AbstractBuild<?, ?> prev = build.getPreviousBuild();
+        AbstractBuildExt<?, ?> prev = build.getPreviousBuild();
         boolean still = false;
         if(prev!=null) {
             if(prev.getResult()==Result.SUCCESS)
@@ -204,7 +204,7 @@ public class MailSender {
         return msg;
     }
 
-    private void appendBuildUrl(AbstractBuild<?, ?> build, StringBuilder buf) {
+    private void appendBuildUrl(AbstractBuildExt<?, ?> build, StringBuilder buf) {
         appendUrl(Util.encode(build.getUrl())
                   + (build.getChangeSet().isEmptySet() ? "" : "changes"), buf);
     }
@@ -215,7 +215,7 @@ public class MailSender {
             buf.append(Messages.MailSender_Link(baseUrl, url)).append("\n\n");
     }
 
-    private MimeMessage createFailureMail(AbstractBuild<?, ?> build, BuildListener listener) throws MessagingException, InterruptedException {
+    private MimeMessage createFailureMail(AbstractBuildExt<?, ?> build, BuildListener listener) throws MessagingException, InterruptedException {
         MimeMessage msg = createEmptyMail(build, listener);
 
         msg.setSubject(getSubject(build, Messages.MailSender_FailureMail_Subject()),charset);
@@ -258,7 +258,7 @@ public class MailSender {
                 // URL which has already been corrected in a subsequent build. To fix, archive.
                 workspaceUrl = baseUrl + Util.encode(build.getProject().getUrl()) + "ws/";
                 artifactUrl = baseUrl + Util.encode(build.getUrl()) + "artifact/";
-                FilePath ws = build.getWorkspace();
+                FilePathExt ws = build.getWorkspace();
                 // Match either file or URL patterns, i.e. either
                 // c:\hudson\workdir\jobs\foo\workspace\src\Foo.java
                 // file:/c:/hudson/workdir/jobs/foo/workspace/src/Foo.java
@@ -292,7 +292,7 @@ public class MailSender {
             }
         } catch (IOException e) {
             // somehow failed to read the contents of the log
-            buf.append(Messages.MailSender_FailureMail_FailedToAccessBuildLog()).append("\n\n").append(Functions.printThrowable(e));
+            buf.append(Messages.MailSender_FailureMail_FailedToAccessBuildLog()).append("\n\n").append(FunctionsExt.printThrowable(e));
         }
 
         msg.setText(buf.toString(),charset);
@@ -300,7 +300,7 @@ public class MailSender {
         return msg;
     }
 
-    private MimeMessage createEmptyMail(AbstractBuild<?, ?> build, BuildListener listener) throws MessagingException {
+    private MimeMessage createEmptyMail(AbstractBuildExt<?, ?> build, BuildListener listener) throws MessagingException {
         MimeMessage msg = new MimeMessage(Mailer.descriptor().createSession());
         // TODO: I'd like to put the URL to the page in here,
         // but how do I obtain that?
@@ -315,7 +315,7 @@ public class MailSender {
             if(address.startsWith("upstream-individuals:")) {
                 // people who made a change in the upstream
                 String projectName = address.substring("upstream-individuals:".length());
-                AbstractProject up = Hudson.getInstance().getItemByFullName(projectName,AbstractProject.class);
+                AbstractProjectExt up = Hudson.getInstance().getItemByFullName(projectName,AbstractProjectExt.class);
                 if(up==null) {
                     listener.getLogger().println("No such project exist: "+projectName);
                     continue;
@@ -332,7 +332,7 @@ public class MailSender {
             }
         }
 
-        for (AbstractProject project : includeUpstreamCommitters) {
+        for (AbstractProjectExt project : includeUpstreamCommitters) {
             includeCulpritsOf(project, build, listener, rcp);
         }
 
@@ -346,7 +346,7 @@ public class MailSender {
         }
         msg.setRecipients(Message.RecipientType.TO, rcp.toArray(new InternetAddress[rcp.size()]));
 
-        AbstractBuild<?, ?> pb = build.getPreviousBuild();
+        AbstractBuildExt<?, ?> pb = build.getPreviousBuild();
         if(pb!=null) {
             MailMessageIdAction b = pb.getAction(MailMessageIdAction.class);
             if(b!=null) {
@@ -358,10 +358,10 @@ public class MailSender {
         return msg;
     }
 
-    private void includeCulpritsOf(AbstractProject upstreamProject, AbstractBuild<?, ?> currentBuild, BuildListener listener, Set<InternetAddress> recipientList) throws AddressException {
-        AbstractBuild<?,?> upstreamBuild = currentBuild.getUpstreamRelationshipBuild(upstreamProject);
-        AbstractBuild<?,?> previousBuild = currentBuild.getPreviousBuild();
-        AbstractBuild<?,?> previousBuildUpstreamBuild = previousBuild!=null ? previousBuild.getUpstreamRelationshipBuild(upstreamProject) : null;
+    private void includeCulpritsOf(AbstractProjectExt upstreamProject, AbstractBuildExt<?, ?> currentBuild, BuildListener listener, Set<InternetAddress> recipientList) throws AddressException {
+        AbstractBuildExt<?,?> upstreamBuild = currentBuild.getUpstreamRelationshipBuild(upstreamProject);
+        AbstractBuildExt<?,?> previousBuild = currentBuild.getPreviousBuild();
+        AbstractBuildExt<?,?> previousBuildUpstreamBuild = previousBuild!=null ? previousBuild.getUpstreamRelationshipBuild(upstreamProject) : null;
         if(previousBuild==null && upstreamBuild==null && previousBuildUpstreamBuild==null) {
             listener.getLogger().println("Unable to compute the changesets in "+ upstreamProject +". Is the fingerprint configured?");
             return;
@@ -370,7 +370,7 @@ public class MailSender {
             listener.getLogger().println("Unable to compute the changesets in "+ upstreamProject);
             return;
         }
-        AbstractBuild<?,?> b=previousBuildUpstreamBuild;
+        AbstractBuildExt<?,?> b=previousBuildUpstreamBuild;
         do {
             recipientList.addAll(buildCulpritList(listener,b.getCulprits()));
             b = b.getNextBuild();
@@ -392,14 +392,14 @@ public class MailSender {
         return r;
     }
 
-    private String getSubject(AbstractBuild<?, ?> build, String caption) {
+    private String getSubject(AbstractBuildExt<?, ?> build, String caption) {
         return caption + ' ' + build.getFullDisplayName();
     }
 
     /**
      * Check whether a path (/-separated) will be archived.
      */
-    protected boolean artifactMatches(String path, AbstractBuild<?, ?> build) {
+    protected boolean artifactMatches(String path, AbstractBuildExt<?, ?> build) {
         return false;
     }
 

@@ -26,7 +26,7 @@ package hudson.model.listeners;
 import hudson.ExtensionPoint;
 import hudson.ExtensionListView;
 import hudson.Extension;
-import hudson.DescriptorExtensionList;
+import hudson.DescriptorExtensionListExt;
 import hudson.ExtensionList;
 import hudson.scm.RepositoryBrowser;
 import hudson.model.Run;

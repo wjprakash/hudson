@@ -25,10 +25,10 @@ package hudson.slaves;
 
 import hudson.ExtensionPoint;
 import hudson.Launcher;
-import hudson.DescriptorExtensionList;
+import hudson.DescriptorExtensionListExt;
 import hudson.model.queue.CauseOfBlockage;
 import hudson.scm.SCM;
-import hudson.model.AbstractBuild;
+import hudson.model.AbstractBuildExt;
 import hudson.model.BuildListener;
 import hudson.model.Describable;
 import hudson.model.Environment;
@@ -86,7 +86,7 @@ public abstract class NodeProperty<N extends Node> implements Describable<NodePr
     }
 
     /**
-     * Runs before the {@link SCM#checkout(AbstractBuild, Launcher, FilePath, BuildListener, File)} runs, and performs a set up.
+     * Runs before the {@link SCM#checkout(AbstractBuildExt, Launcher, FilePath, BuildListener, File)} runs, and performs a set up.
      * Can contribute additional properties to the environment.
      * 
      * @param build
@@ -105,15 +105,15 @@ public abstract class NodeProperty<N extends Node> implements Describable<NodePr
      *      terminates the build abnormally. Hudson will handle the exception
      *      and reports a nice error message.
      */
-    public Environment setUp( AbstractBuild build, Launcher launcher, BuildListener listener ) throws IOException, InterruptedException {
+    public Environment setUp( AbstractBuildExt build, Launcher launcher, BuildListener listener ) throws IOException, InterruptedException {
     	return new Environment() {};
     }
 
     /**
      * Lists up all the registered {@link NodeDescriptor}s in the system.
      */
-    public static DescriptorExtensionList<NodeProperty<?>,NodePropertyDescriptor> all() {
-        return (DescriptorExtensionList)Hudson.getInstance().getDescriptorList(NodeProperty.class);
+    public static DescriptorExtensionListExt<NodeProperty<?>,NodePropertyDescriptor> all() {
+        return (DescriptorExtensionListExt)Hudson.getInstance().getDescriptorList(NodeProperty.class);
     }
 
     /**

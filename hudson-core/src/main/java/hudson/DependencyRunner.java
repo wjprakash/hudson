@@ -24,7 +24,7 @@
  */
 package hudson;
 
-import hudson.model.AbstractProject;
+import hudson.model.AbstractProjectExt;
 import hudson.model.Hudson;
 import hudson.security.ACL;
 
@@ -46,7 +46,7 @@ public class DependencyRunner implements Runnable {
 	
     ProjectRunnable runnable;
 
-    List<AbstractProject> polledProjects = new ArrayList<AbstractProject>();
+    List<AbstractProjectExt> polledProjects = new ArrayList<AbstractProjectExt>();
 
     public DependencyRunner(ProjectRunnable runnable) {
         this.runnable = runnable;
@@ -57,10 +57,10 @@ public class DependencyRunner implements Runnable {
         SecurityContextHolder.getContext().setAuthentication(ACL.SYSTEM);
 
         try {
-            Set<AbstractProject> topLevelProjects = new HashSet<AbstractProject>();
+            Set<AbstractProjectExt> topLevelProjects = new HashSet<AbstractProjectExt>();
             // Get all top-level projects
             LOGGER.fine("assembling top level projects");
-            for (AbstractProject p : Hudson.getInstance().getAllItems(AbstractProject.class))
+            for (AbstractProjectExt p : Hudson.getInstance().getAllItems(AbstractProjectExt.class))
                 if (p.getUpstreamProjects().size() == 0) {
                     LOGGER.fine("adding top level project " + p.getName());
                     topLevelProjects.add(p);
@@ -68,7 +68,7 @@ public class DependencyRunner implements Runnable {
                     LOGGER.fine("skipping project since not a top level project: " + p.getName());
                 }
             populate(topLevelProjects);
-            for (AbstractProject p : polledProjects) {
+            for (AbstractProjectExt p : polledProjects) {
                     LOGGER.fine("running project in correct dependency order: " + p.getName());
                 runnable.run(p);
             }
@@ -77,8 +77,8 @@ public class DependencyRunner implements Runnable {
         }
     }
 
-    private void populate(Collection<? extends AbstractProject> projectList) {
-        for (AbstractProject<?,?> p : projectList) {
+    private void populate(Collection<? extends AbstractProjectExt> projectList) {
+        for (AbstractProjectExt<?,?> p : projectList) {
             if (polledProjects.contains(p)) {
                 // Project will be readded at the queue, so that we always use
                 // the longest path
@@ -95,6 +95,6 @@ public class DependencyRunner implements Runnable {
     }
 
     public interface ProjectRunnable {
-        void run(AbstractProject p);
+        void run(AbstractProjectExt p);
     }
 }

@@ -25,11 +25,11 @@ package hudson.util;
 
 import static hudson.Util.fixEmpty;
 import hudson.EnvVars;
-import hudson.FilePath;
+import hudson.FilePathExt;
 import hudson.ProxyConfiguration;
 import hudson.Util;
 import hudson.tasks.JavadocArchiver;
-import hudson.model.AbstractProject;
+import hudson.model.AbstractProjectExt;
 import hudson.model.Hudson;
 import hudson.model.Item;
 import hudson.security.Permission;
@@ -347,7 +347,7 @@ public abstract class FormFieldValidator {
      * Checks the file mask (specified in the 'value' query parameter) against
      * the current workspace.
      * @since 1.90.
-     * @deprecated as of 1.294. Use {@link FilePath#validateFileMask(String, boolean)} 
+     * @deprecated as of 1.294. Use {@link FilePathExt#validateFileMask(String, boolean)} 
      */
     public static class WorkspaceFileMask extends FormFieldValidator {
         private final boolean errorIfNotExist;
@@ -358,13 +358,13 @@ public abstract class FormFieldValidator {
 
         public WorkspaceFileMask(StaplerRequest request, StaplerResponse response, boolean errorIfNotExist) {
             // Require CONFIGURE permission on the job
-            super(request, response, request.findAncestorObject(AbstractProject.class), Item.CONFIGURE);
+            super(request, response, request.findAncestorObject(AbstractProjectExt.class), Item.CONFIGURE);
             this.errorIfNotExist = errorIfNotExist;
         }
 
         protected void check() throws IOException, ServletException {
             String value = fixEmpty(request.getParameter("value"));
-            AbstractProject<?,?> p = (AbstractProject<?,?>)subject;
+            AbstractProjectExt<?,?> p = (AbstractProjectExt<?,?>)subject;
 
             if(value==null || p==null) {
                 ok(); // none entered yet, or something is seriously wrong
@@ -372,7 +372,7 @@ public abstract class FormFieldValidator {
             }
 
             try {
-                FilePath ws = getBaseDirectory(p);
+                FilePathExt ws = getBaseDirectory(p);
 
                 if(ws==null || !ws.exists()) {// no workspace. can't check
                     ok();
@@ -390,7 +390,7 @@ public abstract class FormFieldValidator {
         /**
          * The base directory from which the path name is resolved.
          */
-        protected FilePath getBaseDirectory(AbstractProject<?,?> p) {
+        protected FilePathExt getBaseDirectory(AbstractProjectExt<?,?> p) {
             return p.getSomeWorkspace();
         }
     }
@@ -399,8 +399,8 @@ public abstract class FormFieldValidator {
      * Checks a valid directory name (specified in the 'value' query parameter) against
      * the current workspace.
      * @since 1.116
-     * @deprecated as of 1.294. Use {@link FilePath#validateRelativeDirectory(String, boolean)}
-     *      (see {@link JavadocArchiver.DescriptorImpl#doCheck(AbstractProject, String)}
+     * @deprecated as of 1.294. Use {@link FilePathExt#validateRelativeDirectory(String, boolean)}
+     *      (see {@link JavadocArchiver.DescriptorImpl#doCheck(AbstractProjectExt, String)}
      */
     public static class WorkspaceDirectory extends WorkspaceFilePath {
         public WorkspaceDirectory(StaplerRequest request, StaplerResponse response, boolean errorIfNotExist) {
@@ -416,7 +416,7 @@ public abstract class FormFieldValidator {
      * Checks a valid file name or directory (specified in the 'value' query parameter) against
      * the current workspace.
      * @since 1.160
-     * @deprecated as of 1.294. Use {@link FilePath#validateRelativePath(String, boolean, boolean)}
+     * @deprecated as of 1.294. Use {@link FilePathExt#validateRelativePath(String, boolean, boolean)}
      */
     public static class WorkspaceFilePath extends FormFieldValidator {
         private final boolean errorIfNotExist;
@@ -424,14 +424,14 @@ public abstract class FormFieldValidator {
 
         public WorkspaceFilePath(StaplerRequest request, StaplerResponse response, boolean errorIfNotExist, boolean expectingFile) {
             // Require CONFIGURE permission on this job
-            super(request, response, request.findAncestorObject(AbstractProject.class), Item.CONFIGURE);
+            super(request, response, request.findAncestorObject(AbstractProjectExt.class), Item.CONFIGURE);
             this.errorIfNotExist = errorIfNotExist;
             this.expectingFile = expectingFile;
         }
 
         protected void check() throws IOException, ServletException {
             String value = fixEmpty(request.getParameter("value"));
-            AbstractProject<?,?> p = (AbstractProject<?,?>)subject;
+            AbstractProjectExt<?,?> p = (AbstractProjectExt<?,?>)subject;
 
             if(value==null || p==null) {
                 ok(); // none entered yet, or something is seriously wrong
@@ -445,7 +445,7 @@ public abstract class FormFieldValidator {
             }
 
             try {
-                FilePath ws = getBaseDirectory(p);
+                FilePathExt ws = getBaseDirectory(p);
 
                 if(ws==null) {// can't check
                     ok();
@@ -482,7 +482,7 @@ public abstract class FormFieldValidator {
         /**
          * The base directory from which the path name is resolved.
          */
-        protected FilePath getBaseDirectory(AbstractProject<?,?> p) {
+        protected FilePathExt getBaseDirectory(AbstractProjectExt<?,?> p) {
             return p.getSomeWorkspace();
         }
     }

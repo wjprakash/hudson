@@ -27,7 +27,7 @@ import net.sf.json.JSONObject;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.StaplerRequest;
 import hudson.Extension;
-import hudson.FilePath;
+import hudson.FilePathExt;
 import hudson.cli.CLICommand;
 
 import java.io.IOException;
@@ -75,9 +75,9 @@ public class FileParameterDefinition extends ParameterDefinition {
     @Override
     public ParameterValue createValue(CLICommand command, String value) throws IOException, InterruptedException {
         // capture the file to the server
-        FilePath src = new FilePath(command.channel,value);
+        FilePathExt src = new FilePathExt(command.channel,value);
         File local = File.createTempFile("hudson","parameter");
-        src.copyTo(new FilePath(local));
+        src.copyTo(new FilePathExt(local));
 
         FileParameterValue p = new FileParameterValue(getName(), local, src.getName());
         p.setDescription(getDescription());

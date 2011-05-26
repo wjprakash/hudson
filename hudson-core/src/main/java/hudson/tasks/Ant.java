@@ -26,14 +26,14 @@ package hudson.tasks;
 import hudson.CopyOnWrite;
 import hudson.EnvVars;
 import hudson.Extension;
-import hudson.FilePath;
-import hudson.Functions;
+import hudson.FilePathExt;
+import hudson.FunctionsExt;
 import hudson.Launcher;
 import hudson.Util;
-import hudson.model.AbstractBuild;
-import hudson.model.AbstractProject;
+import hudson.model.AbstractBuildExt;
+import hudson.model.AbstractProjectExt;
 import hudson.model.BuildListener;
-import hudson.model.Computer;
+import hudson.model.ComputerExt;
 import hudson.model.EnvironmentSpecific;
 import hudson.model.Hudson;
 import hudson.model.Node;
@@ -137,7 +137,7 @@ public class Ant extends Builder {
     }
 
     @Override
-    public boolean perform(AbstractBuild<?,?> build, Launcher launcher, BuildListener listener) throws InterruptedException, IOException {
+    public boolean perform(AbstractBuildExt<?,?> build, Launcher launcher, BuildListener listener) throws InterruptedException, IOException {
         ArgumentListBuilder args = new ArgumentListBuilder();
 
         EnvVars env = build.getEnvironment(listener);
@@ -146,7 +146,7 @@ public class Ant extends Builder {
         if(ai==null) {
             args.add(launcher.isUnix() ? "ant" : "ant.bat");
         } else {
-            ai = ai.forNode(Computer.currentComputer().getNode(), listener);
+            ai = ai.forNode(ComputerExt.currentComputer().getNode(), listener);
             ai = ai.forEnvironment(env);
             String exe = ai.getExecutable(launcher);
             if (exe==null) {
@@ -161,7 +161,7 @@ public class Ant extends Builder {
         String buildFile = env.expand(this.buildFile);
         String targets = Util.replaceMacro(env.expand(this.targets), vr);
         
-        FilePath buildFilePath = buildFilePath(build.getModuleRoot(), buildFile, targets);
+        FilePathExt buildFilePath = buildFilePath(build.getModuleRoot(), buildFile, targets);
 
         if(!buildFilePath.exists()) {
             // because of the poor choice of getModuleRoot() with CVS/Subversion, people often get confused
@@ -170,7 +170,7 @@ public class Ant extends Builder {
             // and diagnosing it nicely. See HUDSON-1782
 
             // first check if this appears to be a valid relative path from workspace root
-            FilePath buildFilePath2 = buildFilePath(build.getWorkspace(), buildFile, targets);
+            FilePathExt buildFilePath2 = buildFilePath(build.getWorkspace(), buildFile, targets);
             if(buildFilePath2.exists()) {
                 // This must be what the user meant. Let it continue.
                 buildFilePath = buildFilePath2;
@@ -235,7 +235,7 @@ public class Ant extends Builder {
         }
     }
 
-    private static FilePath buildFilePath(FilePath base, String buildFile, String targets) {
+    private static FilePathExt buildFilePath(FilePathExt base, String buildFile, String targets) {
         if(buildFile!=null)     return base.child(buildFile);
         // some users specify the -f option in the targets field, so take that into account as well.
         // see 
@@ -273,7 +273,7 @@ public class Ant extends Builder {
             return ToolInstallation.all().get(AntInstallation.DescriptorImpl.class);
         }
 
-        public boolean isApplicable(Class<? extends AbstractProject> jobType) {
+        public boolean isApplicable(Class<? extends AbstractProjectExt> jobType) {
             return true;
         }
 
@@ -357,7 +357,7 @@ public class Ant extends Builder {
         }
 
         private File getExeFile() {
-            String execName = Functions.isWindows() ? "ant.bat" : "ant";
+            String execName = FunctionsExt.isWindows() ? "ant.bat" : "ant";
             String home = Util.replaceMacro(getHome(), EnvVars.masterEnvVars);
 
             return new File(home,"bin/"+execName);

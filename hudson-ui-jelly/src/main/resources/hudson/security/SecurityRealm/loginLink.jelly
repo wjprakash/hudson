@@ -1,0 +1,112 @@
+<!--
+The MIT License
+
+Copyright (c) 2004-2010, Oracle Corporation, Inc., Winston Prakash
+Matthew R. Harrah, Alan Harder
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+-->
+
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler">
+  <j:invokeStatic var="fromEncoded" className="java.net.URLEncoder" method="encode">
+
+   <j:arg value="${if (request.session.attribute('from')!=null) request.session.getAttribute('from');  else if (request.getParameter('from')!=null) request.getParameter('from'); else if (request.requestURI=='/loginError' || request.requestURI=='/login') '/'; else request.requestURI;}"/>
+   <j:arg value="UTF-8"/>
+
+  </j:invokeStatic>
+  
+  <j:set var="from" value="${if (request.session.attribute('from')!=null) request.session.getAttribute('from');  else if (request.getParameter('from')!=null) request.getParameter('from'); else if (request.requestURI=='/loginError' || request.requestURI=='/login') '/'; else request.requestURI;}" />
+   
+  
+    <script type="text/javascript">
+        
+        function onLinkClick(){
+            jQuery.blockUI({
+              message: jQuery('#question'),
+              css: { 
+                width: '350px', 
+              },
+              title:  'Confirmation',
+            });
+	}
+        
+        function submitForm(){
+            jQuery('#loginMsg').css({ opacity: 1.0 });
+            jQuery('#loginError').css({ opacity: 0.0 });
+            var dataString = jQuery("#loginForm").serialize();
+            jQuery.ajax({
+              type: 'POST',
+              url: "${app.securityRealm.authenticationGatewayUrl}",
+              data: dataString,
+              success: function(){
+                window.location.href="${from}";
+              },
+              error: function(){
+                jQuery('#loginError').css({ opacity: 1.0 });
+                jQuery('#loginMsg').css({ opacity: 0.0 });
+              },
+              dataType: "html"
+            }); 
+        }
+
+        jQuery(document).ready(function() {
+        
+            jQuery('#j_username').keypress(function(e){
+              if(e.which == 13){
+                submitForm();
+              }
+            });
+            
+            jQuery('#j_password').keypress(function(e){
+              if(e.which == 13){
+                submitForm();
+              }
+            });
+
+
+            jQuery('#yes').click(function() {
+                 submitForm();
+            });
+            
+
+            jQuery('#no').click(function() {
+                jQuery.unblockUI();
+                jQuery('#j_username').attr({value:""});
+                jQuery('#j_password').attr({value:""});
+                jQuery('#loginError').css({ opacity: 0.0 });
+                jQuery('#loginMsg').css({ opacity: 0.0 });
+                return false;
+            });
+
+        });
+
+    </script>
+    
+
+    <a href="${rootURL}/${app.securityRealm.loginUrl}?from=${fromEncoded}" onclick="onLinkClick(); return false;" >
+        <b>${%login}</b>
+    </a>
+        
+       
+    <div id="question" style="display:none; cursor: default">
+        <j:set var="submitFrom" value="${from}" />
+        <st:include page="loginDialog.jelly" />
+    </div>
+
+</j:jelly>

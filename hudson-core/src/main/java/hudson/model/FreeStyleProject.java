@@ -106,7 +106,7 @@ public class FreeStyleProject extends Project<FreeStyleProject,FreeStyleBuild> i
     @Extension(ordinal=1000)
     public static final DescriptorImpl DESCRIPTOR = new DescriptorImpl();
 
-    public static final class DescriptorImpl extends AbstractProjectDescriptor {
+    public static final class DescriptorImpl extends AbstractProjectDescriptorExt {
         public String getDisplayName() {
             return Messages.FreeStyleProject_DisplayName();
         }

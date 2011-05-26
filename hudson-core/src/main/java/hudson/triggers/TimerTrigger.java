@@ -25,7 +25,7 @@ package hudson.triggers;
 
 import static hudson.Util.fixNull;
 import hudson.model.BuildableItem;
-import hudson.model.Cause;
+import hudson.model.CauseExt;
 import hudson.model.Item;
 import hudson.scheduler.CronTabList;
 import hudson.util.FormValidation;
@@ -82,7 +82,7 @@ public class TimerTrigger extends Trigger<BuildableItem> {
         }
     }
     
-    public static class TimerTriggerCause extends Cause {
+    public static class TimerTriggerCause extends CauseExt {
         @Override
         public String getShortDescription() {
             return Messages.TimerTrigger_TimerTriggerCause_ShortDescription();

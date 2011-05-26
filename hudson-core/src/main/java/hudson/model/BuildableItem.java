@@ -37,14 +37,14 @@ import hudson.model.Queue.Task;
 public interface BuildableItem extends Item, Task {
 	/**
 	 * @deprecated
-	 *    Use {@link #scheduleBuild(Cause)}.  Since 1.283
+	 *    Use {@link #scheduleBuild(CauseExt)}.  Since 1.283
 	 */
     boolean scheduleBuild();
-	boolean scheduleBuild(Cause c);
+	boolean scheduleBuild(CauseExt c);
 	/**
 	 * @deprecated
-	 *    Use {@link #scheduleBuild(int, Cause)}.  Since 1.283
+	 *    Use {@link #scheduleBuild(int, CauseExt)}.  Since 1.283
 	 */
 	boolean scheduleBuild(int quietPeriod);
-	boolean scheduleBuild(int quietPeriod, Cause c);
+	boolean scheduleBuild(int quietPeriod, CauseExt c);
 }

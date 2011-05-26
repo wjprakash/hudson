@@ -33,7 +33,7 @@ import java.util.HashMap;
  * Used to assist thegeneration of config table.
  *
  * <p>
- * {@link Axis Axes} are split into four groups.
+ * {@link AxisExt Axes} are split into four groups.
  * {@link #x Ones that are displayed as columns},
  * {@link #y Ones that are displayed as rows},
  * {@link #z Ones that are listed as bullet items inside table cell},
@@ -46,18 +46,18 @@ import java.util.HashMap;
  * @author Kohsuke Kawaguchi
  */
 public abstract class Layouter<T> {
-    public final List<Axis> x,y,z;
+    public final List<AxisExt> x,y,z;
     /**
      * Axes that only have one value.
      */
-    private final List<Axis> trivial = new ArrayList<Axis>();
+    private final List<AxisExt> trivial = new ArrayList<AxisExt>();
     /**
      * Number of data columns and rows.
      */
     private int xSize, ySize, zSize;
 
 
-    public Layouter(List<Axis> x, List<Axis> y, List<Axis> z) {
+    public Layouter(List<AxisExt> x, List<AxisExt> y, List<AxisExt> z) {
         this.x = x;
         this.y = y;
         this.z = z;
@@ -68,12 +68,12 @@ public abstract class Layouter<T> {
      * Automatically split axes to x,y, and z.
      */
     public Layouter(AxisList axisList) {
-        x = new ArrayList<Axis>();
-        y = new ArrayList<Axis>();
-        z = new ArrayList<Axis>();
+        x = new ArrayList<AxisExt>();
+        y = new ArrayList<AxisExt>();
+        z = new ArrayList<AxisExt>();
 
-        List<Axis> nonTrivialAxes = new ArrayList<Axis>();
-        for (Axis a : axisList) {
+        List<AxisExt> nonTrivialAxes = new ArrayList<AxisExt>();
+        for (AxisExt a : axisList) {
             if(a.size()>1)
                 nonTrivialAxes.add(a);
             else
@@ -88,8 +88,8 @@ public abstract class Layouter<T> {
             break;
         case 2:
             // use the longer axis in Y
-            Axis a = nonTrivialAxes.get(0);
-            Axis b = nonTrivialAxes.get(1);
+            AxisExt a = nonTrivialAxes.get(0);
+            AxisExt b = nonTrivialAxes.get(1);
             x.add(a.size() > b.size() ? b : a);
             y.add(a.size() > b.size() ? a : b);
             break;
@@ -131,7 +131,7 @@ public abstract class Layouter<T> {
         return calc(y,n);
     }
 
-    private int calc(List<Axis> l, int n) {
+    private int calc(List<AxisExt> l, int n) {
         int w = 1;
         for( n++ ; n<l.size(); n++ )
             w *= l.get(n).size();
@@ -181,7 +181,7 @@ public abstract class Layouter<T> {
             int base = calc(y,n);
             if(index/base==(index-1)/base && index!=0)  return null;    // no need to draw a new value
 
-            Axis axis = y.get(n);
+            AxisExt axis = y.get(n);
             return axis.value((index/base)%axis.values.size());
         }
     }
@@ -201,15 +201,15 @@ public abstract class Layouter<T> {
             buildMap(xp,x);
             buildMap(yp,y);
             buildMap(zp,z);
-            for (Axis a : trivial)
+            for (AxisExt a : trivial)
                 m.put(a.name,a.value(0));
             return getT(new Combination(m));
         }
 
-        private void buildMap(int p, List<Axis> axes) {
+        private void buildMap(int p, List<AxisExt> axes) {
             int n = p;
             for( int i= axes.size()-1; i>=0; i-- ) {
-                Axis a = axes.get(i);
+                AxisExt a = axes.get(i);
                 m.put(a.name, a.value(n%a.size()));
                 n /= a.size();
             }

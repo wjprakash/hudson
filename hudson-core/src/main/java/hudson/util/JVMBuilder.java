@@ -24,7 +24,7 @@
 
 package hudson.util;
 
-import hudson.FilePath;
+import hudson.FilePathExt;
 import hudson.Launcher;
 import hudson.Launcher.ProcStarter;
 
@@ -44,7 +44,7 @@ public class JVMBuilder implements Serializable {
     private final Map<String,String> systemProperties = new TreeMap<String,String>();
     private final ArgumentListBuilder args = new ArgumentListBuilder();
     private final ArgumentListBuilder vmopts = new ArgumentListBuilder();
-    private FilePath pwd;
+    private FilePathExt pwd;
 
     private String mainClass;
 
@@ -86,7 +86,7 @@ public class JVMBuilder implements Serializable {
     /**
      * Sets the current directory for the new JVM.
      */
-    public JVMBuilder pwd(FilePath pwd) {
+    public JVMBuilder pwd(FilePathExt pwd) {
         this.pwd = pwd;
         return this;
     }
@@ -104,7 +104,7 @@ public class JVMBuilder implements Serializable {
      * This overloaded version only makes sense when you are launching JVM locally.
      */
     public JVMBuilder pwd(File pwd) {
-        return pwd(new FilePath(pwd));
+        return pwd(new FilePathExt(pwd));
     }
 
     public JVMBuilder mainClass(String fullyQualifiedClassName) {

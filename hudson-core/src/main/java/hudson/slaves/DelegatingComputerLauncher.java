@@ -23,7 +23,7 @@
  */
 package hudson.slaves;
 
-import hudson.Functions;
+import hudson.FunctionsExt;
 import hudson.model.Descriptor;
 import hudson.model.TaskListener;
 
@@ -73,7 +73,7 @@ public abstract class DelegatingComputerLauncher extends ComputerLauncher {
          */
         public List<Descriptor<ComputerLauncher>> getApplicableDescriptors() {
             List<Descriptor<ComputerLauncher>> r = new ArrayList<Descriptor<ComputerLauncher>>();
-            for (Descriptor<ComputerLauncher> d : Functions.getComputerLauncherDescriptors()) {
+            for (Descriptor<ComputerLauncher> d : FunctionsExt.getComputerLauncherDescriptors()) {
                 if (DelegatingComputerLauncher.class.isInstance(d))  continue;
                 r.add(d);
             }

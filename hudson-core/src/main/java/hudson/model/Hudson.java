@@ -29,21 +29,21 @@ import antlr.ANTLRException;
 import com.thoughtworks.xstream.XStream;
 import hudson.BulkChange;
 import hudson.DNSMultiCast;
-import hudson.DescriptorExtensionList;
+import hudson.DescriptorExtensionListExt;
 import hudson.Extension;
 import hudson.ExtensionList;
 import hudson.ExtensionListView;
 import hudson.ExtensionPoint;
-import hudson.FilePath;
-import hudson.Functions;
+import hudson.FilePathExt;
+import hudson.FunctionsExt;
 import hudson.Launcher;
 import hudson.Launcher.LocalLauncher;
 import hudson.LocalPluginManager;
 import hudson.Lookup;
 import hudson.markup.MarkupFormatter;
-import hudson.Plugin;
-import hudson.PluginManager;
-import hudson.PluginWrapper;
+import hudson.PluginExt;
+import hudson.PluginManagerExt;
+import hudson.PluginWrapperExt;
 import hudson.ProxyConfiguration;
 import hudson.StructuredForm;
 import hudson.TcpSlaveAgentListener;
@@ -62,7 +62,7 @@ import hudson.init.InitMilestone;
 import hudson.init.InitReactorListener;
 import hudson.init.InitStrategy;
 import hudson.lifecycle.Lifecycle;
-import hudson.logging.LogRecorderManager;
+import hudson.logging.LogRecorderManagerExt;
 import hudson.lifecycle.RestartNotSupportedException;
 import hudson.markup.RawHtmlMarkupFormatter;
 import hudson.model.Descriptor.FormException;
@@ -247,9 +247,9 @@ public final class Hudson extends Node implements ItemGroup<TopLevelItem>, Stapl
     public transient final Lookup lookup = new Lookup();
 
     /**
-     * {@link Computer}s in this Hudson system. Read-only.
+     * {@link ComputerExt}s in this Hudson system. Read-only.
      */
-    private transient final Map<Node,Computer> computers = new CopyOnWriteMap.Hash<Node,Computer>();
+    private transient final Map<Node,ComputerExt> computers = new CopyOnWriteMap.Hash<Node,ComputerExt>();
 
     /**
      * We update this field to the current version of Hudson whenever we save {@code config.xml}.
@@ -366,11 +366,11 @@ public final class Hudson extends Node implements ItemGroup<TopLevelItem>, Stapl
     };
 
     /**
-     * All {@link DescriptorExtensionList} keyed by their {@link DescriptorExtensionList#describableType}.
+     * All {@link DescriptorExtensionListExt} keyed by their {@link DescriptorExtensionListExt#describableType}.
      */
-    private transient final Memoizer<Class,DescriptorExtensionList> descriptorLists = new Memoizer<Class,DescriptorExtensionList>() {
-        public DescriptorExtensionList compute(Class key) {
-            return DescriptorExtensionList.createDescriptorList(Hudson.this,key);
+    private transient final Memoizer<Class,DescriptorExtensionListExt> descriptorLists = new Memoizer<Class,DescriptorExtensionListExt>() {
+        public DescriptorExtensionListExt compute(Class key) {
+            return DescriptorExtensionListExt.createDescriptorList(Hudson.this,key);
         }
     };
 
@@ -422,7 +422,7 @@ public final class Hudson extends Node implements ItemGroup<TopLevelItem>, Stapl
     /*package*/ Integer quietPeriod;
 
     /**
-     * Global default for {@link AbstractProject#getScmCheckoutRetryCount()}
+     * Global default for {@link AbstractProjectExt#getScmCheckoutRetryCount()}
      */
     /*package*/ int scmCheckoutRetryCount;
 
@@ -444,7 +444,7 @@ public final class Hudson extends Node implements ItemGroup<TopLevelItem>, Stapl
     /**
      * Loaded plugins.
      */
-    public transient final PluginManager pluginManager;
+    public transient final PluginManagerExt pluginManager;
 
     public transient volatile TcpSlaveAgentListener tcpSlaveAgentListener;
 
@@ -521,11 +521,11 @@ public final class Hudson extends Node implements ItemGroup<TopLevelItem>, Stapl
     private DescribableList<NodeProperty<?>,NodePropertyDescriptor> globalNodeProperties = new DescribableList<NodeProperty<?>,NodePropertyDescriptor>(this);
 
     /**
-     * {@link AdministrativeMonitor}s installed on this system.
+     * {@link AdministrativeMonitorExt}s installed on this system.
      *
-     * @see AdministrativeMonitor
+     * @see AdministrativeMonitorExt
      */
-    public transient final List<AdministrativeMonitor> administrativeMonitors = getExtensionList(AdministrativeMonitor.class);
+    public transient final List<AdministrativeMonitorExt> administrativeMonitors = getExtensionList(AdministrativeMonitorExt.class);
 
     /*package*/ final CopyOnWriteArraySet<String> disabledAdministrativeMonitors = new CopyOnWriteArraySet<String>();
 
@@ -599,7 +599,7 @@ public final class Hudson extends Node implements ItemGroup<TopLevelItem>, Stapl
     /**
      * Bound to "/log".
      */
-    private transient final LogRecorderManager log = new LogRecorderManager();
+    private transient final LogRecorderManagerExt log = new LogRecorderManagerExt();
 
     public Hudson(File root, ServletContext context) throws IOException, InterruptedException, ReactorException {
         this(root,context,null);
@@ -609,7 +609,7 @@ public final class Hudson extends Node implements ItemGroup<TopLevelItem>, Stapl
      * @param pluginManager
      *      If non-null, use existing plugin manager.  create a new one.
      */
-    public Hudson(File root, ServletContext context, PluginManager pluginManager) throws IOException, InterruptedException, ReactorException {
+    public Hudson(File root, ServletContext context, PluginManagerExt pluginManager) throws IOException, InterruptedException, ReactorException {
     	// As hudson is starting, grant this process full control
     	SecurityContextHolder.getContext().setAuthentication(ACL.SYSTEM);
         try {
@@ -693,7 +693,7 @@ public final class Hudson extends Node implements ItemGroup<TopLevelItem>, Stapl
             updateComputerList();
 
             {// master is online now
-                Computer c = toComputer();
+                ComputerExt c = toComputer();
                 if(c!=null)
                     for (ComputerListener cl : ComputerListener.all())
                         cl.onOnline(c,StreamTaskListener.fromStdout());
@@ -832,7 +832,7 @@ public final class Hudson extends Node implements ItemGroup<TopLevelItem>, Stapl
         return systemMessage;
     }
 
-    public PluginManager getPluginManager() {
+    public PluginManagerExt getPluginManager() {
         return pluginManager;
     }
 
@@ -950,7 +950,7 @@ public final class Hudson extends Node implements ItemGroup<TopLevelItem>, Stapl
      */
     public Descriptor getDescriptor(String id) {
         // legacy descriptors that are reigstered manually doesn't show up in getExtensionList, so check them explicitly.
-        for( Descriptor d : Iterators.sequence(getExtensionList(Descriptor.class),DescriptorExtensionList.listLegacyInstances()) ) {
+        for( Descriptor d : Iterators.sequence(getExtensionList(Descriptor.class),DescriptorExtensionListExt.listLegacyInstances()) ) {
             String name = d.getId();
             if(name.equals(id))
                 return d;
@@ -1058,8 +1058,8 @@ public final class Hudson extends Node implements ItemGroup<TopLevelItem>, Stapl
      * This allows URL <tt>hudson/plugin/ID</tt> to be served by the views
      * of the plugin class.
      */
-    public Plugin getPlugin(String shortName) {
-        PluginWrapper p = pluginManager.getPlugin(shortName);
+    public PluginExt getPlugin(String shortName) {
+        PluginWrapperExt p = pluginManager.getPlugin(shortName);
         if(p==null)     return null;
         return p.getPlugin();
     }
@@ -1077,8 +1077,8 @@ public final class Hudson extends Node implements ItemGroup<TopLevelItem>, Stapl
      * @return The plugin instance.
      */
     @SuppressWarnings("unchecked")
-    public <P extends Plugin> P getPlugin(Class<P> clazz) {
-        PluginWrapper p = pluginManager.getPlugin(clazz);
+    public <P extends PluginExt> P getPlugin(Class<P> clazz) {
+        PluginWrapperExt p = pluginManager.getPlugin(clazz);
         if(p==null)     return null;
         return (P) p.getPlugin();
     }
@@ -1090,9 +1090,9 @@ public final class Hudson extends Node implements ItemGroup<TopLevelItem>, Stapl
      *
      * @return The plugin instances.
      */
-    public <P extends Plugin> List<P> getPlugins(Class<P> clazz) {
+    public <P extends PluginExt> List<P> getPlugins(Class<P> clazz) {
         List<P> result = new ArrayList<P>();
-        for (PluginWrapper w: pluginManager.getPlugins(clazz)) {
+        for (PluginWrapperExt w: pluginManager.getPlugins(clazz)) {
             result.add((P)w.getPlugin());
         }
         return Collections.unmodifiableList(result);
@@ -1155,20 +1155,20 @@ public final class Hudson extends Node implements ItemGroup<TopLevelItem>, Stapl
      * Updates {@link #computers} by using {@link #getSlaves()}.
      *
      * <p>
-     * This method tries to reuse existing {@link Computer} objects
+     * This method tries to reuse existing {@link ComputerExt} objects
      * so that we won't upset {@link Executor}s running in it.
      */
     private void updateComputerList() throws IOException {
         synchronized(updateComputerLock) {// just so that we don't have two code updating computer list at the same time
-            Map<String,Computer> byName = new HashMap<String,Computer>();
-            for (Computer c : computers.values()) {
+            Map<String,ComputerExt> byName = new HashMap<String,ComputerExt>();
+            for (ComputerExt c : computers.values()) {
                 if(c.getNode()==null)
                     continue;   // this computer is gone
                 byName.put(c.getNode().getNodeName(),c);
             }
 
-            Set<Computer> old = new HashSet<Computer>(computers.values());
-            Set<Computer> used = new HashSet<Computer>();
+            Set<ComputerExt> old = new HashSet<ComputerExt>(computers.values());
+            Set<ComputerExt> used = new HashSet<ComputerExt>();
 
             updateComputer(this, byName, used);
             for (Node s : getNodes())
@@ -1178,7 +1178,7 @@ public final class Hudson extends Node implements ItemGroup<TopLevelItem>, Stapl
             // when all executors exit, it will be removed from the computers map.
             // so don't remove too quickly
             old.removeAll(used);
-            for (Computer c : old) {
+            for (ComputerExt c : old) {
                 c.kill();
             }
         }
@@ -1187,8 +1187,8 @@ public final class Hudson extends Node implements ItemGroup<TopLevelItem>, Stapl
             cl.onConfigurationChange();
     }
 
-    private void updateComputer(Node n, Map<String,Computer> byNameMap, Set<Computer> used) {
-        Computer c;
+    private void updateComputer(Node n, Map<String,ComputerExt> byNameMap, Set<ComputerExt> used) {
+        ComputerExt c;
         c = byNameMap.get(n.getNodeName());
         if (c!=null) {
             c.setNode(n); // reuse
@@ -1210,8 +1210,8 @@ public final class Hudson extends Node implements ItemGroup<TopLevelItem>, Stapl
         used.add(c);
     }
 
-    /*package*/ void removeComputer(Computer computer) {
-        for (Entry<Node, Computer> e : computers.entrySet()) {
+    /*package*/ void removeComputer(ComputerExt computer) {
+        for (Entry<Node, ComputerExt> e : computers.entrySet()) {
             if (e.getValue() == computer) {
                 computers.remove(e.getKey());
                 return;
@@ -1415,13 +1415,13 @@ public final class Hudson extends Node implements ItemGroup<TopLevelItem>, Stapl
     }
 
     /**
-     * Gets the read-only list of all {@link Computer}s.
+     * Gets the read-only list of all {@link ComputerExt}s.
      */
-    public Computer[] getComputers() {
-        Computer[] r = computers.values().toArray(new Computer[computers.size()]);
-        Arrays.sort(r,new Comparator<Computer>() {
+    public ComputerExt[] getComputers() {
+        ComputerExt[] r = computers.values().toArray(new ComputerExt[computers.size()]);
+        Arrays.sort(r,new Comparator<ComputerExt>() {
             final Collator collator = Collator.getInstance();
-            public int compare(Computer lhs, Computer rhs) {
+            public int compare(ComputerExt lhs, ComputerExt rhs) {
                 if(lhs.getNode()==Hudson.this)  return -1;
                 if(rhs.getNode()==Hudson.this)  return 1;
                 return collator.compare(lhs.getDisplayName(), rhs.getDisplayName());
@@ -1430,16 +1430,16 @@ public final class Hudson extends Node implements ItemGroup<TopLevelItem>, Stapl
         return r;
     }
 
-    /*package*/ Computer getComputer(Node n) {
+    /*package*/ ComputerExt getComputer(Node n) {
         return computers.get(n);
     }
 
     @CLIResolver
-    public Computer getComputer(@Argument(required=true,metaVar="NAME",usage="Node name") String name) {
+    public ComputerExt getComputer(@Argument(required=true,metaVar="NAME",usage="Node name") String name) {
         if(name.equals("(master)"))
             name = "";
 
-        for (Computer c : computers.values()) {
+        for (ComputerExt c : computers.values()) {
             if(c.getName().equals(name))
                 return c;
         }
@@ -1621,7 +1621,7 @@ public final class Hudson extends Node implements ItemGroup<TopLevelItem>, Stapl
      * Removes a {@link Node} from Hudson.
      */
     public synchronized void removeNode(Node n) throws IOException {
-        Computer c = n.toComputer();
+        ComputerExt c = n.toComputer();
         if (c!=null)
             c.disconnect(OfflineCause.create(Messages._Hudson_NodeBeingRemoved()));
 
@@ -1663,10 +1663,10 @@ public final class Hudson extends Node implements ItemGroup<TopLevelItem>, Stapl
     }
 
     /**
-     * Binds {@link AdministrativeMonitor}s to URL.
+     * Binds {@link AdministrativeMonitorExt}s to URL.
      */
-    public AdministrativeMonitor getAdministrativeMonitor(String id) {
-        for (AdministrativeMonitor m : administrativeMonitors)
+    public AdministrativeMonitorExt getAdministrativeMonitor(String id) {
+        for (AdministrativeMonitorExt m : administrativeMonitors)
             if(m.id.equals(id))
                 return m;
         return null;
@@ -1741,8 +1741,8 @@ public final class Hudson extends Node implements ItemGroup<TopLevelItem>, Stapl
             .add("log")
             .add(getPrimaryView().makeSearchIndex())
             .add(new CollectionSearchIndex() {// for computers
-                protected Computer get(String key) { return getComputer(key); }
-                protected Collection<Computer> all() { return computers.values(); }
+                protected ComputerExt get(String key) { return getComputer(key); }
+                protected Collection<ComputerExt> all() { return computers.values(); }
             })
             .add(new CollectionSearchIndex() {// for users
                 protected User get(String key) { return User.get(key,false); }
@@ -1825,17 +1825,17 @@ public final class Hudson extends Node implements ItemGroup<TopLevelItem>, Stapl
         return root;
     }
 
-    public FilePath getWorkspaceFor(TopLevelItem item) {
-        return new FilePath(new File(item.getRootDir(), WORKSPACE_DIRNAME));
+    public FilePathExt getWorkspaceFor(TopLevelItem item) {
+        return new FilePathExt(new File(item.getRootDir(), WORKSPACE_DIRNAME));
     }
 
-    public FilePath getRootPath() {
-        return new FilePath(getRootDir());
+    public FilePathExt getRootPath() {
+        return new FilePathExt(getRootDir());
     }
 
     @Override
-    public FilePath createPath(String absolutePath) {
-        return new FilePath((VirtualChannel)null,absolutePath);
+    public FilePathExt createPath(String absolutePath) {
+        return new FilePathExt((VirtualChannel)null,absolutePath);
     }
 
     public ClockDifference getClockDifference() {
@@ -1843,10 +1843,10 @@ public final class Hudson extends Node implements ItemGroup<TopLevelItem>, Stapl
     }
 
     /**
-     * For binding {@link LogRecorderManager} to "/log".
+     * For binding {@link LogRecorderManagerExt} to "/log".
      * Everything below here is admin-only, so do the check here.
      */
-    public LogRecorderManager getLog() {
+    public LogRecorderManagerExt getLog() {
         checkPermission(ADMINISTER);
         return log;
     }
@@ -1955,7 +1955,7 @@ public final class Hudson extends Node implements ItemGroup<TopLevelItem>, Stapl
      *      Can be an empty list but never null.
      */
     @SuppressWarnings({"unchecked"})
-    public <T extends Describable<T>,D extends Descriptor<T>> DescriptorExtensionList<T,D> getDescriptorList(Class<T> type) {
+    public <T extends Describable<T>,D extends Descriptor<T>> DescriptorExtensionListExt<T,D> getDescriptorList(Class<T> type) {
         return descriptorLists.get(type);
     }
 
@@ -2025,9 +2025,9 @@ public final class Hudson extends Node implements ItemGroup<TopLevelItem>, Stapl
      *      Used only for mapping jobs to URL in a case-insensitive fashion.
      */
     public TopLevelItem getJobCaseInsensitive(String name) {
-        String match = Functions.toEmailSafeString(name);
+        String match = FunctionsExt.toEmailSafeString(name);
         for (Entry<String, TopLevelItem> e : items.entrySet()) {
-            if(Functions.toEmailSafeString(e.getKey()).equalsIgnoreCase(match)) {
+            if(FunctionsExt.toEmailSafeString(e.getKey()).equalsIgnoreCase(match)) {
                 TopLevelItem item = e.getValue();
                 return item.hasPermission(Item.READ) ? item : null;
             }
@@ -2222,7 +2222,7 @@ public final class Hudson extends Node implements ItemGroup<TopLevelItem>, Stapl
         return getLabelAtom("master");
     }
 
-    public Computer createComputer() {
+    public ComputerExt createComputer() {
         return new MasterComputer();
     }
 
@@ -2284,7 +2284,7 @@ public final class Hudson extends Node implements ItemGroup<TopLevelItem>, Stapl
                 // initialize views by inserting the default view if necessary
                 // this is both for clean Hudson and for backward compatibility.
                 if(views.size()==0 || primaryView==null) {
-                    View v = new AllView(Messages.Hudson_ViewName());
+                    View v = new AllViewExt(Messages.Hudson_ViewName());
                     v.owner = Hudson.this;
                     views.add(0,v);
                     primaryView = v.getViewName();
@@ -2342,7 +2342,7 @@ public final class Hudson extends Node implements ItemGroup<TopLevelItem>, Stapl
     public void cleanUp() {
         Set<Future<?>> pending = new HashSet<Future<?>>();
         terminating = true;
-        for( Computer c : computers.values() ) {
+        for( ComputerExt c : computers.values() ) {
             c.interrupt();
             c.kill();
             pending.add(c.disconnect(null));
@@ -2501,7 +2501,7 @@ public final class Hudson extends Node implements ItemGroup<TopLevelItem>, Stapl
             jdks.addAll(req.bindJSONToList(JDK.class,json.get("jdks")));
 
             boolean result = true;
-            for( Descriptor<?> d : Functions.getSortedDescriptorsForGlobalConfig() )
+            for( Descriptor<?> d : FunctionsExt.getSortedDescriptorsForGlobalConfig() )
                 result &= configureDescriptor(req,json,d);
 
             for( JSONObject o : StructuredForm.toList(json,"plugin"))
@@ -2658,7 +2658,7 @@ public final class Hudson extends Node implements ItemGroup<TopLevelItem>, Stapl
 
     // a little more convenient overloading that assumes the caller gives us the right type
     // (or else it will fail with ClassCastException)
-    public <T extends AbstractProject<?,?>> T copy(T src, String name) throws IOException {
+    public <T extends AbstractProjectExt<?,?>> T copy(T src, String name) throws IOException {
         return (T)copy((TopLevelItem)src,name);
     }
 
@@ -3355,7 +3355,7 @@ public final class Hudson extends Node implements ItemGroup<TopLevelItem>, Stapl
 
     /**
      * @deprecated
-     *      Use {@link Functions#isWindows()}.
+     *      Use {@link FunctionsExt#isWindows()}.
      */
     public static boolean isWindows() {
         return File.pathSeparatorChar==';';
@@ -3397,7 +3397,7 @@ public final class Hudson extends Node implements ItemGroup<TopLevelItem>, Stapl
      *
      * <p>
      * Plugins who wish to contribute boxes on the side panel can add widgets
-     * by {@code getWidgets().add(new MyWidget())} from {@link Plugin#start()}.
+     * by {@code getWidgets().add(new MyWidget())} from {@link PluginExt#start()}.
      */
     public List<Widget> getWidgets() {
         return widgets;
@@ -3431,7 +3431,7 @@ public final class Hudson extends Node implements ItemGroup<TopLevelItem>, Stapl
         return getPrimaryView();
     }
 
-    public static final class MasterComputer extends Computer {
+    public static final class MasterComputer extends ComputerExt {
         private MasterComputer() {
             super(Hudson.getInstance());
         }
@@ -3486,10 +3486,10 @@ public final class Hudson extends Node implements ItemGroup<TopLevelItem>, Stapl
         public boolean hasPermission(Permission permission) {
             // no one should be allowed to delete the master.
             // this hides the "delete" link from the /computer/(master) page.
-            if(permission==Computer.DELETE)
+            if(permission==ComputerExt.DELETE)
                 return false;
             // Configuration of master node requires ADMINISTER permission
-            return super.hasPermission(permission==Computer.CONFIGURE ? Hudson.ADMINISTER : permission);
+            return super.hasPermission(permission==ComputerExt.CONFIGURE ? Hudson.ADMINISTER : permission);
         }
 
         @Override
@@ -3698,7 +3698,7 @@ public final class Hudson extends Node implements ItemGroup<TopLevelItem>, Stapl
      * Tentative switch to activate the concurrent build behavior.
      * When we merge this back to the trunk, this allows us to keep
      * this feature hidden for a while until we iron out the kinks.
-     * @see AbstractProject#isConcurrentBuild()
+     * @see AbstractProjectExt#isConcurrentBuild()
      */
     public static boolean CONCURRENT_BUILD = true;
 

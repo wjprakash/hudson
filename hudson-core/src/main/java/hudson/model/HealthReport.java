@@ -24,7 +24,7 @@
 package hudson.model;
 
 import com.thoughtworks.xstream.converters.UnmarshallingContext;
-import hudson.diagnosis.OldDataMonitor;
+import hudson.diagnosis.OldDataMonitorExt;
 import hudson.util.XStream2;
 import org.jvnet.localizer.Localizable;
 import org.kohsuke.stapler.export.Exported;
@@ -314,7 +314,7 @@ public class HealthReport implements Serializable, Comparable<HealthReport> {
             // If we are being read back in from an older version
             if (hr.localizibleDescription == null) {
                 hr.localizibleDescription = new NonLocalizable(hr.description == null ? "" : hr.description);
-                OldDataMonitor.report(context, "1.256");
+                OldDataMonitorExt.report(context, "1.256");
             }
         }
     }

@@ -24,13 +24,13 @@
 
 package hudson.slaves;
 
-import hudson.model.Computer;
+import hudson.model.ComputerExt;
 import org.jvnet.localizer.Localizable;
 import org.kohsuke.stapler.export.ExportedBean;
 import org.kohsuke.stapler.export.Exported;
 
 /**
- * Represents a cause that puts a {@linkplain Computer#isOffline() computer offline}.
+ * Represents a cause that puts a {@linkplain ComputerExt#isOffline() computer offline}.
  *
  * <h2>Views</h2>
  * <p>

@@ -43,7 +43,7 @@ import groovy.lang.Binding;
 import groovy.lang.GroovyShell;
 
 /**
- * A particular combination of {@link Axis} values.
+ * A particular combination of {@link AxisExt} values.
  *
  * For example, when axes are "x={1,2},y={3,4}", then
  * [x=1,y=3] is a combination (out of 4 possible combinations)
@@ -66,7 +66,7 @@ public final class Combination extends TreeMap<String,String> implements Compara
             super.put(e.getKey(),e.getValue());
     }
 
-    public String get(Axis a) {
+    public String get(AxisExt a) {
         return get(a.getName());
     }
 
@@ -76,7 +76,7 @@ public final class Combination extends TreeMap<String,String> implements Compara
      */
     public int toIndex(AxisList axis) {
         int r = 0;
-        for (Axis a : axis) {
+        for (AxisExt a : axis) {
             r *= a.size();
             r += a.indexOf(get(a));
         }
@@ -96,7 +96,7 @@ public final class Combination extends TreeMap<String,String> implements Compara
      */
     private long toModuloIndex(AxisList axis) {
         long r = 0;
-        for (Axis a : axis) {
+        for (AxisExt a : axis) {
             r += a.indexOf(get(a));
             r *= 31;
         }
@@ -148,12 +148,12 @@ public final class Combination extends TreeMap<String,String> implements Compara
     /**
      * Works like {@link #toString()} but only include the given axes.
      */
-    public String toString(Collection<Axis> subset) {
+    public String toString(Collection<AxisExt> subset) {
         if(size()==1 && subset.size()==1)
             return values().iterator().next();
 
         StringBuilder buf = new StringBuilder();
-        for (Axis a : subset) {
+        for (AxisExt a : subset) {
             if(buf.length()>0) buf.append(',');
             buf.append(a.getName()).append('=').append(get(a));
         }
@@ -164,9 +164,9 @@ public final class Combination extends TreeMap<String,String> implements Compara
     /**
      * Gets the values that correspond to the specified axes, in their order.
      */
-    public List<String> values(Collection<? extends Axis> axes) {
+    public List<String> values(Collection<? extends AxisExt> axes) {
         List<String> r = new ArrayList<String>(axes.size());
-        for (Axis a : axes)
+        for (AxisExt a : axes)
             r.add(get(a));
         return r;
     }
@@ -225,16 +225,16 @@ public final class Combination extends TreeMap<String,String> implements Compara
      * Creates compact string representataion suitable for display purpose.
      *
      * <p>
-     * The string is made compact by looking for {@link Axis} whose values
+     * The string is made compact by looking for {@link AxisExt} whose values
      * are unique, and omit the axis name.
      */
     public String toCompactString(AxisList axes) {
         Set<String> nonUniqueAxes = new HashSet<String>();
-        Map<String,Axis> axisByValue = new HashMap<String,Axis>();
+        Map<String,AxisExt> axisByValue = new HashMap<String,AxisExt>();
 
-        for (Axis a : axes) {
+        for (AxisExt a : axes) {
             for (String v : a.getValues()) {
-                Axis old = axisByValue.put(v,a);
+                AxisExt old = axisByValue.put(v,a);
                 if(old!=null) {
                     // these two axes have colliding values
                     nonUniqueAxes.add(old.getName());

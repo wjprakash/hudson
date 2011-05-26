@@ -26,13 +26,13 @@ package hudson.tasks.junit;
 
 import hudson.AbortException;
 import hudson.Extension;
-import hudson.FilePath;
+import hudson.FilePathExt;
 import hudson.Launcher;
 import hudson.matrix.MatrixAggregatable;
 import hudson.matrix.MatrixAggregator;
-import hudson.matrix.MatrixBuild;
-import hudson.model.AbstractBuild;
-import hudson.model.AbstractProject;
+import hudson.matrix.MatrixBuildExt;
+import hudson.model.AbstractBuildExt;
+import hudson.model.AbstractProjectExt;
 import hudson.model.Action;
 import hudson.model.BuildListener;
 import hudson.model.CheckPoint;
@@ -117,14 +117,14 @@ public class JUnitResultArchiver extends Recorder implements Serializable,
     /**
      * In progress. Working on delegating the actual parsing to the JUnitParser.
      */
-    protected TestResult parse(String expandedTestResults, AbstractBuild build, Launcher launcher, BuildListener listener)
+    protected TestResult parse(String expandedTestResults, AbstractBuildExt build, Launcher launcher, BuildListener listener)
             throws IOException, InterruptedException
     {
         return new JUnitParser(isKeepLongStdio()).parse(expandedTestResults, build, launcher, listener);
     }
 
     @Override
-	public boolean perform(AbstractBuild build, Launcher launcher,
+	public boolean perform(AbstractBuildExt build, Launcher launcher,
 			BuildListener listener) throws InterruptedException, IOException {
 		listener.getLogger().println(Messages.JUnitResultArchiver_Recording());
 		TestResultAction action;
@@ -208,11 +208,11 @@ public class JUnitResultArchiver extends Recorder implements Serializable,
 	}
 
 	@Override
-	public Collection<Action> getProjectActions(AbstractProject<?, ?> project) {
+	public Collection<Action> getProjectActions(AbstractProjectExt<?, ?> project) {
 		return Collections.<Action>singleton(new TestResultProjectAction(project));
 	}
 
-	public MatrixAggregator createAggregator(MatrixBuild build,
+	public MatrixAggregator createAggregator(MatrixBuildExt build,
 			Launcher launcher, BuildListener listener) {
 		return new TestResultAggregator(build, launcher, listener);
 	}
@@ -262,12 +262,12 @@ public class JUnitResultArchiver extends Recorder implements Serializable,
 		 * Performs on-the-fly validation on the file mask wildcard.
 		 */
 		public FormValidation doCheckTestResults(
-				@AncestorInPath AbstractProject project,
+				@AncestorInPath AbstractProjectExt project,
 				@QueryParameter String value) throws IOException {
-			return FilePath.validateFileMask(project.getSomeWorkspace(), value);
+			return FilePathExt.validateFileMask(project.getSomeWorkspace(), value);
 		}
 
-		public boolean isApplicable(Class<? extends AbstractProject> jobType) {
+		public boolean isApplicable(Class<? extends AbstractProjectExt> jobType) {
 			return true;
 		}
     }

@@ -26,7 +26,7 @@ package hudson.console;
 
 import hudson.ExtensionList;
 import hudson.ExtensionPoint;
-import hudson.model.AbstractBuild;
+import hudson.model.AbstractBuildExt;
 import hudson.model.Hudson;
 
 import java.io.IOException;
@@ -46,7 +46,7 @@ public abstract class ConsoleLogFilter implements ExtensionPoint {
      * Called on the start of each build, giving extensions a chance to intercept
      * the data that is written to the log.
      */
-    public abstract OutputStream decorateLogger(AbstractBuild build, OutputStream logger) throws IOException, InterruptedException;
+    public abstract OutputStream decorateLogger(AbstractBuildExt build, OutputStream logger) throws IOException, InterruptedException;
 
     /**
      * All the registered {@link ConsoleLogFilter}s.

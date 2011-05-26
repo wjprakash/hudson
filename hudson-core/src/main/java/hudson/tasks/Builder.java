@@ -25,7 +25,7 @@ package hudson.tasks;
 
 import hudson.ExtensionPoint;
 import hudson.Extension;
-import hudson.DescriptorExtensionList;
+import hudson.DescriptorExtensionListExt;
 import hudson.model.Build;
 import hudson.model.BuildListener;
 import hudson.model.Describable;
@@ -71,7 +71,7 @@ public abstract class Builder extends BuildStepCompatibilityLayer implements Bui
      * Returns all the registered {@link Builder} descriptors.
      */
     // for backward compatibility, the signature is not BuildStepDescriptor
-    public static DescriptorExtensionList<Builder,Descriptor<Builder>> all() {
+    public static DescriptorExtensionListExt<Builder,Descriptor<Builder>> all() {
         return Hudson.getInstance().<Builder,Descriptor<Builder>>getDescriptorList(Builder.class);
     }
 }

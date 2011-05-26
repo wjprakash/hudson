@@ -26,7 +26,7 @@ package hudson.model.queue;
 import hudson.Extension;
 import hudson.ExtensionList;
 import hudson.ExtensionPoint;
-import hudson.model.Computer;
+import hudson.model.ComputerExt;
 import hudson.model.Executor;
 import hudson.model.Hudson;
 
@@ -60,7 +60,7 @@ public abstract class LoadPredictor implements ExtensionPoint {
      *      information. 
      * @since 1.380
      */
-    public Iterable<FutureLoad> predict(MappingWorksheet plan, Computer computer, long start, long end) {
+    public Iterable<FutureLoad> predict(MappingWorksheet plan, ComputerExt computer, long start, long end) {
         // maintain backward compatibility by calling the old signature.
         return predict(computer,start,end);
     }
@@ -71,9 +71,9 @@ public abstract class LoadPredictor implements ExtensionPoint {
      * @param start
      *      Where to start enumeration. Always bigger or equal to the current time of the execution.
      * @deprecated as of 1.380
-     *      Use {@link #predict(MappingWorksheet, Computer, long, long)}
+     *      Use {@link #predict(MappingWorksheet, ComputerExt, long, long)}
      */
-    public Iterable<FutureLoad> predict(Computer computer, long start, long end) {
+    public Iterable<FutureLoad> predict(ComputerExt computer, long start, long end) {
         return Collections.emptyList();
     }
 
@@ -90,7 +90,7 @@ public abstract class LoadPredictor implements ExtensionPoint {
     @Extension
     public static class CurrentlyRunningTasks extends LoadPredictor {
         @Override
-        public Iterable<FutureLoad> predict(MappingWorksheet plan, final Computer computer, long start, long eternity) {
+        public Iterable<FutureLoad> predict(MappingWorksheet plan, final ComputerExt computer, long start, long eternity) {
             long now = System.currentTimeMillis();
             List<FutureLoad> fl = new ArrayList<FutureLoad>();
             for (Executor e : computer.getExecutors()) {

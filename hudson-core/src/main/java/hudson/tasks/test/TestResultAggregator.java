@@ -25,22 +25,22 @@ package hudson.tasks.test;
 
 import hudson.Launcher;
 import hudson.matrix.MatrixAggregator;
-import hudson.matrix.MatrixBuild;
-import hudson.matrix.MatrixRun;
+import hudson.matrix.MatrixBuildExt;
+import hudson.matrix.MatrixRunExt;
 import hudson.model.BuildListener;
 
 import java.io.IOException;
 
 /**
- * Aggregates {@link AbstractTestResultAction}s of {@link MatrixRun}s
- * into {@link MatrixBuild}.
+ * Aggregates {@link AbstractTestResultAction}s of {@link MatrixRunExt}s
+ * into {@link MatrixBuildExt}.
  * 
  * @author Kohsuke Kawaguchi
  */
 public class TestResultAggregator extends MatrixAggregator {
     private MatrixTestResult result;
 
-    public TestResultAggregator(MatrixBuild build, Launcher launcher, BuildListener listener) {
+    public TestResultAggregator(MatrixBuildExt build, Launcher launcher, BuildListener listener) {
         super(build, launcher, listener);
     }
 
@@ -52,7 +52,7 @@ public class TestResultAggregator extends MatrixAggregator {
     }
 
     @Override
-    public boolean endRun(MatrixRun run) throws InterruptedException, IOException {
+    public boolean endRun(MatrixRunExt run) throws InterruptedException, IOException {
         AbstractTestResultAction atr = run.getAction(AbstractTestResultAction.class);
         if(atr!=null)   result.add(atr);
         return true;

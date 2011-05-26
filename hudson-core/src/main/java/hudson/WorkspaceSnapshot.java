@@ -25,7 +25,7 @@ package hudson;
 
 import hudson.model.Action;
 import hudson.model.TaskListener;
-import hudson.model.AbstractBuild;
+import hudson.model.AbstractBuildExt;
 
 import java.io.IOException;
 
@@ -34,7 +34,7 @@ import java.io.IOException;
  *
  * <p>
  * This class encapsulates a logic to use the snapshot elsewhere.
- * The instance will be persisted with the {@link AbstractBuild} object
+ * The instance will be persisted with the {@link AbstractBuildExt} object
  * as an {@link Action}.
  *
  * <p>
@@ -56,7 +56,7 @@ public abstract class WorkspaceSnapshot implements Action {
      * @param listener
      *      Send the progress of the restoration to this listener. Never null.
      */
-    public abstract void restoreTo(AbstractBuild<?,?> owner, FilePath dst, TaskListener listener) throws IOException, InterruptedException;
+    public abstract void restoreTo(AbstractBuildExt<?,?> owner, FilePathExt dst, TaskListener listener) throws IOException, InterruptedException;
 
     public String getIconFileName() {
         // by default, hide from the UI

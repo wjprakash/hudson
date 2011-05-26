@@ -23,7 +23,7 @@
  */
 package hudson.views;
 
-import hudson.DescriptorExtensionList;
+import hudson.DescriptorExtensionListExt;
 import hudson.ExtensionPoint;
 import hudson.model.Describable;
 import hudson.model.Descriptor;
@@ -43,7 +43,7 @@ public abstract class ViewJobFilter implements ExtensionPoint, Describable<ViewJ
     /**
      * Returns all the registered {@link ViewJobFilter} descriptors.
      */
-    public static DescriptorExtensionList<ViewJobFilter, Descriptor<ViewJobFilter>> all() {
+    public static DescriptorExtensionListExt<ViewJobFilter, Descriptor<ViewJobFilter>> all() {
         return Hudson.getInstance().<ViewJobFilter, Descriptor<ViewJobFilter>>getDescriptorList(ViewJobFilter.class);
     }
 

@@ -27,8 +27,8 @@ import hudson.Launcher;
 import hudson.Extension;
 import hudson.ExtensionList;
 import hudson.util.DescriptorList;
-import hudson.model.AbstractBuild;
-import hudson.model.AbstractProject;
+import hudson.model.AbstractBuildExt;
+import hudson.model.AbstractProjectExt;
 import hudson.model.Action;
 import hudson.model.Build;
 import hudson.model.BuildListener;
@@ -73,7 +73,7 @@ public interface BuildStep {
      *      true if the build can continue, false if there was an error
      *      and the build needs to be aborted.
      */
-    boolean prebuild( AbstractBuild<?,?> build, BuildListener listener );
+    boolean prebuild( AbstractBuildExt<?,?> build, BuildListener listener );
 
     /**
      * Runs the step over the given build and reports the progress to the listener.
@@ -99,13 +99,13 @@ public interface BuildStep {
      *      provide a better error message, if it can do so, so that users have better
      *      understanding on why it failed.
      */
-    boolean perform(AbstractBuild<?,?> build, Launcher launcher, BuildListener listener) throws InterruptedException, IOException;
+    boolean perform(AbstractBuildExt<?,?> build, Launcher launcher, BuildListener listener) throws InterruptedException, IOException;
 
     /**
      * @deprecated as of 1.341.
-     *      Use {@link #getProjectActions(AbstractProject)} instead.
+     *      Use {@link #getProjectActions(AbstractProjectExt)} instead.
      */
-    Action getProjectAction(AbstractProject<?,?> project);
+    Action getProjectAction(AbstractProjectExt<?,?> project);
 
     /**
      * Returns action objects if this {@link BuildStep} has actions
@@ -128,7 +128,7 @@ public interface BuildStep {
      * @return
      *      can be empty but never null.
      */
-    Collection<? extends Action> getProjectActions(AbstractProject<?,?> project);
+    Collection<? extends Action> getProjectActions(AbstractProjectExt<?,?> project);
 
 
     /**

@@ -32,7 +32,7 @@ import hudson.util.StreamTaskListener;
 import hudson.util.NullStream;
 import hudson.util.RingBufferLogHandler;
 import hudson.util.Futures;
-import hudson.FilePath;
+import hudson.FilePathExt;
 import hudson.lifecycle.WindowsSlaveInstaller;
 import hudson.Util;
 import hudson.AbortException;
@@ -67,11 +67,11 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletResponse;
 
 /**
- * {@link Computer} for {@link Slave}s.
+ * {@link ComputerExt} for {@link Slave}s.
  *
  * @author Kohsuke Kawaguchi
  */
-public class SlaveComputer extends Computer {
+public class SlaveComputer extends ComputerExt {
     private volatile Channel channel;
     private volatile transient boolean acceptingTasks = true;
     private Charset defaultCharset;
@@ -184,7 +184,7 @@ public class SlaveComputer extends Computer {
             logger.fine("Forcing a reconnect on "+getName());
 
         closeChannel();
-        return lastConnectActivity = Computer.threadPoolForRemoting.submit(new java.util.concurrent.Callable<Object>() {
+        return lastConnectActivity = ComputerExt.threadPoolForRemoting.submit(new java.util.concurrent.Callable<Object>() {
             public Object call() throws Exception {
                 // do this on another thread so that the lengthy launch operation
                 // (which is typical) won't block UI thread.
@@ -334,7 +334,7 @@ public class SlaveComputer extends Computer {
         String remoteFs = getNode().getRemoteFS();
         if(_isUnix && !remoteFs.contains("/") && remoteFs.contains("\\"))
             log.println("WARNING: "+remoteFs+" looks suspiciously like Windows path. Maybe you meant "+remoteFs.replace('\\','/')+"?");
-        FilePath root = new FilePath(channel,getNode().getRemoteFS());
+        FilePathExt root = new FilePathExt(channel,getNode().getRemoteFS());
 
         channel.call(new SlaveInitializer());
         channel.call(new WindowsSlaveInstaller(remoteFs));
@@ -402,7 +402,7 @@ public class SlaveComputer extends Computer {
     @Override
     public Future<?> disconnect(OfflineCause cause) {
         super.disconnect(cause);
-        return Computer.threadPoolForRemoting.submit(new Runnable() {
+        return ComputerExt.threadPoolForRemoting.submit(new Runnable() {
             public void run() {
                 // do this on another thread so that any lengthy disconnect operation
                 // (which could be typical) won't block UI thread.
@@ -493,7 +493,7 @@ public class SlaveComputer extends Computer {
     }
 
     /**
-     * Grabs a {@link ComputerLauncher} out of {@link Node} to keep it in this {@link Computer}.
+     * Grabs a {@link ComputerLauncher} out of {@link Node} to keep it in this {@link ComputerExt}.
      * The returned launcher will be set to {@link #launcher} and used to carry out the actual launch operation.
      *
      * <p>

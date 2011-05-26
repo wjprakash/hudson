@@ -23,7 +23,7 @@
  */
 package hudson.util.jna;
 
-import hudson.DescriptorExtensionList;
+import hudson.DescriptorExtensionListExt;
 import hudson.ExtensionPoint;
 import hudson.model.AbstractDescribableImpl;
 import hudson.model.Descriptor;
@@ -48,7 +48,7 @@ public abstract class NativeWindowsSupport extends AbstractDescribableImpl<Nativ
     /**
      * Returns all the registered {@link NativeAccessSupport} descriptors.
      */
-    public static DescriptorExtensionList<NativeWindowsSupport, Descriptor<NativeWindowsSupport>> all() {
+    public static DescriptorExtensionListExt<NativeWindowsSupport, Descriptor<NativeWindowsSupport>> all() {
         return Hudson.getInstance().<NativeWindowsSupport, Descriptor<NativeWindowsSupport>>getDescriptorList(NativeWindowsSupport.class);
     }
 

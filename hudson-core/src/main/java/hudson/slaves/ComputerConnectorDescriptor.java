@@ -1,6 +1,6 @@
 package hudson.slaves;
 
-import hudson.DescriptorExtensionList;
+import hudson.DescriptorExtensionListExt;
 import hudson.model.Descriptor;
 import hudson.model.Hudson;
 
@@ -11,7 +11,7 @@ import hudson.model.Hudson;
  * @since 1.383
  */
 public abstract class ComputerConnectorDescriptor extends Descriptor<ComputerConnector> {
-    public static DescriptorExtensionList<ComputerConnector,ComputerConnectorDescriptor> all() {
+    public static DescriptorExtensionListExt<ComputerConnector,ComputerConnectorDescriptor> all() {
         return Hudson.getInstance().getDescriptorList(ComputerConnector.class);
     }
 }

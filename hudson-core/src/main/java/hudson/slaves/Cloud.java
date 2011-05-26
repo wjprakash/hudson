@@ -25,12 +25,12 @@ package hudson.slaves;
 
 import hudson.ExtensionPoint;
 import hudson.Extension;
-import hudson.DescriptorExtensionList;
+import hudson.DescriptorExtensionListExt;
 import hudson.slaves.NodeProvisioner.PlannedNode;
 import hudson.model.Describable;
 import hudson.model.Hudson;
 import hudson.model.Node;
-import hudson.model.AbstractModelObject;
+import hudson.model.AbstractModelObjectExt;
 import hudson.model.Label;
 import hudson.model.Descriptor;
 import hudson.security.ACL;
@@ -51,7 +51,7 @@ import java.util.Collection;
  * @see NodeProvisioner
  * @see AbstractCloudImpl
  */
-public abstract class Cloud extends AbstractModelObject implements ExtensionPoint, Describable<Cloud>, AccessControlled {
+public abstract class Cloud extends AbstractModelObjectExt implements ExtensionPoint, Describable<Cloud>, AccessControlled {
 
     /**
      * Uniquely identifies this {@link Cloud} instance among other instances in {@link Hudson#clouds}.
@@ -136,7 +136,7 @@ public abstract class Cloud extends AbstractModelObject implements ExtensionPoin
     /**
      * Returns all the registered {@link Cloud} descriptors.
      */
-    public static DescriptorExtensionList<Cloud,Descriptor<Cloud>> all() {
+    public static DescriptorExtensionListExt<Cloud,Descriptor<Cloud>> all() {
         return Hudson.getInstance().<Cloud,Descriptor<Cloud>>getDescriptorList(Cloud.class);
     }
 

@@ -23,7 +23,7 @@
  */
 package hudson.tasks;
 
-import hudson.DescriptorExtensionList;
+import hudson.DescriptorExtensionListExt;
 import hudson.Extension;
 import hudson.ExtensionComponent;
 import hudson.model.Action;
@@ -126,9 +126,9 @@ public abstract class Publisher extends BuildStepCompatibilityLayer implements B
     /**
      * {@link Publisher} has a special sort semantics that requires a subtype.
      *
-     * @see DescriptorExtensionList#createDescriptorList(Hudson, Class) 
+     * @see DescriptorExtensionListExt#createDescriptorList(Hudson, Class) 
      */
-    public static final class DescriptorExtensionListImpl extends DescriptorExtensionList<Publisher,Descriptor<Publisher>>
+    public static final class DescriptorExtensionListImpl extends DescriptorExtensionListExt<Publisher,Descriptor<Publisher>>
             implements Comparator<ExtensionComponent<Descriptor<Publisher>>> {
         public DescriptorExtensionListImpl(Hudson hudson) {
             super(hudson,Publisher.class);
@@ -168,7 +168,7 @@ public abstract class Publisher extends BuildStepCompatibilityLayer implements B
      * Returns all the registered {@link Publisher} descriptors.
      */
     // for backward compatibility, the signature is not BuildStepDescriptor
-    public static DescriptorExtensionList<Publisher,Descriptor<Publisher>> all() {
+    public static DescriptorExtensionListExt<Publisher,Descriptor<Publisher>> all() {
         return Hudson.getInstance().<Publisher,Descriptor<Publisher>>getDescriptorList(Publisher.class);
     }
 }

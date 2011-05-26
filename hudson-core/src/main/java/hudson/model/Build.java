@@ -51,23 +51,23 @@ import static hudson.model.Result.FAILURE;
  * <dd>Hudson decides which directory to use for a build, then the source code is checked out
  *
  * <dt>Pre-build steps
- * <dd>Everyone gets their {@link BuildStep#prebuild(AbstractBuild, BuildListener)} invoked
+ * <dd>Everyone gets their {@link BuildStep#prebuild(AbstractBuildExt, BuildListener)} invoked
  * to indicate that the build is starting
  *
  * <dt>Build wrapper set up
- * <dd>{@link BuildWrapper#setUp(AbstractBuild, Launcher, BuildListener)} is invoked. This is normally
+ * <dd>{@link BuildWrapper#setUp(AbstractBuildExt, Launcher, BuildListener)} is invoked. This is normally
  * to prepare an environment for the build.
  *
  * <dt>Builder runs
- * <dd>{@link Builder#perform(AbstractBuild, Launcher, BuildListener)} is invoked. This is where
+ * <dd>{@link Builder#perform(AbstractBuildExt, Launcher, BuildListener)} is invoked. This is where
  * things that are useful to users happen, like calling Ant, Make, etc.
  *
  * <dt>Recorder runs
- * <dd>{@link Recorder#perform(AbstractBuild, Launcher, BuildListener)} is invoked. This is normally
+ * <dd>{@link Recorder#perform(AbstractBuildExt, Launcher, BuildListener)} is invoked. This is normally
  * to record the output from the build, such as test results.
  *
  * <dt>Notifier runs
- * <dd>{@link Notifier#perform(AbstractBuild, Launcher, BuildListener)} is invoked. This is normally
+ * <dd>{@link Notifier#perform(AbstractBuildExt, Launcher, BuildListener)} is invoked. This is normally
  * to send out notifications, based on the results determined so far.
  * </dl>
  *
@@ -78,7 +78,7 @@ import static hudson.model.Result.FAILURE;
  * @author Kohsuke Kawaguchi
  */
 public abstract class Build <P extends Project<P,B>,B extends Build<P,B>>
-    extends AbstractBuild<P,B> {
+    extends AbstractBuildExt<P,B> {
 
     /**
      * Creates a new build.
@@ -128,7 +128,7 @@ public abstract class Build <P extends Project<P,B>,B extends Build<P,B>>
                     parameters.createBuildWrappers(Build.this,wrappers);
 
                 for( BuildWrapper w : wrappers ) {
-                    Environment e = w.setUp((AbstractBuild<?,?>)Build.this, launcher, listener);
+                    Environment e = w.setUp((AbstractBuildExt<?,?>)Build.this, launcher, listener);
                     if(e==null)
                         return (r = FAILURE);
                     buildEnvironments.add(e);

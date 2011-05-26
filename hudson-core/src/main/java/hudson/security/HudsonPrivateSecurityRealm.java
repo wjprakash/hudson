@@ -27,7 +27,7 @@ import hudson.security.captcha.CaptchaSupport;
 import com.thoughtworks.xstream.converters.UnmarshallingContext;
 import hudson.Extension;
 import hudson.Util;
-import hudson.diagnosis.OldDataMonitor;
+import hudson.diagnosis.OldDataMonitorExt;
 import hudson.model.*;
 import hudson.security.FederatedLoginService.FederatedIdentity;
 import hudson.tasks.Mailer;
@@ -477,7 +477,7 @@ public class HudsonPrivateSecurityRealm extends AbstractPasswordBasedSecurityRea
                 // Convert to hashed password and report to monitor if we load old data
                 if (d.password!=null && d.passwordHash==null) {
                     d.passwordHash = PASSWORD_ENCODER.encodePassword(Scrambler.descramble(d.password),null);
-                    OldDataMonitor.report(context, "1.283");
+                    OldDataMonitorExt.report(context, "1.283");
                 }
             }
         }

@@ -23,12 +23,12 @@
  */
 package hudson;
 
-import hudson.PluginWrapper.Dependency;
+import hudson.PluginWrapperExt.Dependency;
 import hudson.model.Hudson;
 import hudson.util.IOException2;
 import hudson.util.MaskingClassLoader;
 import hudson.util.VersionNumber;
-import hudson.Plugin.DummyImpl;
+import hudson.PluginExt.DummyImpl;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -70,13 +70,13 @@ public class ClassicPluginStrategy implements PluginStrategy {
         }
     };
 
-    private PluginManager pluginManager;
+    private PluginManagerExt pluginManager;
 
-    public ClassicPluginStrategy(PluginManager pluginManager) {
+    public ClassicPluginStrategy(PluginManagerExt pluginManager) {
         this.pluginManager = pluginManager;
     }
 
-    public PluginWrapper createPluginWrapper(File archive) throws IOException {
+    public PluginWrapperExt createPluginWrapper(File archive) throws IOException {
         final Manifest manifest;
         URL baseResourceURL;
 
@@ -107,7 +107,7 @@ public class ClassicPluginStrategy implements PluginStrategy {
             if (archive.isDirectory()) {// already expanded
                 expandDir = archive;
             } else {
-                expandDir = new File(archive.getParentFile(), PluginWrapper.getBaseName(archive));
+                expandDir = new File(archive.getParentFile(), PluginWrapperExt.getBaseName(archive));
                 explode(archive, expandDir);
             }
 
@@ -153,12 +153,12 @@ public class ClassicPluginStrategy implements PluginStrategy {
         }
 
         // compute dependencies
-        List<PluginWrapper.Dependency> dependencies = new ArrayList<PluginWrapper.Dependency>();
-        List<PluginWrapper.Dependency> optionalDependencies = new ArrayList<PluginWrapper.Dependency>();
+        List<PluginWrapperExt.Dependency> dependencies = new ArrayList<PluginWrapperExt.Dependency>();
+        List<PluginWrapperExt.Dependency> optionalDependencies = new ArrayList<PluginWrapperExt.Dependency>();
         String v = atts.getValue("Plugin-Dependencies");
         if (v != null) {
             for (String s : v.split(",")) {
-                PluginWrapper.Dependency d = new PluginWrapper.Dependency(s);
+                PluginWrapperExt.Dependency d = new PluginWrapperExt.Dependency(s);
                 if (d.optional) {
                     optionalDependencies.add(d);
                 } else {
@@ -171,7 +171,7 @@ public class ClassicPluginStrategy implements PluginStrategy {
 
         ClassLoader dependencyLoader = new DependencyClassLoader(getBaseClassLoader(atts), archive, Util.join(dependencies,optionalDependencies));
 
-        return new PluginWrapper(pluginManager, archive, manifest, baseResourceURL,
+        return new PluginWrapperExt(pluginManager, archive, manifest, baseResourceURL,
                 createClassLoader(paths, dependencyLoader, atts), disableFile, dependencies, optionalDependencies);
     }
     
@@ -223,7 +223,7 @@ public class ClassicPluginStrategy implements PluginStrategy {
             this.requireVersion = requireVersion;
         }
 
-        private void fix(Attributes atts, List<PluginWrapper.Dependency> optionalDependencies) {
+        private void fix(Attributes atts, List<PluginWrapperExt.Dependency> optionalDependencies) {
             // don't fix the dependency for yourself, or else we'll have a cycle
             String yourName = atts.getValue("Short-Name");
             if (shortName.equals(yourName))   return;
@@ -231,7 +231,7 @@ public class ClassicPluginStrategy implements PluginStrategy {
             // some earlier versions of maven-hpi-plugin apparently puts "null" as a literal in Hudson-Version. watch out for them.
             String hudsonVersion = atts.getValue("Hudson-Version");
             if (hudsonVersion == null || hudsonVersion.equals("null") || new VersionNumber(hudsonVersion).compareTo(splitWhen) <= 0)
-                optionalDependencies.add(new PluginWrapper.Dependency(shortName+':'+requireVersion));
+                optionalDependencies.add(new PluginWrapperExt.Dependency(shortName+':'+requireVersion));
         }
     }
 
@@ -255,7 +255,7 @@ public class ClassicPluginStrategy implements PluginStrategy {
         return base;
     }
 
-    public void initializeComponents(PluginWrapper plugin) {
+    public void initializeComponents(PluginWrapperExt plugin) {
     }
 
     public <T> List<ExtensionComponent<T>> findComponents(Class<T> type, Hudson hudson) {
@@ -290,7 +290,7 @@ public class ClassicPluginStrategy implements PluginStrategy {
         return r;
     }
 
-    public void load(PluginWrapper wrapper) throws IOException {
+    public void load(PluginWrapperExt wrapper) throws IOException {
         // override the context classloader so that XStream activity in plugin.start()
         // will be able to resolve classes in this plugin
         ClassLoader old = Thread.currentThread().getContextClassLoader();
@@ -304,10 +304,10 @@ public class ClassicPluginStrategy implements PluginStrategy {
                 try {
                     Class clazz = wrapper.classLoader.loadClass(className);
                     Object o = clazz.newInstance();
-                    if(!(o instanceof Plugin)) {
+                    if(!(o instanceof PluginExt)) {
                         throw new IOException(className+" doesn't extend from hudson.Plugin");
                     }
-                    wrapper.setPlugin((Plugin) o);
+                    wrapper.setPlugin((PluginExt) o);
                 } catch (LinkageError e) {
                     throw new IOException2("Unable to load " + className + " from " + wrapper.getShortName(),e);
                 } catch (ClassNotFoundException e) {
@@ -321,7 +321,7 @@ public class ClassicPluginStrategy implements PluginStrategy {
 
             // initialize plugin
             try {
-                Plugin plugin = wrapper.getPlugin();
+                PluginExt plugin = wrapper.getPlugin();
                 plugin.setServletContext(pluginManager.context);
                 startPlugin(wrapper);
             } catch(Throwable t) {
@@ -333,7 +333,7 @@ public class ClassicPluginStrategy implements PluginStrategy {
         }
     }
 
-    public void startPlugin(PluginWrapper plugin) throws Exception {
+    public void startPlugin(PluginWrapperExt plugin) throws Exception {
         plugin.getPlugin().start();
     }
 
@@ -394,7 +394,7 @@ public class ClassicPluginStrategy implements PluginStrategy {
         }
 
         try {
-            new FilePath(explodeTime).touch(archive.lastModified());
+            new FilePathExt(explodeTime).touch(archive.lastModified());
         } catch (InterruptedException e) {
             throw new AssertionError(e); // impossible
         }
@@ -420,7 +420,7 @@ public class ClassicPluginStrategy implements PluginStrategy {
         @Override
         protected Class<?> findClass(String name) throws ClassNotFoundException {
             for (Dependency dep : dependencies) {
-                PluginWrapper p = pluginManager.getPlugin(dep.shortName);
+                PluginWrapperExt p = pluginManager.getPlugin(dep.shortName);
                 if(p!=null)
                     try {
                         return p.classLoader.loadClass(name);
@@ -436,7 +436,7 @@ public class ClassicPluginStrategy implements PluginStrategy {
         protected Enumeration<URL> findResources(String name) throws IOException {
             HashSet<URL> result = new HashSet<URL>();
             for (Dependency dep : dependencies) {
-                PluginWrapper p = pluginManager.getPlugin(dep.shortName);
+                PluginWrapperExt p = pluginManager.getPlugin(dep.shortName);
                 if (p!=null) {
                     Enumeration<URL> urls = p.classLoader.getResources(name);
                     while (urls != null && urls.hasMoreElements())
@@ -450,7 +450,7 @@ public class ClassicPluginStrategy implements PluginStrategy {
         @Override
         protected URL findResource(String name) {
             for (Dependency dep : dependencies) {
-                PluginWrapper p = pluginManager.getPlugin(dep.shortName);
+                PluginWrapperExt p = pluginManager.getPlugin(dep.shortName);
                 if(p!=null) {
                     URL url = p.classLoader.getResource(name);
                     if (url!=null)

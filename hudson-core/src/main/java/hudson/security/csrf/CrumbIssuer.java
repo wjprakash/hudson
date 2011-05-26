@@ -11,7 +11,7 @@ import org.kohsuke.stapler.Stapler;
 import org.kohsuke.stapler.export.Exported;
 import org.kohsuke.stapler.export.ExportedBean;
 
-import hudson.DescriptorExtensionList;
+import hudson.DescriptorExtensionListExt;
 import hudson.ExtensionPoint;
 import hudson.model.Api;
 import hudson.model.Describable;
@@ -145,7 +145,7 @@ public abstract class CrumbIssuer implements Describable<CrumbIssuer>, Extension
     /**
      * Returns all the registered {@link CrumbIssuer} descriptors.
      */
-    public static DescriptorExtensionList<CrumbIssuer, Descriptor<CrumbIssuer>> all() {
+    public static DescriptorExtensionListExt<CrumbIssuer, Descriptor<CrumbIssuer>> all() {
         return Hudson.getInstance().<CrumbIssuer, Descriptor<CrumbIssuer>>getDescriptorList(CrumbIssuer.class);
     }
 

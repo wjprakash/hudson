@@ -23,12 +23,12 @@
  */
 package hudson.node_monitors;
 
-import hudson.Functions.ThreadGroupMap;
-import hudson.model.Computer;
+import hudson.FunctionsExt.ThreadGroupMap;
+import hudson.model.ComputerExt;
 import hudson.model.Descriptor;
 import hudson.model.Hudson;
 import hudson.model.ComputerSet;
-import hudson.model.AdministrativeMonitor;
+import hudson.model.AdministrativeMonitorExt;
 import hudson.triggers.Trigger;
 import hudson.triggers.SafeTimerTask;
 import hudson.slaves.OfflineCause;
@@ -94,13 +94,13 @@ public abstract class   AbstractNodeMonitorDescriptor<T> extends Descriptor<Node
      *
      * @return
      *      Application-specific value that represents the observed monitoring value
-     *      on the given node. This value will be returned from the {@link #get(Computer)} method.
+     *      on the given node. This value will be returned from the {@link #get(ComputerExt)} method.
      *      If null is returned, it will be interpreted as "no observed value." This is
      *      convenient way of abandoning the observation on a particular computer,
      *      whereas {@link IOException} is useful for indicating a hard error that needs to be
      *      corrected.
      */
-    protected abstract T monitor(Computer c) throws IOException,InterruptedException;
+    protected abstract T monitor(ComputerExt c) throws IOException,InterruptedException;
 
     /**
      * Obtains the monitoring result currently available, or null if no data is available.
@@ -108,7 +108,7 @@ public abstract class   AbstractNodeMonitorDescriptor<T> extends Descriptor<Node
      * <p>
      * If no data is available, a background task to collect data will be started.
      */
-    public T get(Computer c) {
+    public T get(ComputerExt c) {
         if(record==null) {
             // if this is the first time, schedule the check now
             if(inProgress==null) {
@@ -137,13 +137,13 @@ public abstract class   AbstractNodeMonitorDescriptor<T> extends Descriptor<Node
      *      if the node was actually taken offline by this act (as opposed to us deciding not to do it,
      *      or the computer already marked offline.)
      */
-    protected boolean markOffline(Computer c, OfflineCause oc) {
+    protected boolean markOffline(ComputerExt c, OfflineCause oc) {
         if(isIgnored() || c.isTemporarilyOffline()) return false; // noop
 
         c.setTemporarilyOffline(true, oc);
 
         // notify the admin
-        MonitorMarkedNodeOffline no = AdministrativeMonitor.all().get(MonitorMarkedNodeOffline.class);
+        MonitorMarkedNodeOffline no = AdministrativeMonitorExt.all().get(MonitorMarkedNodeOffline.class);
         if(no!=null)
             no.active = true;
         return true;
@@ -151,9 +151,9 @@ public abstract class   AbstractNodeMonitorDescriptor<T> extends Descriptor<Node
 
     /**
      * @deprecated as of 1.320
-     *      Use {@link #markOffline(Computer, OfflineCause)} to specify the cause.
+     *      Use {@link #markOffline(ComputerExt, OfflineCause)} to specify the cause.
      */
-    protected boolean markOffline(Computer c) {
+    protected boolean markOffline(ComputerExt c) {
         return markOffline(c,null);
     }
 
@@ -174,7 +174,7 @@ public abstract class   AbstractNodeMonitorDescriptor<T> extends Descriptor<Node
         /**
          * Last computed monitoring result.
          */
-        private final Map<Computer,T> data = new HashMap<Computer,T>();
+        private final Map<ComputerExt,T> data = new HashMap<ComputerExt,T>();
 
         public Record() {
             super("Monitoring thread for "+getDisplayName()+" started on "+new Date());
@@ -193,7 +193,7 @@ public abstract class   AbstractNodeMonitorDescriptor<T> extends Descriptor<Node
             long startTime = System.currentTimeMillis();
             String oldName = getName();
 
-            for( Computer c : Hudson.getInstance().getComputers() ) {
+            for( ComputerExt c : Hudson.getInstance().getComputers() ) {
                 try {
                     setName("Monitoring "+c.getDisplayName()+" for "+getDisplayName());
 

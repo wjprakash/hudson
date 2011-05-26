@@ -25,7 +25,7 @@ package hudson.model.queue;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
-import hudson.model.Computer;
+import hudson.model.ComputerExt;
 import hudson.model.Executor;
 import hudson.model.Label;
 import hudson.model.LoadBalancer;
@@ -108,7 +108,7 @@ public class MappingWorksheet {
 
     public final class ExecutorChunk extends ReadOnlyList<ExecutorSlot> {
         public final int index;
-        public final Computer computer;
+        public final ComputerExt computer;
         public final Node node;
 
         private ExecutorChunk(List<ExecutorSlot> base, int index) {
@@ -298,9 +298,9 @@ public class MappingWorksheet {
         this.item = item;
         
         // group executors by their computers
-        Map<Computer,List<ExecutorSlot>> j = new HashMap<Computer, List<ExecutorSlot>>();
+        Map<ComputerExt,List<ExecutorSlot>> j = new HashMap<ComputerExt, List<ExecutorSlot>>();
         for (ExecutorSlot o : offers) {
-            Computer c = o.getExecutor().getOwner();
+            ComputerExt c = o.getExecutor().getOwner();
             List<ExecutorSlot> l = j.get(c);
             if (l==null)
                 j.put(c,l=new ArrayList<ExecutorSlot>());
@@ -311,7 +311,7 @@ public class MappingWorksheet {
             long duration = item.task.getEstimatedDuration();
             if (duration > 0) {
                 long now = System.currentTimeMillis();
-                for (Entry<Computer, List<ExecutorSlot>> e : j.entrySet()) {
+                for (Entry<ComputerExt, List<ExecutorSlot>> e : j.entrySet()) {
                     final List<ExecutorSlot> list = e.getValue();
                     final int max = e.getKey().countExecutors();
 

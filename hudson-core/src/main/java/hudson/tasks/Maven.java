@@ -25,16 +25,16 @@ package hudson.tasks;
 
 import hudson.Extension;
 import hudson.Launcher;
-import hudson.Functions;
+import hudson.FunctionsExt;
 import hudson.EnvVars;
 import hudson.Util;
 import hudson.CopyOnWrite;
 import hudson.Launcher.LocalLauncher;
-import hudson.FilePath.FileCallable;
-import hudson.model.AbstractBuild;
-import hudson.model.AbstractProject;
+import hudson.FilePathExt.FileCallable;
+import hudson.model.AbstractBuildExt;
+import hudson.model.AbstractProjectExt;
 import hudson.model.BuildListener;
-import hudson.model.Computer;
+import hudson.model.ComputerExt;
 import hudson.model.EnvironmentSpecific;
 import hudson.model.Node;
 import hudson.model.Hudson;
@@ -195,14 +195,14 @@ public class Maven extends Builder {
                 seed = new File(ws,"project.xml").exists() ? "maven" : "mvn";
             }
 
-            if(Functions.isWindows())
+            if(FunctionsExt.isWindows())
                 seed += ".bat";
             return seed;
         }
     }
 
     @Override
-    public boolean perform(AbstractBuild<?,?> build, Launcher launcher, BuildListener listener) throws IOException, InterruptedException {
+    public boolean perform(AbstractBuildExt<?,?> build, Launcher launcher, BuildListener listener) throws IOException, InterruptedException {
         VariableResolver<String> vr = build.getBuildVariableResolver();
 
         EnvVars env = build.getEnvironment(listener);
@@ -231,7 +231,7 @@ public class Maven extends Builder {
                 String execName = build.getWorkspace().act(new DecideDefaultMavenCommand(normalizedTarget));
                 args.add(execName);
             } else {
-                mi = mi.forNode(Computer.currentComputer().getNode(), listener);
+                mi = mi.forNode(ComputerExt.currentComputer().getNode(), listener);
             	mi = mi.forEnvironment(env);
                 String exec = mi.getExecutable(launcher);
                 if(exec==null) {
@@ -275,7 +275,7 @@ public class Maven extends Builder {
      *
      * @since 1.344
      */
-    protected void wrapUpArguments(ArgumentListBuilder args, String normalizedTarget, AbstractBuild<?,?> build, Launcher launcher, BuildListener listener) throws IOException, InterruptedException {
+    protected void wrapUpArguments(ArgumentListBuilder args, String normalizedTarget, AbstractBuildExt<?,?> build, Launcher launcher, BuildListener listener) throws IOException, InterruptedException {
     }
 
     /**
@@ -325,7 +325,7 @@ public class Maven extends Builder {
             load();
         }
 
-        public boolean isApplicable(Class<? extends AbstractProject> jobType) {
+        public boolean isApplicable(Class<? extends AbstractProjectExt> jobType) {
             return true;
         }
 
@@ -591,7 +591,7 @@ public class Maven extends Builder {
     }
 
     /**
-     * Optional interface that can be implemented by {@link AbstractProject}
+     * Optional interface that can be implemented by {@link AbstractProjectExt}
      * that has "contextual" {@link MavenInstallation} associated with it.
      *
      * <p>

@@ -1,6 +1,6 @@
 package hudson.node_monitors;
 
-import hudson.model.Computer;
+import hudson.model.ComputerExt;
 import hudson.node_monitors.DiskSpaceMonitorDescriptor.DiskSpace;
 import org.kohsuke.stapler.DataBoundConstructor;
 
@@ -38,7 +38,7 @@ public abstract class AbstractDiskSpaceMonitor extends NodeMonitor {
     }
 
     @Override
-    public Object data(Computer c) {
+    public Object data(ComputerExt c) {
     	DiskSpace size = (DiskSpace) super.data(c);
         if(size!=null && size.size < getThresholdBytes()) {
         	size.setTriggered(true);

@@ -24,7 +24,6 @@
 package hudson;
 
 import hudson.model.TaskListener;
-import hudson.model.Hudson;
 
 import hudson.util.IOException2;
 import hudson.util.QuotedStringTokenizer;
@@ -32,7 +31,6 @@ import hudson.util.VariableResolver;
 import hudson.Proc.LocalProc;
 import hudson.util.jna.NativeAccessException;
 
-import hudson.util.jna.NativeFunction;
 import hudson.util.jna.NativeUtils;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Project;
@@ -42,7 +40,6 @@ import org.apache.tools.ant.taskdefs.Copy;
 import org.apache.commons.lang.time.FastDateFormat;
 import org.apache.commons.io.IOUtils;
 
-import org.kohsuke.stapler.Stapler;
 import org.jvnet.animal_sniffer.IgnoreJRERequirement;
 
 import javax.crypto.SecretKey;
@@ -994,7 +991,7 @@ public class Util {
      *      Where to create a symlink in.
      */
     public static void createSymlink(File baseDir, String targetPath, String symlinkPath, TaskListener listener) throws InterruptedException{
-        if(Functions.isWindows() || NO_SYMLINK)   return;
+        if(FunctionsExt.isWindows() || NO_SYMLINK)   return;
 
         try {
             String errmsg = "";
@@ -1033,7 +1030,7 @@ public class Util {
      * Run chmod natively if we can, otherwise fall back to Ant.
      */
     public static void chmod(File f, int mask) {
-        if (Functions.isWindows()) {
+        if (FunctionsExt.isWindows()) {
             return; // noop
         }
         try {
@@ -1061,7 +1058,7 @@ public class Util {
      *      (TODO: try readlink(1) available on some platforms)
      */
     public static String resolveSymlink(File link, TaskListener listener) {
-        if (Functions.isWindows()) {
+        if (FunctionsExt.isWindows()) {
             return null;
         }
 
@@ -1098,16 +1095,16 @@ public class Util {
         }
     }
 
-    /**
-     * Wraps with the error icon and the CSS class to render error message.
-     * @since 1.173
-     */
-    public static String wrapToErrorSpan(String s) {
-        s = "<span class=error><img src='"+
-            Stapler.getCurrentRequest().getContextPath()+ Hudson.RESOURCE_PATH+
-            "/images/none.gif' height=16 width=1>"+s+"</span>";
-        return s;
-    }
+//    /**
+//     * Wraps with the error icon and the CSS class to render error message.
+//     * @since 1.173
+//     */
+//    public static String wrapToErrorSpan(String s) {
+//        s = "<span class=error><img src='"+
+//            Stapler.getCurrentRequest().getContextPath()+ Hudson.RESOURCE_PATH+
+//            "/images/none.gif' height=16 width=1>"+s+"</span>";
+//        return s;
+//    }
     
     /**
      * Returns the parsed string if parsed successful; otherwise returns the default number.

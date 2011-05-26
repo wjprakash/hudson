@@ -26,7 +26,7 @@ package hudson.slaves;
 import antlr.ANTLRException;
 import hudson.Extension;
 import static hudson.Util.fixNull;
-import hudson.model.Computer;
+import hudson.model.ComputerExt;
 import hudson.model.Descriptor;
 import hudson.scheduler.CronTabList;
 import hudson.util.FormValidation;
@@ -170,7 +170,7 @@ public class SimpleScheduledRetentionStrategy extends RetentionStrategy<SlaveCom
             LOGGER.log(INFO, "Trying to launch computer {0} as schedule says it should be on-line at "
                     + "this point in time", new Object[]{c.getName()});
             if (c.isLaunchSupported()) {
-                Computer.threadPoolForRemoting.submit(new Runnable() {
+                ComputerExt.threadPoolForRemoting.submit(new Runnable() {
                     public void run() {
                         try {
                             c.connect(true).get();

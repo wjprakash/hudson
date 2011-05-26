@@ -38,7 +38,7 @@ public interface BuildListener extends TaskListener {
      * @param causes
      *      Causes that started a build. See {@link Run#getCauses()}.
      */
-    void started(List<Cause> causes);
+    void started(List<CauseExt> causes);
 
     /**
      * Called when a build is finished.

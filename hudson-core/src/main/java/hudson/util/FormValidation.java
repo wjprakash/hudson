@@ -24,12 +24,12 @@
 package hudson.util;
 
 import hudson.EnvVars;
-import hudson.Functions;
+import hudson.FunctionsExt;
 import hudson.Launcher;
 import hudson.ProxyConfiguration;
 import hudson.Util;
-import hudson.FilePath;
-import hudson.model.AbstractBuild;
+import hudson.FilePathExt;
+import hudson.model.AbstractBuildExt;
 import hudson.model.BuildListener;
 import hudson.tasks.Builder;
 import static hudson.Util.fixEmpty;
@@ -59,7 +59,7 @@ import java.util.Locale;
  *
  * <p>
  * For typical validation needs, this class offers a number of {@code validateXXX(...)} methods, such as
- * {@link #validateExecutable(String)}. {@link FilePath} also has a number of {@code validateXXX(...)} methods
+ * {@link #validateExecutable(String)}. {@link FilePathExt} also has a number of {@code validateXXX(...)} methods
  * that you may be able to reuse.
  *
  * <p>
@@ -89,7 +89,7 @@ import java.util.Locale;
  *
  * ...
  *
- * public void {@linkplain Builder#perform(AbstractBuild, Launcher, BuildListener) perform}(...) {
+ * public void {@linkplain Builder#perform(AbstractBuildExt, Launcher, BuildListener) perform}(...) {
  *     String version = getAntVersion(antHome);
  *     ...
  * }
@@ -185,7 +185,7 @@ public abstract class FormValidation extends IOException implements HttpResponse
             " <a href='#' class='showDetails'>"
             + Messages.FormValidation_Error_Details()
             + "</a><pre style='display:none'>"
-            + Functions.printThrowable(e) +
+            + FunctionsExt.printThrowable(e) +
             "</pre>",kind
         );
     }

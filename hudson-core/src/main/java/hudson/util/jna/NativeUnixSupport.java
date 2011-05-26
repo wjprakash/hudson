@@ -23,7 +23,7 @@
  */
 package hudson.util.jna;
 
-import hudson.DescriptorExtensionList;
+import hudson.DescriptorExtensionListExt;
 import hudson.ExtensionPoint;
 import hudson.model.AbstractDescribableImpl;
 import hudson.model.Descriptor;
@@ -49,7 +49,7 @@ public abstract class NativeUnixSupport extends AbstractDescribableImpl<NativeUn
     /**
      * Returns all the registered {@link NativeAccessSupport} descriptors.
      */
-    public static DescriptorExtensionList<NativeUnixSupport, Descriptor<NativeUnixSupport>> all() {
+    public static DescriptorExtensionListExt<NativeUnixSupport, Descriptor<NativeUnixSupport>> all() {
         return Hudson.getInstance().<NativeUnixSupport, Descriptor<NativeUnixSupport>>getDescriptorList(NativeUnixSupport.class);
     }
 

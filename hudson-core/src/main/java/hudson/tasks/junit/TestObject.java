@@ -23,8 +23,8 @@
  */
 package hudson.tasks.junit;
 
-import hudson.model.AbstractBuild;
-import hudson.model.AbstractModelObject;
+import hudson.model.AbstractBuildExt;
+import hudson.model.AbstractModelObjectExt;
 import hudson.model.Api;
 import hudson.tasks.test.AbstractTestResultAction;
 import org.kohsuke.stapler.export.ExportedBean;
@@ -43,8 +43,8 @@ import java.util.List;
  * @author Kohsuke Kawaguchi
  */
 @ExportedBean
-public abstract class TestObject extends AbstractModelObject implements Serializable {
-    public abstract AbstractBuild<?,?> getOwner() ; 
+public abstract class TestObject extends AbstractModelObjectExt implements Serializable {
+    public abstract AbstractBuildExt<?,?> getOwner() ; 
 
    
     public abstract TestObject getParent();
@@ -70,7 +70,7 @@ public abstract class TestObject extends AbstractModelObject implements Serializ
 	 */
 	public abstract TestObject getPreviousResult();
 	
-	public abstract TestObject getResultInBuild(AbstractBuild<?,?> build); 
+	public abstract TestObject getResultInBuild(AbstractBuildExt<?,?> build); 
 
 	/**
 	 * Time took to run this test. In seconds.

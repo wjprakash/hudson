@@ -24,7 +24,7 @@
 
 package hudson.util.io;
 
-import hudson.FilePath.TarCompression;
+import hudson.FilePathExt.TarCompression;
 
 import java.io.IOException;
 import java.io.OutputStream;

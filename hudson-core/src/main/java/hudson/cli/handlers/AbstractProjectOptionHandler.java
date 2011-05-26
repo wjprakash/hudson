@@ -23,7 +23,7 @@
  */
 package hudson.cli.handlers;
 
-import hudson.model.AbstractProject;
+import hudson.model.AbstractProjectExt;
 import hudson.model.Hudson;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
@@ -34,13 +34,13 @@ import org.kohsuke.args4j.spi.Setter;
 import org.kohsuke.MetaInfServices;
 
 /**
- * Refer to {@link AbstractProject} by its name.
+ * Refer to {@link AbstractProjectExt} by its name.
  *
  * @author Kohsuke Kawaguchi
  */
 @MetaInfServices
-public class AbstractProjectOptionHandler extends OptionHandler<AbstractProject> {
-    public AbstractProjectOptionHandler(CmdLineParser parser, OptionDef option, Setter<AbstractProject> setter) {
+public class AbstractProjectOptionHandler extends OptionHandler<AbstractProjectExt> {
+    public AbstractProjectOptionHandler(CmdLineParser parser, OptionDef option, Setter<AbstractProjectExt> setter) {
         super(parser, option, setter);
     }
 
@@ -49,9 +49,9 @@ public class AbstractProjectOptionHandler extends OptionHandler<AbstractProject>
         Hudson h = Hudson.getInstance();
         String src = params.getParameter(0);
 
-        AbstractProject s = h.getItemByFullName(src,AbstractProject.class);
+        AbstractProjectExt s = h.getItemByFullName(src,AbstractProjectExt.class);
         if (s==null)
-            throw new CmdLineException(owner, "No such job '"+src+"' perhaps you meant "+ AbstractProject.findNearest(src)+"?");
+            throw new CmdLineException(owner, "No such job '"+src+"' perhaps you meant "+ AbstractProjectExt.findNearest(src)+"?");
         setter.addValue(s);
         return 1;
     }

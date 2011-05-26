@@ -25,7 +25,7 @@ package hudson.scm;
 
 import hudson.MarkupText;
 import hudson.Util;
-import hudson.model.AbstractBuild;
+import hudson.model.AbstractBuildExt;
 import hudson.model.User;
 import org.kohsuke.stapler.export.Exported;
 import org.kohsuke.stapler.export.ExportedBean;
@@ -52,11 +52,11 @@ import java.util.List;
 public abstract class ChangeLogSet<T extends ChangeLogSet.Entry> implements Iterable<T> {
 
     /**
-     * {@link AbstractBuild} whose change log this object represents.
+     * {@link AbstractBuildExt} whose change log this object represents.
      */
-    public final AbstractBuild<?,?> build;
+    public final AbstractBuildExt<?,?> build;
 
-    protected ChangeLogSet(AbstractBuild<?, ?> build) {
+    protected ChangeLogSet(AbstractBuildExt<?, ?> build) {
         this.build = build;
     }
 
@@ -90,7 +90,7 @@ public abstract class ChangeLogSet<T extends ChangeLogSet.Entry> implements Iter
     /**
      * Constant instance that represents no changes.
      */
-    public static ChangeLogSet<? extends ChangeLogSet.Entry> createEmpty(AbstractBuild build) {
+    public static ChangeLogSet<? extends ChangeLogSet.Entry> createEmpty(AbstractBuildExt build) {
         return new EmptyChangeLogSet(build);
     }
 

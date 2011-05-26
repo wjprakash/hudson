@@ -25,7 +25,7 @@ package hudson.model;
 
 import hudson.ExtensionPoint;
 import hudson.Launcher;
-import hudson.Plugin;
+import hudson.PluginExt;
 import hudson.model.queue.SubTask;
 import hudson.tasks.BuildStep;
 import hudson.tasks.Builder;
@@ -42,7 +42,7 @@ import org.kohsuke.stapler.export.ExportedBean;
  * Extensible property of {@link Job}.
  *
  * <p>
- * {@link Plugin}s can extend this to define custom properties
+ * {@link PluginExt}s can extend this to define custom properties
  * for {@link Job}s. {@link JobProperty}s show up in the user
  * configuration screen, and they are persisted with the job object.
  *
@@ -55,8 +55,8 @@ import org.kohsuke.stapler.export.ExportedBean;
  * Starting 1.150, {@link JobProperty} implements {@link BuildStep},
  * meaning it gets the same hook as {@link Publisher} and {@link Builder}.
  * The primary intention of this mechanism is so that {@link JobProperty}s
- * can add actions to the new build. The {@link #perform(AbstractBuild, Launcher, BuildListener)}
- * and {@link #prebuild(AbstractBuild, BuildListener)} are invoked after those
+ * can add actions to the new build. The {@link #perform(AbstractBuildExt, Launcher, BuildListener)}
+ * and {@link #prebuild(AbstractBuildExt, BuildListener)} are invoked after those
  * of {@link Publisher}s.
  *
  * @param <J>
@@ -135,7 +135,7 @@ public abstract class JobProperty<J extends Job<?,?>> implements Describable<Job
 // default no-op implementation
 //
 
-    public boolean prebuild(AbstractBuild<?,?> build, BuildListener listener) {
+    public boolean prebuild(AbstractBuildExt<?,?> build, BuildListener listener) {
         return true;
     }
 
@@ -145,7 +145,7 @@ public abstract class JobProperty<J extends Job<?,?>> implements Describable<Job
      * <p>
      * Invoked after {@link Publisher}s have run.
      */
-    public boolean perform(AbstractBuild<?,?> build, Launcher launcher, BuildListener listener) throws InterruptedException, IOException {
+    public boolean perform(AbstractBuildExt<?,?> build, Launcher launcher, BuildListener listener) throws InterruptedException, IOException {
         return true;
     }
 
@@ -157,11 +157,11 @@ public abstract class JobProperty<J extends Job<?,?>> implements Describable<Job
         return BuildStepMonitor.NONE;
     }
 
-    public final Action getProjectAction(AbstractProject<?,?> project) {
+    public final Action getProjectAction(AbstractProjectExt<?,?> project) {
         return getJobAction((J)project);
     }
 
-    public final Collection<? extends Action> getProjectActions(AbstractProject<?,?> project) {
+    public final Collection<? extends Action> getProjectActions(AbstractProjectExt<?,?> project) {
         return getJobActions((J)project);
     }
 
@@ -170,7 +170,7 @@ public abstract class JobProperty<J extends Job<?,?>> implements Describable<Job
     }
 
     /**
-     * Contributes {@link SubTask}s to {@link AbstractProject#getSubTasks()}
+     * Contributes {@link SubTask}s to {@link AbstractProjectExt#getSubTasks()}
      *
      * @since 1.377
      */

@@ -23,10 +23,10 @@
  */
 package hudson.tasks;
 
-import hudson.model.AbstractProject;
+import hudson.model.AbstractProjectExt;
 import hudson.model.Descriptor;
 import hudson.model.Hudson;
-import hudson.model.AbstractProject.AbstractProjectDescriptor;
+import hudson.model.AbstractProjectExt.AbstractProjectDescriptorExt;
 import hudson.Extension;
 import hudson.util.DescriptorList;
 
@@ -53,12 +53,12 @@ public class BuildWrappers {
      *      The signature doesn't use {@link BuildWrapperDescriptor} to maintain compatibility
      *      with {@link BuildWrapper} implementations before 1.150.
      */
-    public static List<Descriptor<BuildWrapper>> getFor(AbstractProject<?, ?> project) {
+    public static List<Descriptor<BuildWrapper>> getFor(AbstractProjectExt<?, ?> project) {
         List<Descriptor<BuildWrapper>> result = new ArrayList<Descriptor<BuildWrapper>>();
         Descriptor pd = Hudson.getInstance().getDescriptor((Class)project.getClass());
 
         for (Descriptor<BuildWrapper> w : BuildWrapper.all()) {
-            if (pd instanceof AbstractProjectDescriptor && !((AbstractProjectDescriptor)pd).isApplicable(w))
+            if (pd instanceof AbstractProjectDescriptorExt && !((AbstractProjectDescriptorExt)pd).isApplicable(w))
                 continue;
             if (w instanceof BuildWrapperDescriptor) {
                 BuildWrapperDescriptor bwd = (BuildWrapperDescriptor) w;

@@ -24,8 +24,8 @@
 package hudson.util;
 
 import groovy.lang.GroovyShell;
-import hudson.FilePath;
-import hudson.Functions;
+import hudson.FilePathExt;
+import hudson.FunctionsExt;
 import hudson.model.Hudson;
 import hudson.remoting.Callable;
 import hudson.remoting.DelegatingCallable;
@@ -82,14 +82,14 @@ public final class RemotingDiagnostics {
         public Map<String,String> call() {
             Map<String,String> r = new LinkedHashMap<String,String>();
             try {
-                ThreadInfo[] data = Functions.getThreadInfos();
-                Functions.ThreadGroupMap map = Functions.sortThreadsAndGetGroupMap(data);
+                ThreadInfo[] data = FunctionsExt.getThreadInfos();
+                FunctionsExt.ThreadGroupMap map = FunctionsExt.sortThreadsAndGetGroupMap(data);
                 for (ThreadInfo ti : data)
-                    r.put(ti.getThreadName(),Functions.dumpThreadInfo(ti,map));
+                    r.put(ti.getThreadName(),FunctionsExt.dumpThreadInfo(ti,map));
             } catch (LinkageError _) {
                 // not in JDK6. fall back to JDK5
                 r.clear();
-                for (Map.Entry<Thread,StackTraceElement[]> t : Functions.dumpAllThreads().entrySet()) {
+                for (Map.Entry<Thread,StackTraceElement[]> t : FunctionsExt.dumpAllThreads().entrySet()) {
                     StringBuilder buf = new StringBuilder();
                     for (StackTraceElement e : t.getValue())
                         buf.append(e).append('\n');
@@ -143,9 +143,9 @@ public final class RemotingDiagnostics {
     /**
      * Obtains the heap dump in an HPROF file.
      */
-    public static FilePath getHeapDump(VirtualChannel channel) throws IOException, InterruptedException {
-        return channel.call(new Callable<FilePath, IOException>() {
-            public FilePath call() throws IOException {
+    public static FilePathExt getHeapDump(VirtualChannel channel) throws IOException, InterruptedException {
+        return channel.call(new Callable<FilePathExt, IOException>() {
+            public FilePathExt call() throws IOException {
                 final File hprof = File.createTempFile("hudson-heapdump", "hprof");
                 hprof.delete();
                 try {
@@ -153,7 +153,7 @@ public final class RemotingDiagnostics {
                     server.invoke(new ObjectName("com.sun.management:type=HotSpotDiagnostic"), "dumpHeap",
                             new Object[]{hprof.getAbsolutePath(), true}, new String[]{String.class.getName(), boolean.class.getName()});
 
-                    return new FilePath(hprof);
+                    return new FilePathExt(hprof);
                 } catch (JMException e) {
                     throw new IOException2(e);
                 }
@@ -188,7 +188,7 @@ public final class RemotingDiagnostics {
             owner.checkPermission(Hudson.ADMINISTER);
             rsp.setContentType("application/octet-stream");
 
-            FilePath dump = obtain();
+            FilePathExt dump = obtain();
             try {
                 dump.copyTo(rsp.getCompressedOutputStream(req));
             } finally {
@@ -196,7 +196,7 @@ public final class RemotingDiagnostics {
             }
         }
 
-        public FilePath obtain() throws IOException, InterruptedException {
+        public FilePathExt obtain() throws IOException, InterruptedException {
             return RemotingDiagnostics.getHeapDump(channel);
         }
     }

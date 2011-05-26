@@ -28,11 +28,11 @@ import junit.framework.TestCase;
 import hudson.model.Hudson;
 import hudson.model.Node;
 import hudson.model.TaskListener;
-import hudson.model.Computer;
+import hudson.model.ComputerExt;
 import hudson.model.TopLevelItem;
 import hudson.XmlFile;
 import hudson.Launcher;
-import hudson.FilePath;
+import hudson.FilePathExt;
 import hudson.model.labels.LabelAtom;
 import hudson.util.ClockDifference;
 import hudson.util.DescribableList;
@@ -72,7 +72,7 @@ public class NodeListTest extends TestCase {
             throw new UnsupportedOperationException();
         }
 
-        public Computer createComputer() {
+        public ComputerExt createComputer() {
             throw new UnsupportedOperationException();
         }
 
@@ -84,11 +84,11 @@ public class NodeListTest extends TestCase {
             throw new UnsupportedOperationException();
         }
 
-        public FilePath getWorkspaceFor(TopLevelItem item) {
+        public FilePathExt getWorkspaceFor(TopLevelItem item) {
             throw new UnsupportedOperationException();
         }
 
-        public FilePath getRootPath() {
+        public FilePathExt getRootPath() {
             throw new UnsupportedOperationException();
         }
 

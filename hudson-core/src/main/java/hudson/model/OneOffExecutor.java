@@ -36,7 +36,7 @@ import hudson.model.queue.WorkUnit;
 public class OneOffExecutor extends Executor {
     private WorkUnit work;
 
-    public OneOffExecutor(Computer owner, WorkUnit work) {
+    public OneOffExecutor(ComputerExt owner, WorkUnit work) {
         super(owner,-1);
         this.work = work;
     }

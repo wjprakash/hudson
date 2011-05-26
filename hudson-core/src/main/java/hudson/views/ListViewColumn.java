@@ -23,7 +23,7 @@
  */
 package hudson.views;
 
-import hudson.DescriptorExtensionList;
+import hudson.DescriptorExtensionListExt;
 import hudson.Extension;
 import hudson.ExtensionPoint;
 import hudson.model.Describable;
@@ -85,7 +85,7 @@ public abstract class ListViewColumn implements ExtensionPoint, Describable<List
     /**
      * Returns all the registered {@link ListViewColumn} descriptors.
      */
-    public static DescriptorExtensionList<ListViewColumn, Descriptor<ListViewColumn>> all() {
+    public static DescriptorExtensionListExt<ListViewColumn, Descriptor<ListViewColumn>> all() {
         return Hudson.getInstance().<ListViewColumn, Descriptor<ListViewColumn>>getDescriptorList(ListViewColumn.class);
     }
 
@@ -124,7 +124,7 @@ public abstract class ListViewColumn implements ExtensionPoint, Describable<List
         // OK, set up default list of columns:
         // create all instances
         ArrayList<ListViewColumn> r = new ArrayList<ListViewColumn>();
-        DescriptorExtensionList<ListViewColumn, Descriptor<ListViewColumn>> all = ListViewColumn.all();
+        DescriptorExtensionListExt<ListViewColumn, Descriptor<ListViewColumn>> all = ListViewColumn.all();
         ArrayList<Descriptor<ListViewColumn>> left = new ArrayList<Descriptor<ListViewColumn>>(all);
 
         for (Class<? extends ListViewColumn> d: DEFAULT_COLUMNS) {

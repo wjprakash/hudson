@@ -27,12 +27,12 @@ import antlr.ANTLRException;
 import hudson.DependencyRunner;
 import hudson.DependencyRunner.ProjectRunnable;
 import hudson.ExtensionPoint;
-import hudson.DescriptorExtensionList;
+import hudson.DescriptorExtensionListExt;
 import hudson.Extension;
 import hudson.init.Initializer;
 import hudson.init.InitMilestone;
 import static hudson.init.InitMilestone.JOB_LOADED;
-import hudson.model.AbstractProject;
+import hudson.model.AbstractProjectExt;
 import hudson.model.Action;
 import hudson.model.Build;
 import hudson.model.ComputerSet;
@@ -223,7 +223,7 @@ public abstract class Trigger<J extends Item> implements Describable<Trigger<?>>
                 // terminated.
                 // FIXME allow to set a global crontab spec
                 previousSynchronousPolling = scmd.getExecutor().submit(new DependencyRunner(new ProjectRunnable() {
-                    public void run(AbstractProject p) {
+                    public void run(AbstractProjectExt p) {
                         for (Trigger t : (Collection<Trigger>) p.getTriggers().values()) {
                             if (t instanceof SCMTrigger) {
                                 LOGGER.fine("synchronously triggering SCMTrigger for project " + t.job.getName());
@@ -238,7 +238,7 @@ public abstract class Trigger<J extends Item> implements Describable<Trigger<?>>
         }
 
         // Process all triggers, except SCMTriggers when synchronousPolling is set
-        for (AbstractProject<?,?> p : inst.getAllItems(AbstractProject.class)) {
+        for (AbstractProjectExt<?,?> p : inst.getAllItems(AbstractProjectExt.class)) {
             for (Trigger t : p.getTriggers().values()) {
                 if (! (t instanceof SCMTrigger && scmd.synchronousPolling)) {
                     LOGGER.fine("cron checking "+p.getName());
@@ -289,8 +289,8 @@ public abstract class Trigger<J extends Item> implements Describable<Trigger<?>>
     /**
      * Returns all the registered {@link Trigger} descriptors.
      */
-    public static DescriptorExtensionList<Trigger<?>,TriggerDescriptor> all() {
-        return (DescriptorExtensionList)Hudson.getInstance().getDescriptorList(Trigger.class);
+    public static DescriptorExtensionListExt<Trigger<?>,TriggerDescriptor> all() {
+        return (DescriptorExtensionListExt)Hudson.getInstance().getDescriptorList(Trigger.class);
     }
 
     /**

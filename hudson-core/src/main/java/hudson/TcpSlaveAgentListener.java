@@ -24,7 +24,7 @@
 package hudson;
 
 import hudson.model.Hudson;
-import hudson.model.Computer;
+import hudson.model.ComputerExt;
 import hudson.slaves.OfflineCause;
 import hudson.slaves.SlaveComputer;
 import hudson.remoting.Channel;
@@ -214,7 +214,7 @@ public final class TcpSlaveAgentListener extends Thread {
         private void runCliConnect(DataInputStream in, PrintWriter out) throws IOException, InterruptedException {
             out.println("Welcome");
             Channel channel = new Channel("CLI channel from " + s.getInetAddress(),
-                    Computer.threadPoolForRemoting, Mode.BINARY,
+                    ComputerExt.threadPoolForRemoting, Mode.BINARY,
                     new BufferedInputStream(new SocketInputStream(this.s)),
                     new BufferedOutputStream(new SocketOutputStream(this.s)), null, true);
             channel.setProperty(CliEntryPoint.class.getName(),new CliManagerImpl());

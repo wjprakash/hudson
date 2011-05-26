@@ -23,7 +23,7 @@
  */
 package hudson.widgets;
 
-import hudson.Functions;
+import hudson.FunctionsExt;
 import hudson.model.ModelObject;
 import hudson.model.Run;
 import org.kohsuke.stapler.Header;
@@ -80,7 +80,7 @@ public class HistoryWidget<O extends ModelObject,T> extends Widget {
     public HistoryWidget(O owner, Iterable<T> baseList, Adapter<? super T> adapter) {
         this.adapter = adapter;
         this.baseList = baseList;
-        this.baseUrl = Functions.getNearestAncestorUrl(Stapler.getCurrentRequest(),owner);
+        this.baseUrl = FunctionsExt.getNearestAncestorUrl(Stapler.getCurrentRequest(),owner);
         this.owner = owner;
     }
 

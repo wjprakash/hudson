@@ -24,7 +24,7 @@
 package hudson.scm;
 
 import hudson.model.Descriptor;
-import hudson.model.AbstractProject;
+import hudson.model.AbstractProjectExt;
 
 import java.util.List;
 import java.util.Collections;
@@ -115,7 +115,7 @@ public abstract class SCMDescriptor<T extends SCM> extends Descriptor<SCM> {
      *
      * @since 1.294
      */
-    public boolean isApplicable(AbstractProject project) {
+    public boolean isApplicable(AbstractProjectExt project) {
         return true;
     }
 

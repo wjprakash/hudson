@@ -23,10 +23,10 @@
  */
 package hudson.model;
 
-import hudson.FilePath;
+import hudson.FilePathExt;
 import hudson.Util;
 import hudson.util.IOException2;
-import hudson.FilePath.FileCallable;
+import hudson.FilePathExt.FileCallable;
 import hudson.remoting.VirtualChannel;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
@@ -66,14 +66,14 @@ public final class DirectoryBrowserSupport implements HttpResponse {
     
     public final String title;
 
-    private final FilePath base;
+    private final FilePathExt base;
     private final String icon;
     private final boolean serveDirIndex;
     private String indexFileName = "index.html";
 
     /**
      * @deprecated as of 1.297
-     *      Use {@link #DirectoryBrowserSupport(ModelObject, FilePath, String, String, boolean)}
+     *      Use {@link #DirectoryBrowserSupport(ModelObject, FilePathExt, String, String, boolean)}
      */
     public DirectoryBrowserSupport(ModelObject owner, String title) {
         this(owner,null,title,null,false);
@@ -92,7 +92,7 @@ public final class DirectoryBrowserSupport implements HttpResponse {
      *      True to generate the directory index.
      *      False to serve "index.html"
      */
-    public DirectoryBrowserSupport(ModelObject owner, FilePath base, String title, String icon, boolean serveDirIndex) {
+    public DirectoryBrowserSupport(ModelObject owner, FilePathExt base, String title, String icon, boolean serveDirIndex) {
         this.owner = owner;
         this.base = base;
         this.title = title;
@@ -129,7 +129,7 @@ public final class DirectoryBrowserSupport implements HttpResponse {
      *      Instead of calling this method explicitly, just return the {@link DirectoryBrowserSupport} object
      *      from the {@code doXYZ} method and let Stapler generate a response for you.
      */
-    public void serveFile(StaplerRequest req, StaplerResponse rsp, FilePath root, String icon, boolean serveDirIndex) throws IOException, ServletException, InterruptedException {
+    public void serveFile(StaplerRequest req, StaplerResponse rsp, FilePathExt root, String icon, boolean serveDirIndex) throws IOException, ServletException, InterruptedException {
         // handle form submission
         String pattern = req.getParameter("pattern");
         if(pattern==null)
@@ -160,7 +160,7 @@ public final class DirectoryBrowserSupport implements HttpResponse {
                 String pathElement = pathTokens.nextToken();
                 // Treat * and ? as wildcard unless they match a literal filename
                 if((pathElement.contains("?") || pathElement.contains("*"))
-                        && inBase && !(new FilePath(root, (_base.length() > 0 ? _base + "/" : "") + pathElement).exists()))
+                        && inBase && !(new FilePathExt(root, (_base.length() > 0 ? _base + "/" : "") + pathElement).exists()))
                     inBase = false;
                 if(pathElement.equals("*zip*")) {
                     // the expected syntax is foo/bar/*zip*/bar.zip
@@ -186,7 +186,7 @@ public final class DirectoryBrowserSupport implements HttpResponse {
         String rest = _rest.toString();
 
         // this is the base file/directory
-        FilePath baseFile = new FilePath(root,base);
+        FilePathExt baseFile = new FilePathExt(root,base);
 
         if(baseFile.isDirectory()) {
             if(zip) {
@@ -472,7 +472,7 @@ public final class DirectoryBrowserSupport implements HttpResponse {
     }
 
     /**
-     * Runs ant GLOB against the current {@link FilePath} and returns matching
+     * Runs ant GLOB against the current {@link FilePathExt} and returns matching
      * paths.
      */
     private static class PatternScanner implements FileCallable<List<List<Path>>> {

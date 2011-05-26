@@ -29,7 +29,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import org.junit.runners.Parameterized;
 import org.junit.runner.RunWith;
-import hudson.model.AbstractProject.AbstractProjectDescriptor.AutoCompleteSeeder;
+import hudson.model.AbstractProjectExt.AbstractProjectDescriptorExt.AutoCompleteSeeder;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -79,7 +79,7 @@ public class AutoCompleteSeederTest {
 
     @Test
     public void testAutoCompleteSeeds() throws Exception {
-        AutoCompleteSeeder seeder = new AbstractProject.AbstractProjectDescriptor.AutoCompleteSeeder(seed);
+        AutoCompleteSeeder seeder = new AbstractProjectExt.AbstractProjectDescriptorExt.AutoCompleteSeeder(seed);
         assertEquals(expected, seeder.getSeeds());
 
     }

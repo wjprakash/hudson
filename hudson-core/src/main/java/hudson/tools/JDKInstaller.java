@@ -25,7 +25,7 @@ package hudson.tools;
 
 import hudson.AbortException;
 import hudson.Extension;
-import hudson.FilePath;
+import hudson.FilePathExt;
 import hudson.ProxyConfiguration;
 import hudson.Util;
 import hudson.Launcher;
@@ -100,8 +100,8 @@ public class JDKInstaller extends ToolInstaller {
         this.acceptLicense = acceptLicense;
     }
 
-    public FilePath performInstallation(ToolInstallation tool, Node node, TaskListener log) throws IOException, InterruptedException {
-        FilePath expectedLocation = preferredLocation(tool, node);
+    public FilePathExt performInstallation(ToolInstallation tool, Node node, TaskListener log) throws IOException, InterruptedException {
+        FilePathExt expectedLocation = preferredLocation(tool, node);
         PrintStream out = log.getLogger();
         try {
             if(!acceptLicense) {
@@ -109,7 +109,7 @@ public class JDKInstaller extends ToolInstaller {
                 return expectedLocation;
             }
             // already installed?
-            FilePath marker = expectedLocation.child(".installedByHudson");
+            FilePathExt marker = expectedLocation.child(".installedByHudson");
             if (marker.exists() && marker.readToString().equals(id)) {
                 return expectedLocation;
             }
@@ -120,7 +120,7 @@ public class JDKInstaller extends ToolInstaller {
             URL url = locate(log, p, CPU.of(node));
 
             out.println("Downloading "+url);
-            FilePath file = expectedLocation.child(p.bundleFileName);
+            FilePathExt file = expectedLocation.child(p.bundleFileName);
             file.copyFrom(url);
 
             // JDK6u13 on Windows doesn't like path representation like "/tmp/foo", so make it a strict platform native format by doing 'absolutize'
@@ -163,7 +163,7 @@ public class JDKInstaller extends ToolInstaller {
             fs.chmod(jdkBundle,0755);
             int exit = launcher.launch().cmds(jdkBundle, "-noregister")
                     .stdin(new ByteArrayInputStream("yes".getBytes())).stdout(out)
-                    .pwd(new FilePath(launcher.getChannel(), expectedLocation)).join();
+                    .pwd(new FilePathExt(launcher.getChannel(), expectedLocation)).join();
             if (exit != 0)
                 throw new AbortException(Messages.JDKInstaller_FailedToInstallJDK(exit));
 
@@ -211,7 +211,7 @@ public class JDKInstaller extends ToolInstaller {
             args.add("/v/qn REBOOT=Suppress INSTALLDIR=\\\""+ expectedLocation +"\\\" /L \\\""+logFile+"\\\"");
 
             int r = launcher.launch().cmds(args).stdout(out)
-                    .pwd(new FilePath(launcher.getChannel(), expectedLocation)).join();
+                    .pwd(new FilePathExt(launcher.getChannel(), expectedLocation)).join();
             if (r != 0) {
                 out.println(Messages.JDKInstaller_FailedToInstallJDK(r));
                 // log file is in UTF-16
@@ -266,7 +266,7 @@ public class JDKInstaller extends ToolInstaller {
 
         public List<String> listSubDirectories(String dir) throws IOException, InterruptedException {
             List<String> r = new ArrayList<String>();
-            for( FilePath f : $(dir).listDirectories())
+            for( FilePathExt f : $(dir).listDirectories())
                 r.add(f.getName());
             return r;
         }
@@ -275,7 +275,7 @@ public class JDKInstaller extends ToolInstaller {
             $(from).moveAllChildrenTo($(to));
         }
 
-        private FilePath $(String file) {
+        private FilePathExt $(String file) {
             return node.createPath(file);
         }
     }

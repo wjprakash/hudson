@@ -24,7 +24,7 @@
 package hudson.tasks.junit;
 
 import org.jvnet.localizer.Localizable;
-import hudson.model.AbstractBuild;
+import hudson.model.AbstractBuildExt;
 import hudson.model.Run;
 import hudson.tasks.test.TestResult;
 import org.dom4j.Element;
@@ -461,7 +461,7 @@ public final class CaseResult extends TestResult implements Comparable<CaseResul
     }
     
     @Override
-    public AbstractBuild<?,?> getOwner() {
+    public AbstractBuildExt<?,?> getOwner() {
         SuiteResult sr = getSuiteResult();
         if (sr==null) {
             LOGGER.warning("In getOwner(), getSuiteResult is null"); return null; }

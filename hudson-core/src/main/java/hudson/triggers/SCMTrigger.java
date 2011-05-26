@@ -26,16 +26,16 @@ package hudson.triggers;
 import antlr.ANTLRException;
 import hudson.Util;
 import hudson.Extension;
-import hudson.console.AnnotatedLargeText;
-import hudson.model.AbstractBuild;
-import hudson.model.AbstractProject;
+import hudson.AnnotatedLargeText;
+import hudson.model.AbstractBuildExt;
+import hudson.model.AbstractProjectExt;
 import hudson.model.Action;
-import hudson.model.Cause;
+import hudson.model.CauseExt;
 import hudson.model.Hudson;
 import hudson.model.Item;
 import hudson.model.Project;
 import hudson.model.SCMedItem;
-import hudson.model.AdministrativeMonitor;
+import hudson.model.AdministrativeMonitorExt;
 import hudson.util.FlushProofOutputStream;
 import hudson.util.FormValidation;
 import hudson.util.StreamTaskListener;
@@ -178,7 +178,7 @@ public class SCMTrigger extends Trigger<SCMedItem> {
          * activate {@link AdministrativeMonitorImpl}.
          */
         public void clogCheck() {
-            AdministrativeMonitor.all().get(AdministrativeMonitorImpl.class).on = isClogged();
+            AdministrativeMonitorExt.all().get(AdministrativeMonitorImpl.class).on = isClogged();
         }
 
         /**
@@ -256,7 +256,7 @@ public class SCMTrigger extends Trigger<SCMedItem> {
     }
 
     @Extension
-    public static final class AdministrativeMonitorImpl extends AdministrativeMonitor {
+    public static final class AdministrativeMonitorImpl extends AdministrativeMonitorExt {
         private boolean on;
 
         public boolean isActivated() {
@@ -265,15 +265,15 @@ public class SCMTrigger extends Trigger<SCMedItem> {
     }
 
     /**
-     * Associated with {@link AbstractBuild} to show the polling log
+     * Associated with {@link AbstractBuildExt} to show the polling log
      * that triggered that build.
      *
      * @since 1.376
      */
     public static class BuildAction implements Action {
-        public final AbstractBuild build;
+        public final AbstractBuildExt build;
 
-        public BuildAction(AbstractBuild build) {
+        public BuildAction(AbstractBuildExt build) {
             this.build = build;
         }
 
@@ -324,7 +324,7 @@ public class SCMTrigger extends Trigger<SCMedItem> {
      * Action object for {@link Project}. Used to display the last polling log.
      */
     public final class SCMAction implements Action {
-        public AbstractProject<?,?> getOwner() {
+        public AbstractProjectExt<?,?> getOwner() {
             return job.asProject();
         }
 
@@ -447,7 +447,7 @@ public class SCMTrigger extends Trigger<SCMedItem> {
             try {
                 startTime = System.currentTimeMillis();
                 if(runPolling()) {
-                    AbstractProject p = job.asProject();
+                    AbstractProjectExt p = job.asProject();
                     String name = " #"+p.getNextBuildNumber();
                     SCMTriggerCause cause;
                     try {
@@ -483,7 +483,7 @@ public class SCMTrigger extends Trigger<SCMedItem> {
         }
     }
 
-    public static class SCMTriggerCause extends Cause {
+    public static class SCMTriggerCause extends CauseExt {
         /**
          * Only used while ths cause is in the queue.
          * Once attached to the build, we'll move this into a file to reduce the memory footprint.
@@ -508,7 +508,7 @@ public class SCMTrigger extends Trigger<SCMedItem> {
         }
 
         @Override
-        public void onAddedTo(AbstractBuild build) {
+        public void onAddedTo(AbstractBuildExt build) {
             try {
                 BuildAction a = new BuildAction(build);
                 FileUtils.writeStringToFile(a.getPollingLogFile(),pollingLog);

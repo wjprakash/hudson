@@ -24,16 +24,16 @@
 package hudson.scm;
 
 import hudson.ExtensionPoint;
-import hudson.FilePath;
+import hudson.FilePathExt;
 import hudson.Launcher;
-import hudson.DescriptorExtensionList;
+import hudson.DescriptorExtensionListExt;
 import hudson.Extension;
 import hudson.Util;
 import hudson.security.PermissionGroup;
 import hudson.security.Permission;
 import hudson.tasks.Builder;
-import hudson.model.AbstractBuild;
-import hudson.model.AbstractProject;
+import hudson.model.AbstractBuildExt;
+import hudson.model.AbstractProjectExt;
 import hudson.model.BuildListener;
 import hudson.model.Describable;
 import hudson.model.TaskListener;
@@ -43,7 +43,7 @@ import hudson.model.Hudson;
 import hudson.model.Descriptor;
 import hudson.model.Api;
 import hudson.model.Action;
-import hudson.model.AbstractProject.AbstractProjectDescriptor;
+import hudson.model.AbstractProjectExt.AbstractProjectDescriptorExt;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -135,7 +135,7 @@ public abstract class SCM implements Describable<SCM>, ExtensionPoint {
 
     /**
      * Returns true if this SCM supports
-     * {@link #poll(AbstractProject, Launcher, FilePath, TaskListener, SCMRevisionState) poling}.
+     * {@link #poll(AbstractProjectExt, Launcher, FilePathExt, TaskListener, SCMRevisionState) poling}.
      *
      * @since 1.105
      */
@@ -208,7 +208,7 @@ public abstract class SCM implements Describable<SCM>, ExtensionPoint {
      * 
      * @since 1.246
      */
-    public boolean processWorkspaceBeforeDeletion(AbstractProject<?,?> project, FilePath workspace, Node node) throws IOException, InterruptedException {
+    public boolean processWorkspaceBeforeDeletion(AbstractProjectExt<?,?> project, FilePathExt workspace, Node node) throws IOException, InterruptedException {
         return true;
     }
 
@@ -243,15 +243,15 @@ public abstract class SCM implements Describable<SCM>, ExtensionPoint {
      * @see #supportsPolling()
      *
      * @deprecated as of 1.345
-     *      Override {@link #calcRevisionsFromBuild(AbstractBuild, Launcher, TaskListener)} and
-     *      {@link #compareRemoteRevisionWith(AbstractProject, Launcher, FilePath, TaskListener, SCMRevisionState)} for implementation.
+     *      Override {@link #calcRevisionsFromBuild(AbstractBuildExt, Launcher, TaskListener)} and
+     *      {@link #compareRemoteRevisionWith(AbstractProjectExt, Launcher, FilePathExt, TaskListener, SCMRevisionState)} for implementation.
      *
      *      The implementation is now separated in two pieces, one that computes the revision of the current workspace,
      *      and the other that computes the revision of the remote repository.
      *
-     *      Call {@link #poll(AbstractProject, Launcher, FilePath, TaskListener, SCMRevisionState)} for use instead.
+     *      Call {@link #poll(AbstractProjectExt, Launcher, FilePathExt, TaskListener, SCMRevisionState)} for use instead.
      */
-    public boolean pollChanges(AbstractProject<?,?> project, Launcher launcher, FilePath workspace, TaskListener listener) throws IOException, InterruptedException {
+    public boolean pollChanges(AbstractProjectExt<?,?> project, Launcher launcher, FilePathExt workspace, TaskListener listener) throws IOException, InterruptedException {
         // up until 1.336, this method was abstract, so everyone should have overridden this method
         // without calling super.pollChanges. So the compatibility implementation is purely for
         // new implementations that doesn't override this method.
@@ -265,12 +265,12 @@ public abstract class SCM implements Describable<SCM>, ExtensionPoint {
      *
      * <p>
      * The returned object is then fed into the
-     * {@link #compareRemoteRevisionWith(AbstractProject, Launcher, FilePath, TaskListener, SCMRevisionState)} method
+     * {@link #compareRemoteRevisionWith(AbstractProjectExt, Launcher, FilePathExt, TaskListener, SCMRevisionState)} method
      * as the baseline {@link SCMRevisionState} to determine if the build is necessary.
      *
      * <p>
      * This method is called after source code is checked out for the given build (that is, after
-     * {@link SCM#checkout(AbstractBuild, Launcher, FilePath, BuildListener, File)} has finished successfully.)
+     * {@link SCM#checkout(AbstractBuildExt, Launcher, FilePathExt, BuildListener, File)} has finished successfully.)
      *
      * <p>
      * The obtained object is added to the build as an {@link Action} for later retrieval. As an optimization,
@@ -294,13 +294,13 @@ public abstract class SCM implements Describable<SCM>, ExtensionPoint {
      *      interruption is usually caused by the user aborting the computation.
      *      this exception should be simply propagated all the way up. 
      */
-    public abstract SCMRevisionState calcRevisionsFromBuild(AbstractBuild<?,?> build, Launcher launcher, TaskListener listener) throws IOException, InterruptedException;
+    public abstract SCMRevisionState calcRevisionsFromBuild(AbstractBuildExt<?,?> build, Launcher launcher, TaskListener listener) throws IOException, InterruptedException;
 
     /**
      * A pointless function to work around what appears to be a HotSpot problem. See HUDSON-5756 and bug 6933067
      * on BugParade for more details.
      */
-    public SCMRevisionState _calcRevisionsFromBuild(AbstractBuild<?, ?> build, Launcher launcher, TaskListener listener) throws IOException, InterruptedException {
+    public SCMRevisionState _calcRevisionsFromBuild(AbstractBuildExt<?, ?> build, Launcher launcher, TaskListener listener) throws IOException, InterruptedException {
         return calcRevisionsFromBuild(build, launcher, listener);
     }
     
@@ -330,8 +330,8 @@ public abstract class SCM implements Describable<SCM>, ExtensionPoint {
      *      Logs during the polling should be sent here.
      * @param baseline
      *      The baseline of the comparison. This object is the return value from earlier
-     *      {@link #compareRemoteRevisionWith(AbstractProject, Launcher, FilePath, TaskListener, SCMRevisionState)} or
-     *      {@link #calcRevisionsFromBuild(AbstractBuild, Launcher, TaskListener)}.
+     *      {@link #compareRemoteRevisionWith(AbstractProjectExt, Launcher, FilePathExt, TaskListener, SCMRevisionState)} or
+     *      {@link #calcRevisionsFromBuild(AbstractBuildExt, Launcher, TaskListener)}.
      *
      * @return
      *      This method returns multiple values that are bundled together into the {@link PollingResult} value type.
@@ -344,20 +344,20 @@ public abstract class SCM implements Describable<SCM>, ExtensionPoint {
      *      interruption is usually caused by the user aborting the computation.
      *      this exception should be simply propagated all the way up.
      */
-    protected abstract PollingResult compareRemoteRevisionWith(AbstractProject<?,?> project, Launcher launcher, FilePath workspace, TaskListener listener, SCMRevisionState baseline) throws IOException, InterruptedException;
+    protected abstract PollingResult compareRemoteRevisionWith(AbstractProjectExt<?,?> project, Launcher launcher, FilePathExt workspace, TaskListener listener, SCMRevisionState baseline) throws IOException, InterruptedException;
 
     /**
      * A pointless function to work around what appears to be a HotSpot problem. See HUDSON-5756 and bug 6933067
      * on BugParade for more details.
      */
-    private PollingResult _compareRemoteRevisionWith(AbstractProject<?, ?> project, Launcher launcher, FilePath workspace, TaskListener listener, SCMRevisionState baseline2) throws IOException, InterruptedException {
+    private PollingResult _compareRemoteRevisionWith(AbstractProjectExt<?, ?> project, Launcher launcher, FilePathExt workspace, TaskListener listener, SCMRevisionState baseline2) throws IOException, InterruptedException {
         return compareRemoteRevisionWith(project, launcher, workspace, listener, baseline2);
     }
 
     /**
      * Convenience method for the caller to handle the backward compatibility between pre 1.345 SCMs.
      */
-    public final PollingResult poll(AbstractProject<?,?> project, Launcher launcher, FilePath workspace, TaskListener listener, SCMRevisionState baseline) throws IOException, InterruptedException {
+    public final PollingResult poll(AbstractProjectExt<?,?> project, Launcher launcher, FilePathExt workspace, TaskListener listener, SCMRevisionState baseline) throws IOException, InterruptedException {
         if (is1_346OrLater()) {
             // This is to work around HUDSON-5827 in a general way.
             // don't let the SCM.compareRemoteRevisionWith(...) see SCMRevisionState that it didn't produce.
@@ -377,7 +377,7 @@ public abstract class SCM implements Describable<SCM>, ExtensionPoint {
     private boolean is1_346OrLater() {
         for (Class<?> c = getClass(); c != SCM.class; c = c.getSuperclass()) {
             try {
-                c.getDeclaredMethod("compareRemoteRevisionWith", AbstractProject.class, Launcher.class, FilePath.class, TaskListener.class, SCMRevisionState.class);
+                c.getDeclaredMethod("compareRemoteRevisionWith", AbstractProjectExt.class, Launcher.class, FilePathExt.class, TaskListener.class, SCMRevisionState.class);
                 return true;
             } catch (NoSuchMethodException e) { }
         }
@@ -412,7 +412,7 @@ public abstract class SCM implements Describable<SCM>, ExtensionPoint {
      *      interruption is usually caused by the user aborting the build.
      *      this exception will cause the build to fail.
      */
-    public abstract boolean checkout(AbstractBuild<?,?> build, Launcher launcher, FilePath workspace, BuildListener listener, File changelogFile) throws IOException, InterruptedException;
+    public abstract boolean checkout(AbstractBuildExt<?,?> build, Launcher launcher, FilePathExt workspace, BuildListener listener, File changelogFile) throws IOException, InterruptedException;
 
     /**
      * Adds environmental variables for the builds to the given map.
@@ -422,12 +422,12 @@ public abstract class SCM implements Describable<SCM>, ExtensionPoint {
      * (for example, SVN revision number.)
      *
      * <p>
-     * This method is invoked whenever someone does {@link AbstractBuild#getEnvironment(TaskListener)}, which
+     * This method is invoked whenever someone does {@link AbstractBuildExt#getEnvironment(TaskListener)}, which
      * can be before/after your checkout method is invoked. So if you are going to provide information about
      * check out (like SVN revision number that was checked out), be prepared for the possibility that the
      * check out hasn't happened yet.
      */
-    public void buildEnvVars(AbstractBuild<?,?> build, Map<String, String> env) {
+    public void buildEnvVars(AbstractBuildExt<?,?> build, Map<String, String> env) {
         // default implementation is noop.
     }
 
@@ -473,23 +473,23 @@ public abstract class SCM implements Describable<SCM>, ExtensionPoint {
      *      The workspace root directory.
      * @param build
      *      The build for which the module root is desired.
-     *      This parameter is null when existing legacy code calls deprecated {@link #getModuleRoot(FilePath)}.
+     *      This parameter is null when existing legacy code calls deprecated {@link #getModuleRoot(FilePathExt)}.
      *      Handle this situation gracefully if your can, but otherwise you can just fail with an exception, too.
      *
      * @since 1.382
      */
-    public FilePath getModuleRoot(FilePath workspace, AbstractBuild build) {
+    public FilePathExt getModuleRoot(FilePathExt workspace, AbstractBuildExt build) {
         // For backwards compatibility, call the one argument version of the method.
         return getModuleRoot(workspace);
     }
     
     /**
      * @deprecated since 1.382
-     *      Use/override {@link #getModuleRoot(FilePath, AbstractBuild)} instead.
+     *      Use/override {@link #getModuleRoot(FilePathExt, AbstractBuildExt)} instead.
      */
-    public FilePath getModuleRoot(FilePath workspace) {
-        if (Util.isOverridden(SCM.class,getClass(),"getModuleRoot", FilePath.class,AbstractBuild.class))
-            // if the subtype already implements newer getModuleRoot(FilePath,AbstractBuild), call that.
+    public FilePathExt getModuleRoot(FilePathExt workspace) {
+        if (Util.isOverridden(SCM.class,getClass(),"getModuleRoot", FilePathExt.class,AbstractBuildExt.class))
+            // if the subtype already implements newer getModuleRoot(FilePathExt,AbstractBuildExt), call that.
             return getModuleRoot(workspace,null);
 
         return workspace;
@@ -517,37 +517,37 @@ public abstract class SCM implements Describable<SCM>, ExtensionPoint {
      *
      * <p>
      * For normal SCMs, the array will be of length <code>1</code> and it's contents
-     * will be identical to calling {@link #getModuleRoot(FilePath, AbstractBuild)}.
+     * will be identical to calling {@link #getModuleRoot(FilePathExt, AbstractBuildExt)}.
      *
      * @param workspace The workspace root directory
      * @param build
      *      The build for which the module roots are desired.
-     *      This parameter is null when existing legacy code calls deprecated {@link #getModuleRoot(FilePath)}.
+     *      This parameter is null when existing legacy code calls deprecated {@link #getModuleRoot(FilePathExt)}.
      *      Handle this situation gracefully if your can, but otherwise you can just fail with an exception, too.
      *
      * @return An array of all module roots.
      * @since 1.382
      */
-    public FilePath[] getModuleRoots(FilePath workspace, AbstractBuild build) {
-        if (Util.isOverridden(SCM.class,getClass(),"getModuleRoots", FilePath.class))
-            // if the subtype derives legacy getModuleRoots(FilePath), delegate to it
+    public FilePathExt[] getModuleRoots(FilePathExt workspace, AbstractBuildExt build) {
+        if (Util.isOverridden(SCM.class,getClass(),"getModuleRoots", FilePathExt.class))
+            // if the subtype derives legacy getModuleRoots(FilePathExt), delegate to it
             return getModuleRoots(workspace);
 
         // otherwise the default implementation
-        return new FilePath[]{getModuleRoot(workspace,build)};
+        return new FilePathExt[]{getModuleRoot(workspace,build)};
     }
     
     /**
      * @deprecated as of 1.382.
-     *      Use/derive from {@link #getModuleRoots(FilePath, AbstractBuild)} instead.
+     *      Use/derive from {@link #getModuleRoots(FilePathExt, AbstractBuildExt)} instead.
      */
-    public FilePath[] getModuleRoots(FilePath workspace) {
-        if (Util.isOverridden(SCM.class,getClass(),"getModuleRoots", FilePath.class, AbstractBuild.class))
-            // if the subtype already derives newer getModuleRoots(FilePath,AbstractBuild), delegate to it
+    public FilePathExt[] getModuleRoots(FilePathExt workspace) {
+        if (Util.isOverridden(SCM.class,getClass(),"getModuleRoots", FilePathExt.class, AbstractBuildExt.class))
+            // if the subtype already derives newer getModuleRoots(FilePathExt,AbstractBuildExt), delegate to it
             return getModuleRoots(workspace,null);
 
         // otherwise the default implementation
-        return new FilePath[] { getModuleRoot(workspace), };
+        return new FilePathExt[] { getModuleRoot(workspace), };
     }
 
     /**
@@ -591,14 +591,14 @@ public abstract class SCM implements Describable<SCM>, ExtensionPoint {
     /**
      * Returns all the registered {@link SCMDescriptor}s.
      */
-    public static DescriptorExtensionList<SCM,SCMDescriptor<?>> all() {
+    public static DescriptorExtensionListExt<SCM,SCMDescriptor<?>> all() {
         return Hudson.getInstance().<SCM,SCMDescriptor<?>>getDescriptorList(SCM.class);
     }
 
     /**
      * Returns the list of {@link SCMDescriptor}s that are applicable to the given project.
      */
-    public static List<SCMDescriptor<?>> _for(final AbstractProject project) {
+    public static List<SCMDescriptor<?>> _for(final AbstractProjectExt project) {
         if(project==null)   return all();
         
         final Descriptor pd = Hudson.getInstance().getDescriptor((Class) project.getClass());
@@ -606,8 +606,8 @@ public abstract class SCM implements Describable<SCM>, ExtensionPoint {
         for (SCMDescriptor<?> scmDescriptor : all()) {
             if(!scmDescriptor.isApplicable(project))    continue;
 
-            if (pd instanceof AbstractProjectDescriptor) {
-                AbstractProjectDescriptor apd = (AbstractProjectDescriptor) pd;
+            if (pd instanceof AbstractProjectDescriptorExt) {
+                AbstractProjectDescriptorExt apd = (AbstractProjectDescriptorExt) pd;
                 if(!apd.isApplicable(scmDescriptor))    continue;
             }
 

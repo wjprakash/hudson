@@ -30,7 +30,7 @@ import java.io.IOException;
 import java.util.List;
 
 /**
- * Pluggability point for how to create {@link PluginWrapper}.
+ * Pluggability point for how to create {@link PluginWrapperExt}.
  *
  * <p>
  * This extension point was added to allow plugins to be loaded into a different environment
@@ -46,7 +46,7 @@ public interface PluginStrategy extends ExtensionPoint {
 	 * @param archive
      *      Either a directory that points to a pre-exploded plugin, or an hpi file, or an hpl file.
 	 */
-	public abstract PluginWrapper createPluginWrapper(File archive)
+	public abstract PluginWrapperExt createPluginWrapper(File archive)
 			throws IOException;
 
 	/**
@@ -56,7 +56,7 @@ public interface PluginStrategy extends ExtensionPoint {
 	 * This should be done after all the classloaders are constructed for all
 	 * the plugins, so that dependencies can be properly loaded by plugins.
 	 */
-	public abstract void load(PluginWrapper wrapper) throws IOException;
+	public abstract void load(PluginWrapperExt wrapper) throws IOException;
 
 	/**
 	 * Optionally start services provided by the plugin. Should be called
@@ -64,7 +64,7 @@ public interface PluginStrategy extends ExtensionPoint {
 	 * 
 	 * @param plugin
 	 */
-	public abstract void initializeComponents(PluginWrapper plugin);
+	public abstract void initializeComponents(PluginWrapperExt plugin);
 
 	/**
 	 * Find components of the given type using the assigned strategy.

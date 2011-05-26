@@ -42,7 +42,7 @@ public class JobParameterValue extends ParameterValue {
      * Exposes the name/value as an environment variable.
      */
     @Override
-    public void buildEnvVars(AbstractBuild<?,?> build, EnvVars env) {
+    public void buildEnvVars(AbstractBuildExt<?,?> build, EnvVars env) {
         // TODO: check with Tom if this is really what he had in mind
         env.put(name,job.toString());
         env.put(name.toUpperCase(Locale.ENGLISH),job.toString()); // backward compatibility pre 1.345

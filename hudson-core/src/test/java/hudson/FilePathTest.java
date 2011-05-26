@@ -38,7 +38,7 @@ public class FilePathTest extends ChannelTestCase {
 
     public void testCopyTo() throws Exception {
         File tmp = File.createTempFile("testCopyTo","");
-        FilePath f = new FilePath(french,tmp.getPath());
+        FilePathExt f = new FilePathExt(french,tmp.getPath());
         f.copyTo(new NullStream());
         assertTrue("target does not exist", tmp.exists());
         assertTrue("could not delete target " + tmp.getPath(), tmp.delete());
@@ -51,9 +51,9 @@ public class FilePathTest extends ChannelTestCase {
     public void testCopyTo2() throws Exception {
         for (int j=0; j<2500; j++) {
             File tmp = File.createTempFile("testCopyFrom","");
-            FilePath f = new FilePath(tmp);
+            FilePathExt f = new FilePathExt(tmp);
             File tmp2 = File.createTempFile("testCopyTo","");
-            FilePath f2 = new FilePath(british,tmp2.getPath());
+            FilePathExt f2 = new FilePathExt(british,tmp2.getPath());
 
             f.copyTo(f2);
 
@@ -70,10 +70,10 @@ public class FilePathTest extends ChannelTestCase {
             assertTrue(src.mkdir());
             assertTrue(dst.mkdir());
             File f = File.createTempFile("foo", ".tmp", src);
-            FilePath fp = new FilePath(src);
-            assertEquals(1, fp.copyRecursiveTo(new FilePath(dst)));
+            FilePathExt fp = new FilePathExt(src);
+            assertEquals(1, fp.copyRecursiveTo(new FilePathExt(dst)));
             // copy again should still report 1
-            assertEquals(1, fp.copyRecursiveTo(new FilePath(dst)));
+            assertEquals(1, fp.copyRecursiveTo(new FilePathExt(dst)));
         } finally {
             Util.deleteRecursive(tmp);
         }
@@ -90,15 +90,15 @@ public class FilePathTest extends ChannelTestCase {
             assertTrue(src.mkdir());
             assertTrue(dst.mkdir());
 
-            FilePath localFilePath = new FilePath(french, dst.getPath());
+            FilePathExt localFilePath = new FilePathExt(french, dst.getPath());
 
-            FilePath remoteFilePath = new FilePath(british, src.getPath());
+            FilePathExt remoteFilePath = new FilePathExt(british, src.getPath());
             remoteFilePath.unzipFrom(getClass().getResourceAsStream("/hudson/remoteCopyFiles.zip"));
             remoteFilePath.copyRecursiveTo("**/*", localFilePath);
-            for (FilePath child : localFilePath.list()) {
+            for (FilePathExt child : localFilePath.list()) {
                 System.out.println(child.getName());
                 if (child.isDirectory()) {
-                    for (FilePath child2 : child.list()) {
+                    for (FilePathExt child2 : child.list()) {
                         System.out.println(child2.getName());
                     }
                 }
@@ -111,7 +111,7 @@ public class FilePathTest extends ChannelTestCase {
     public void testArchiveBug4039() throws Exception {
         File tmp = Util.createTempDir();
         try {
-            FilePath d = new FilePath(french,tmp.getPath());
+            FilePathExt d = new FilePathExt(french,tmp.getPath());
             d.child("test").touch(0);
             d.zip(new NullOutputStream());
             d.zip(new NullOutputStream(),"**/*");
@@ -170,22 +170,22 @@ public class FilePathTest extends ChannelTestCase {
     }
 
     private void compare(String original, String answer) {
-        assertEquals(answer,new FilePath((VirtualChannel)null,original).getRemote());
+        assertEquals(answer,new FilePathExt((VirtualChannel)null,original).getRemote());
     }
 
     // @Bug(6494)
     public void testGetParent() throws Exception {
-        FilePath fp = new FilePath((VirtualChannel)null, "/abc/def");
+        FilePathExt fp = new FilePathExt((VirtualChannel)null, "/abc/def");
         assertEquals("/abc", (fp = fp.getParent()).getRemote());
         assertEquals("/", (fp = fp.getParent()).getRemote());
         assertNull(fp.getParent());
 
-        fp = new FilePath((VirtualChannel)null, "abc/def\\ghi");
+        fp = new FilePathExt((VirtualChannel)null, "abc/def\\ghi");
         assertEquals("abc/def", (fp = fp.getParent()).getRemote());
         assertEquals("abc", (fp = fp.getParent()).getRemote());
         assertNull(fp.getParent());
 
-        fp = new FilePath((VirtualChannel)null, "C:\\abc\\def");
+        fp = new FilePathExt((VirtualChannel)null, "C:\\abc\\def");
         assertEquals("C:\\abc", (fp = fp.getParent()).getRemote());
         assertEquals("C:\\", (fp = fp.getParent()).getRemote());
         assertNull(fp.getParent());

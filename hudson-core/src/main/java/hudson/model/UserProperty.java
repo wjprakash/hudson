@@ -24,8 +24,8 @@
 package hudson.model;
 
 import hudson.ExtensionPoint;
-import hudson.Plugin;
-import hudson.DescriptorExtensionList;
+import hudson.PluginExt;
+import hudson.DescriptorExtensionListExt;
 import hudson.model.Descriptor.FormException;
 import net.sf.json.JSONObject;
 
@@ -36,7 +36,7 @@ import org.kohsuke.stapler.export.ExportedBean;
  * Extensible property of {@link User}.
  *
  * <p>
- * {@link Plugin}s can extend this to define custom properties
+ * {@link PluginExt}s can extend this to define custom properties
  * for {@link User}s. {@link UserProperty}s show up in the user
  * configuration screen, and they are persisted with the user object.
  *
@@ -70,7 +70,7 @@ public abstract class UserProperty implements Describable<UserProperty>, Extensi
     /**
      * Returns all the registered {@link UserPropertyDescriptor}s.
      */
-    public static DescriptorExtensionList<UserProperty,UserPropertyDescriptor> all() {
+    public static DescriptorExtensionListExt<UserProperty,UserPropertyDescriptor> all() {
         return Hudson.getInstance().<UserProperty,UserPropertyDescriptor>getDescriptorList(UserProperty.class);
     }
 

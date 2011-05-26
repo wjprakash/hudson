@@ -41,7 +41,7 @@ import com.thoughtworks.xstream.io.ExtendedHierarchicalStreamWriterHelper;
 import com.thoughtworks.xstream.mapper.Mapper;
 import com.thoughtworks.xstream.mapper.CannotResolveClassException;
 
-import hudson.diagnosis.OldDataMonitor;
+import hudson.diagnosis.OldDataMonitorExt;
 import hudson.model.Saveable;
 
 import java.lang.reflect.Field;
@@ -267,7 +267,7 @@ public class RobustReflectionConverter implements Converter {
 
         // Report any class/field errors in Saveable objects
         if (context.get("ReadError") != null && context.get("Saveable") == result) {
-            OldDataMonitor.report((Saveable)result, (ArrayList<Throwable>)context.get("ReadError"));
+            OldDataMonitorExt.report((Saveable)result, (ArrayList<Throwable>)context.get("ReadError"));
             context.put("ReadError", null);
         }
         return result;

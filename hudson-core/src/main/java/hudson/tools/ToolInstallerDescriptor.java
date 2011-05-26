@@ -24,7 +24,7 @@
 
 package hudson.tools;
 
-import hudson.DescriptorExtensionList;
+import hudson.DescriptorExtensionListExt;
 import hudson.model.Descriptor;
 import hudson.model.Hudson;
 
@@ -47,7 +47,7 @@ public abstract class ToolInstallerDescriptor<T extends ToolInstaller> extends D
         return true;
     }
 
-    public static DescriptorExtensionList<ToolInstaller,ToolInstallerDescriptor<?>> all() {
+    public static DescriptorExtensionListExt<ToolInstaller,ToolInstallerDescriptor<?>> all() {
         return Hudson.getInstance().<ToolInstaller,ToolInstallerDescriptor<?>>getDescriptorList(ToolInstaller.class);
     }
 

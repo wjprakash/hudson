@@ -23,7 +23,7 @@
  */
 package hudson.tasks;
 
-import hudson.FilePath;
+import hudson.FilePathExt;
 import hudson.Launcher;
 import hudson.Util;
 import hudson.Extension;
@@ -75,7 +75,7 @@ public class JavadocArchiver extends Recorder {
     /**
      * Gets the directory where the Javadoc is stored for the given project.
      */
-    private static File getJavadocDir(AbstractItem project) {
+    private static File getJavadocDir(AbstractItemExt project) {
         return new File(project.getRootDir(),"javadoc");
     }
 
@@ -86,13 +86,13 @@ public class JavadocArchiver extends Recorder {
         return new File(run.getRootDir(),"javadoc");
     }
 
-    public boolean perform(AbstractBuild<?,?> build, Launcher launcher, BuildListener listener) throws InterruptedException, IOException {
+    public boolean perform(AbstractBuildExt<?,?> build, Launcher launcher, BuildListener listener) throws InterruptedException, IOException {
         listener.getLogger().println(Messages.JavadocArchiver_Publishing());
 
         EnvVars env = build.getEnvironment(listener);
         
-        FilePath javadoc = build.getWorkspace().child(env.expand(javadocDir));
-        FilePath target = new FilePath(keepAll ? getJavadocDir(build) : getJavadocDir(build.getProject()));
+        FilePathExt javadoc = build.getWorkspace().child(env.expand(javadocDir));
+        FilePathExt target = new FilePathExt(keepAll ? getJavadocDir(build) : getJavadocDir(build.getProject()));
 
         try {
             if (javadoc.copyRecursiveTo("**/*",target)==0) {
@@ -119,7 +119,7 @@ public class JavadocArchiver extends Recorder {
     }
 
     @Override
-    public Collection<Action> getProjectActions(AbstractProject project) {
+    public Collection<Action> getProjectActions(AbstractProjectExt project) {
         return Collections.<Action>singleton(new JavadocAction(project));
     }
 
@@ -151,7 +151,7 @@ public class JavadocArchiver extends Recorder {
          * Serves javadoc.
          */
         public void doDynamic(StaplerRequest req, StaplerResponse rsp) throws IOException, ServletException {
-            new DirectoryBrowserSupport(this, new FilePath(dir()), getTitle(), "help.gif", false).generateResponse(req,rsp,this);
+            new DirectoryBrowserSupport(this, new FilePathExt(dir()), getTitle(), "help.gif", false).generateResponse(req,rsp,this);
         }
 
         protected abstract String getTitle();
@@ -160,17 +160,17 @@ public class JavadocArchiver extends Recorder {
     }
 
     public static class JavadocAction extends BaseJavadocAction implements ProminentProjectAction {
-        private final AbstractItem project;
+        private final AbstractItemExt project;
 
-        public JavadocAction(AbstractItem project) {
+        public JavadocAction(AbstractItemExt project) {
             this.project = project;
         }
 
         protected File dir() {
-            // Would like to change AbstractItem to AbstractProject, but is
+            // Would like to change AbstractItemExt to AbstractProjectExt, but is
             // that a backwards compatible change?
-            if (project instanceof AbstractProject) {
-                AbstractProject abstractProject = (AbstractProject) project;
+            if (project instanceof AbstractProjectExt) {
+                AbstractProjectExt abstractProject = (AbstractProjectExt) project;
 
                 Run run = abstractProject.getLastSuccessfulBuild();
                 if (run != null) {
@@ -190,9 +190,9 @@ public class JavadocArchiver extends Recorder {
     }
     
     public static class JavadocBuildAction extends BaseJavadocAction {
-    	private final AbstractBuild<?,?> build;
+    	private final AbstractBuildExt<?,?> build;
     	
-    	public JavadocBuildAction(AbstractBuild<?,?> build) {
+    	public JavadocBuildAction(AbstractBuildExt<?,?> build) {
     	    this.build = build;
     	}
 
@@ -214,12 +214,12 @@ public class JavadocArchiver extends Recorder {
         /**
          * Performs on-the-fly validation on the file mask wildcard.
          */
-        public FormValidation doCheck(@AncestorInPath AbstractProject project, @QueryParameter String value) throws IOException, ServletException {
-            FilePath ws = project.getSomeWorkspace();
+        public FormValidation doCheck(@AncestorInPath AbstractProjectExt project, @QueryParameter String value) throws IOException, ServletException {
+            FilePathExt ws = project.getSomeWorkspace();
             return ws != null ? ws.validateRelativeDirectory(value) : FormValidation.ok();
         }
 
-        public boolean isApplicable(Class<? extends AbstractProject> jobType) {
+        public boolean isApplicable(Class<? extends AbstractProjectExt> jobType) {
             return true;
         }
     }

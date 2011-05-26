@@ -1,6 +1,6 @@
 package hudson.tools;
 
-import hudson.FilePath;
+import hudson.FilePathExt;
 import hudson.model.DownloadService.Downloadable;
 import hudson.model.Node;
 import hudson.model.TaskListener;
@@ -40,8 +40,8 @@ public abstract class DownloadFromUrlInstaller extends ToolInstaller {
      * This check needs to run fairly efficiently. The current implementation uses the souce URL of {@link Installable},
      * based on the assumption that released bits do not change its content.
      */
-    protected boolean isUpToDate(FilePath expectedLocation, Installable i) throws IOException, InterruptedException {
-        FilePath marker = expectedLocation.child(".installedFrom");
+    protected boolean isUpToDate(FilePathExt expectedLocation, Installable i) throws IOException, InterruptedException {
+        FilePathExt marker = expectedLocation.child(".installedFrom");
         return marker.exists() && marker.readToString().equals(i.url);
     }
 
@@ -57,8 +57,8 @@ public abstract class DownloadFromUrlInstaller extends ToolInstaller {
         return null;
     }
 
-    public FilePath performInstallation(ToolInstallation tool, Node node, TaskListener log) throws IOException, InterruptedException {
-        FilePath expected = preferredLocation(tool, node);
+    public FilePathExt performInstallation(ToolInstallation tool, Node node, TaskListener log) throws IOException, InterruptedException {
+        FilePathExt expected = preferredLocation(tool, node);
 
         Installable inst = getInstallable();
         if(inst==null) {
@@ -71,7 +71,7 @@ public abstract class DownloadFromUrlInstaller extends ToolInstaller {
 
         if(expected.installIfNecessaryFrom(new URL(inst.url), log, "Unpacking " + inst.url + " to " + expected + " on " + node.getDisplayName())) {
             expected.child(".timestamp").delete(); // we don't use the timestamp
-            FilePath base = findPullUpDirectory(expected);
+            FilePathExt base = findPullUpDirectory(expected);
             if(base!=null && base!=expected)
                 base.moveAllChildrenTo(expected);
             // leave a record for the next up-to-date check
@@ -106,10 +106,10 @@ public abstract class DownloadFromUrlInstaller extends ToolInstaller {
      *      <tt>root.child("jakarta-ant")</tt> should be returned. If there's no directory to pull up,
      *      return null. 
      */
-    protected FilePath findPullUpDirectory(FilePath root) throws IOException, InterruptedException {
+    protected FilePathExt findPullUpDirectory(FilePathExt root) throws IOException, InterruptedException {
         // if the directory just contains one directory and that alone, assume that's the pull up subject
         // otherwise leave it as is.
-        List<FilePath> children = root.list();
+        List<FilePathExt> children = root.list();
         if(children.size()!=1)    return null;
         if(children.get(0).isDirectory())
             return children.get(0);

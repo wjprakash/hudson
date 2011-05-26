@@ -23,7 +23,7 @@
  */
 package hudson.tasks.junit;
 
-import hudson.model.AbstractBuild;
+import hudson.model.AbstractBuildExt;
 import hudson.tasks.test.MetaTabulatedResult;
 import hudson.tasks.test.TestResult;
 import org.kohsuke.stapler.StaplerRequest;
@@ -54,7 +54,7 @@ public final class PackageResult extends MetaTabulatedResult implements Comparab
     }
     
     @Override
-    public AbstractBuild<?, ?> getOwner() {
+    public AbstractBuildExt<?, ?> getOwner() {
         return (parent == null ? null : parent.getOwner());
     }
 

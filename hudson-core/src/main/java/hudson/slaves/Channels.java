@@ -25,8 +25,8 @@ package hudson.slaves;
 
 import hudson.Launcher.LocalLauncher;
 import hudson.Proc;
-import hudson.FilePath;
-import hudson.model.Computer;
+import hudson.FilePathExt;
+import hudson.model.ComputerExt;
 import hudson.model.TaskListener;
 import hudson.remoting.Channel;
 import hudson.remoting.Launcher;
@@ -154,7 +154,7 @@ public class Channels {
      *      never null
      * @since 1.300
      */
-    public static Channel newJVM(String displayName, TaskListener listener, FilePath workDir, ClasspathBuilder classpath, Map<String,String> systemProperties) throws IOException {
+    public static Channel newJVM(String displayName, TaskListener listener, FilePathExt workDir, ClasspathBuilder classpath, Map<String,String> systemProperties) throws IOException {
         JVMBuilder vmb = new JVMBuilder();
         vmb.systemProperties(systemProperties);
 
@@ -185,7 +185,7 @@ public class Channels {
      *      never null
      * @since 1.361
      */
-    public static Channel newJVM(String displayName, TaskListener listener, JVMBuilder vmb, FilePath workDir, ClasspathBuilder classpath) throws IOException {
+    public static Channel newJVM(String displayName, TaskListener listener, JVMBuilder vmb, FilePathExt workDir, ClasspathBuilder classpath) throws IOException {
         ServerSocket serverSocket = new ServerSocket();
         serverSocket.bind(new InetSocketAddress("localhost",0));
         serverSocket.setSoTimeout(10*1000);
@@ -204,7 +204,7 @@ public class Channels {
         Socket s = serverSocket.accept();
         serverSocket.close();
 
-        return forProcess("Channel to "+displayName, Computer.threadPoolForRemoting,
+        return forProcess("Channel to "+displayName, ComputerExt.threadPoolForRemoting,
                 new BufferedInputStream(new SocketInputStream(s)),
                 new BufferedOutputStream(new SocketOutputStream(s)),null,p);
     }

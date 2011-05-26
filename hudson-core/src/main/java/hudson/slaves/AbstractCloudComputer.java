@@ -23,7 +23,7 @@
  */
 package hudson.slaves;
 
-import hudson.model.Computer;
+import hudson.model.ComputerExt;
 import org.kohsuke.stapler.HttpRedirect;
 import org.kohsuke.stapler.HttpResponse;
 import org.kohsuke.stapler.HttpResponses;
@@ -31,7 +31,7 @@ import org.kohsuke.stapler.HttpResponses;
 import java.io.IOException;
 
 /**
- * Partial implementation of {@link Computer} to be used in conjunction with
+ * Partial implementation of {@link ComputerExt} to be used in conjunction with
  * {@link AbstractCloudSlave}.
  *
  * @author Kohsuke Kawaguchi

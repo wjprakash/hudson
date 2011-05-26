@@ -24,7 +24,7 @@
 package hudson.tasks.test;
 
 import hudson.tasks.junit.TestAction;
-import hudson.model.AbstractBuild;
+import hudson.model.AbstractBuildExt;
 import hudson.model.Run;
 import hudson.model.Result;
 
@@ -132,7 +132,7 @@ public abstract class TestResult extends TestObject {
      * @return null if no such counter part exists.
      */
     public TestResult getPreviousResult() {
-        AbstractBuild<?,?> b = getOwner();
+        AbstractBuildExt<?,?> b = getOwner();
         if (b == null) {
             return null;
         }
@@ -154,7 +154,7 @@ public abstract class TestResult extends TestObject {
      *
      * @return null if no such counter part exists.
      */
-    public TestResult getResultInBuild(AbstractBuild<?,?> build) {
+    public TestResult getResultInBuild(AbstractBuildExt<?,?> build) {
         AbstractTestResultAction tra = build.getAction(getParentAction().getClass());
         if (tra == null) {
             tra = build.getAction(AbstractTestResultAction.class);

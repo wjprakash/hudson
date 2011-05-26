@@ -27,7 +27,7 @@ import hudson.Launcher.LocalLauncher;
 import hudson.Util;
 import hudson.Extension;
 import hudson.os.SU;
-import hudson.model.AdministrativeMonitor;
+import hudson.model.AdministrativeMonitorExt;
 import hudson.model.Hudson;
 import hudson.model.TaskListener;
 import hudson.remoting.Callable;
@@ -62,7 +62,7 @@ import java.util.logging.Logger;
  * @author Kohsuke Kawaguchi
  * @since 1.283
  */
-public class ZFSInstaller extends AdministrativeMonitor implements Serializable {
+public class ZFSInstaller extends AdministrativeMonitorExt implements Serializable {
     /**
      * True if $HUDSON_HOME is a ZFS file system by itself.
      */
@@ -268,7 +268,7 @@ public class ZFSInstaller extends AdministrativeMonitor implements Serializable 
     }
 
     @Extension
-    public static AdministrativeMonitor init() {
+    public static AdministrativeMonitorExt init() {
         String migrationTarget = System.getProperty(ZFSInstaller.class.getName() + ".migrate");
         if(migrationTarget!=null) {
             ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -403,7 +403,7 @@ public class ZFSInstaller extends AdministrativeMonitor implements Serializable 
     /**
      * Used to indicate that the migration was completed successfully.
      */
-    public static final class MigrationCompleteNotice extends AdministrativeMonitor {
+    public static final class MigrationCompleteNotice extends AdministrativeMonitorExt {
         public boolean isActivated() {
             return true;
         }
@@ -412,7 +412,7 @@ public class ZFSInstaller extends AdministrativeMonitor implements Serializable 
     /**
      * Used to indicate a failure in the migration.
      */
-    public static final class MigrationFailedNotice extends AdministrativeMonitor {
+    public static final class MigrationFailedNotice extends AdministrativeMonitorExt {
         ByteArrayOutputStream record;
 
         MigrationFailedNotice(ByteArrayOutputStream record) {

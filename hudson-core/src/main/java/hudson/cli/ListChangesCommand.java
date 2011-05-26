@@ -1,7 +1,7 @@
 package hudson.cli;
 
 import hudson.Extension;
-import hudson.model.AbstractBuild;
+import hudson.model.AbstractBuildExt;
 import hudson.scm.ChangeLogSet;
 import hudson.scm.ChangeLogSet.Entry;
 import hudson.util.QuotedStringTokenizer;
@@ -39,14 +39,14 @@ public class ListChangesCommand extends AbstractBuildRangeCommand {
     public Format format = Format.PLAIN;
 
     @Override
-    protected int act(List<AbstractBuild<?, ?>> builds) throws IOException {
+    protected int act(List<AbstractBuildExt<?, ?>> builds) throws IOException {
         // Loading job for this CLI command requires Item.READ permission.
         // No other permission check needed.
         switch (format) {
         case XML:
             PrintWriter w = new PrintWriter(stdout);
             w.println("<changes>");
-            for (AbstractBuild build : builds) {
+            for (AbstractBuildExt build : builds) {
                 w.println("<build number='"+build.getNumber()+"'>");
                 ChangeLogSet<?> cs = build.getChangeSet();
                 Model p = new ModelBuilder().get(cs.getClass());
@@ -57,7 +57,7 @@ public class ListChangesCommand extends AbstractBuildRangeCommand {
             w.flush();
             break;
         case CSV:
-            for (AbstractBuild build : builds) {
+            for (AbstractBuildExt build : builds) {
                 ChangeLogSet<?> cs = build.getChangeSet();
                 for (Entry e : cs) {
                     stdout.printf("%s,%s\n",
@@ -67,7 +67,7 @@ public class ListChangesCommand extends AbstractBuildRangeCommand {
             }
             break;
         case PLAIN:
-            for (AbstractBuild build : builds) {
+            for (AbstractBuildExt build : builds) {
                 ChangeLogSet<?> cs = build.getChangeSet();
                 for (Entry e : cs) {
                     stdout.printf("%s\t%s\n",e.getAuthor(),e.getMsg());

@@ -26,20 +26,20 @@
 package hudson.model;
 
 import hudson.console.ConsoleLogFilter;
-import hudson.Functions;
+import hudson.FunctionsExt;
 import hudson.AbortException;
 import hudson.BulkChange;
 import hudson.EnvVars;
 import hudson.ExtensionPoint;
 import hudson.FeedAdapter;
-import hudson.FilePath;
+import hudson.FilePathExt;
 import hudson.Util;
 import hudson.XmlFile;
 import hudson.cli.declarative.CLIMethod;
-import hudson.console.AnnotatedLargeText;
+import hudson.AnnotatedLargeText;
 import hudson.console.ConsoleNote;
-import hudson.matrix.MatrixBuild;
-import hudson.matrix.MatrixRun;
+import hudson.matrix.MatrixBuildExt;
+import hudson.matrix.MatrixRunExt;
 import hudson.model.Descriptor.FormException;
 import hudson.model.listeners.RunListener;
 import hudson.model.listeners.SaveableListener;
@@ -125,7 +125,7 @@ import static java.util.logging.Level.FINE;
  */
 @ExportedBean
 public abstract class Run <JobT extends Job<JobT,RunT>,RunT extends Run<JobT,RunT>>
-        extends Actionable implements ExtensionPoint, Comparable<RunT>, AccessControlled, PersistenceRoot, DescriptorByNameOwner {
+        extends ActionableExt implements ExtensionPoint, Comparable<RunT>, AccessControlled, PersistenceRoot, DescriptorByNameOwner {
 
     protected transient final JobT project;
 
@@ -382,7 +382,7 @@ public abstract class Run <JobT extends Job<JobT,RunT>,RunT extends Run<JobT,Run
      * Otherwise null.
      */
     public Executor getExecutor() {
-        for( Computer c : Hudson.getInstance().getComputers() ) {
+        for( ComputerExt c : Hudson.getInstance().getComputers() ) {
             for (Executor e : c.getExecutors()) {
                 if(e.getCurrentExecutable()==this)
                     return e;
@@ -402,7 +402,7 @@ public abstract class Run <JobT extends Job<JobT,RunT>,RunT extends Run<JobT,Run
     }
 
     /**
-     * Returns the {@link Cause}s that tirggered a build.
+     * Returns the {@link CauseExt}s that tirggered a build.
      *
      * <p>
      * If a build sits in the queue for a long time, multiple build requests made during this period
@@ -412,19 +412,19 @@ public abstract class Run <JobT extends Job<JobT,RunT>,RunT extends Run<JobT,Run
      *      can be empty but never null. read-only.
      * @since 1.321
      */
-    public List<Cause> getCauses() {
+    public List<CauseExt> getCauses() {
         CauseAction a = getAction(CauseAction.class);
         if (a==null)    return Collections.emptyList();
         return Collections.unmodifiableList(a.getCauses());
     }
 
     /**
-     * Returns a {@link Cause} of a particular type.
+     * Returns a {@link CauseExt} of a particular type.
      *
      * @since 1.362
      */
-    public <T extends Cause> T getCause(Class<T> type) {
-        for (Cause c : getCauses())
+    public <T extends CauseExt> T getCause(Class<T> type) {
+        for (CauseExt c : getCauses())
             if (type.isInstance(c))
                 return type.cast(c);
         return null;
@@ -575,16 +575,16 @@ public abstract class Run <JobT extends Job<JobT,RunT>,RunT extends Run<JobT,Run
     /**
      * Gets the icon color for display.
      */
-    public BallColor getIconColor() {
+    public BallColorExt getIconColor() {
         if(!isBuilding()) {
             // already built
             return getResult().color;
         }
 
         // a new build is in progress
-        BallColor baseColor;
+        BallColorExt baseColor;
         if(previousBuild==null)
-            baseColor = BallColor.GREY;
+            baseColor = BallColorExt.GREY;
         else
             baseColor = previousBuild.getIconColor();
 
@@ -1328,7 +1328,7 @@ public abstract class Run <JobT extends Job<JobT,RunT>,RunT extends Run<JobT,Run
 
             try {
                 try {
-                    Charset charset = Computer.currentComputer().getDefaultCharset();
+                    Charset charset = ComputerExt.currentComputer().getDefaultCharset();
                     this.charset = charset.name();
 
                     // don't do buffering so that what's written to the listener
@@ -1339,14 +1339,14 @@ public abstract class Run <JobT extends Job<JobT,RunT>,RunT extends Run<JobT,Run
 
                     // Global log filters
                     for (ConsoleLogFilter filter : ConsoleLogFilter.all()) {
-                        logger = filter.decorateLogger((AbstractBuild) build, logger);
+                        logger = filter.decorateLogger((AbstractBuildExt) build, logger);
                     }
 
                     // Project specific log filterss
-                    if (project instanceof BuildableItemWithBuildWrappers && build instanceof AbstractBuild) {
+                    if (project instanceof BuildableItemWithBuildWrappers && build instanceof AbstractBuildExt) {
                         BuildableItemWithBuildWrappers biwbw = (BuildableItemWithBuildWrappers) project;
                         for (BuildWrapper bw : biwbw.getBuildWrappersList()) {
-                            logger = bw.decorateLogger((AbstractBuild) build, logger);
+                            logger = bw.decorateLogger((AbstractBuildExt) build, logger);
                         }
                     }
 
@@ -1595,9 +1595,9 @@ public abstract class Run <JobT extends Job<JobT,RunT>,RunT extends Run<JobT,Run
             return new Summary(false, Messages.Run_Summary_Aborted());
 
         if(getResult()==Result.UNSTABLE) {
-            if(((Run)this) instanceof AbstractBuild) {
-                AbstractTestResultAction trN = ((AbstractBuild)(Run)this).getTestResultAction();
-                AbstractTestResultAction trP = prev==null ? null : ((AbstractBuild) prev).getTestResultAction();
+            if(((Run)this) instanceof AbstractBuildExt) {
+                AbstractTestResultAction trN = ((AbstractBuildExt)(Run)this).getTestResultAction();
+                AbstractTestResultAction trP = prev==null ? null : ((AbstractBuildExt) prev).getTestResultAction();
                 if(trP==null) {
                     if(trN!=null && trN.getFailCount()>0)
                         return new Summary(false, Messages.Run_Summary_TestFailures(trN.getFailCount()));
@@ -1622,10 +1622,10 @@ public abstract class Run <JobT extends Job<JobT,RunT>,RunT extends Run<JobT,Run
      * Serves the artifacts.
      */
     public DirectoryBrowserSupport doArtifact() {
-        if(Functions.isArtifactsPermissionEnabled()) {
+        if(FunctionsExt.isArtifactsPermissionEnabled()) {
           checkPermission(ARTIFACTS);
         }
-        return new DirectoryBrowserSupport(this,new FilePath(getArtifactsDir()), project.getDisplayName()+' '+getDisplayName(), "package.gif", true);
+        return new DirectoryBrowserSupport(this,new FilePathExt(getArtifactsDir()), project.getDisplayName()+' '+getDisplayName(), "package.gif", true);
     }
 
     /**
@@ -1761,7 +1761,7 @@ public abstract class Run <JobT extends Job<JobT,RunT>,RunT extends Run<JobT,Run
      */
     public EnvVars getEnvironment(TaskListener log) throws IOException, InterruptedException {
         EnvVars env = getCharacteristicEnvVars();
-        Computer c = Computer.currentComputer();
+        ComputerExt c = ComputerExt.currentComputer();
         if (c!=null)
             env = c.getEnvironment().overrideAll(env);
         String rootUrl = Hudson.getInstance().getRootUrl();
@@ -1853,8 +1853,8 @@ public abstract class Run <JobT extends Job<JobT,RunT>,RunT extends Run<JobT,Run
     public static final XStream XSTREAM = new XStream2();
     static {
         XSTREAM.alias("build",FreeStyleBuild.class);
-        XSTREAM.alias("matrix-build",MatrixBuild.class);
-        XSTREAM.alias("matrix-run",MatrixRun.class);
+        XSTREAM.alias("matrix-build",MatrixBuildExt.class);
+        XSTREAM.alias("matrix-run",MatrixRunExt.class);
         XSTREAM.registerConverter(Result.conv);
     }
 
@@ -1906,9 +1906,9 @@ public abstract class Run <JobT extends Job<JobT,RunT>,RunT extends Run<JobT,Run
     public static final PermissionGroup PERMISSIONS = new PermissionGroup(Run.class,Messages._Run_Permissions_Title());
     public static final Permission DELETE = new Permission(PERMISSIONS,"Delete",Messages._Run_DeletePermission_Description(),Permission.DELETE);
     public static final Permission UPDATE = new Permission(PERMISSIONS,"Update",Messages._Run_UpdatePermission_Description(),Permission.UPDATE);
-    /** See {@link hudson.Functions#isArtifactsPermissionEnabled} */
+    /** See {@link hudson.FunctionsExt#isArtifactsPermissionEnabled} */
     public static final Permission ARTIFACTS = new Permission(PERMISSIONS,"Artifacts",Messages._Run_ArtifactsPermission_Description(), null,
-                                                              Functions.isArtifactsPermissionEnabled());
+                                                              FunctionsExt.isArtifactsPermissionEnabled());
 
     private static class DefaultFeedAdapter implements FeedAdapter<Run> {
         public String getEntryTitle(Run entry) {

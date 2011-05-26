@@ -24,15 +24,15 @@
 package hudson.os.solaris;
 
 import hudson.FileSystemProvisioner;
-import hudson.FilePath;
+import hudson.FilePathExt;
 import hudson.WorkspaceSnapshot;
 import hudson.FileSystemProvisionerDescriptor;
 import hudson.Extension;
 import hudson.remoting.VirtualChannel;
-import hudson.FilePath.FileCallable;
-import hudson.model.AbstractBuild;
+import hudson.FilePathExt.FileCallable;
+import hudson.model.AbstractBuildExt;
 import hudson.model.TaskListener;
-import hudson.model.AbstractProject;
+import hudson.model.AbstractProjectExt;
 import hudson.model.Node;
 import hudson.util.jna.NativeAccessException;
 import hudson.util.jna.NativeUtils;
@@ -72,7 +72,7 @@ public class ZFSProvisioner extends FileSystemProvisioner implements Serializabl
         });
     }
 
-    public void prepareWorkspace(AbstractBuild<?,?> build, FilePath ws, final TaskListener listener) throws IOException, InterruptedException {
+    public void prepareWorkspace(AbstractBuildExt<?,?> build, FilePathExt ws, final TaskListener listener) throws IOException, InterruptedException {
         final String name = build.getProject().getFullName();
         
         ws.act(new FileCallable<Void>() {
@@ -98,7 +98,7 @@ public class ZFSProvisioner extends FileSystemProvisioner implements Serializabl
         });
     }
 
-    public void discardWorkspace(AbstractProject<?, ?> project, FilePath ws) throws IOException, InterruptedException {
+    public void discardWorkspace(AbstractProjectExt<?, ?> project, FilePathExt ws) throws IOException, InterruptedException {
         ws.act(new FileCallable<Void>() {
             public Void invoke(File f, VirtualChannel channel) throws IOException {
                 try {
@@ -118,17 +118,17 @@ public class ZFSProvisioner extends FileSystemProvisioner implements Serializabl
     /**
      * @deprecated as of 1.350
      */
-    public WorkspaceSnapshot snapshot(AbstractBuild<?, ?> build, FilePath ws, TaskListener listener) throws IOException, InterruptedException {
+    public WorkspaceSnapshot snapshot(AbstractBuildExt<?, ?> build, FilePathExt ws, TaskListener listener) throws IOException, InterruptedException {
         throw new UnsupportedOperationException();
     }
 
-    public WorkspaceSnapshot snapshot(AbstractBuild<?, ?> build, FilePath ws, String glob, TaskListener listener) throws IOException, InterruptedException {
+    public WorkspaceSnapshot snapshot(AbstractBuildExt<?, ?> build, FilePathExt ws, String glob, TaskListener listener) throws IOException, InterruptedException {
         throw new UnsupportedOperationException();
     }
 
     @Extension
     public static final class DescriptorImpl extends FileSystemProvisionerDescriptor {
-        public boolean discard(FilePath ws, TaskListener listener) throws IOException, InterruptedException {
+        public boolean discard(FilePathExt ws, TaskListener listener) throws IOException, InterruptedException {
             // TODO
             return false;
         }

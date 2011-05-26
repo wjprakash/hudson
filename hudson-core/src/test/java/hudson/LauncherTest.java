@@ -43,7 +43,7 @@ public class LauncherTest extends ChannelTestCase {
         tmp.delete();
 
         try {
-            FilePath f = new FilePath(french, tmp.getPath());
+            FilePathExt f = new FilePathExt(french, tmp.getPath());
             Launcher l = f.createLauncher(StreamTaskListener.fromStderr());
             Proc p = l.launch().cmds("sh", "-c", "echo $$$$ > "+tmp+"; sleep 30").stdout(System.out).stderr(System.err).start();
             while (!tmp.exists())
@@ -58,7 +58,7 @@ public class LauncherTest extends ChannelTestCase {
             assertNull("process should be gone",ProcessTree.get().get(Integer.parseInt(FileUtils.readFileToString(tmp).trim())));
 
             // Manual version of test: set up instance w/ one slave. Now in script console
-            // new hudson.FilePath(new java.io.File("/tmp")).createLauncher(new hudson.util.StreamTaskListener(System.err)).
+            // new hudson.FilePathExt(new java.io.File("/tmp")).createLauncher(new hudson.util.StreamTaskListener(System.err)).
             //   launch().cmds("sleep", "1d").stdout(System.out).stderr(System.err).start().kill()
             // returns immediately and pgrep sleep => nothing. But without fix
             // hudson.model.Hudson.instance.nodes[0].rootPath.createLauncher(new hudson.util.StreamTaskListener(System.err)).

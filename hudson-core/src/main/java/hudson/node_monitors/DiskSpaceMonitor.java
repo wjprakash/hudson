@@ -24,9 +24,9 @@
 package hudson.node_monitors;
 
 import hudson.Extension;
-import hudson.FilePath;
-import hudson.Functions;
-import hudson.model.Computer;
+import hudson.FilePathExt;
+import hudson.FunctionsExt;
+import hudson.model.ComputerExt;
 import hudson.model.Hudson;
 import hudson.node_monitors.DiskSpaceMonitorDescriptor.DiskSpace;
 import org.kohsuke.stapler.DataBoundConstructor;
@@ -49,7 +49,7 @@ public class DiskSpaceMonitor extends AbstractDiskSpaceMonitor {
 
     public DiskSpaceMonitor() {}
     
-    public DiskSpace getFreeSpace(Computer c) {
+    public DiskSpace getFreeSpace(ComputerExt c) {
         return DESCRIPTOR.get(c);
     }
 
@@ -64,8 +64,8 @@ public class DiskSpaceMonitor extends AbstractDiskSpaceMonitor {
             return Messages.DiskSpaceMonitor_DisplayName();
         }
 
-        protected DiskSpace getFreeSpace(Computer c) throws IOException, InterruptedException {
-            FilePath p = c.getNode().getRootPath();
+        protected DiskSpace getFreeSpace(ComputerExt c) throws IOException, InterruptedException {
+            FilePathExt p = c.getNode().getRootPath();
             if(p==null) return null;
 
             return p.act(new GetUsableSpace());
@@ -74,7 +74,7 @@ public class DiskSpaceMonitor extends AbstractDiskSpaceMonitor {
 
     @Extension
     public static DiskSpaceMonitorDescriptor install() {
-        if(Functions.isMustangOrAbove())    return DESCRIPTOR;
+        if(FunctionsExt.isMustangOrAbove())    return DESCRIPTOR;
         return null;
     }
 }

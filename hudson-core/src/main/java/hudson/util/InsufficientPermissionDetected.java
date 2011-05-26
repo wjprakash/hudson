@@ -23,7 +23,7 @@
  */
 package hudson.util;
 
-import hudson.Functions;
+import hudson.FunctionsExt;
 
 /**
  * Model object used to display the error top page if
@@ -42,6 +42,6 @@ public class InsufficientPermissionDetected extends ErrorObject {
     }
 
     public String getExceptionTrace() {
-        return Functions.printThrowable(exception);
+        return FunctionsExt.printThrowable(exception);
     }
 }

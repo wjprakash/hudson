@@ -28,7 +28,7 @@ import com.thoughtworks.xstream.converters.MarshallingContext;
 import com.thoughtworks.xstream.converters.UnmarshallingContext;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
-import hudson.diagnosis.OldDataMonitor;
+import hudson.diagnosis.OldDataMonitorExt;
 import hudson.model.Descriptor;
 import hudson.model.Hudson;
 import hudson.model.Item;
@@ -36,7 +36,7 @@ import hudson.util.FormValidation;
 import hudson.util.FormValidation.Kind;
 import hudson.util.VersionNumber;
 import hudson.util.RobustReflectionConverter;
-import hudson.Functions;
+import hudson.FunctionsExt;
 import hudson.Extension;
 import net.sf.json.JSONObject;
 import org.acegisecurity.userdetails.UsernameNotFoundException;
@@ -232,7 +232,7 @@ public class GlobalMatrixAuthorizationStrategy extends AuthorizationStrategy {
             }
 
             if (migrateHudson2324(as.grantedPermissions))
-                OldDataMonitor.report(context, "1.301");
+                OldDataMonitorExt.report(context, "1.301");
 
             return as;
         }
@@ -292,7 +292,7 @@ public class GlobalMatrixAuthorizationStrategy extends AuthorizationStrategy {
 
             final String v = value.substring(1,value.length()-1);
             SecurityRealm sr = Hudson.getInstance().getSecurityRealm();
-            String ev = Functions.escape(v);
+            String ev = FunctionsExt.escape(v);
 
             if(v.equals("authenticated"))
                 // system reserved group

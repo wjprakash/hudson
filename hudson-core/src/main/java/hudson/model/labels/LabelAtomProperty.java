@@ -23,7 +23,7 @@
  */
 package hudson.model.labels;
 
-import hudson.DescriptorExtensionList;
+import hudson.DescriptorExtensionListExt;
 import hudson.ExtensionPoint;
 import hudson.model.AbstractDescribableImpl;
 import hudson.model.Action;
@@ -61,7 +61,7 @@ public class LabelAtomProperty extends AbstractDescribableImpl<LabelAtomProperty
     /**
      * Lists up all the registered {@link LabelAtomPropertyDescriptor}s in the system.
      */
-    public static DescriptorExtensionList<LabelAtomProperty,LabelAtomPropertyDescriptor> all() {
+    public static DescriptorExtensionListExt<LabelAtomProperty,LabelAtomPropertyDescriptor> all() {
         return Hudson.getInstance().<LabelAtomProperty,LabelAtomPropertyDescriptor>getDescriptorList(LabelAtomProperty.class);
     }
 }

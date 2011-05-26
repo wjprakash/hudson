@@ -25,11 +25,11 @@
 package hudson.tools;
 
 import hudson.Extension;
-import hudson.FilePath;
-import hudson.FilePath.FileCallable;
+import hudson.FilePathExt;
+import hudson.FilePathExt.FileCallable;
 import hudson.ProxyConfiguration;
 import hudson.Util;
-import hudson.Functions;
+import hudson.FunctionsExt;
 import hudson.model.Node;
 import hudson.model.TaskListener;
 import hudson.remoting.VirtualChannel;
@@ -75,8 +75,8 @@ public class ZipExtractionInstaller extends ToolInstaller {
         return subdir;
     }
 
-    public FilePath performInstallation(ToolInstallation tool, Node node, TaskListener log) throws IOException, InterruptedException {
-        FilePath dir = preferredLocation(tool, node);
+    public FilePathExt performInstallation(ToolInstallation tool, Node node, TaskListener log) throws IOException, InterruptedException {
+        FilePathExt dir = preferredLocation(tool, node);
         if (dir.installIfNecessaryFrom(new URL(url), log, "Unpacking " + url + " to " + dir + " on " + node.getDisplayName())) {
             dir.act(new ChmodRecAPlusX());
         }
@@ -120,14 +120,14 @@ public class ZipExtractionInstaller extends ToolInstaller {
     static class ChmodRecAPlusX implements FileCallable<Void> {
         private static final long serialVersionUID = 1L;
         public Void invoke(File d, VirtualChannel channel) throws IOException {
-            if(!Functions.isWindows())
+            if(!FunctionsExt.isWindows())
                 process(d);
             return null;
         }
         @IgnoreJRERequirement
         private void process(File f) {
             if (f.isFile()) {
-                if (Functions.isMustangOrAbove()) {
+                if (FunctionsExt.isMustangOrAbove()) {
                     f.setExecutable(true, false);
                 } else {
                     Util.chmod(f, 0755);

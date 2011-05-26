@@ -23,7 +23,7 @@
  */
 package hudson.model;
 
-import hudson.FilePath;
+import hudson.FilePathExt;
 import hudson.Util;
 import hudson.Extension;
 
@@ -84,14 +84,14 @@ public class WorkspaceCleanupThread extends AsyncPeriodicWork {
         File[] dirs = jobs.listFiles(DIR_FILTER);
         if(dirs==null)      return;
         for (File dir : dirs) {
-            FilePath ws = new FilePath(new File(dir, "workspace"));
+            FilePathExt ws = new FilePathExt(new File(dir, "workspace"));
             if(shouldBeDeleted(dir.getName(),ws,h)) {
                 delete(ws);
             }
         }
     }
 
-    private boolean shouldBeDeleted(String jobName, FilePath dir, Node n) throws IOException, InterruptedException {
+    private boolean shouldBeDeleted(String jobName, FilePathExt dir, Node n) throws IOException, InterruptedException {
         // TODO: the use of remoting is not optimal.
         // One remoting can execute "exists", "lastModified", and "delete" all at once.
         TopLevelItem item = Hudson.getInstance().getItem(jobName);
@@ -111,8 +111,8 @@ public class WorkspaceCleanupThread extends AsyncPeriodicWork {
             return false;
         }
 
-        if (item instanceof AbstractProject) {
-            AbstractProject p = (AbstractProject) item;
+        if (item instanceof AbstractProjectExt) {
+            AbstractProjectExt p = (AbstractProjectExt) item;
             Node lb = p.getLastBuiltOn();
             LOGGER.finer("Directory "+dir+" is last built on "+lb);
             if(lb!=null && lb.equals(n)) {
@@ -135,12 +135,12 @@ public class WorkspaceCleanupThread extends AsyncPeriodicWork {
         listener.getLogger().println("Scanning "+s.getNodeName());
 
         try {
-            FilePath path = s.getWorkspaceRoot();
+            FilePathExt path = s.getWorkspaceRoot();
             if(path==null)  return;
 
-            List<FilePath> dirs = path.list(DIR_FILTER);
+            List<FilePathExt> dirs = path.list(DIR_FILTER);
             if(dirs ==null) return;
-            for (FilePath dir : dirs) {
+            for (FilePathExt dir : dirs) {
                 if(shouldBeDeleted(dir.getName(),dir,s))
                     delete(dir);
             }
@@ -149,7 +149,7 @@ public class WorkspaceCleanupThread extends AsyncPeriodicWork {
         }
     }
 
-    private void delete(FilePath dir) throws InterruptedException {
+    private void delete(FilePathExt dir) throws InterruptedException {
         try {
             listener.getLogger().println("Deleting "+dir);
             dir.deleteRecursive();

@@ -1,10 +1,10 @@
 package hudson.util;
 
-import hudson.model.AdministrativeMonitor;
+import hudson.model.AdministrativeMonitorExt;
 import hudson.Extension;
 
 /**
- * A convenient {@link AdministrativeMonitor} implementations that show an error message
+ * A convenient {@link AdministrativeMonitorExt} implementations that show an error message
  * and optional stack trace. This is useful for notifying a non-fatal error to the administrator.
  *
  * <p>
@@ -12,7 +12,7 @@ import hudson.Extension;
  *
  * @author Kohsuke Kawaguchi
  */
-public class AdministrativeError extends AdministrativeMonitor {
+public class AdministrativeError extends AdministrativeMonitorExt {
     public final String message;
     public final String title;
     public final Throwable details;

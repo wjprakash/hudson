@@ -23,8 +23,8 @@
  */
 package hudson.security;
 
-import hudson.diagnosis.OldDataMonitor;
-import hudson.model.AbstractProject;
+import hudson.diagnosis.OldDataMonitorExt;
+import hudson.model.AbstractProjectExt;
 import hudson.model.Item;
 import hudson.model.Job;
 import hudson.model.JobProperty;
@@ -178,7 +178,7 @@ public class AuthorizationMatrixProperty extends JobProperty<Job<?, ?>> {
         }
 
         public FormValidation doCheckName(@AncestorInPath Job project, @QueryParameter String value) throws IOException, ServletException {
-            return GlobalMatrixAuthorizationStrategy.DESCRIPTOR.doCheckName(value, project, AbstractProject.CONFIGURE);
+            return GlobalMatrixAuthorizationStrategy.DESCRIPTOR.doCheckName(value, project, AbstractProjectExt.CONFIGURE);
         }
     }
 
@@ -273,7 +273,7 @@ public class AuthorizationMatrixProperty extends JobProperty<Job<?, ?>> {
             }
 
             if (GlobalMatrixAuthorizationStrategy.migrateHudson2324(as.grantedPermissions))
-                OldDataMonitor.report(context, "1.301");
+                OldDataMonitorExt.report(context, "1.301");
 
             return as;
         }

@@ -23,7 +23,7 @@
  */
 package hudson.node_monitors;
 
-import hudson.model.Computer;
+import hudson.model.ComputerExt;
 import hudson.model.Descriptor.FormException;
 import hudson.remoting.Callable;
 import hudson.Extension;
@@ -40,7 +40,7 @@ import java.io.IOException;
 public class ArchitectureMonitor extends NodeMonitor {
     @Extension
     public static final class DescriptorImpl extends AbstractNodeMonitorDescriptor<String> {
-        protected String monitor(Computer c) throws IOException, InterruptedException {
+        protected String monitor(ComputerExt c) throws IOException, InterruptedException {
             return c.getChannel().call(new GetArchTask());
         }
 

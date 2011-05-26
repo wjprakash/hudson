@@ -24,7 +24,7 @@
 
 package hudson.util.io;
 
-import hudson.Functions;
+import hudson.FunctionsExt;
 import hudson.org.apache.tools.tar.TarOutputStream;
 import hudson.util.FileVisitor;
 import hudson.util.IOException2;
@@ -83,7 +83,7 @@ final class TarArchiver extends Archiver {
     }
 
     public void visit(File file, String relativePath) throws IOException {
-        if(Functions.isWindows())
+        if(FunctionsExt.isWindows())
             relativePath = relativePath.replace('\\','/');
 
         if(file.isDirectory())

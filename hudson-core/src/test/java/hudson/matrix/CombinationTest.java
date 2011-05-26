@@ -33,8 +33,8 @@ import java.util.HashMap;
  */
 public class CombinationTest extends TestCase {
     AxisList axes = new AxisList(
-            new Axis("a","X","x"),
-            new Axis("b","Y","y"));
+            new AxisExt("a","X","x"),
+            new AxisExt("b","Y","y"));
 
     @SuppressWarnings({"RedundantStringConstructorCall"})
     public void testEval() {

@@ -25,7 +25,7 @@ package hudson.cli;
 
 import groovy.lang.GroovyShell;
 import groovy.lang.Binding;
-import hudson.model.AbstractProject;
+import hudson.model.AbstractProjectExt;
 import hudson.model.Hudson;
 import hudson.model.Item;
 import hudson.model.Run;
@@ -79,8 +79,8 @@ public class GroovyCommand extends CLICommand implements Serializable {
             Item job = Hudson.getInstance().getItemByFullName(j);
             binding.setProperty("currentJob", job);
             String b = getClientEnvironmentVariable("BUILD_NUMBER");
-            if (b!=null && job instanceof AbstractProject) {
-                Run r = ((AbstractProject) job).getBuildByNumber(Integer.parseInt(b));
+            if (b!=null && job instanceof AbstractProjectExt) {
+                Run r = ((AbstractProjectExt) job).getBuildByNumber(Integer.parseInt(b));
                 binding.setProperty("currentBuild", r);
             }
         }

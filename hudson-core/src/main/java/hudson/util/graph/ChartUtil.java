@@ -23,7 +23,7 @@
  */
 package hudson.util.graph;
 
-import hudson.model.AbstractBuild;
+import hudson.model.AbstractBuildExt;
 import java.awt.Font;
 
 
@@ -62,9 +62,9 @@ public class ChartUtil {
      * Can be used as a graph label. Only displays numbers.
      */
     public static abstract class NumberOnlyBuildLabel extends ChartLabel {
-        public final AbstractBuild build;
+        public final AbstractBuildExt build;
 
-        public NumberOnlyBuildLabel(AbstractBuild build) {
+        public NumberOnlyBuildLabel(AbstractBuildExt build) {
             this.build = build;
         }
 

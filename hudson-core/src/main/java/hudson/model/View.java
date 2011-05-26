@@ -24,7 +24,7 @@
 package hudson.model;
 
 import static hudson.model.Hudson.checkGoodName;
-import hudson.DescriptorExtensionList;
+import hudson.DescriptorExtensionListExt;
 import hudson.Extension;
 import hudson.ExtensionPoint;
 import hudson.Util;
@@ -83,7 +83,7 @@ import org.kohsuke.stapler.export.ExportedBean;
  * @see ViewGroup
  */
 @ExportedBean
-public abstract class View extends AbstractModelObject implements AccessControlled, Describable<View>, ExtensionPoint {
+public abstract class View extends AbstractModelObjectExt implements AccessControlled, Describable<View>, ExtensionPoint {
     /**
      * Container of this view. Set right after the construction
      * and never change thereafter.
@@ -234,20 +234,20 @@ public abstract class View extends AbstractModelObject implements AccessControll
         return Hudson.getInstance().getPrimaryView()==this;
     }
     
-    public List<Computer> getComputers() {
-    	Computer[] computers = Hudson.getInstance().getComputers();
+    public List<ComputerExt> getComputers() {
+    	ComputerExt[] computers = Hudson.getInstance().getComputers();
     	
     	if (!isFilterExecutors()) {
     		return Arrays.asList(computers);
     	}
     	
-    	List<Computer> result = new ArrayList<Computer>();
+    	List<ComputerExt> result = new ArrayList<ComputerExt>();
     	
     	boolean roam = false;
     	HashSet<Label> labels = new HashSet<Label>();
     	for (Item item: getItems()) {
-    		if (item instanceof AbstractProject<?,?>) {
-    			AbstractProject<?,?> p = (AbstractProject<?, ?>) item;
+    		if (item instanceof AbstractProjectExt<?,?>) {
+    			AbstractProjectExt<?,?> p = (AbstractProjectExt<?, ?>) item;
     			Label l = p.getAssignedLabel();
     			if (l != null) {
     				labels.add(l);
@@ -257,7 +257,7 @@ public abstract class View extends AbstractModelObject implements AccessControll
     		}
     	}
     	
-    	for (Computer c: computers) {
+    	for (ComputerExt c: computers) {
     		Node n = c.getNode();
     		if (n != null) {
     			if (roam && n.getMode() == Mode.NORMAL || !Collections.disjoint(n.getAssignedLabels(), labels)) {
@@ -397,9 +397,9 @@ public abstract class View extends AbstractModelObject implements AccessControll
         /**
          * Which project did this user commit? Can be null.
          */
-        private AbstractProject project;
+        private AbstractProjectExt project;
 
-        UserInfo(User user, AbstractProject p, Calendar lastChange) {
+        UserInfo(User user, AbstractProjectExt p, Calendar lastChange) {
             this.user = user;
             this.project = p;
             this.lastChange = lastChange;
@@ -416,7 +416,7 @@ public abstract class View extends AbstractModelObject implements AccessControll
         }
 
         @Exported
-        public AbstractProject getProject() {
+        public AbstractProjectExt getProject() {
             return project;
         }
 
@@ -491,9 +491,9 @@ public abstract class View extends AbstractModelObject implements AccessControll
             Map<User,UserInfo> users = new HashMap<User,UserInfo>();
             for (Item item : items) {
                 for (Job job : item.getAllJobs()) {
-                    if (job instanceof AbstractProject) {
-                        AbstractProject<?,?> p = (AbstractProject) job;
-                        for (AbstractBuild<?,?> build : p.getBuilds()) {
+                    if (job instanceof AbstractProjectExt) {
+                        AbstractProjectExt<?,?> p = (AbstractProjectExt) job;
+                        for (AbstractBuildExt<?,?> build : p.getBuilds()) {
                             for (Entry entry : build.getChangeSet()) {
                                 User user = entry.getAuthor();
 
@@ -527,9 +527,9 @@ public abstract class View extends AbstractModelObject implements AccessControll
         public static boolean isApplicable(Collection<? extends Item> items) {
             for (Item item : items) {
                 for (Job job : item.getAllJobs()) {
-                    if (job instanceof AbstractProject) {
-                        AbstractProject<?,?> p = (AbstractProject) job;
-                        for (AbstractBuild<?,?> build : p.getBuilds()) {
+                    if (job instanceof AbstractProjectExt) {
+                        AbstractProjectExt<?,?> p = (AbstractProjectExt) job;
+                        for (AbstractBuildExt<?,?> build : p.getBuilds()) {
                             for (Entry entry : build.getChangeSet()) {
                                 User user = entry.getAuthor();
                                 if(user!=null)
@@ -629,8 +629,8 @@ public abstract class View extends AbstractModelObject implements AccessControll
         return new RunList(this);
     }
     
-    public BuildTimelineWidget getTimeline() {
-        return new BuildTimelineWidget(getBuilds());
+    public BuildTimelineWidgetExt getTimeline() {
+        return new BuildTimelineWidgetExt(getBuilds());
     }
 
     private void rss(StaplerRequest req, StaplerResponse rsp, String suffix, RunList runs) throws IOException, ServletException {
@@ -661,7 +661,7 @@ public abstract class View extends AbstractModelObject implements AccessControll
     /**
      * Returns all the registered {@link ViewDescriptor}s.
      */
-    public static DescriptorExtensionList<View,ViewDescriptor> all() {
+    public static DescriptorExtensionListExt<View,ViewDescriptor> all() {
         return Hudson.getInstance().<View,ViewDescriptor>getDescriptorList(View.class);
     }
 

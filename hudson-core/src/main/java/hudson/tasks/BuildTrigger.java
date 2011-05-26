@@ -27,8 +27,8 @@ import hudson.Launcher;
 import hudson.Extension;
 import hudson.Util;
 import hudson.security.AccessControlled;
-import hudson.model.AbstractBuild;
-import hudson.model.AbstractProject;
+import hudson.model.AbstractBuildExt;
+import hudson.model.AbstractProjectExt;
 import hudson.model.Action;
 import hudson.model.BuildListener;
 import hudson.model.DependecyDeclarer;
@@ -41,7 +41,7 @@ import hudson.model.Job;
 import hudson.model.Project;
 import hudson.model.Result;
 import hudson.model.Run;
-import hudson.model.Cause.UpstreamCause;
+import hudson.model.CauseExt.UpstreamCause;
 import hudson.model.TaskListener;
 import hudson.model.listeners.ItemListener;
 import hudson.util.FormValidation;
@@ -72,7 +72,7 @@ import java.util.logging.Logger;
  * on its own, because dependencies may come from other sources.
  *
  * <p>
- * This class, however, does provide the {@link #execute(AbstractBuild, BuildListener, BuildTrigger)}
+ * This class, however, does provide the {@link #execute(AbstractBuildExt, BuildListener, BuildTrigger)}
  * method as a convenience method to invoke downstream builds.
  *
  * @author Kohsuke Kawaguchi
@@ -104,11 +104,11 @@ public class BuildTrigger extends Recorder implements DependecyDeclarer {
         this.threshold = threshold;
     }
 
-    public BuildTrigger(List<AbstractProject> childProjects, Result threshold) {
-        this((Collection<AbstractProject>)childProjects,threshold);
+    public BuildTrigger(List<AbstractProjectExt> childProjects, Result threshold) {
+        this((Collection<AbstractProjectExt>)childProjects,threshold);
     }
 
-    public BuildTrigger(Collection<? extends AbstractProject> childProjects, Result threshold) {
+    public BuildTrigger(Collection<? extends AbstractProjectExt> childProjects, Result threshold) {
         this(Items.toNameList(childProjects),threshold);
     }
 
@@ -123,8 +123,8 @@ public class BuildTrigger extends Recorder implements DependecyDeclarer {
             return threshold;
     }
 
-    public List<AbstractProject> getChildProjects() {
-        return Items.fromNameList(childProjects,AbstractProject.class);
+    public List<AbstractProjectExt> getChildProjects() {
+        return Items.fromNameList(childProjects,AbstractProjectExt.class);
     }
 
     public BuildStepMonitor getRequiredMonitorService() {
@@ -134,21 +134,21 @@ public class BuildTrigger extends Recorder implements DependecyDeclarer {
     /**
      * Checks if this trigger has the exact same set of children as the given list.
      */
-    public boolean hasSame(Collection<? extends AbstractProject> projects) {
-        List<AbstractProject> children = getChildProjects();
+    public boolean hasSame(Collection<? extends AbstractProjectExt> projects) {
+        List<AbstractProjectExt> children = getChildProjects();
         return children.size()==projects.size() && children.containsAll(projects);
     }
 
     @Override
-    public boolean perform(AbstractBuild build, Launcher launcher, BuildListener listener) {
+    public boolean perform(AbstractBuildExt build, Launcher launcher, BuildListener listener) {
         return true;
     }
 
     /**
-     * @deprecated since 1.341; use {@link #execute(AbstractBuild,BuildListener)}
+     * @deprecated since 1.341; use {@link #execute(AbstractBuildExt,BuildListener)}
      */
     @Deprecated
-    public static boolean execute(AbstractBuild build, BuildListener listener, BuildTrigger trigger) {
+    public static boolean execute(AbstractBuildExt build, BuildListener listener, BuildTrigger trigger) {
         return execute(build, listener);
     }
 
@@ -160,7 +160,7 @@ public class BuildTrigger extends Recorder implements DependecyDeclarer {
      * @param listener
      *      Receives the progress report.
      */
-    public static boolean execute(AbstractBuild build, BuildListener listener) {
+    public static boolean execute(AbstractBuildExt build, BuildListener listener) {
         PrintStream logger = listener.getLogger();
         // Check all downstream Project of the project, not just those defined by BuildTrigger
         final DependencyGraph graph = Hudson.getInstance().getDependencyGraph();
@@ -175,7 +175,7 @@ public class BuildTrigger extends Recorder implements DependecyDeclarer {
         });
 
         for (Dependency dep : downstreamProjects) {
-            AbstractProject p = dep.getDownstreamProject();
+            AbstractProjectExt p = dep.getDownstreamProject();
             if (p.isDisabled()) {
                 logger.println(Messages.BuildTrigger_Disabled(p.getName()));
                 continue;
@@ -197,11 +197,11 @@ public class BuildTrigger extends Recorder implements DependecyDeclarer {
         return true;
     }
 
-    public void buildDependencyGraph(AbstractProject owner, DependencyGraph graph) {
-        for (AbstractProject p : getChildProjects())
+    public void buildDependencyGraph(AbstractProjectExt owner, DependencyGraph graph) {
+        for (AbstractProjectExt p : getChildProjects())
             graph.addDependency(new Dependency(owner, p) {
                 @Override
-                public boolean shouldTriggerBuild(AbstractBuild build, TaskListener listener,
+                public boolean shouldTriggerBuild(AbstractBuildExt build, TaskListener listener,
                                                   List<Action> actions) {
                     return build.getResult().isBetterOrEqualTo(threshold);
                 }
@@ -274,11 +274,11 @@ public class BuildTrigger extends Recorder implements DependecyDeclarer {
         }
 
         @Override
-        public boolean isApplicable(Class<? extends AbstractProject> jobType) {
+        public boolean isApplicable(Class<? extends AbstractProjectExt> jobType) {
             return true;
         }
 
-        public boolean showEvenIfUnstableOption(Class<? extends AbstractProject> jobType) {
+        public boolean showEvenIfUnstableOption(Class<? extends AbstractProjectExt> jobType) {
             // UGLY: for promotion process, this option doesn't make sense. 
             return !jobType.getName().contains("PromotionProcess");
         }
@@ -295,8 +295,8 @@ public class BuildTrigger extends Recorder implements DependecyDeclarer {
                 String projectName = tokens.nextToken().trim();
                 Item item = Hudson.getInstance().getItemByFullName(projectName,Item.class);
                 if(item==null)
-                    return FormValidation.error(Messages.BuildTrigger_NoSuchProject(projectName,AbstractProject.findNearest(projectName).getName()));
-                if(!(item instanceof AbstractProject))
+                    return FormValidation.error(Messages.BuildTrigger_NoSuchProject(projectName,AbstractProjectExt.findNearest(projectName).getName()));
+                if(!(item instanceof AbstractProjectExt))
                     return FormValidation.error(Messages.BuildTrigger_NotBuildable(projectName));
             }
 

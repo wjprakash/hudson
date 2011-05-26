@@ -27,7 +27,7 @@ import com.infradna.tool.bridge_method_injector.WithBridgeMethods;
 import com.thoughtworks.xstream.XStream;
 import hudson.CopyOnWrite;
 import hudson.FeedAdapter;
-import hudson.Functions;
+import hudson.FunctionsExt;
 import hudson.Util;
 import hudson.XmlFile;
 import hudson.BulkChange;
@@ -90,7 +90,7 @@ import java.util.logging.Logger;
  * @author Kohsuke Kawaguchi
  */
 @ExportedBean
-public class User extends AbstractModelObject implements AccessControlled, Saveable, Comparable<User> {
+public class User extends AbstractModelObjectExt implements AccessControlled, Saveable, Comparable<User> {
 
     private transient final String id;
 
@@ -270,7 +270,7 @@ public class User extends AbstractModelObject implements AccessControlled, Savea
             return null;
         String id = idOrFullName.replace('\\', '_').replace('/', '_').replace('<','_')
                                 .replace('>','_');  // 4 replace() still faster than regex
-        if (Functions.isWindows()) id = id.replace(':','_');
+        if (FunctionsExt.isWindows()) id = id.replace(':','_');
 
         synchronized(byName) {
             User u = byName.get(id);
@@ -362,21 +362,21 @@ public class User extends AbstractModelObject implements AccessControlled, Savea
      */
     @WithBridgeMethods(List.class)
     public RunList getBuilds() {
-        List<AbstractBuild> r = new ArrayList<AbstractBuild>();
-        for (AbstractProject<?,?> p : Hudson.getInstance().getAllItems(AbstractProject.class))
-            for (AbstractBuild<?,?> b : p.getBuilds())
+        List<AbstractBuildExt> r = new ArrayList<AbstractBuildExt>();
+        for (AbstractProjectExt<?,?> p : Hudson.getInstance().getAllItems(AbstractProjectExt.class))
+            for (AbstractBuildExt<?,?> b : p.getBuilds())
                 if(b.hasParticipant(this))
                     r.add(b);
         return RunList.fromRuns(r);
     }
 
     /**
-     * Gets all the {@link AbstractProject}s that this user has committed to.
+     * Gets all the {@link AbstractProjectExt}s that this user has committed to.
      * @since 1.191
      */
-    public Set<AbstractProject<?,?>> getProjects() {
-        Set<AbstractProject<?,?>> r = new HashSet<AbstractProject<?,?>>();
-        for (AbstractProject<?,?> p : Hudson.getInstance().getAllItems(AbstractProject.class))
+    public Set<AbstractProjectExt<?,?>> getProjects() {
+        Set<AbstractProjectExt<?,?>> r = new HashSet<AbstractProjectExt<?,?>>();
+        for (AbstractProjectExt<?,?> p : Hudson.getInstance().getAllItems(AbstractProjectExt.class))
             if(p.hasParticipant(this))
                 r.add(p);
         return r;
@@ -493,8 +493,8 @@ public class User extends AbstractModelObject implements AccessControlled, Savea
         for (final TopLevelItem item : Hudson.getInstance().getItems()) {
             if (!(item instanceof Job)) continue;
             for (Run r = ((Job) item).getLastBuild(); r != null; r = r.getPreviousBuild()) {
-                if (!(r instanceof AbstractBuild)) continue;
-                final AbstractBuild b = (AbstractBuild) r;
+                if (!(r instanceof AbstractBuildExt)) continue;
+                final AbstractBuildExt b = (AbstractBuildExt) r;
                 if (b.hasParticipant(this)) {
                     lastBuilds.add(b);
                     break;

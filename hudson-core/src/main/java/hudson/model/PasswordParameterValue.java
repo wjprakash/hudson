@@ -49,14 +49,14 @@ public class PasswordParameterValue extends ParameterValue {
     }
 
     @Override
-    public void buildEnvVars(AbstractBuild<?,?> build, EnvVars env) {
+    public void buildEnvVars(AbstractBuildExt<?,?> build, EnvVars env) {
         String v = Secret.toString(value);
         env.put(name, v);
         env.put(name.toUpperCase(Locale.ENGLISH),v); // backward compatibility pre 1.345
     }
 
     @Override
-    public VariableResolver<String> createVariableResolver(AbstractBuild<?, ?> build) {
+    public VariableResolver<String> createVariableResolver(AbstractBuildExt<?, ?> build) {
         return new VariableResolver<String>() {
             public String resolve(String name) {
                 return PasswordParameterValue.this.name.equals(name) ? Secret.toString(value) : null;

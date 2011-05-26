@@ -37,11 +37,11 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * {@link PluginManager}
+ * {@link PluginManagerExt}
  *
  * @author Kohsuke Kawaguchi
  */
-public class LocalPluginManager extends PluginManager {
+public class LocalPluginManager extends PluginManagerExt {
     private final Hudson hudson;
     public LocalPluginManager(Hudson hudson) {
         super(hudson.servletContext, new File(hudson.getRootDir(),"plugins"));

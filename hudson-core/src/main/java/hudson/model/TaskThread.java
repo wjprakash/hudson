@@ -23,7 +23,7 @@
  */
 package hudson.model;
 
-import hudson.console.AnnotatedLargeText;
+import hudson.AnnotatedLargeText;
 import hudson.util.StreamTaskListener;
 
 import java.io.File;

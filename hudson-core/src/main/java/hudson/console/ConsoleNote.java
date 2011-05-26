@@ -23,7 +23,6 @@
  */
 package hudson.console;
 
-import hudson.Functions;
 import hudson.MarkupText;
 import hudson.model.Describable;
 import hudson.model.Hudson;

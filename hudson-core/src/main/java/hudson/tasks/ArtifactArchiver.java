@@ -23,12 +23,12 @@
  */
 package hudson.tasks;
 
-import hudson.FilePath;
+import hudson.FilePathExt;
 import hudson.Launcher;
 import hudson.Util;
 import hudson.Extension;
-import hudson.model.AbstractBuild;
-import hudson.model.AbstractProject;
+import hudson.model.AbstractBuildExt;
+import hudson.model.AbstractProjectExt;
 import hudson.model.BuildListener;
 import hudson.model.Result;
 import hudson.model.Hudson;
@@ -96,7 +96,7 @@ public class ArtifactArchiver extends Recorder {
     }
 
     @Override
-    public boolean perform(AbstractBuild<?,?> build, Launcher launcher, BuildListener listener) throws InterruptedException {
+    public boolean perform(AbstractBuildExt<?,?> build, Launcher launcher, BuildListener listener) throws InterruptedException {
         if(artifacts.length()==0) {
             listener.error(Messages.ArtifactArchiver_NoIncludes());
             build.setResult(Result.FAILURE);
@@ -108,13 +108,13 @@ public class ArtifactArchiver extends Recorder {
 
         listener.getLogger().println(Messages.ArtifactArchiver_ARCHIVING_ARTIFACTS());
         try {
-            FilePath ws = build.getWorkspace();
+            FilePathExt ws = build.getWorkspace();
             if (ws==null) { // #3330: slave down?
                 return true;
             }
 
             String artifacts = build.getEnvironment(listener).expand(this.artifacts);
-            if(ws.copyRecursiveTo(artifacts,excludes,new FilePath(dir))==0) {
+            if(ws.copyRecursiveTo(artifacts,excludes,new FilePathExt(dir))==0) {
                 if(build.getResult().isBetterOrEqualTo(Result.UNSTABLE)) {
                     // If the build failed, don't complain that there was no matching artifact.
                     // The build probably didn't even get to the point where it produces artifacts. 
@@ -144,9 +144,9 @@ public class ArtifactArchiver extends Recorder {
     }
 
     @Override
-    public boolean prebuild(AbstractBuild<?, ?> build, BuildListener listener) {
+    public boolean prebuild(AbstractBuildExt<?, ?> build, BuildListener listener) {
         if(latestOnly) {
-            AbstractBuild<?,?> b = build.getProject().getLastCompletedBuild();
+            AbstractBuildExt<?,?> b = build.getProject().getLastCompletedBuild();
             Result bestResultSoFar = Result.NOT_BUILT;
             while(b!=null) {
                 if (b.getResult().isBetterThan(bestResultSoFar)) {
@@ -193,8 +193,8 @@ public class ArtifactArchiver extends Recorder {
         /**
          * Performs on-the-fly validation on the file mask wildcard.
          */
-        public FormValidation doCheckArtifacts(@AncestorInPath AbstractProject project, @QueryParameter String value) throws IOException {
-            return FilePath.validateFileMask(project.getSomeWorkspace(),value);
+        public FormValidation doCheckArtifacts(@AncestorInPath AbstractProjectExt project, @QueryParameter String value) throws IOException {
+            return FilePathExt.validateFileMask(project.getSomeWorkspace(),value);
         }
 
         @Override
@@ -202,7 +202,7 @@ public class ArtifactArchiver extends Recorder {
             return req.bindJSON(ArtifactArchiver.class,formData);
         }
 
-        public boolean isApplicable(Class<? extends AbstractProject> jobType) {
+        public boolean isApplicable(Class<? extends AbstractProjectExt> jobType) {
             return true;
         }
     }

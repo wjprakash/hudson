@@ -46,7 +46,7 @@ public interface DependecyDeclarer {
     // so that this concept can be extended elsewhere, like maven projects and so on.
 
     /**
-     * Invoked from {@link AbstractProject#buildDependencyGraph(DependencyGraph)}.
+     * Invoked from {@link AbstractProjectExt#buildDependencyGraph(DependencyGraph)}.
      *
      * @param owner
      *      The project that owns the publishers, builders, etc.
@@ -57,5 +57,5 @@ public interface DependecyDeclarer {
      * @param graph
      *      The dependency graph being built. Never null.
      */
-    void buildDependencyGraph(AbstractProject owner, DependencyGraph graph);
+    void buildDependencyGraph(AbstractProjectExt owner, DependencyGraph graph);
 }

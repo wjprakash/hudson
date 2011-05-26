@@ -23,7 +23,7 @@
  */
 package hudson.tasks.junit;
 
-import hudson.model.AbstractBuild;
+import hudson.model.AbstractBuildExt;
 import hudson.tasks.test.TabulatedResult;
 import hudson.tasks.test.TestResult;
 import hudson.tasks.test.TestObject;
@@ -57,7 +57,7 @@ public final class ClassResult extends TabulatedResult implements Comparable<Cla
     }
 
     @Override
-    public AbstractBuild<?, ?> getOwner() {
+    public AbstractBuildExt<?, ?> getOwner() {
         return (parent==null ? null: parent.getOwner()); 
     }
 

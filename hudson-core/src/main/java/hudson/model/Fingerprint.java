@@ -96,8 +96,8 @@ public class Fingerprint implements ModelObject, Saveable {
          * Gets the {@link Job} that this pointer points to,
          * or null if such a job no longer exists.
          */
-        public AbstractProject getJob() {
-            return Hudson.getInstance().getItemByFullName(name,AbstractProject.class);
+        public AbstractProjectExt getJob() {
+            return Hudson.getInstance().getItemByFullName(name,AbstractProjectExt.class);
         }
 
         /**
@@ -647,7 +647,7 @@ public class Fingerprint implements ModelObject, Saveable {
         return r;
     }
 
-    public synchronized void add(AbstractBuild b) throws IOException {
+    public synchronized void add(AbstractBuildExt b) throws IOException {
         add(b.getParent().getFullName(),b.getNumber());
     }
 

@@ -26,14 +26,14 @@ package hudson.tasks;
 
 import hudson.EnvVars;
 import hudson.Extension;
-import hudson.Functions;
+import hudson.FunctionsExt;
 import hudson.Launcher;
 import hudson.RestrictedSince;
 import hudson.Util;
-import hudson.diagnosis.OldDataMonitor;
+import hudson.diagnosis.OldDataMonitorExt;
 import static hudson.Util.fixEmptyAndTrim;
-import hudson.model.AbstractBuild;
-import hudson.model.AbstractProject;
+import hudson.model.AbstractBuildExt;
+import hudson.model.AbstractProjectExt;
 import hudson.model.BuildListener;
 import hudson.model.User;
 import hudson.model.UserPropertyDescriptor;
@@ -101,7 +101,7 @@ public class Mailer extends Notifier {
     private transient String charset;
 
     @Override
-    public boolean perform(AbstractBuild<?,?> build, Launcher launcher, BuildListener listener) throws IOException, InterruptedException {
+    public boolean perform(AbstractBuildExt<?,?> build, Launcher launcher, BuildListener listener) throws IOException, InterruptedException {
         if(debug)
             listener.getLogger().println("Running mailer");
         // substitute build parameters
@@ -111,7 +111,7 @@ public class Mailer extends Notifier {
         return new MailSender(recip, dontNotifyEveryUnstableBuild, sendToIndividuals, descriptor().getCharset()) {
             /** Check whether a path (/-separated) will be archived. */
             @Override
-            public boolean artifactMatches(String path, AbstractBuild<?,?> build) {
+            public boolean artifactMatches(String path, AbstractBuildExt<?,?> build) {
                 ArtifactArchiver aa = build.getProject().getPublishersList().get(ArtifactArchiver.class);
                 if (aa == null) {
                     LOGGER.finer("No ArtifactArchiver found");
@@ -394,7 +394,7 @@ public class Mailer extends Notifier {
 
             if(hudsonUrl==null) {
                 // if Hudson URL is not configured yet, infer some default
-                hudsonUrl = Functions.inferHudsonURL(req);
+                hudsonUrl = FunctionsExt.inferHudsonURL(req);
                 save();
             }
 
@@ -464,11 +464,11 @@ public class Mailer extends Notifier {
                 
                 return FormValidation.ok("Email was successfully sent");
             } catch (MessagingException e) {
-                return FormValidation.errorWithMarkup("<p>Failed to send out e-mail</p><pre>"+Util.escape(Functions.printThrowable(e))+"</pre>");
+                return FormValidation.errorWithMarkup("<p>Failed to send out e-mail</p><pre>"+Util.escape(FunctionsExt.printThrowable(e))+"</pre>");
             }
         }
 
-        public boolean isApplicable(Class<? extends AbstractProject> jobType) {
+        public boolean isApplicable(Class<? extends AbstractProjectExt> jobType) {
             return true;
         }
     }
@@ -522,7 +522,7 @@ public class Mailer extends Notifier {
         public ConverterImpl(XStream2 xstream) { super(xstream); }
         @Override protected void callback(Mailer m, UnmarshallingContext context) {
             if (m.from != null || m.subject != null || m.failureOnly || m.charset != null)
-                OldDataMonitor.report(context, "1.10");
+                OldDataMonitorExt.report(context, "1.10");
         }
     }
 }

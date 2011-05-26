@@ -7,6 +7,6 @@ import junit.framework.TestCase;
  */
 public class BallColorTest extends TestCase {
     public void testHtmlColor() {
-        assertEquals("#EF2929",BallColor.RED.getHtmlBaseColor());
+        assertEquals("#EF2929",BallColorExt.RED.getHtmlBaseColor());
     }
 }

@@ -23,9 +23,9 @@
  */
 package hudson.tasks;
 
-import hudson.FilePath;
+import hudson.FilePathExt;
 import hudson.Extension;
-import hudson.model.AbstractProject;
+import hudson.model.AbstractProjectExt;
 import net.sf.json.JSONObject;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.StaplerRequest;
@@ -41,7 +41,7 @@ public class BatchFile extends CommandInterpreter {
         super(command);
     }
 
-    public String[] buildCommandLine(FilePath script) {
+    public String[] buildCommandLine(FilePathExt script) {
         return new String[] {"cmd","/c","call",script.getRemote()};
     }
 
@@ -69,7 +69,7 @@ public class BatchFile extends CommandInterpreter {
             return new BatchFile(data.getString("command"));
         }
 
-        public boolean isApplicable(Class<? extends AbstractProject> jobType) {
+        public boolean isApplicable(Class<? extends AbstractProjectExt> jobType) {
             return true;
         }
     }

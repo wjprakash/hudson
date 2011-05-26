@@ -24,15 +24,15 @@
 package hudson.model;
 
 import com.thoughtworks.xstream.XStream;
-import hudson.DescriptorExtensionList;
+import hudson.DescriptorExtensionListExt;
 import hudson.Extension;
 import hudson.scm.RepositoryBrowser;
-import hudson.matrix.MatrixProject;
+import hudson.matrix.MatrixProjectExt;
 import hudson.matrix.MatrixConfiguration;
 import hudson.XmlFile;
-import hudson.matrix.Axis;
+import hudson.matrix.AxisExt;
 import hudson.matrix.MatrixConfiguration;
-import hudson.matrix.MatrixProject;
+import hudson.matrix.MatrixProjectExt;
 import hudson.util.DescriptorList;
 import hudson.util.XStream2;
 
@@ -60,7 +60,7 @@ public class Items {
     /**
      * Returns all the registered {@link TopLevelItemDescriptor}s.
      */
-    public static DescriptorExtensionList<TopLevelItem,TopLevelItemDescriptor> all() {
+    public static DescriptorExtensionListExt<TopLevelItem,TopLevelItemDescriptor> all() {
         return Hudson.getInstance().<TopLevelItem,TopLevelItemDescriptor>getDescriptorList(TopLevelItem.class);
     }
 
@@ -134,8 +134,8 @@ public class Items {
 
     static {
         XSTREAM.alias("project",FreeStyleProject.class);
-        XSTREAM.alias("matrix-project",MatrixProject.class);
-        XSTREAM.alias("axis", Axis.class);
+        XSTREAM.alias("matrix-project",MatrixProjectExt.class);
+        XSTREAM.alias("axis", AxisExt.class);
         XSTREAM.alias("matrix-config",MatrixConfiguration.class);
     }
 }

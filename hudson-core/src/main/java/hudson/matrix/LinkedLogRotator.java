@@ -59,7 +59,7 @@ final class LinkedLogRotator extends LogRotator {
         MatrixConfiguration job = (MatrixConfiguration) _job;
 
         // copy it to the array because we'll be deleting builds as we go.
-        for( MatrixRun r : job.getBuilds().toArray(new MatrixRun[0]) ) {
+        for( MatrixRunExt r : job.getBuilds().toArray(new MatrixRunExt[0]) ) {
             if(job.getParent().getBuildByNumber(r.getNumber())==null)
                 r.delete();
         }

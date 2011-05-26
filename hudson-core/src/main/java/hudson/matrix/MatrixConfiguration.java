@@ -25,8 +25,8 @@ package hudson.matrix;
 
 import hudson.Util;
 import hudson.util.DescribableList;
-import hudson.model.AbstractBuild;
-import hudson.model.Cause;
+import hudson.model.AbstractBuildExt;
+import hudson.model.CauseExt;
 import hudson.model.CauseAction;
 import hudson.model.DependencyGraph;
 import hudson.model.Descriptor;
@@ -39,7 +39,7 @@ import hudson.model.ParametersAction;
 import hudson.model.Project;
 import hudson.model.SCMedItem;
 import hudson.model.Queue.NonBlockingTask;
-import hudson.model.Cause.LegacyCodeCause;
+import hudson.model.CauseExt.LegacyCodeCause;
 import hudson.scm.SCM;
 import hudson.tasks.BuildWrapper;
 import hudson.tasks.Builder;
@@ -51,11 +51,11 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * One configuration of {@link MatrixProject}.
+ * One configuration of {@link MatrixProjectExt}.
  *
  * @author Kohsuke Kawaguchi
  */
-public class MatrixConfiguration extends Project<MatrixConfiguration,MatrixRun> implements SCMedItem, NonBlockingTask {
+public class MatrixConfiguration extends Project<MatrixConfiguration,MatrixRunExt> implements SCMedItem, NonBlockingTask {
     /**
      * The actual value combination.
      */
@@ -66,7 +66,7 @@ public class MatrixConfiguration extends Project<MatrixConfiguration,MatrixRun> 
      */
     private transient String digestName;
 
-    public MatrixConfiguration(MatrixProject parent, Combination c) {
+    public MatrixConfiguration(MatrixProjectExt parent, Combination c) {
         super(parent,c.toString());
         setCombination(c);
     }
@@ -104,7 +104,7 @@ public class MatrixConfiguration extends Project<MatrixConfiguration,MatrixRun> 
      */
     @Override
     public int getNextBuildNumber() {
-        AbstractBuild lb = getParent().getLastBuild();
+        AbstractBuildExt lb = getParent().getLastBuild();
         if(lb==null)    return 0;
         
 
@@ -121,7 +121,7 @@ public class MatrixConfiguration extends Project<MatrixConfiguration,MatrixRun> 
     @Override
     public int assignBuildNumber() throws IOException {
         int nb = getNextBuildNumber();
-        MatrixRun r = getLastBuild();
+        MatrixRunExt r = getLastBuild();
         if(r!=null && r.getNumber()>=nb) // make sure we don't schedule the same build twice
             throw new IllegalStateException("Build #"+nb+" is already completed");
         return nb;
@@ -133,8 +133,8 @@ public class MatrixConfiguration extends Project<MatrixConfiguration,MatrixRun> 
     }
 
     @Override
-    public MatrixProject getParent() {
-        return (MatrixProject)super.getParent();
+    public MatrixProjectExt getParent() {
+        return (MatrixProjectExt)super.getParent();
     }
 
     /**
@@ -145,7 +145,7 @@ public class MatrixConfiguration extends Project<MatrixConfiguration,MatrixRun> 
     }
 
     /**
-     * Since {@link MatrixConfiguration} is always invoked from {@link MatrixRun}
+     * Since {@link MatrixConfiguration} is always invoked from {@link MatrixRunExt}
      * once and just once, there's no point in having a quiet period.
      */
     @Override
@@ -167,15 +167,15 @@ public class MatrixConfiguration extends Project<MatrixConfiguration,MatrixRun> 
     }
 
     @Override
-    protected Class<MatrixRun> getBuildClass() {
-        return MatrixRun.class;
+    protected Class<MatrixRunExt> getBuildClass() {
+        return MatrixRunExt.class;
     }
 
     @Override
-    protected MatrixRun newBuild() throws IOException {
-        // for every MatrixRun there should be a parent MatrixBuild
-        MatrixBuild lb = getParent().getLastBuild();
-        MatrixRun lastBuild = new MatrixRun(this, lb.getTimestamp());
+    protected MatrixRunExt newBuild() throws IOException {
+        // for every MatrixRunExt there should be a parent MatrixBuildExt
+        MatrixBuildExt lb = getParent().getLastBuild();
+        MatrixRunExt lastBuild = new MatrixRunExt(this, lb.getTimestamp());
         lastBuild.number = lb.getNumber();
 
         builds.put(lastBuild);
@@ -264,7 +264,7 @@ public class MatrixConfiguration extends Project<MatrixConfiguration,MatrixRun> 
 
     /**
      * JDK cannot be set on {@link MatrixConfiguration} because
-     * it's controlled by {@link MatrixProject}.
+     * it's controlled by {@link MatrixProjectExt}.
      * @deprecated
      *      Not supported.
      */
@@ -275,7 +275,7 @@ public class MatrixConfiguration extends Project<MatrixConfiguration,MatrixRun> 
 
     /**
      * @deprecated
-     *      Value is controlled by {@link MatrixProject}.
+     *      Value is controlled by {@link MatrixProjectExt}.
      */
     @Override
     public void setLogRotator(LogRotator logRotator) {
@@ -287,7 +287,7 @@ public class MatrixConfiguration extends Project<MatrixConfiguration,MatrixRun> 
      * currently in use today (as opposed to the ones that are
      * there only to keep the past record.) 
      *
-     * @see MatrixProject#getActiveConfigurations()
+     * @see MatrixProjectExt#getActiveConfigurations()
      */
     public boolean isActiveConfiguration() {
         return getParent().getActiveConfigurations().contains(this);
@@ -305,7 +305,7 @@ public class MatrixConfiguration extends Project<MatrixConfiguration,MatrixRun> 
 
 	/**
 	 * @deprecated
-	 *    Use {@link #scheduleBuild(ParametersAction, Cause)}.  Since 1.283
+	 *    Use {@link #scheduleBuild(ParametersAction, CauseExt)}.  Since 1.283
 	 */
     public boolean scheduleBuild(ParametersAction parameters) {
     	return scheduleBuild(parameters, new LegacyCodeCause());
@@ -316,7 +316,7 @@ public class MatrixConfiguration extends Project<MatrixConfiguration,MatrixRun> 
      * @param parameters
      *      Can be null.
      */
-    public boolean scheduleBuild(ParametersAction parameters, Cause c) {
+    public boolean scheduleBuild(ParametersAction parameters, CauseExt c) {
         return Hudson.getInstance().getQueue().schedule(this, getQuietPeriod(), parameters, new CauseAction(c))!=null;
     }
 }

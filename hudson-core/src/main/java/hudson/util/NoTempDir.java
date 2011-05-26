@@ -23,7 +23,7 @@
  */
 package hudson.util;
 
-import hudson.Functions;
+import hudson.FunctionsExt;
 
 import java.io.IOException;
 
@@ -44,7 +44,7 @@ public class NoTempDir extends ErrorObject {
     }
 
     public String getStackTrace() {
-        return Functions.printThrowable(exception);
+        return FunctionsExt.printThrowable(exception);
     }
 
     public String getTempDir() {

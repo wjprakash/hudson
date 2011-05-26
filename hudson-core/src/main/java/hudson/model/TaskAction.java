@@ -23,7 +23,7 @@
  */
 package hudson.model;
 
-import hudson.console.AnnotatedLargeText;
+import hudson.AnnotatedLargeText;
 import org.kohsuke.stapler.framework.io.LargeText;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
@@ -47,7 +47,7 @@ import hudson.security.ACL;
  * @since 1.191
  * @see TaskThread
  */
-public abstract class TaskAction extends AbstractModelObject implements Action {
+public abstract class TaskAction extends AbstractModelObjectExt implements Action {
     /**
      * If non-null, that means either the activitiy is in progress
      * asynchronously, or it failed unexpectedly and the thread is dead.

@@ -31,7 +31,7 @@ import hudson.model.Node;
 import hudson.model.Hudson;
 import hudson.util.DescriptorList;
 import hudson.util.FormValidation;
-import hudson.DescriptorExtensionList;
+import hudson.DescriptorExtensionListExt;
 import hudson.Util;
 import hudson.model.Failure;
 
@@ -111,7 +111,7 @@ public abstract class NodeDescriptor extends Descriptor<Node> {
     /**
      * Returns all the registered {@link NodeDescriptor} descriptors.
      */
-    public static DescriptorExtensionList<Node,NodeDescriptor> all() {
+    public static DescriptorExtensionListExt<Node,NodeDescriptor> all() {
         return Hudson.getInstance().<Node,NodeDescriptor>getDescriptorList(Node.class);
     }
 

@@ -123,11 +123,11 @@ public abstract class ParameterValue implements Serializable {
      * @param build
      *      The build for which this parameter is being used. Never null.
      * @deprecated as of 1.344
-     *      Use {@link #buildEnvVars(AbstractBuild, EnvVars)} instead.
+     *      Use {@link #buildEnvVars(AbstractBuildExt, EnvVars)} instead.
      */
-    public void buildEnvVars(AbstractBuild<?,?> build, Map<String,String> env) {
-        if (env instanceof EnvVars && Util.isOverridden(ParameterValue.class,getClass(),"buildEnvVars", AbstractBuild.class,EnvVars.class))
-            // if the subtype already derives buildEnvVars(AbstractBuild,Map), then delegate to it
+    public void buildEnvVars(AbstractBuildExt<?,?> build, Map<String,String> env) {
+        if (env instanceof EnvVars && Util.isOverridden(ParameterValue.class,getClass(),"buildEnvVars", AbstractBuildExt.class,EnvVars.class))
+            // if the subtype already derives buildEnvVars(AbstractBuildExt,Map), then delegate to it
             buildEnvVars(build,(EnvVars)env);
 
         // otherwise no-op by default
@@ -150,7 +150,7 @@ public abstract class ParameterValue implements Serializable {
      * @param build
      *      The build for which this parameter is being used. Never null.
      */
-    public void buildEnvVars(AbstractBuild<?,?> build, EnvVars env) {
+    public void buildEnvVars(AbstractBuildExt<?,?> build, EnvVars env) {
         // for backward compatibility
         buildEnvVars(build,(Map<String,String>)env);
     }
@@ -169,7 +169,7 @@ public abstract class ParameterValue implements Serializable {
      * @return
      *      null if the parameter has no {@link BuildWrapper} to contribute to.
      */
-    public BuildWrapper createBuildWrapper(AbstractBuild<?,?> build) {
+    public BuildWrapper createBuildWrapper(AbstractBuildExt<?,?> build) {
         return null;
     }
 
@@ -187,7 +187,7 @@ public abstract class ParameterValue implements Serializable {
      *      if the parameter value is not interested in participating to the
      *      variable replacement process, return {@link VariableResolver#NONE}.
      */
-    public VariableResolver<String> createVariableResolver(AbstractBuild<?,?> build) {
+    public VariableResolver<String> createVariableResolver(AbstractBuildExt<?,?> build) {
         return VariableResolver.NONE;
     }
 

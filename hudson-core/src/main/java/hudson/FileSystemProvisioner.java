@@ -23,10 +23,10 @@
  */
 package hudson;
 
-import hudson.matrix.MatrixBuild;
-import hudson.model.AbstractBuild;
-import hudson.model.AbstractProject;
-import hudson.model.Computer;
+import hudson.matrix.MatrixBuildExt;
+import hudson.model.AbstractBuildExt;
+import hudson.model.AbstractProjectExt;
+import hudson.model.ComputerExt;
 import hudson.model.Describable;
 import hudson.model.Job;
 import hudson.model.TaskListener;
@@ -41,7 +41,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 /**
- * Prepares and provisions workspaces for {@link AbstractProject}s.
+ * Prepares and provisions workspaces for {@link AbstractProjectExt}s.
  *
  * <p>
  *
@@ -49,7 +49,7 @@ import java.io.OutputStream;
  * <p>
  * STILL A WORK IN PROGRESS. SUBJECT TO CHANGE! DO NOT EXTEND.
  *
- * TODO: is this per {@link Computer}? Per {@link Job}?
+ * TODO: is this per {@link ComputerExt}? Per {@link Job}?
  *   -> probably per slave.
  *
  * <h2>Design Problems</h2>
@@ -123,7 +123,7 @@ public abstract class FileSystemProvisioner implements ExtensionPoint, Describab
      *
      * <p>
      * This method can prepare the underlying file system in preparation
-     * for the later {@link #snapshot(AbstractBuild, FilePath, TaskListener)}.
+     * for the later {@link #snapshot(AbstractBuildExt, FilePathExt, TaskListener)}.
      *
      * TODO : the method needs to be able to see the snapshot would
      * be later needed. In fact, perhaps we should only call this method
@@ -133,11 +133,11 @@ public abstract class FileSystemProvisioner implements ExtensionPoint, Describab
      *      New workspace should be prepared in this location. This is the same value as
      *      {@code build.getProject().getWorkspace()} but passed separately for convenience.
      */
-    public abstract void prepareWorkspace(AbstractBuild<?,?> build, FilePath ws, TaskListener listener) throws IOException, InterruptedException;
+    public abstract void prepareWorkspace(AbstractBuildExt<?,?> build, FilePathExt ws, TaskListener listener) throws IOException, InterruptedException;
 
     /**
      * When a project is deleted, this method is called to undo the effect of
-     * {@link #prepareWorkspace(AbstractBuild, FilePath, TaskListener)}.
+     * {@link #prepareWorkspace(AbstractBuildExt, FilePathExt, TaskListener)}.
      *
      * @param project
      *      Project whose workspace is being discarded.
@@ -145,9 +145,9 @@ public abstract class FileSystemProvisioner implements ExtensionPoint, Describab
      *      Workspace to be discarded. This workspace is on the node
      *      this {@link FileSystemProvisioner} is provisioned for.
      */
-    public abstract void discardWorkspace(AbstractProject<?, ?> project, FilePath ws) throws IOException, InterruptedException;
+    public abstract void discardWorkspace(AbstractProjectExt<?, ?> project, FilePathExt ws) throws IOException, InterruptedException;
 
-//    public abstract void moveWorkspace(AbstractProject<?,?> project, File oldWorkspace, File newWorkspace) throws IOException;
+//    public abstract void moveWorkspace(AbstractProjectExt<?,?> project, File oldWorkspace, File newWorkspace) throws IOException;
 
     /**
      * Obtains the snapshot of the workspace of the given build.
@@ -155,13 +155,13 @@ public abstract class FileSystemProvisioner implements ExtensionPoint, Describab
      * <p>
      * The state of the build when this method is invoked depends on
      * the project type. Most would call this at the end of the build,
-     * but for example {@link MatrixBuild} would call this after
+     * but for example {@link MatrixBuildExt} would call this after
      * SCM check out so that the state of the fresh workspace
      * can be then propagated to elsewhere.
      *
      * <p>
      * If the implementation of this method needs to store data in a file system,
-     * do so under {@link AbstractBuild#getRootDir()}, since the lifecycle of
+     * do so under {@link AbstractBuildExt#getRootDir()}, since the lifecycle of
      * the snapshot is tied to the life cycle of a build.
      *
      * @param ws
@@ -171,7 +171,7 @@ public abstract class FileSystemProvisioner implements ExtensionPoint, Describab
      *      Ant-style file glob for files to include in the snapshot. May not be pertinent for all
      *      implementations.
      */
-    public abstract WorkspaceSnapshot snapshot(AbstractBuild<?,?> build, FilePath ws, String glob, TaskListener listener) throws IOException, InterruptedException;
+    public abstract WorkspaceSnapshot snapshot(AbstractBuildExt<?,?> build, FilePathExt ws, String glob, TaskListener listener) throws IOException, InterruptedException;
 
     public FileSystemProvisionerDescriptor getDescriptor() {
         return (FileSystemProvisionerDescriptor) Hudson.getInstance().getDescriptorOrDie(getClass());
@@ -185,7 +185,7 @@ public abstract class FileSystemProvisioner implements ExtensionPoint, Describab
     /**
      * Returns all the registered {@link FileSystemProvisioner} descriptors.
      */
-    public static DescriptorExtensionList<FileSystemProvisioner,FileSystemProvisionerDescriptor> all() {
+    public static DescriptorExtensionListExt<FileSystemProvisioner,FileSystemProvisionerDescriptor> all() {
         return Hudson.getInstance().<FileSystemProvisioner,FileSystemProvisionerDescriptor>getDescriptorList(FileSystemProvisioner.class);
     }
 
@@ -194,23 +194,23 @@ public abstract class FileSystemProvisioner implements ExtensionPoint, Describab
      * and thus can be used anywhere that Hudson runs.
      */
     public static final class Default extends FileSystemProvisioner {
-        public void prepareWorkspace(AbstractBuild<?, ?> build, FilePath ws, TaskListener listener) throws IOException, InterruptedException {
+        public void prepareWorkspace(AbstractBuildExt<?, ?> build, FilePathExt ws, TaskListener listener) throws IOException, InterruptedException {
         }
 
-        public void discardWorkspace(AbstractProject<?, ?> project, FilePath ws) throws IOException, InterruptedException {
+        public void discardWorkspace(AbstractProjectExt<?, ?> project, FilePathExt ws) throws IOException, InterruptedException {
         }
 
         /**
          * @deprecated as of 1.350
          */
-        public WorkspaceSnapshot snapshot(AbstractBuild<?, ?> build, FilePath ws, TaskListener listener) throws IOException, InterruptedException {
+        public WorkspaceSnapshot snapshot(AbstractBuildExt<?, ?> build, FilePathExt ws, TaskListener listener) throws IOException, InterruptedException {
             return snapshot(build, ws, "**/*", listener);
         }
         
         /**
          * Creates a tar ball.
          */
-        public WorkspaceSnapshot snapshot(AbstractBuild<?, ?> build, FilePath ws, String glob, TaskListener listener) throws IOException, InterruptedException {
+        public WorkspaceSnapshot snapshot(AbstractBuildExt<?, ?> build, FilePathExt ws, String glob, TaskListener listener) throws IOException, InterruptedException {
             File wss = new File(build.getRootDir(),"workspace.zip");
             OutputStream os = new BufferedOutputStream(new FileOutputStream(wss));
             try {
@@ -222,15 +222,15 @@ public abstract class FileSystemProvisioner implements ExtensionPoint, Describab
         }
 
         public static final class WorkspaceSnapshotImpl extends WorkspaceSnapshot {
-            public void restoreTo(AbstractBuild<?,?> owner, FilePath dst, TaskListener listener) throws IOException, InterruptedException {
+            public void restoreTo(AbstractBuildExt<?,?> owner, FilePathExt dst, TaskListener listener) throws IOException, InterruptedException {
                 File wss = new File(owner.getRootDir(),"workspace.zip");
-                new FilePath(wss).unzip(dst);
+                new FilePathExt(wss).unzip(dst);
             }
         }
 
         @Extension
         public static final class DescriptorImpl extends FileSystemProvisionerDescriptor {
-            public boolean discard(FilePath ws, TaskListener listener) throws IOException, InterruptedException {
+            public boolean discard(FilePathExt ws, TaskListener listener) throws IOException, InterruptedException {
                 // the default provisioner doens't do anything special,
                 // so allow other types to manage it
                 return false;

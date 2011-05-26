@@ -23,7 +23,7 @@
  */
 package hudson.util.jna;
 
-import hudson.DescriptorExtensionList;
+import hudson.DescriptorExtensionListExt;
 import hudson.ExtensionPoint;
 import hudson.model.AbstractDescribableImpl;
 import hudson.model.Descriptor;
@@ -47,7 +47,7 @@ public abstract class NativeMacSupport extends AbstractDescribableImpl<NativeMac
     /**
      * Returns all the registered {@link NativeAccessSupport} descriptors.
      */
-    public static DescriptorExtensionList<NativeMacSupport, Descriptor<NativeMacSupport>> all() {
+    public static DescriptorExtensionListExt<NativeMacSupport, Descriptor<NativeMacSupport>> all() {
         return Hudson.getInstance().<NativeMacSupport, Descriptor<NativeMacSupport>>getDescriptorList(NativeMacSupport.class);
     }
 

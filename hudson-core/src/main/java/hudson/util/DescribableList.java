@@ -30,7 +30,7 @@ import com.thoughtworks.xstream.converters.collections.AbstractCollectionConvert
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
 import com.thoughtworks.xstream.mapper.Mapper;
-import hudson.model.AbstractProject;
+import hudson.model.AbstractProjectExt;
 import hudson.model.DependecyDeclarer;
 import hudson.model.DependencyGraph;
 import hudson.model.Describable;
@@ -174,7 +174,7 @@ public class DescribableList<T extends Describable<T>, D extends Descriptor<T>> 
     /**
      * Picks up {@link DependecyDeclarer}s and allow it to build dependencies.
      */
-    public void buildDependencyGraph(AbstractProject owner,DependencyGraph graph) {
+    public void buildDependencyGraph(AbstractProjectExt owner,DependencyGraph graph) {
         for (Object o : this) {
             if (o instanceof DependecyDeclarer) {
                 DependecyDeclarer dd = (DependecyDeclarer) o;

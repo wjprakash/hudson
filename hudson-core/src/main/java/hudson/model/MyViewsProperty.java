@@ -75,7 +75,7 @@ public class MyViewsProperty extends UserProperty implements ViewGroup, Action {
     }
 
     private MyViewsProperty() {
-		views.add(new AllView(Messages.Hudson_ViewName(), this));
+		views.add(new AllViewExt(Messages.Hudson_ViewName(), this));
         primaryViewName = views.get(0).getViewName();
     }
 
@@ -238,7 +238,7 @@ public class MyViewsProperty extends UserProperty implements ViewGroup, Action {
 
         if (views.isEmpty())
             // preserve the non-empty invariant
-            views.add(new AllView(Messages.Hudson_ViewName(), this));
+            views.add(new AllViewExt(Messages.Hudson_ViewName(), this));
         return this;
     }
 

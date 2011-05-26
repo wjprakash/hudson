@@ -33,7 +33,7 @@ import hudson.Extension;
 @Extension
 public class DefaultAxisDescriptor extends AxisDescriptor {
     public DefaultAxisDescriptor() {
-        super(Axis.class);
+        super(AxisExt.class);
     }
 
     @Override

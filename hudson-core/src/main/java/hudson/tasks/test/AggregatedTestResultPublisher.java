@@ -23,8 +23,8 @@
  */
 package hudson.tasks.test;
 
-import hudson.model.AbstractBuild;
-import hudson.model.AbstractProject;
+import hudson.model.AbstractBuildExt;
+import hudson.model.AbstractProjectExt;
 import hudson.Extension;
 import hudson.Launcher;
 import hudson.Util;
@@ -72,7 +72,7 @@ public class AggregatedTestResultPublisher extends Recorder {
         this.jobs = Util.fixEmptyAndTrim(jobs);
     }
 
-    public boolean perform(AbstractBuild<?,?> build, Launcher launcher, BuildListener listener) throws InterruptedException, IOException {
+    public boolean perform(AbstractBuildExt<?,?> build, Launcher launcher, BuildListener listener) throws InterruptedException, IOException {
         // add a TestResult just so that it can show up later.
         build.addAction(new TestResultAction(jobs,build));
         return true;
@@ -110,15 +110,15 @@ public class AggregatedTestResultPublisher extends Recorder {
         /**
          * Projects that haven't run yet.
          */
-        private transient List<AbstractProject> didntRun;
-        private transient List<AbstractProject> noFingerprints;
+        private transient List<AbstractProjectExt> didntRun;
+        private transient List<AbstractProjectExt> noFingerprints;
 
-        public TestResultAction(String jobs, AbstractBuild<?,?> owner) {
+        public TestResultAction(String jobs, AbstractBuildExt<?,?> owner) {
             super(owner);
             if(jobs==null) {
                 // resolve null as the transitive downstream jobs
                 StringBuilder buf = new StringBuilder();
-                for (AbstractProject p : getProject().getTransitiveDownstreamProjects()) {
+                for (AbstractProjectExt p : getProject().getTransitiveDownstreamProjects()) {
                     if(buf.length()>0)  buf.append(',');
                     buf.append(p.getFullName());
                 }
@@ -130,17 +130,17 @@ public class AggregatedTestResultPublisher extends Recorder {
         /**
          * Gets the jobs to be monitored.
          */
-        public Collection<AbstractProject> getJobs() {
-            List<AbstractProject> r = new ArrayList<AbstractProject>();
+        public Collection<AbstractProjectExt> getJobs() {
+            List<AbstractProjectExt> r = new ArrayList<AbstractProjectExt>();
             for (String job : Util.tokenize(jobs,",")) {
-                AbstractProject j = Hudson.getInstance().getItemByFullName(job.trim(), AbstractProject.class);
+                AbstractProjectExt j = Hudson.getInstance().getItemByFullName(job.trim(), AbstractProjectExt.class);
                 if(j!=null)
                     r.add(j);
             }
             return r;
         }
 
-        private AbstractProject<?,?> getProject() {
+        private AbstractProjectExt<?,?> getProject() {
             return owner.getProject();
         }
 
@@ -195,7 +195,7 @@ public class AggregatedTestResultPublisher extends Recorder {
          * Gets the downstream projects that haven't run yet, but
          * expected to produce test results.
          */
-        public List<AbstractProject> getDidntRun() {
+        public List<AbstractProjectExt> getDidntRun() {
             return Collections.unmodifiableList(didntRun);
         }
 
@@ -203,7 +203,7 @@ public class AggregatedTestResultPublisher extends Recorder {
          * Gets the downstream projects that have available test results, but 
          * do not appear to have fingerprinting enabled.
          */
-        public List<AbstractProject> getNoFingerprints() {
+        public List<AbstractProjectExt> getNoFingerprints() {
             return Collections.unmodifiableList(noFingerprints);
         }
 
@@ -218,9 +218,9 @@ public class AggregatedTestResultPublisher extends Recorder {
             int failCount = 0;
             int totalCount = 0;
             List<AbstractTestResultAction> individuals = new ArrayList<AbstractTestResultAction>();
-            List<AbstractProject> didntRun = new ArrayList<AbstractProject>();
-            List<AbstractProject> noFingerprints = new ArrayList<AbstractProject>();
-            for (AbstractProject job : getJobs()) {
+            List<AbstractProjectExt> didntRun = new ArrayList<AbstractProjectExt>();
+            List<AbstractProjectExt> noFingerprints = new ArrayList<AbstractProjectExt>();
+            for (AbstractProjectExt job : getJobs()) {
                 RangeSet rs = owner.getDownstreamRelationship(job);
                 if(rs.isEmpty()) {
                     // is this job expected to produce a test result?
@@ -281,7 +281,7 @@ public class AggregatedTestResultPublisher extends Recorder {
 
     @Extension
     public static final class DescriptorImpl extends BuildStepDescriptor<Publisher> {
-        public boolean isApplicable(Class<? extends AbstractProject> jobType) {
+        public boolean isApplicable(Class<? extends AbstractProjectExt> jobType) {
             return true;    // for all types
         }
 
@@ -294,14 +294,14 @@ public class AggregatedTestResultPublisher extends Recorder {
             return "/help/tasks/aggregate-test/help.html";
         }
 
-        public FormValidation doCheck(@AncestorInPath AbstractProject project, @QueryParameter String value) {
+        public FormValidation doCheck(@AncestorInPath AbstractProjectExt project, @QueryParameter String value) {
             // Require CONFIGURE permission on this project
             if(!project.hasPermission(Item.CONFIGURE))  return FormValidation.ok();
 
             for (String name : Util.tokenize(fixNull(value), ",")) {
                 name = name.trim();
                 if(Hudson.getInstance().getItemByFullName(name)==null)
-                    return FormValidation.error(hudson.tasks.Messages.BuildTrigger_NoSuchProject(name,AbstractProject.findNearest(name).getName()));
+                    return FormValidation.error(hudson.tasks.Messages.BuildTrigger_NoSuchProject(name,AbstractProjectExt.findNearest(name).getName()));
             }
             
             return FormValidation.ok();

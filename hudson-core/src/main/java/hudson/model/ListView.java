@@ -154,8 +154,8 @@ public class ListView extends View implements Saveable {
         for (String n : names) {
             TopLevelItem item = Hudson.getInstance().getItem(n);
             // Add if no status filter or filter matches enabled/disabled status:
-            if(item!=null && (statusFilter == null || !(item instanceof AbstractProject)
-                              || ((AbstractProject)item).isDisabled() ^ statusFilter))
+            if(item!=null && (statusFilter == null || !(item instanceof AbstractProjectExt)
+                              || ((AbstractProjectExt)item).isDisabled() ^ statusFilter))
                 items.add(item);
         }
 

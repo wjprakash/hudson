@@ -291,32 +291,6 @@ THE SOFTWARE.
         </dependency>
          
         <dependency>
-            <groupId>org.kohsuke</groupId>
-            <artifactId>trilead-putty-extension</artifactId>
-            <version>1.0</version>
-        </dependency>
-        <dependency>
-            <groupId>org.jvnet.hudson</groupId>
-            <artifactId>trilead-ssh2</artifactId>
-            <version>build212-hudson-5</version>
-        </dependency>
-        <dependency>
-            <groupId>org.kohsuke.stapler</groupId>
-            <artifactId>stapler-jelly</artifactId>
-            <version>1.155</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>commons-jelly</groupId>
-                    <artifactId>commons-jelly</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>commons-jexl</groupId>
-                    <artifactId>commons-jexl</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-
-        <dependency>
             <groupId>com.infradna.tool</groupId>
             <artifactId>bridge-method-annotation</artifactId>
             <version>1.4</version>
@@ -426,46 +400,6 @@ THE SOFTWARE.
                 <exclusion>
                     <groupId>jdom</groupId>
                     <artifactId>jdom</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>commons-jelly</groupId>
-            <artifactId>commons-jelly-tags-fmt</artifactId>
-            <version>1.0</version>
-        </dependency>
-        <dependency>
-            <groupId>commons-jelly</groupId>
-            <artifactId>commons-jelly-tags-xml</artifactId>
-            <version>1.1</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>commons-jelly</groupId>
-                    <artifactId>commons-jelly</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>commons-jexl</groupId>
-                    <artifactId>commons-jexl</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>commons-jelly</groupId>
-                    <artifactId>commons-jelly-tags-junit</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>xml-apis</groupId>
-                    <artifactId>xml-apis</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>xalan</groupId>
-                    <artifactId>xalan</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>xerces</groupId>
-                    <artifactId>xercesImpl</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>dom4j</groupId>
-                    <artifactId>dom4j</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -607,6 +541,36 @@ THE SOFTWARE.
             <groupId>net.sf.jtidy</groupId>
             <artifactId>jtidy</artifactId>
             <version>r938</version>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>net.sf.json-lib</groupId>
+            <artifactId>json-lib</artifactId>
+            <version>2.4</version>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>org.jvnet</groupId>
+            <artifactId>tiger-types</artifactId>
+            <version>1.2</version>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>com.google.collections</groupId>
+            <artifactId>google-collections</artifactId>
+            <version>1.0</version>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>tomcat</groupId>
+            <artifactId>commons-fileupload</artifactId>
+            <version>1.0-5.5.23</version>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>commons-discovery</groupId>
+            <artifactId>commons-discovery</artifactId>
+            <version>0.4</version>
             <type>jar</type>
         </dependency>
     </dependencies>

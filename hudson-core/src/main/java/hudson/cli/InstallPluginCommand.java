@@ -24,7 +24,7 @@
 package hudson.cli;
 
 import hudson.Extension;
-import hudson.FilePath;
+import hudson.FilePathExt;
 import hudson.model.Hudson;
 import hudson.model.UpdateSite;
 import hudson.model.UpdateSite.Data;
@@ -70,7 +70,7 @@ public class InstallPluginCommand extends CLICommand {
 
         for (String source : sources) {
             // is this a file?
-            FilePath f = new FilePath(channel, source);
+            FilePathExt f = new FilePathExt(channel, source);
             if (f.exists()) {
                 stdout.println(Messages.InstallPluginCommand_InstallingPluginFromLocalFile(f));
                 if (name==null)
@@ -132,7 +132,7 @@ public class InstallPluginCommand extends CLICommand {
         return 0; // all success
     }
 
-    private FilePath getTargetFile() {
-        return new FilePath(new File(Hudson.getInstance().getPluginManager().rootDir,name+".hpi"));
+    private FilePathExt getTargetFile() {
+        return new FilePathExt(new File(Hudson.getInstance().getPluginManager().rootDir,name+".hpi"));
     }
 }

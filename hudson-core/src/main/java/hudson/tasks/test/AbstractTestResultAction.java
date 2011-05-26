@@ -24,8 +24,9 @@
  */
 package hudson.tasks.test;
 
+import hudson.model.Api;
 import hudson.util.graph.DataSet;
-import hudson.Functions;
+import hudson.FunctionsExt;
 import hudson.model.*;
 import hudson.tasks.junit.CaseResult;
 import hudson.util.*;
@@ -57,11 +58,11 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 @ExportedBean
 public abstract class AbstractTestResultAction<T extends AbstractTestResultAction> implements HealthReportingAction {
-    public final AbstractBuild<?,?> owner;
+    public final AbstractBuildExt<?,?> owner;
 
     private Map<String,String> descriptions = new ConcurrentHashMap<String, String>();
 
-    protected AbstractTestResultAction(AbstractBuild owner) {
+    protected AbstractTestResultAction(AbstractBuildExt owner) {
         this.owner = owner;
     }
 
@@ -97,7 +98,7 @@ public abstract class AbstractTestResultAction<T extends AbstractTestResultActio
         T prev = getPreviousResult();
         if(prev==null)  return "";  // no record
 
-        return " / "+Functions.getDiffString(this.getFailCount()-prev.getFailCount());
+        return " / "+FunctionsExt.getDiffString(this.getFailCount()-prev.getFailCount());
     }
 
     public String getDisplayName() {
@@ -153,7 +154,7 @@ public abstract class AbstractTestResultAction<T extends AbstractTestResultActio
     }
 
     private <U extends AbstractTestResultAction> U getPreviousResult(Class<U> type) {
-        AbstractBuild<?,?> b = owner;
+        AbstractBuildExt<?,?> b = owner;
         while(true) {
             b = b.getPreviousBuild();
             if(b==null)
@@ -242,7 +243,7 @@ public abstract class AbstractTestResultAction<T extends AbstractTestResultActio
     private class TestResultChartLabel extends NumberOnlyBuildLabel{
         final String relPath;
         
-        public TestResultChartLabel(StaplerRequest req, AbstractBuild build){
+        public TestResultChartLabel(StaplerRequest req, AbstractBuildExt build){
             super(build);
             relPath = getRelPath(req);
         }
@@ -289,7 +290,7 @@ public abstract class AbstractTestResultAction<T extends AbstractTestResultActio
      * If the screen resolution is too low, use a smaller size.
      */
     private Area calcDefaultSize() {
-        Area res = Functions.getScreenResolution();
+        Area res = FunctionsExt.getScreenResolution();
         if(res!=null && res.width<=800)
             return new Area(250,100);
         else

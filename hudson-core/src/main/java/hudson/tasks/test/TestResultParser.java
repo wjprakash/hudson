@@ -27,7 +27,7 @@ import hudson.AbortException;
 import hudson.ExtensionList;
 import hudson.ExtensionPoint;
 import hudson.Launcher;
-import hudson.model.AbstractBuild;
+import hudson.model.AbstractBuildExt;
 import hudson.model.Hudson;
 import hudson.model.TaskListener;
 import hudson.tasks.Publisher;
@@ -48,7 +48,7 @@ import java.io.IOException;
  * which handles a set of default error checks on user inputs. 
  *
  * <p>
- * Parsers are stateless, and the {@link #parse(String, AbstractBuild, Launcher, TaskListener)} method
+ * Parsers are stateless, and the {@link #parse(String, AbstractBuildExt, Launcher, TaskListener)} method
  * can be concurrently invoked by multiple threads for different builds.
  *
  * @since 1.343
@@ -96,7 +96,7 @@ public abstract class TestResultParser implements ExtensionPoint {
      * </ul>
      *
      * @param testResultLocations
-     *      GLOB pattern relative to the {@linkplain AbstractBuild#getWorkspace() workspace} that
+     *      GLOB pattern relative to the {@linkplain AbstractBuildExt#getWorkspace() workspace} that
      *      specifies the locations of the test result files. Never null.
      * @param build
      *      Build for which these tests are parsed. Never null.
@@ -116,7 +116,7 @@ public abstract class TestResultParser implements ExtensionPoint {
      *      will not show a stack trace.
      */
     public abstract TestResult parse(String testResultLocations,
-                                       AbstractBuild build, Launcher launcher,
+                                       AbstractBuildExt build, Launcher launcher,
                                        TaskListener listener)
             throws InterruptedException, IOException;
 }

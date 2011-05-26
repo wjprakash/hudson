@@ -25,7 +25,7 @@
 package hudson.tools;
 
 import hudson.Extension;
-import hudson.FilePath;
+import hudson.FilePathExt;
 import hudson.model.Node;
 import hudson.model.TaskListener;
 import hudson.tasks.CommandInterpreter;
@@ -65,10 +65,10 @@ public class CommandInstaller extends ToolInstaller {
         return toolHome;
     }
 
-    public FilePath performInstallation(ToolInstallation tool, Node node, TaskListener log) throws IOException, InterruptedException {
-        FilePath dir = preferredLocation(tool, node);
+    public FilePathExt performInstallation(ToolInstallation tool, Node node, TaskListener log) throws IOException, InterruptedException {
+        FilePathExt dir = preferredLocation(tool, node);
         // XXX support Windows batch scripts, Unix scripts with interpreter line, etc. (see CommandInterpreter subclasses)
-        FilePath script = dir.createTextTempFile("hudson", ".sh", command);
+        FilePathExt script = dir.createTextTempFile("hudson", ".sh", command);
         try {
             String[] cmd = {"sh", "-e", script.getRemote()};
             int r = node.createLauncher(log).launch().cmds(cmd).stdout(log).pwd(dir).join();

@@ -26,7 +26,7 @@ package hudson.slaves;
 import hudson.EnvVars;
 import hudson.Extension;
 import hudson.Launcher;
-import hudson.model.AbstractBuild;
+import hudson.model.AbstractBuildExt;
 import hudson.model.BuildListener;
 import hudson.model.ComputerSet;
 import hudson.model.Environment;
@@ -64,7 +64,7 @@ public class EnvironmentVariablesNodeProperty extends NodeProperty<Node> {
     }
 
     @Override
-    public Environment setUp(AbstractBuild build, Launcher launcher,
+    public Environment setUp(AbstractBuildExt build, Launcher launcher,
 			BuildListener listener) throws IOException, InterruptedException {
     	return Environment.create(envVars);
     }

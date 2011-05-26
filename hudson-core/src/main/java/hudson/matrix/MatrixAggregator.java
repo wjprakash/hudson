@@ -32,19 +32,19 @@ import hudson.tasks.Publisher;
 import java.io.IOException;
 
 /**
- * Performs the aggregation of {@link MatrixRun} results
- * into {@link MatrixBuild}.
+ * Performs the aggregation of {@link MatrixRunExt} results
+ * into {@link MatrixBuildExt}.
  *
  * <p>
  * {@link MatrixAggregator} is a transitive stateful mutable object.
  * Unlike {@link Publisher}, it is not persisted. Instead, a fresh
- * instance is created for each {@link MatrixBuild}, and various
+ * instance is created for each {@link MatrixBuildExt}, and various
  * methods on this class are invoked in the event callback style
  * as the build progresses.
  *
  * <p>
  * The end result of the aggregation should be
- * {@link MatrixBuild#addAction(Action) contributed as actions}. 
+ * {@link MatrixBuildExt#addAction(Action) contributed as actions}. 
  *
  * @author Kohsuke Kawaguchi
  * @since 1.115
@@ -54,7 +54,7 @@ public abstract class MatrixAggregator implements ExtensionPoint {
     /**
      * The build in progress. Never null.
      */
-    protected final MatrixBuild build;
+    protected final MatrixBuildExt build;
 
     protected final Launcher launcher;
     /**
@@ -62,7 +62,7 @@ public abstract class MatrixAggregator implements ExtensionPoint {
      */
     protected final BuildListener listener;
 
-    protected MatrixAggregator(MatrixBuild build, Launcher launcher, BuildListener listener) {
+    protected MatrixAggregator(MatrixBuildExt build, Launcher launcher, BuildListener listener) {
         this.build = build;
         this.launcher = launcher;
         this.listener = listener;
@@ -84,16 +84,16 @@ public abstract class MatrixAggregator implements ExtensionPoint {
      * Called whenever one run is completed.
      *
      * @param run
-     *      The completed {@link MatrixRun} object. Always non-null.
+     *      The completed {@link MatrixRunExt} object. Always non-null.
      * @return
      *      See {@link #startBuild()} for the return value semantics.
      */
-    public boolean endRun(MatrixRun run) throws InterruptedException, IOException {
+    public boolean endRun(MatrixRunExt run) throws InterruptedException, IOException {
         return true;
     }
 
     /**
-     * Called after all the {@link MatrixRun}s have been completed
+     * Called after all the {@link MatrixRunExt}s have been completed
      * to indicate that the build is about to finish.
      * 
      * @return

@@ -23,7 +23,7 @@
  */
 package hudson.util;
 
-import hudson.Functions;
+import hudson.FunctionsExt;
 
 /**
  * Model object used to display the generic error when Hudson start up fails fatally during initialization.
@@ -41,6 +41,6 @@ public class HudsonFailedToLoad extends ErrorObject {
     }
 
     public String getStackTrace() {
-        return Functions.printThrowable(exception);
+        return FunctionsExt.printThrowable(exception);
     }
 }

@@ -34,7 +34,7 @@ import org.apache.commons.io.IOUtils;
 
 import hudson.tasks.BuildWrapper;
 import hudson.Launcher;
-import hudson.FilePath;
+import hudson.FilePathExt;
 
 import java.io.IOException;
 import java.io.File;
@@ -98,17 +98,17 @@ public class FileParameterValue extends ParameterValue {
     }
 
     @Override
-    public BuildWrapper createBuildWrapper(AbstractBuild<?,?> build) {
+    public BuildWrapper createBuildWrapper(AbstractBuildExt<?,?> build) {
         return new BuildWrapper() {
             @Override
-            public Environment setUp(AbstractBuild build, Launcher launcher, BuildListener listener) throws IOException, InterruptedException {
+            public Environment setUp(AbstractBuildExt build, Launcher launcher, BuildListener listener) throws IOException, InterruptedException {
             	if (!StringUtils.isEmpty(file.getName())) {
             	    listener.getLogger().println("Copying file to "+location);
-                    FilePath locationFilePath = build.getWorkspace().child(location);
+                    FilePathExt locationFilePath = build.getWorkspace().child(location);
                     locationFilePath.getParent().mkdirs();
             	    locationFilePath.copyFrom(file);
             	    file = null;
-                    locationFilePath.copyTo(new FilePath(getLocationUnderBuild(build)));
+                    locationFilePath.copyTo(new FilePathExt(getLocationUnderBuild(build)));
             	}
                 return new Environment() {};
             }
@@ -159,7 +159,7 @@ public class FileParameterValue extends ParameterValue {
      */
     public void doDynamic(StaplerRequest request, StaplerResponse response) throws ServletException, IOException {
         if (("/" + originalFileName).equals(request.getRestOfPath())) {
-            AbstractBuild build = (AbstractBuild)request.findAncestor(AbstractBuild.class).getObject();
+            AbstractBuildExt build = (AbstractBuildExt)request.findAncestor(AbstractBuildExt.class).getObject();
             File fileParameter = getLocationUnderBuild(build);
             if (fileParameter.isFile()) {
                 response.serveFile(request, fileParameter.toURI().toURL());
@@ -173,7 +173,7 @@ public class FileParameterValue extends ParameterValue {
      * @param build the build
      * @return the location to store the file parameter
      */
-    private File getLocationUnderBuild(AbstractBuild build) {
+    private File getLocationUnderBuild(AbstractBuildExt build) {
         return new File(build.getRootDir(), "fileParameters/" + location);
     }
 
@@ -227,7 +227,7 @@ public class FileParameterValue extends ParameterValue {
         }
 
         public void write(File to) throws Exception {
-            new FilePath(file).copyTo(new FilePath(to));
+            new FilePathExt(file).copyTo(new FilePathExt(to));
         }
 
         public void delete() {

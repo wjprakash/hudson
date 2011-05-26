@@ -273,7 +273,7 @@ public class Queue extends ResourceController implements Saveable {
                 BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(queueFile)));
                 String line;
                 while ((line = in.readLine()) != null) {
-                    AbstractProject j = Hudson.getInstance().getItemByFullName(line, AbstractProject.class);
+                    AbstractProjectExt j = Hudson.getInstance().getItemByFullName(line, AbstractProjectExt.class);
                     if (j != null)
                         j.scheduleBuild();
                 }
@@ -308,7 +308,7 @@ public class Queue extends ResourceController implements Saveable {
                     }
                     WaitingItem.COUNTER.set(maxId);
 
-                    // I just had an incident where all the executors are dead at AbstractProject._getRuns()
+                    // I just had an incident where all the executors are dead at AbstractProjectExt._getRuns()
                     // because runs is null. Debugger revealed that this is caused by a MatrixConfiguration
                     // object that doesn't appear to be de-serialized properly.
                     // I don't know how this problem happened, but to diagnose this problem better
@@ -370,9 +370,9 @@ public class Queue extends ResourceController implements Saveable {
 
     /**
      * @deprecated as of 1.311
-     *      Use {@link #schedule(AbstractProject)}
+     *      Use {@link #schedule(AbstractProjectExt)}
      */
-    public boolean add(AbstractProject p) {
+    public boolean add(AbstractProjectExt p) {
         return schedule(p)!=null;
     }
 
@@ -383,7 +383,7 @@ public class Queue extends ResourceController implements Saveable {
      *         false if the queue contained it and therefore the add()
      *         was noop
      */
-    public WaitingItem schedule(AbstractProject p) {
+    public WaitingItem schedule(AbstractProjectExt p) {
         return schedule(p, p.getQuietPeriod());
     }
 
@@ -397,7 +397,7 @@ public class Queue extends ResourceController implements Saveable {
      * @deprecated as of 1.311
      *      Use {@link #schedule(Task, int)}
      */
-    public boolean add(AbstractProject p, int quietPeriod) {
+    public boolean add(AbstractProjectExt p, int quietPeriod) {
         return schedule(p, quietPeriod)!=null;
     }
 
@@ -600,16 +600,16 @@ public class Queue extends ResourceController implements Saveable {
     }
 
     /**
-     * Gets all the {@link BuildableItem}s that are waiting for an executor in the given {@link Computer}.
+     * Gets all the {@link BuildableItem}s that are waiting for an executor in the given {@link ComputerExt}.
      */
-    public synchronized List<BuildableItem> getBuildableItems(Computer c) {
+    public synchronized List<BuildableItem> getBuildableItems(ComputerExt c) {
         List<BuildableItem> result = new ArrayList<BuildableItem>();
         _getBuildableItems(c, buildables, result);
         _getBuildableItems(c, pendings, result);
         return result;
     }
 
-    private void _getBuildableItems(Computer c, ItemList<BuildableItem> col, List<BuildableItem> result) {
+    private void _getBuildableItems(ComputerExt c, ItemList<BuildableItem> col, List<BuildableItem> result) {
         Node node = c.getNode();
         for (BuildableItem p : col.values()) {
             if (node.canTake(p.task) == null)
@@ -701,7 +701,7 @@ public class Queue extends ResourceController implements Saveable {
      * Left for backward compatibility.
      *
      * @see #getItem(Task)
-    public synchronized Item getItem(AbstractProject p) {
+    public synchronized Item getItem(AbstractProjectExt p) {
         return getItem((Task) p);
     }
      */
@@ -926,7 +926,7 @@ public class Queue extends ResourceController implements Saveable {
 
             Label lbl = p.task.getAssignedLabel();
             for (Node n : hash.list(p.task.getFullDisplayName())) {
-                Computer c = n.toComputer();
+                ComputerExt c = n.toComputer();
                 if (c==null || c.isOffline())    continue;
                 if (lbl!=null && !lbl.contains(n))  continue;
                 c.startFlyWeightTask(new WorkUnitContext(p).createWorkUnit(p.task));
@@ -1134,7 +1134,7 @@ public class Queue extends ResourceController implements Saveable {
      * Item in a queue.
      */
     @ExportedBean(defaultVisibility = 999)
-    public static abstract class Item extends Actionable {
+    public static abstract class Item extends ActionableExt {
         /**
          * VM-wide unique ID that tracks the {@link Task} as it moves through different stages
          * in the queue (each represented by different subtypes of {@link Item}.
@@ -1179,12 +1179,12 @@ public class Queue extends ResourceController implements Saveable {
         public Future<Executable> getFuture() { return future; }
 
         /**
-         * Convenience method that returns a read only view of the {@link Cause}s associated with this item in the queue.
+         * Convenience method that returns a read only view of the {@link CauseExt}s associated with this item in the queue.
          *
          * @return can be empty but never null
          * @since 1.343
          */
-        public final List<Cause> getCauses() {
+        public final List<CauseExt> getCauses() {
             CauseAction ca = getAction(CauseAction.class);
             if (ca!=null)
                 return Collections.unmodifiableList(ca.getCauses());

@@ -52,7 +52,7 @@ import hudson.Extension;
  * a form to enter build parameters. 
  */
 @ExportedBean(defaultVisibility=2)
-public class ParametersDefinitionProperty extends JobProperty<AbstractProject<?, ?>>
+public class ParametersDefinitionProperty extends JobProperty<AbstractProjectExt<?, ?>>
         implements Action {
 
     private final List<ParameterDefinition> parameterDefinitions;
@@ -65,7 +65,7 @@ public class ParametersDefinitionProperty extends JobProperty<AbstractProject<?,
         this.parameterDefinitions = Arrays.asList(parameterDefinitions);
     }
     
-    public AbstractProject<?,?> getOwner() {
+    public AbstractProjectExt<?,?> getOwner() {
         return owner;
     }
 
@@ -90,19 +90,19 @@ public class ParametersDefinitionProperty extends JobProperty<AbstractProject<?,
     }
 
     @Override
-    public Collection<Action> getJobActions(AbstractProject<?, ?> job) {
+    public Collection<Action> getJobActions(AbstractProjectExt<?, ?> job) {
         return Collections.<Action>singleton(this);
     }
 
-    public AbstractProject<?, ?> getProject() {
-        return (AbstractProject<?, ?>) owner;
+    public AbstractProjectExt<?, ?> getProject() {
+        return (AbstractProjectExt<?, ?>) owner;
     }
 
     /**
      * Interprets the form submission and schedules a build for a parameterized job.
      *
      * <p>
-     * This method is supposed to be invoked from {@link AbstractProject#doBuild(StaplerRequest, StaplerResponse)}.
+     * This method is supposed to be invoked from {@link AbstractProjectExt#doBuild(StaplerRequest, StaplerResponse)}.
      */
     public void _doBuild(StaplerRequest req, StaplerResponse rsp) throws IOException, ServletException {
         if(!req.getMethod().equals("POST")) {
@@ -128,7 +128,7 @@ public class ParametersDefinitionProperty extends JobProperty<AbstractProject<?,
         }
 
     	Hudson.getInstance().getQueue().schedule(
-                owner, owner.getDelay(req), new ParametersAction(values), new CauseAction(new Cause.UserCause()));
+                owner, owner.getDelay(req), new ParametersAction(values), new CauseAction(new CauseExt.UserCause()));
 
         // send the user back to the job top page.
         rsp.sendRedirect(".");
@@ -166,7 +166,7 @@ public class ParametersDefinitionProperty extends JobProperty<AbstractProject<?,
     public static class DescriptorImpl extends JobPropertyDescriptor {
         @Override
         public boolean isApplicable(Class<? extends Job> jobType) {
-            return AbstractProject.class.isAssignableFrom(jobType);
+            return AbstractProjectExt.class.isAssignableFrom(jobType);
         }
 
         @Override

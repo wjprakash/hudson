@@ -25,9 +25,9 @@ package hudson.tasks;
 
 import hudson.model.Describable;
 import hudson.model.Descriptor;
-import hudson.model.AbstractProject;
+import hudson.model.AbstractProjectExt;
 import hudson.model.Hudson;
-import hudson.model.AbstractProject.AbstractProjectDescriptor;
+import hudson.model.AbstractProjectExt.AbstractProjectDescriptorExt;
 
 import java.util.List;
 import java.util.ArrayList;
@@ -61,22 +61,22 @@ public abstract class BuildStepDescriptor<T extends BuildStep & Describable<T>> 
      *
      * @return
      *      true to allow user to configure this post-promotion task for the given project.
-     * @see AbstractProjectDescriptor#isApplicable(Descriptor) 
+     * @see AbstractProjectDescriptorExt#isApplicable(Descriptor) 
      */
-    public abstract boolean isApplicable(Class<? extends AbstractProject> jobType);
+    public abstract boolean isApplicable(Class<? extends AbstractProjectExt> jobType);
 
 
     /**
      * Filters a descriptor for {@link BuildStep}s by using {@link BuildStepDescriptor#isApplicable(Class)}.
      */
     public static <T extends BuildStep&Describable<T>>
-    List<Descriptor<T>> filter(List<Descriptor<T>> base, Class<? extends AbstractProject> type) {
+    List<Descriptor<T>> filter(List<Descriptor<T>> base, Class<? extends AbstractProjectExt> type) {
         // descriptor of the project
         Descriptor pd = Hudson.getInstance().getDescriptor((Class) type);
 
         List<Descriptor<T>> r = new ArrayList<Descriptor<T>>(base.size());
         for (Descriptor<T> d : base) {
-            if (pd instanceof AbstractProjectDescriptor && !((AbstractProjectDescriptor)pd).isApplicable(d))
+            if (pd instanceof AbstractProjectDescriptorExt && !((AbstractProjectDescriptorExt)pd).isApplicable(d))
                 continue;
 
             if (d instanceof BuildStepDescriptor) {

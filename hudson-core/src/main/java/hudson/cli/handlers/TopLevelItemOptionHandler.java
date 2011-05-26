@@ -1,6 +1,6 @@
 package hudson.cli.handlers;
 
-import hudson.model.AbstractProject;
+import hudson.model.AbstractProjectExt;
 import hudson.model.Hudson;
 import hudson.model.TopLevelItem;
 import org.kohsuke.MetaInfServices;
@@ -29,7 +29,7 @@ public class TopLevelItemOptionHandler extends OptionHandler<TopLevelItem> {
 
         TopLevelItem s = h.getItem(src);
         if (s==null)
-            throw new CmdLineException(owner, "No such job '"+src+"' perhaps you meant "+ AbstractProject.findNearest(src)+"?");
+            throw new CmdLineException(owner, "No such job '"+src+"' perhaps you meant "+ AbstractProjectExt.findNearest(src)+"?");
         setter.addValue(s);
         return 1;
     }

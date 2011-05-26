@@ -24,21 +24,21 @@
 package hudson.tasks.test;
 
 import hudson.matrix.Combination;
-import hudson.matrix.MatrixBuild;
-import hudson.matrix.MatrixRun;
-import hudson.model.AbstractBuild;
+import hudson.matrix.MatrixBuildExt;
+import hudson.matrix.MatrixRunExt;
+import hudson.model.AbstractBuildExt;
 import hudson.model.Action;
 
 /**
- * {@link Action} that aggregates all the test results from {@link MatrixRun}s.
+ * {@link Action} that aggregates all the test results from {@link MatrixRunExt}s.
  *
  * <p>
- * This object is attached to {@link MatrixBuild}.
+ * This object is attached to {@link MatrixBuildExt}.
  *
  * @author Kohsuke Kawaguchi
  */
 public class MatrixTestResult extends AggregatedTestResultAction {
-    public MatrixTestResult(MatrixBuild owner) {
+    public MatrixTestResult(MatrixBuildExt owner) {
         super(owner);
     }
 
@@ -51,8 +51,8 @@ public class MatrixTestResult extends AggregatedTestResultAction {
     }
 
     @Override
-    public AbstractBuild<?,?> resolveChild(Child child) {
-        MatrixBuild b = (MatrixBuild)owner;
+    public AbstractBuildExt<?,?> resolveChild(Child child) {
+        MatrixBuildExt b = (MatrixBuildExt)owner;
         return b.getRun(Combination.fromString(child.name));
     }
 

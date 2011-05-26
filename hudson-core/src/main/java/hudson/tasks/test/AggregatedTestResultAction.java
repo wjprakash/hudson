@@ -23,7 +23,7 @@
  */
 package hudson.tasks.test;
 
-import hudson.model.AbstractBuild;
+import hudson.model.AbstractBuildExt;
 import hudson.tasks.junit.CaseResult;
 import hudson.tasks.junit.TestResult;
 import org.kohsuke.stapler.export.Exported;
@@ -35,7 +35,7 @@ import java.util.List;
 
 /**
  * {@link AbstractTestResultAction} that aggregates all the test results
- * from the corresponding {@link AbstractBuild}s.
+ * from the corresponding {@link AbstractBuildExt}s.
  *
  * <p>
  * (This has nothing to do with {@link AggregatedTestResultPublisher}, unfortunately)
@@ -67,7 +67,7 @@ public abstract class AggregatedTestResultAction extends AbstractTestResultActio
      */
     public final List<Child> children = new ArrayList<Child>();
 
-    public AggregatedTestResultAction(AbstractBuild owner) {
+    public AggregatedTestResultAction(AbstractBuildExt owner) {
         super(owner);
     }
 
@@ -120,11 +120,11 @@ public abstract class AggregatedTestResultAction extends AbstractTestResultActio
     @ExportedBean(defaultVisibility=2)
     public static final class ChildReport {
         @Exported
-        public final AbstractBuild<?,?> child;
+        public final AbstractBuildExt<?,?> child;
         @Exported
         public final Object result;
 
-        public ChildReport(AbstractBuild<?, ?> child, AbstractTestResultAction result) {
+        public ChildReport(AbstractBuildExt<?, ?> child, AbstractTestResultAction result) {
             this.child = child;
             this.result = result.getResult();
         }
@@ -149,14 +149,14 @@ public abstract class AggregatedTestResultAction extends AbstractTestResultActio
     }
 
     protected abstract String getChildName(AbstractTestResultAction tr);
-    public abstract AbstractBuild<?,?> resolveChild(Child child);
+    public abstract AbstractBuildExt<?,?> resolveChild(Child child);
 
     /**
      * Uses {@link #resolveChild(Child)} and obtain the
      * {@link AbstractTestResultAction} object for the given child.
      */
     protected AbstractTestResultAction getChildReport(Child child) {
-        AbstractBuild<?,?> b = resolveChild(child);
+        AbstractBuildExt<?,?> b = resolveChild(child);
         if(b==null) return null;
         return b.getAction(AbstractTestResultAction.class);
     }

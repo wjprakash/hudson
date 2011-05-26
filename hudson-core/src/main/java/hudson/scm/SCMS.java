@@ -25,10 +25,10 @@ package hudson.scm;
 
 import hudson.model.Descriptor;
 import hudson.model.Hudson;
-import hudson.model.AbstractProject;
+import hudson.model.AbstractProjectExt;
 import hudson.model.Descriptor.FormException;
 import hudson.util.DescriptorList;
-import hudson.DescriptorExtensionList;
+import hudson.DescriptorExtensionListExt;
 import hudson.Extension;
 
 import java.util.List;
@@ -56,7 +56,7 @@ public class SCMS {
      * @param target
      *      The project for which this SCM is configured to.
      */
-    public static SCM parseSCM(StaplerRequest req, AbstractProject target) throws FormException, ServletException {
+    public static SCM parseSCM(StaplerRequest req, AbstractProjectExt target) throws FormException, ServletException {
         String scm = req.getParameter("scm");
         if(scm==null)   return new NullSCM();
 
@@ -68,7 +68,7 @@ public class SCMS {
 
     /**
      * @deprecated as of 1.294
-     *      Use {@link #parseSCM(StaplerRequest, AbstractProject)} and pass in the caller's project type.
+     *      Use {@link #parseSCM(StaplerRequest, AbstractProjectExt)} and pass in the caller's project type.
      */
     public static SCM parseSCM(StaplerRequest req) throws FormException, ServletException {
         return parseSCM(req,null);

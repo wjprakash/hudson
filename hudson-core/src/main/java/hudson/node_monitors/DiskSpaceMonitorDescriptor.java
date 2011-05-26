@@ -23,8 +23,8 @@
  */
 package hudson.node_monitors;
 
-import hudson.FilePath.FileCallable;
-import hudson.model.Computer;
+import hudson.FilePathExt.FileCallable;
+import hudson.model.ComputerExt;
 import hudson.remoting.VirtualChannel;
 import hudson.Util;
 import hudson.slaves.OfflineCause;
@@ -131,14 +131,14 @@ import org.kohsuke.stapler.export.Exported;
         private static final long serialVersionUID = 2L;
     }
 
-    protected DiskSpace monitor(Computer c) throws IOException, InterruptedException {
+    protected DiskSpace monitor(ComputerExt c) throws IOException, InterruptedException {
         return getFreeSpace(c);
     }
 
     /**
      * Computes the free size.
      */
-    protected abstract DiskSpace getFreeSpace(Computer c) throws IOException, InterruptedException;
+    protected abstract DiskSpace getFreeSpace(ComputerExt c) throws IOException, InterruptedException;
 
     protected static final class GetUsableSpace implements FileCallable<DiskSpace> {
         @IgnoreJRERequirement

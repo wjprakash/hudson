@@ -23,7 +23,7 @@
  */
 package hudson.model.listeners;
 
-import hudson.model.AbstractBuild;
+import hudson.model.AbstractBuildExt;
 import hudson.model.Action;
 import hudson.model.BuildListener;
 import hudson.model.Hudson;
@@ -63,7 +63,7 @@ public abstract class SCMListener implements ExtensionPoint {
      * This is an opportunity for SCM-related plugins to act on changelog.
      * A typical usage includes parsing commit messages and do cross-referencing
      * between other systems. Implementations can also contribute {@link Action}
-     * to {@link AbstractBuild} (by {@code build.getActions().add(...)} to
+     * to {@link AbstractBuildExt} (by {@code build.getActions().add(...)} to
      * display additional data on build views.
      *
      * <p>
@@ -78,14 +78,14 @@ public abstract class SCMListener implements ExtensionPoint {
      *      up in the "console output" of the build. Never null.
      * @param changelog
      *      Set of changes detected in this build. This is the same value
-     *      returned from {@link AbstractBuild#getChangeSet()} but passed
+     *      returned from {@link AbstractBuildExt#getChangeSet()} but passed
      *      separately for convenience.
      *
      * @throws Exception
      *      If any exception is thrown from this method, it will be recorded
      *      and causes the build to fail. 
      */
-    public void onChangeLogParsed(AbstractBuild<?,?> build, BuildListener listener, ChangeLogSet<?> changelog) throws Exception {
+    public void onChangeLogParsed(AbstractBuildExt<?,?> build, BuildListener listener, ChangeLogSet<?> changelog) throws Exception {
     }
 
     /**

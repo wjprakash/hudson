@@ -23,7 +23,7 @@
  */
 package hudson.model;
 
-import hudson.DescriptorExtensionList;
+import hudson.DescriptorExtensionListExt;
 import hudson.Extension;
 import hudson.ExtensionPoint;
 import hudson.AbortException;
@@ -189,7 +189,7 @@ public abstract class ParameterDefinition implements
     /**
      * Returns all the registered {@link ParameterDefinition} descriptors.
      */
-    public static DescriptorExtensionList<ParameterDefinition,ParameterDescriptor> all() {
+    public static DescriptorExtensionListExt<ParameterDefinition,ParameterDescriptor> all() {
         return Hudson.getInstance().<ParameterDefinition,ParameterDescriptor>getDescriptorList(ParameterDefinition.class);
     }
 

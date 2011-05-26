@@ -26,7 +26,7 @@ package hudson.model;
 
 import com.infradna.tool.bridge_method_injector.WithBridgeMethods;
 import hudson.ExtensionPoint;
-import hudson.FilePath;
+import hudson.FilePathExt;
 import hudson.FileSystemProvisioner;
 import hudson.Launcher;
 import hudson.model.Queue.Task;
@@ -67,7 +67,7 @@ import org.kohsuke.stapler.export.Exported;
  * @see NodeDescriptor
  */
 @ExportedBean
-public abstract class Node extends AbstractModelObject implements Describable<Node>, ExtensionPoint, AccessControlled {
+public abstract class Node extends AbstractModelObjectExt implements Describable<Node>, ExtensionPoint, AccessControlled {
     /**
      * Newly copied slaves get this flag set, so that Hudson doesn't try to start this node until its configuration
      * is saved once.
@@ -139,31 +139,31 @@ public abstract class Node extends AbstractModelObject implements Describable<No
     public abstract Mode getMode();
 
     /**
-     * Gets the corresponding {@link Computer} object.
+     * Gets the corresponding {@link ComputerExt} object.
      *
      * @return
-     *      this method can return null if there's no {@link Computer} object for this node,
+     *      this method can return null if there's no {@link ComputerExt} object for this node,
      *      such as when this node has no executors at all.
      */
-    public final Computer toComputer() {
+    public final ComputerExt toComputer() {
         return Hudson.getInstance().getComputer(this);
     }
 
     /**
      * Gets the current channel, if the node is connected and online, or null.
      *
-     * This is just a convenience method for {@link Computer#getChannel()} with null check. 
+     * This is just a convenience method for {@link ComputerExt#getChannel()} with null check. 
      */
     public final VirtualChannel getChannel() {
-        Computer c = toComputer();
+        ComputerExt c = toComputer();
         return c==null ? null : c.getChannel();
     }
 
     /**
-     * Creates a new {@link Computer} object that acts as the UI peer of this {@link Node}.
+     * Creates a new {@link ComputerExt} object that acts as the UI peer of this {@link Node}.
      * Nobody but {@link Hudson#updateComputerList()} should call this method.
      */
-    protected abstract Computer createComputer();
+    protected abstract ComputerExt createComputer();
 
     /**
      * Return the possibly empty tag cloud for the labels of this node.
@@ -269,7 +269,7 @@ public abstract class Node extends AbstractModelObject implements Describable<No
      *      null if this node is not connected hence the path is not available
      */
     // TODO: should this be modified now that getWorkspace is moved from AbstractProject to AbstractBuild?
-    public abstract FilePath getWorkspaceFor(TopLevelItem item);
+    public abstract FilePathExt getWorkspaceFor(TopLevelItem item);
 
     /**
      * Gets the root directory of this node.
@@ -279,18 +279,18 @@ public abstract class Node extends AbstractModelObject implements Describable<No
      * returns that.
      *
      * @return
-     *      null if the node is offline and hence the {@link FilePath}
+     *      null if the node is offline and hence the {@link FilePathExt}
      *      object is not available.
      */
-    public abstract FilePath getRootPath();
+    public abstract FilePathExt getRootPath();
 
     /**
-     * Gets the {@link FilePath} on this node.
+     * Gets the {@link FilePathExt} on this node.
      */
-    public FilePath createPath(String absolutePath) {
+    public FilePathExt createPath(String absolutePath) {
         VirtualChannel ch = getChannel();
         if(ch==null)    return null;    // offline
-        return new FilePath(ch,absolutePath);
+        return new FilePathExt(ch,absolutePath);
     }
 
     public FileSystemProvisioner getFileSystemProvisioner() {

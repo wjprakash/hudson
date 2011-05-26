@@ -23,7 +23,7 @@
  */
 package hudson.util;
 
-import hudson.model.AbstractBuild;
+import hudson.model.AbstractBuildExt;
 import hudson.model.Item;
 import hudson.model.Job;
 import hudson.model.Node;
@@ -104,7 +104,7 @@ public class RunList<R extends Run> extends ArrayList<R> {
     public RunList<R> node(Node node) {
         for (Iterator<R> itr = iterator(); itr.hasNext();) {
             Run r = itr.next();
-            if (!(r instanceof AbstractBuild) || ((AbstractBuild)r).getBuiltOn()!=node) {
+            if (!(r instanceof AbstractBuildExt) || ((AbstractBuildExt)r).getBuiltOn()!=node) {
                 itr.remove();
             }
         }

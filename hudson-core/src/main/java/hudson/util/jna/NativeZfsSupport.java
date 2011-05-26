@@ -23,7 +23,7 @@
  */
 package hudson.util.jna;
 
-import hudson.DescriptorExtensionList;
+import hudson.DescriptorExtensionListExt;
 import hudson.ExtensionPoint;
 import hudson.model.AbstractDescribableImpl;
 import hudson.model.Descriptor;
@@ -48,7 +48,7 @@ public abstract class NativeZfsSupport extends AbstractDescribableImpl<NativeZfs
     /**
      * Returns all the registered {@link NativeAccessSupport} descriptors.
      */
-    public static DescriptorExtensionList<NativeZfsSupport, Descriptor<NativeZfsSupport>> all() {
+    public static DescriptorExtensionListExt<NativeZfsSupport, Descriptor<NativeZfsSupport>> all() {
         return Hudson.getInstance().<NativeZfsSupport, Descriptor<NativeZfsSupport>>getDescriptorList(NativeZfsSupport.class);
     }
 

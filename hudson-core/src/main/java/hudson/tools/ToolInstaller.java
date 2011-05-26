@@ -25,7 +25,7 @@
 package hudson.tools;
 
 import hudson.ExtensionPoint;
-import hudson.FilePath;
+import hudson.FilePathExt;
 import hudson.Util;
 import hudson.model.Describable;
 import hudson.model.Hudson;
@@ -94,7 +94,7 @@ public abstract class ToolInstaller implements Describable<ToolInstaller>, Exten
      * @throws IOException if installation fails
      * @throws InterruptedException if communication with a slave is interrupted
      */
-    public abstract FilePath performInstallation(ToolInstallation tool, Node node, TaskListener log) throws IOException, InterruptedException;
+    public abstract FilePathExt performInstallation(ToolInstallation tool, Node node, TaskListener log) throws IOException, InterruptedException;
 
     /**
      * Convenience method to find a location to install a tool.
@@ -104,7 +104,7 @@ public abstract class ToolInstaller implements Describable<ToolInstaller>, Exten
      *         Hudson work area named according to {@link ToolInstallation#getName}
      * @since 1.310
      */
-    protected final FilePath preferredLocation(ToolInstallation tool, Node node) {
+    protected final FilePathExt preferredLocation(ToolInstallation tool, Node node) {
         if (node == null) {
             throw new IllegalArgumentException("must pass non-null node");
         }
@@ -113,7 +113,7 @@ public abstract class ToolInstaller implements Describable<ToolInstaller>, Exten
             // XXX should this somehow uniquify paths among ToolInstallation.all()?
             home = tool.getName().replaceAll("[^A-Za-z0-9_.-]+", "_");
         }
-        FilePath root = node.getRootPath();
+        FilePathExt root = node.getRootPath();
         if (root == null) {
             throw new IllegalArgumentException("Node " + node.getDisplayName() + " seems to be offline");
         }

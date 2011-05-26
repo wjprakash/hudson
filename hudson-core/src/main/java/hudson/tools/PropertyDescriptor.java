@@ -1,6 +1,6 @@
 package hudson.tools;
 
-import hudson.Functions;
+import hudson.FunctionsExt;
 import hudson.model.Describable;
 import hudson.model.Descriptor;
 
@@ -29,7 +29,7 @@ public abstract class PropertyDescriptor<P extends Describable<P>,T> extends Des
      * Infer the type parameterization 'P'
      */
     private Class<P> getP() {
-        return Functions.getTypeParameter(getClass(),Descriptor.class,0);
+        return FunctionsExt.getTypeParameter(getClass(),Descriptor.class,0);
     }
 
     /**
@@ -45,7 +45,7 @@ public abstract class PropertyDescriptor<P extends Describable<P>,T> extends Des
      *      displayed in the configuration screen of the target, for example.
      */
     public boolean isApplicable(Class<? extends T> targetType) {
-        Class<? extends T> applicable = Functions.getTypeParameter(clazz,getP(),0);
+        Class<? extends T> applicable = FunctionsExt.getTypeParameter(clazz,getP(),0);
         return applicable.isAssignableFrom(targetType);
     }
 

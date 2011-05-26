@@ -94,7 +94,7 @@ import org.kohsuke.args4j.CmdLineException;
  * @author Kohsuke Kawaguchi
  */
 public abstract class Job<JobT extends Job<JobT, RunT>, RunT extends Run<JobT, RunT>>
-        extends AbstractItem implements ExtensionPoint, StaplerOverridable {
+        extends AbstractItemExt implements ExtensionPoint, StaplerOverridable {
 
     /**
      * Next build number. Kept in a separate file because this is the only
@@ -814,7 +814,7 @@ public abstract class Job<JobT extends Job<JobT, RunT>, RunT extends Run<JobT, R
      * Used as the color of the status ball for the project.
      */
     @Exported(visibility = 2, name = "color")
-    public BallColor getIconColor() {
+    public BallColorExt getIconColor() {
         RunT lastBuild = getLastBuild();
         while (lastBuild != null && lastBuild.hasntStartedYet()) {
             lastBuild = lastBuild.getPreviousBuild();
@@ -823,7 +823,7 @@ public abstract class Job<JobT extends Job<JobT, RunT>, RunT extends Run<JobT, R
         if (lastBuild != null) {
             return lastBuild.getIconColor();
         } else {
-            return BallColor.GREY;
+            return BallColorExt.GREY;
         }
     }
 
@@ -1164,7 +1164,7 @@ public abstract class Job<JobT extends Job<JobT, RunT>, RunT extends Run<JobT, R
 
     /**
      * Returns the {@link ACL} for this object.
-     * We need to override the identical method in AbstractItem because we won't
+     * We need to override the identical method in AbstractItemExt because we won't
      * call getACL(Job) otherwise (single dispatch)
      */
     @Override
@@ -1172,7 +1172,7 @@ public abstract class Job<JobT extends Job<JobT, RunT>, RunT extends Run<JobT, R
         return Hudson.getInstance().getAuthorizationStrategy().getACL(this);
     }
 
-    public BuildTimelineWidget getTimeline() {
-        return new BuildTimelineWidget(getBuilds());
+    public BuildTimelineWidgetExt getTimeline() {
+        return new BuildTimelineWidgetExt(getBuilds());
     }
 }

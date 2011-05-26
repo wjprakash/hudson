@@ -28,7 +28,7 @@ import hudson.XmlFile;
 import hudson.BulkChange;
 import hudson.Util;
 import static hudson.Util.singleQuote;
-import hudson.diagnosis.OldDataMonitor;
+import hudson.diagnosis.OldDataMonitorExt;
 import hudson.model.listeners.SaveableListener;
 import hudson.util.ReflectionUtils;
 import hudson.util.ReflectionUtils.Parameter;
@@ -855,7 +855,7 @@ public abstract class Descriptor<T extends Describable<T>> implements Saveable {
 
     private Object readResolve() {
         if (properties!=null)
-            OldDataMonitor.report(this, "1.62");
+            OldDataMonitorExt.report(this, "1.62");
         return this;
     }
 }

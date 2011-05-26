@@ -23,11 +23,11 @@
  */
 package hudson.model;
 
-import hudson.FilePath;
+import hudson.FilePathExt;
 import hudson.Launcher;
 import hudson.Util;
 import hudson.Launcher.RemoteLauncher;
-import hudson.diagnosis.OldDataMonitor;
+import hudson.diagnosis.OldDataMonitorExt;
 import hudson.model.Descriptor.FormException;
 import hudson.remoting.Callable;
 import hudson.remoting.VirtualChannel;
@@ -228,17 +228,17 @@ public abstract class Slave extends Node implements Serializable {
         return new ClockDifference((startTime+endTime)/2 - slaveTime);
     }
 
-    public Computer createComputer() {
+    public ComputerExt createComputer() {
         return new SlaveComputer(this);
     }
 
-    public FilePath getWorkspaceFor(TopLevelItem item) {
-        FilePath r = getWorkspaceRoot();
+    public FilePathExt getWorkspaceFor(TopLevelItem item) {
+        FilePathExt r = getWorkspaceRoot();
         if(r==null)     return null;    // offline
         return r.child(item.getName());
     }
 
-    public FilePath getRootPath() {
+    public FilePathExt getRootPath() {
         return createPath(remoteFS);
     }
 
@@ -247,8 +247,8 @@ public abstract class Slave extends Node implements Serializable {
      * @return
      *      null if not connected.
      */
-    public FilePath getWorkspaceRoot() {
-        FilePath r = getRootPath();
+    public FilePathExt getWorkspaceRoot() {
+        FilePathExt r = getRootPath();
         if(r==null) return null;
         return r.child(WORKSPACE_ROOT);
     }
@@ -340,7 +340,7 @@ public abstract class Slave extends Node implements Serializable {
             agentCommand = command+"java -jar ~/bin/slave.jar";
         }
         if (command!=null || localFS!=null)
-            OldDataMonitor.report(Hudson.getInstance(), "1.69");
+            OldDataMonitorExt.report(Hudson.getInstance(), "1.69");
         if (launcher == null) {
             launcher = (agentCommand == null || agentCommand.trim().length() == 0)
                     ? new JNLPLauncher()

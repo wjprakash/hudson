@@ -83,7 +83,7 @@ abstract class FullDuplexHttpChannel {
 
         try {
             channel = new Channel("HTTP full-duplex channel " + uuid,
-                    Computer.threadPoolForRemoting, Mode.BINARY, upload, out, null, restricted);
+                    ComputerExt.threadPoolForRemoting, Mode.BINARY, upload, out, null, restricted);
 
             // so that we can detect dead clients, periodically send something
             PingThread ping = new PingThread(channel) {

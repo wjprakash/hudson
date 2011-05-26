@@ -44,13 +44,13 @@ public interface SCMedItem extends BuildableItem {
 
     /**
      * {@link SCMedItem} needs to be an instance of
-     * {@link AbstractProject}.
+     * {@link AbstractProjectExt}.
      *
      * <p>
-     * This method must be always implemented as {@code (AbstractProject)this}, but
+     * This method must be always implemented as {@code (AbstractProjectExt)this}, but
      * defining this method emphasizes the fact that this cast must be doable.
      */
-    AbstractProject<?,?> asProject();
+    AbstractProjectExt<?,?> asProject();
 
     /**
      * Checks if there's any update in SCM, and returns true if any is found.

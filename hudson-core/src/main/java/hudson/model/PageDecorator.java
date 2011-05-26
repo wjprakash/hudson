@@ -24,7 +24,7 @@
 package hudson.model;
 
 import hudson.ExtensionPoint;
-import hudson.Plugin;
+import hudson.PluginExt;
 import hudson.Extension;
 import hudson.ExtensionList;
 import hudson.util.DescriptorList;
@@ -44,7 +44,7 @@ import java.util.List;
  *
  * <h2>Life-cycle</h2>
  * <p>
- * {@link Plugin}s that contribute this extension point
+ * {@link PluginExt}s that contribute this extension point
  * should implement a new decorator and put {@link Extension} on the class.
  *
  * <h2>Associated Views</h2>

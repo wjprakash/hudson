@@ -95,7 +95,7 @@ public class ExternalJob extends ViewJob<ExternalJob,ExternalRun> implements Top
      * Used to post the build result from a remote machine.
      */
     public void doPostBuildResult( StaplerRequest req, StaplerResponse rsp ) throws IOException, ServletException {
-        checkPermission(AbstractProject.BUILD);
+        checkPermission(AbstractProjectExt.BUILD);
         ExternalRun run = newBuild();
         run.acceptRemoteSubmission(req.getReader());
         rsp.setStatus(HttpServletResponse.SC_OK);

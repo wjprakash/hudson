@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.logging.Logger;
 
-import hudson.PluginManager;
+import hudson.PluginManagerExt;
 import hudson.util.Service;
 
 /**
@@ -38,7 +38,7 @@ public class InitStrategy {
      *      never null but can be empty. The list can contain different versions of the same plugin,
      *      and when that happens, Hudson will ignore all but the first one in the list.
      */
-    public List<File> listPluginArchives(PluginManager pm) throws IOException {
+    public List<File> listPluginArchives(PluginManagerExt pm) throws IOException {
         File[] hpi = pm.rootDir.listFiles(new FilterByExtension(".hpi")); // plugin jar file
         File[] hpl = pm.rootDir.listFiles(new FilterByExtension(".hpl")); // linked plugin. for debugging.
         if (hpi==null || hpl==null)

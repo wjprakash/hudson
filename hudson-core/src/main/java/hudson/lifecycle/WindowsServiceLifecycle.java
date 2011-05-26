@@ -23,7 +23,7 @@
  */
 package hudson.lifecycle;
 
-import hudson.FilePath;
+import hudson.FilePathExt;
 import hudson.Launcher.LocalLauncher;
 import hudson.Util;
 import hudson.model.Hudson;
@@ -65,7 +65,7 @@ public class WindowsServiceLifecycle extends Lifecycle {
             String ourCopy = Util.getDigestOf(exe.openStream());
             File currentCopy = new File(rootDir,"hudson.exe");
             if(!currentCopy.exists())   return;
-            String curCopy = new FilePath(currentCopy).digest();
+            String curCopy = new FilePathExt(currentCopy).digest();
 
             if(ourCopy.equals(curCopy))
             return; // identical

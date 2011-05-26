@@ -31,13 +31,13 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * {@link Axis} that selects available JDKs.
+ * {@link AxisExt} that selects available JDKs.
  *
  * @author Kohsuke Kawaguchi
  */
-public class JDKAxis extends Axis {
+public class JDKAxis extends AxisExt {
     /**
-     * JDK axis was used to be stored as a plain "Axis" with the name "jdk",
+     * JDK axis was used to be stored as a plain "AxisExt" with the name "jdk",
      * so it cannot be configured by any other name.
      */
     public JDKAxis(List<String> values) {

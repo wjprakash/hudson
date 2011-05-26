@@ -24,7 +24,7 @@
 
 package hudson.tools;
 
-import hudson.DescriptorExtensionList;
+import hudson.DescriptorExtensionListExt;
 import hudson.Extension;
 import hudson.model.Descriptor;
 import hudson.model.Hudson;
@@ -111,7 +111,7 @@ public class ToolLocationNodeProperty extends NodeProperty<Node> {
             return Messages.ToolLocationNodeProperty_displayName();
         }
 
-        public DescriptorExtensionList<ToolInstallation,ToolDescriptor<?>> getToolDescriptors() {
+        public DescriptorExtensionListExt<ToolInstallation,ToolDescriptor<?>> getToolDescriptors() {
             return ToolInstallation.all();
         }
 

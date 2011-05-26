@@ -26,7 +26,7 @@ package hudson.tasks._ant;
 import hudson.Extension;
 import hudson.MarkupText;
 import hudson.console.ConsoleNote;
-import hudson.console.ConsoleAnnotationDescriptor;
+import hudson.ConsoleAnnotationDescriptor;
 import hudson.console.ConsoleAnnotator;
 
 import java.util.regex.Pattern;

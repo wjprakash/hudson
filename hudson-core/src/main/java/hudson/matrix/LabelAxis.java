@@ -30,11 +30,11 @@ import org.kohsuke.stapler.DataBoundConstructor;
 import java.util.List;
 
 /**
- * {@link Axis} that selects label expressions.
+ * {@link AxisExt} that selects label expressions.
  *
  * @author Kohsuke Kawaguchi
  */
-public class LabelAxis extends Axis {
+public class LabelAxis extends AxisExt {
     @DataBoundConstructor
     public LabelAxis(String name, List<String> values) {
         super(name, values);

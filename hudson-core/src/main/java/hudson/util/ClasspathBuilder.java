@@ -1,6 +1,6 @@
 package hudson.util;
 
-import hudson.FilePath;
+import hudson.FilePathExt;
 import hudson.Util;
 import hudson.remoting.Channel;
 import hudson.remoting.Which;
@@ -30,7 +30,7 @@ public class ClasspathBuilder implements Serializable {
     /**
      * Adds a single directory or a jar file.
      */
-    public ClasspathBuilder add(FilePath f) {
+    public ClasspathBuilder add(FilePathExt f) {
         return add(f.getRemote());
     }
 
@@ -53,10 +53,10 @@ public class ClasspathBuilder implements Serializable {
     /**
      * Adds all the files that matches the given glob in the directory.
      *
-     * @see FilePath#list(String)  
+     * @see FilePathExt#list(String)  
      */
-    public ClasspathBuilder addAll(FilePath base, String glob) throws IOException, InterruptedException {
-        for(FilePath item : base.list(glob))
+    public ClasspathBuilder addAll(FilePathExt base, String glob) throws IOException, InterruptedException {
+        for(FilePathExt item : base.list(glob))
             add(item);
         return this;
     }

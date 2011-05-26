@@ -25,7 +25,7 @@ package hudson.tasks.junit;
 
 import hudson.model.TaskListener;
 import hudson.tasks.test.TestResultParser;
-import hudson.model.AbstractBuild;
+import hudson.model.AbstractBuildExt;
 import hudson.*;
 import hudson.remoting.VirtualChannel;
 
@@ -70,7 +70,7 @@ public class JUnitParser extends TestResultParser {
 
     @Override
     public TestResult parse(String testResultLocations,
-                                       AbstractBuild build, Launcher launcher,
+                                       AbstractBuildExt build, Launcher launcher,
                                        TaskListener listener)
             throws InterruptedException, IOException
     {
@@ -85,7 +85,7 @@ public class JUnitParser extends TestResultParser {
     }
 
     private static final class ParseResultCallable implements
-            FilePath.FileCallable<TestResult> {
+            FilePathExt.FileCallable<TestResult> {
         private final long buildTime;
         private final String testResults;
         private final long nowMaster;

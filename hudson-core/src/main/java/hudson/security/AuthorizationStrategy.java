@@ -23,7 +23,7 @@
  */
 package hudson.security;
 
-import hudson.DescriptorExtensionList;
+import hudson.DescriptorExtensionListExt;
 import hudson.Extension;
 import hudson.ExtensionPoint;
 import hudson.model.*;
@@ -73,7 +73,7 @@ public abstract class AuthorizationStrategy extends AbstractDescribableImpl<Auth
      *      Override {@link #getACL(Job)} instead.
      */
     @Deprecated
-    public ACL getACL(AbstractProject<?,?> project) {
+    public ACL getACL(AbstractProjectExt<?,?> project) {
     	return getACL((Job)project);
     }
 
@@ -103,7 +103,7 @@ public abstract class AuthorizationStrategy extends AbstractDescribableImpl<Auth
      *
      * @since 1.220
      */
-    public ACL getACL(AbstractItem item) {
+    public ACL getACL(AbstractItemExt item) {
         return getRootACL();
     }
 
@@ -129,7 +129,7 @@ public abstract class AuthorizationStrategy extends AbstractDescribableImpl<Auth
      *
      * @since 1.220
      */
-    public ACL getACL(Computer computer) {
+    public ACL getACL(ComputerExt computer) {
         return getACL(computer.getNode());
     }
 
@@ -169,7 +169,7 @@ public abstract class AuthorizationStrategy extends AbstractDescribableImpl<Auth
     /**
      * Returns all the registered {@link AuthorizationStrategy} descriptors.
      */
-    public static DescriptorExtensionList<AuthorizationStrategy,Descriptor<AuthorizationStrategy>> all() {
+    public static DescriptorExtensionListExt<AuthorizationStrategy,Descriptor<AuthorizationStrategy>> all() {
         return Hudson.getInstance().<AuthorizationStrategy,Descriptor<AuthorizationStrategy>>getDescriptorList(AuthorizationStrategy.class);
     }
 

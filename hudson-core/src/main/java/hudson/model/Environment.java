@@ -85,7 +85,7 @@ public abstract class Environment {
 	 *             terminates the build abnormally. Hudson will handle the
 	 *             exception and reports a nice error message.
 	 */
-	public boolean tearDown(AbstractBuild build, BuildListener listener)
+	public boolean tearDown(AbstractBuildExt build, BuildListener listener)
 			throws IOException, InterruptedException {
 		return true;
 	}

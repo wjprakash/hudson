@@ -25,7 +25,7 @@ package hudson.slaves;
 
 import hudson.ExtensionPoint;
 import hudson.Util;
-import hudson.DescriptorExtensionList;
+import hudson.DescriptorExtensionListExt;
 import hudson.Extension;
 import hudson.model.*;
 import hudson.util.DescriptorList;
@@ -35,17 +35,17 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Controls when to take {@link Computer} offline, bring it back online, or even to destroy it.
+ * Controls when to take {@link ComputerExt} offline, bring it back online, or even to destroy it.
  *
  * @author Stephen Connolly
  * @author Kohsuke Kawaguchi
  */
-public abstract class RetentionStrategy<T extends Computer> extends AbstractDescribableImpl<RetentionStrategy<?>> implements ExtensionPoint {
+public abstract class RetentionStrategy<T extends ComputerExt> extends AbstractDescribableImpl<RetentionStrategy<?>> implements ExtensionPoint {
 
     /**
      * This method will be called periodically to allow this strategy to decide what to do with it's owning slave.
      *
-     * @param c {@link Computer} for which this strategy is assigned. This computer may be online or offline.
+     * @param c {@link ComputerExt} for which this strategy is assigned. This computer may be online or offline.
      *          This object also exposes a bunch of properties that the callee can use to decide what action to take.
      * @return The number of minutes after which the strategy would like to be checked again. The strategy may be
      *         rechecked earlier or later that this!
@@ -54,7 +54,7 @@ public abstract class RetentionStrategy<T extends Computer> extends AbstractDesc
 
     /**
      * This method is called to determine whether manual launching of the slave is allowed at this point in time.
-     * @param c {@link Computer} for which this strategy is assigned. This computer may be online or offline.
+     * @param c {@link ComputerExt} for which this strategy is assigned. This computer may be online or offline.
      *          This object also exposes a bunch of properties that the callee can use to decide if manual launching is
      * allowed at this time.
      * @return {@code true} if manual launching of the slave is allowed at this point in time.
@@ -64,11 +64,11 @@ public abstract class RetentionStrategy<T extends Computer> extends AbstractDesc
     }
 
     /**
-     * Called when a new {@link Computer} object is introduced (such as when Hudson started, or when
+     * Called when a new {@link ComputerExt} object is introduced (such as when Hudson started, or when
      * a new slave is added.)
      *
      * <p>
-     * The default implementation of this method delegates to {@link #check(Computer)},
+     * The default implementation of this method delegates to {@link #check(ComputerExt)},
      * but this allows {@link RetentionStrategy} to distinguish the first time invocation from the rest.
      *
      * @since 1.275
@@ -80,8 +80,8 @@ public abstract class RetentionStrategy<T extends Computer> extends AbstractDesc
     /**
      * Returns all the registered {@link RetentionStrategy} descriptors.
      */
-    public static DescriptorExtensionList<RetentionStrategy<?>,Descriptor<RetentionStrategy<?>>> all() {
-        return (DescriptorExtensionList)Hudson.getInstance().getDescriptorList(RetentionStrategy.class);
+    public static DescriptorExtensionListExt<RetentionStrategy<?>,Descriptor<RetentionStrategy<?>>> all() {
+        return (DescriptorExtensionListExt)Hudson.getInstance().getDescriptorList(RetentionStrategy.class);
     }
 
     /**
@@ -94,13 +94,13 @@ public abstract class RetentionStrategy<T extends Computer> extends AbstractDesc
     /**
      * Dummy instance that doesn't do any attempt to retention.
      */
-    public static final RetentionStrategy<Computer> NOOP = new RetentionStrategy<Computer>() {
-        public long check(Computer c) {
+    public static final RetentionStrategy<ComputerExt> NOOP = new RetentionStrategy<ComputerExt>() {
+        public long check(ComputerExt c) {
             return 60;
         }
 
         @Override
-        public void start(Computer c) {
+        public void start(ComputerExt c) {
             c.connect(false);
         }
 

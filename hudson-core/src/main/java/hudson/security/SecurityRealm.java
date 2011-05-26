@@ -25,7 +25,7 @@ package hudson.security;
 
 import groovy.lang.Binding;
 import hudson.ExtensionPoint;
-import hudson.DescriptorExtensionList;
+import hudson.DescriptorExtensionListExt;
 import hudson.Extension;
 import hudson.cli.CLICommand;
 import hudson.model.AbstractDescribableImpl;
@@ -539,7 +539,7 @@ public abstract class SecurityRealm extends AbstractDescribableImpl<SecurityReal
     /**
      * Returns all the registered {@link SecurityRealm} descriptors.
      */
-    public static DescriptorExtensionList<SecurityRealm, Descriptor<SecurityRealm>> all() {
+    public static DescriptorExtensionListExt<SecurityRealm, Descriptor<SecurityRealm>> all() {
         return Hudson.getInstance().<SecurityRealm, Descriptor<SecurityRealm>>getDescriptorList(SecurityRealm.class);
     }
     private static final Logger LOGGER = Logger.getLogger(SecurityRealm.class.getName());

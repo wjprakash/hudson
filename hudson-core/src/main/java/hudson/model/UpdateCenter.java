@@ -26,9 +26,9 @@ package hudson.model;
 import hudson.BulkChange;
 import hudson.Extension;
 import hudson.ExtensionPoint;
-import hudson.Functions;
-import hudson.PluginManager;
-import hudson.PluginWrapper;
+import hudson.FunctionsExt;
+import hudson.PluginManagerExt;
+import hudson.PluginWrapperExt;
 import hudson.ProxyConfiguration;
 import hudson.Util;
 import hudson.XmlFile;
@@ -81,7 +81,7 @@ import org.acegisecurity.context.SecurityContextHolder;
  *
  * <p>
  * The main job of this class is to keep track of the latest update center metadata file, and perform installations.
- * Much of the UI about choosing plugins to install is done in {@link PluginManager}.
+ * Much of the UI about choosing plugins to install is done in {@link PluginManagerExt}.
  * <p>
  * The update center can be configured to contact alternate servers for updates
  * and plugins, and to use alternate strategies for downloading, installing
@@ -91,7 +91,7 @@ import org.acegisecurity.context.SecurityContextHolder;
  * @author Kohsuke Kawaguchi
  * @since 1.220
  */
-public class UpdateCenter extends AbstractModelObject implements Saveable {
+public class UpdateCenter extends AbstractModelObjectExt implements Saveable {
     /**
      * {@link ExecutorService} that performs installation.
      */
@@ -434,10 +434,10 @@ public class UpdateCenter extends AbstractModelObject implements Saveable {
 
 
     /**
-     * {@link AdministrativeMonitor} that checks if there's Hudson update.
+     * {@link AdministrativeMonitorExt} that checks if there's Hudson update.
      */
     @Extension
-    public static final class CoreUpdateMonitor extends AdministrativeMonitor {
+    public static final class CoreUpdateMonitor extends AdministrativeMonitorExt {
         public boolean isActivated() {
             Data data = getData();
             return data!=null && data.hasCoreUpdates();
@@ -720,12 +720,12 @@ public class UpdateCenter extends AbstractModelObject implements Saveable {
                 statuses.add(Messages.UpdateCenter_Status_UnknownHostException(e.getMessage()));
                 addStatus(e);
             } catch (IOException e) {
-                statuses.add(Functions.printThrowable(e));
+                statuses.add(FunctionsExt.printThrowable(e));
             }
         }
 
         private void addStatus(UnknownHostException e) {
-            statuses.add("<pre>"+ Functions.xmlEscape(Functions.printThrowable(e))+"</pre>");
+            statuses.add("<pre>"+ FunctionsExt.xmlEscape(FunctionsExt.printThrowable(e))+"</pre>");
         }
 
         public String[] getStatuses() {
@@ -845,7 +845,7 @@ public class UpdateCenter extends AbstractModelObject implements Saveable {
             }
 
             public String getStackTrace() {
-                return Functions.printThrowable(problem);
+                return FunctionsExt.printThrowable(problem);
             }
         }
 
@@ -888,7 +888,7 @@ public class UpdateCenter extends AbstractModelObject implements Saveable {
          */
         public final Plugin plugin;
 
-        private final PluginManager pm = Hudson.getInstance().getPluginManager();
+        private final PluginManagerExt pm = Hudson.getInstance().getPluginManager();
 
         public InstallationJob(Plugin plugin, UpdateSite site, Authentication auth) {
             super(site, auth);
@@ -913,7 +913,7 @@ public class UpdateCenter extends AbstractModelObject implements Saveable {
             super._run();
 
             // if this is a bundled plugin, make sure it won't get overwritten
-            PluginWrapper pw = plugin.getInstalled();
+            PluginWrapperExt pw = plugin.getInstalled();
             if (pw!=null && pw.isBundled())
                 try {
                     SecurityContextHolder.getContext().setAuthentication(ACL.SYSTEM);
@@ -942,7 +942,7 @@ public class UpdateCenter extends AbstractModelObject implements Saveable {
          */
         public final Plugin plugin;
 
-        private final PluginManager pm = Hudson.getInstance().getPluginManager();
+        private final PluginManagerExt pm = Hudson.getInstance().getPluginManager();
 
         public PluginDowngradeJob(Plugin plugin, UpdateSite site, Authentication auth) {
             super(site, auth);

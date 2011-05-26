@@ -27,7 +27,7 @@ import hudson.Util;
 import hudson.Extension;
 import hudson.model.Descriptor.FormException;
 import hudson.slaves.OfflineCause;
-import hudson.model.Computer;
+import hudson.model.ComputerExt;
 import hudson.remoting.Callable;
 import hudson.remoting.Future;
 import hudson.util.TimeUnit2;
@@ -51,7 +51,7 @@ import org.kohsuke.stapler.export.ExportedBean;
 public class ResponseTimeMonitor extends NodeMonitor {
     @Extension
     public static final AbstractNodeMonitorDescriptor<Data> DESCRIPTOR = new AbstractNodeMonitorDescriptor<Data>() {
-        protected Data monitor(Computer c) throws IOException, InterruptedException {
+        protected Data monitor(ComputerExt c) throws IOException, InterruptedException {
             Data old = get(c);
             Data d;
 

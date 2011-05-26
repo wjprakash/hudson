@@ -23,7 +23,7 @@
  */
 package hudson.markup;
 
-import hudson.DescriptorExtensionList;
+import hudson.DescriptorExtensionListExt;
 import hudson.model.Descriptor;
 import hudson.model.Hudson;
 
@@ -37,7 +37,7 @@ public abstract class MarkupFormatterDescriptor extends Descriptor<MarkupFormatt
     /**
      * Returns all the registered {@link MarkupFormatterDescriptor}s.
      */
-    public static DescriptorExtensionList<MarkupFormatter,MarkupFormatterDescriptor> all() {
+    public static DescriptorExtensionListExt<MarkupFormatter,MarkupFormatterDescriptor> all() {
         return Hudson.getInstance().getDescriptorList(MarkupFormatter.class);
     }
 }

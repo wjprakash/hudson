@@ -2,7 +2,7 @@ package hudson.model.queue;
 
 import com.google.common.collect.Iterables;
 import hudson.Extension;
-import hudson.model.Computer;
+import hudson.model.ComputerExt;
 import hudson.model.Executor;
 import hudson.model.Hudson;
 import hudson.model.InvisibleAction;
@@ -29,7 +29,7 @@ public class BackFiller extends LoadPredictor {
     private boolean recursion = false;
 
     @Override
-    public Iterable<FutureLoad> predict(MappingWorksheet plan, Computer computer, long start, long end) {
+    public Iterable<FutureLoad> predict(MappingWorksheet plan, ComputerExt computer, long start, long end) {
         TimeRange timeRange = new TimeRange(start, end - start);
         List<FutureLoad> loads = new ArrayList<FutureLoad>();
 
@@ -94,7 +94,7 @@ public class BackFiller extends LoadPredictor {
         try {
             // pretend for now that all executors are available and decide some assignment that's executable.
             List<PseudoExecutorSlot> slots = new ArrayList<PseudoExecutorSlot>();
-            for (Computer c : Hudson.getInstance().getComputers()) {
+            for (ComputerExt c : Hudson.getInstance().getComputers()) {
                 if (c.isOffline())  continue;
                 for (Executor e : c.getExecutors()) {
                     slots.add(new PseudoExecutorSlot(e));
@@ -108,9 +108,9 @@ public class BackFiller extends LoadPredictor {
             if (m==null)    return null;
 
             // figure out how many executors we need on each computer?
-            Map<Computer,Integer> footprint = new HashMap<Computer, Integer>();
+            Map<ComputerExt,Integer> footprint = new HashMap<ComputerExt, Integer>();
             for (Entry<WorkChunk, ExecutorChunk> e : m.toMap().entrySet()) {
-                Computer c = e.getValue().computer;
+                ComputerExt c = e.getValue().computer;
                 Integer v = footprint.get(c);
                 if (v==null)    v = 0;
                 v += e.getKey().size();
@@ -129,8 +129,8 @@ public class BackFiller extends LoadPredictor {
 
             // now, based on the real predicted loads, figure out the approximation of when we can
             // start executing this guy.
-            for (Entry<Computer, Integer> e : footprint.entrySet()) {
-                Computer computer = e.getKey();
+            for (Entry<ComputerExt, Integer> e : footprint.entrySet()) {
+                ComputerExt computer = e.getKey();
                 Timeline timeline = new Timeline();
                 for (LoadPredictor lp : LoadPredictor.all()) {
                     for (FutureLoad fl : Iterables.limit(lp.predict(worksheet, computer, slot.start, slot.end),100)) {
@@ -182,10 +182,10 @@ public class BackFiller extends LoadPredictor {
     }
 
     public static final class TentativePlan extends InvisibleAction {
-        private final Map<Computer,Integer> footprint;
+        private final Map<ComputerExt,Integer> footprint;
         public final TimeRange range;
 
-        public TentativePlan(Map<Computer, Integer> footprint, TimeRange range) {
+        public TentativePlan(Map<ComputerExt, Integer> footprint, TimeRange range) {
             this.footprint = footprint;
             this.range = range;
         }

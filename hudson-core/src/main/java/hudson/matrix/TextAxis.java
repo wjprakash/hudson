@@ -10,7 +10,7 @@ import java.util.List;
  * 
  * @author Kohsuke Kawaguchi
  */
-public class TextAxis extends Axis {
+public class TextAxis extends AxisExt {
     public TextAxis(String name, List<String> values) {
         super(name, values);
     }

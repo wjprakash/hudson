@@ -53,13 +53,13 @@ public class StringParameterValue extends ParameterValue {
      * Exposes the name/value as an environment variable.
      */
     @Override
-    public void buildEnvVars(AbstractBuild<?,?> build, EnvVars env) {
+    public void buildEnvVars(AbstractBuildExt<?,?> build, EnvVars env) {
         env.put(name,value);
         env.put(name.toUpperCase(Locale.ENGLISH),value); // backward compatibility pre 1.345
     }
 
     @Override
-    public VariableResolver<String> createVariableResolver(AbstractBuild<?, ?> build) {
+    public VariableResolver<String> createVariableResolver(AbstractBuildExt<?, ?> build) {
         return new VariableResolver<String>() {
             public String resolve(String name) {
                 return StringParameterValue.this.name.equals(name) ? value : null;

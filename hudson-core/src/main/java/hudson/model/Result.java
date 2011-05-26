@@ -49,27 +49,27 @@ public final class Result implements Serializable, CustomExportedBean {
     /**
      * The build had no errors.
      */
-    public static final Result SUCCESS = new Result("SUCCESS",BallColor.BLUE,0);
+    public static final Result SUCCESS = new Result("SUCCESS",BallColorExt.BLUE,0);
     /**
      * The build had some errors but they were not fatal.
      * For example, some tests failed.
      */
-    public static final Result UNSTABLE = new Result("UNSTABLE",BallColor.YELLOW,1);
+    public static final Result UNSTABLE = new Result("UNSTABLE",BallColorExt.YELLOW,1);
     /**
      * The build had a fatal error.
      */
-    public static final Result FAILURE = new Result("FAILURE",BallColor.RED,2);
+    public static final Result FAILURE = new Result("FAILURE",BallColorExt.RED,2);
     /**
      * The module was not built.
      * <p>
      * This status code is used in a multi-stage build (like maven2)
      * where a problem in earlier stage prevented later stages from building.
      */
-    public static final Result NOT_BUILT = new Result("NOT_BUILT",BallColor.GREY,3);
+    public static final Result NOT_BUILT = new Result("NOT_BUILT",BallColorExt.GREY,3);
     /**
      * The build was manually aborted.
      */
-    public static final Result ABORTED = new Result("ABORTED",BallColor.ABORTED,4);
+    public static final Result ABORTED = new Result("ABORTED",BallColorExt.ABORTED,4);
 
     private final String name;
 
@@ -81,9 +81,9 @@ public final class Result implements Serializable, CustomExportedBean {
     /**
      * Default ball color for this status.
      */
-    public final BallColor color;
+    public final BallColorExt color;
 
-    private Result(String name, BallColor color, int ordinal) {
+    private Result(String name, BallColorExt color, int ordinal) {
         this.name = name;
         this.color = color;
         this.ordinal = ordinal;

@@ -24,10 +24,10 @@
 package hudson.node_monitors;
 
 import hudson.ExtensionPoint;
-import hudson.DescriptorExtensionList;
+import hudson.DescriptorExtensionListExt;
 import hudson.Extension;
 import hudson.tasks.Publisher;
-import hudson.model.Computer;
+import hudson.model.ComputerExt;
 import hudson.model.ComputerSet;
 import hudson.model.Describable;
 import hudson.model.Node;
@@ -83,7 +83,7 @@ public abstract class NodeMonitor implements ExtensionPoint, Describable<NodeMon
         return (AbstractNodeMonitorDescriptor<?>)Hudson.getInstance().getDescriptorOrDie(getClass());
     }
 
-    public Object data(Computer c) {
+    public Object data(ComputerExt c) {
         return getDescriptor().get(c);
     }
 
@@ -140,7 +140,7 @@ public abstract class NodeMonitor implements ExtensionPoint, Describable<NodeMon
     /**
      * Returns all the registered {@link NodeMonitor} descriptors.
      */
-    public static DescriptorExtensionList<NodeMonitor,Descriptor<NodeMonitor>> all() {
+    public static DescriptorExtensionListExt<NodeMonitor,Descriptor<NodeMonitor>> all() {
         return Hudson.getInstance().<NodeMonitor,Descriptor<NodeMonitor>>getDescriptorList(NodeMonitor.class);
     }
 }

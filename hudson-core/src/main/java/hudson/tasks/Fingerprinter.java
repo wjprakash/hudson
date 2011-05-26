@@ -25,12 +25,12 @@ package hudson.tasks;
 
 import com.google.common.collect.ImmutableMap;
 import hudson.Extension;
-import hudson.FilePath;
-import hudson.FilePath.FileCallable;
+import hudson.FilePathExt;
+import hudson.FilePathExt.FileCallable;
 import hudson.Launcher;
 import hudson.Util;
-import hudson.model.AbstractBuild;
-import hudson.model.AbstractProject;
+import hudson.model.AbstractBuildExt;
+import hudson.model.AbstractProjectExt;
 import hudson.model.Build;
 import hudson.model.BuildListener;
 import hudson.model.Fingerprint;
@@ -97,7 +97,7 @@ public class Fingerprinter extends Recorder implements Serializable {
     }
 
     @Override
-    public boolean perform(AbstractBuild<?,?> build, Launcher launcher, BuildListener listener) throws InterruptedException {
+    public boolean perform(AbstractBuildExt<?,?> build, Launcher launcher, BuildListener listener) throws InterruptedException {
         try {
             listener.getLogger().println(Messages.Fingerprinter_Recording());
 
@@ -133,7 +133,7 @@ public class Fingerprinter extends Recorder implements Serializable {
         return BuildStepMonitor.NONE;
     }
 
-    private void record(AbstractBuild<?,?> build, BuildListener listener, Map<String,String> record, final String targets) throws IOException, InterruptedException {
+    private void record(AbstractBuildExt<?,?> build, BuildListener listener, Map<String,String> record, final String targets) throws IOException, InterruptedException {
         final class Record implements Serializable {
             final boolean produced;
             final String relativePath;
@@ -147,7 +147,7 @@ public class Fingerprinter extends Recorder implements Serializable {
                 this.md5sum = md5sum;
             }
 
-            Fingerprint addRecord(AbstractBuild build) throws IOException {
+            Fingerprint addRecord(AbstractBuildExt build) throws IOException {
                 FingerprintMap map = Hudson.getInstance().getFingerprintMap();
                 return map.getOrCreate(produced?build:null, fileName, md5sum);
             }
@@ -157,7 +157,7 @@ public class Fingerprinter extends Recorder implements Serializable {
 
         final long buildTimestamp = build.getTimeInMillis();
 
-        FilePath ws = build.getWorkspace();
+        FilePathExt ws = build.getWorkspace();
         if(ws==null) {
             listener.error(Messages.Fingerprinter_NoWorkspace());
             build.setResult(Result.FAILURE);
@@ -180,7 +180,7 @@ public class Fingerprinter extends Recorder implements Serializable {
                     boolean produced = buildTimestamp <= file.lastModified()+2000;
 
                     try {
-                        results.add(new Record(produced,f,file.getName(),new FilePath(file).digest()));
+                        results.add(new Record(produced,f,file.getName(),new FilePathExt(file).digest()));
                     } catch (IOException e) {
                         throw new IOException2(Messages.Fingerprinter_DigestFailed(file),e);
                     } catch (InterruptedException e) {
@@ -217,8 +217,8 @@ public class Fingerprinter extends Recorder implements Serializable {
         /**
          * Performs on-the-fly validation on the file mask wildcard.
          */
-        public FormValidation doCheck(@AncestorInPath AbstractProject project, @QueryParameter String value) throws IOException {
-            return FilePath.validateFileMask(project.getSomeWorkspace(),value);
+        public FormValidation doCheck(@AncestorInPath AbstractProjectExt project, @QueryParameter String value) throws IOException {
+            return FilePathExt.validateFileMask(project.getSomeWorkspace(),value);
         }
 
         @Override
@@ -226,7 +226,7 @@ public class Fingerprinter extends Recorder implements Serializable {
             return req.bindJSON(Fingerprinter.class, formData);
         }
 
-        public boolean isApplicable(Class<? extends AbstractProject> jobType) {
+        public boolean isApplicable(Class<? extends AbstractProjectExt> jobType) {
             return true;
         }
     }
@@ -235,7 +235,7 @@ public class Fingerprinter extends Recorder implements Serializable {
      * Action for displaying fingerprints.
      */
     public static final class FingerprintAction implements RunAction {
-        private final AbstractBuild build;
+        private final AbstractBuildExt build;
 
         /**
          * From file name to the digest.
@@ -244,7 +244,7 @@ public class Fingerprinter extends Recorder implements Serializable {
 
         private transient WeakReference<Map<String,Fingerprint>> ref;
 
-        public FingerprintAction(AbstractBuild build, Map<String, String> record) {
+        public FingerprintAction(AbstractBuildExt build, Map<String, String> record) {
             this.build = build;
             this.record = PackedMap.of(record);
             onLoad();   // make compact
@@ -270,7 +270,7 @@ public class Fingerprinter extends Recorder implements Serializable {
             return "fingerprints";
         }
 
-        public AbstractBuild getBuild() {
+        public AbstractBuildExt getBuild() {
             return build;
         }
 
@@ -352,14 +352,14 @@ public class Fingerprinter extends Recorder implements Serializable {
          * Gets the dependency to other builds in a map.
          * Returns build numbers instead of {@link Build}, since log records may be gone.
          */
-        public Map<AbstractProject,Integer> getDependencies() {
-            Map<AbstractProject,Integer> r = new HashMap<AbstractProject,Integer>();
+        public Map<AbstractProjectExt,Integer> getDependencies() {
+            Map<AbstractProjectExt,Integer> r = new HashMap<AbstractProjectExt,Integer>();
 
             for (Fingerprint fp : getFingerprints().values()) {
                 BuildPtr bp = fp.getOriginal();
                 if(bp==null)    continue;       // outside Hudson
                 if(bp.is(build))    continue;   // we are the owner
-                AbstractProject job = bp.getJob();
+                AbstractProjectExt job = bp.getJob();
                 if (job==null)  continue;   // no longer exists
                 if (job.getParent()==build.getParent())
                     continue;   // we are the parent of the build owner, that is almost like we are the owner 

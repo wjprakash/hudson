@@ -37,24 +37,24 @@ import java.util.Arrays;
 import java.util.Set;
 
 /**
- * List of {@link Axis}.
+ * List of {@link AxisExt}.
  * 
  * @author Kohsuke Kawaguchi
  */
-public class AxisList extends ArrayList<Axis> {
+public class AxisList extends ArrayList<AxisExt> {
     public AxisList() {
     }
 
-    public AxisList(Collection<? extends Axis> c) {
+    public AxisList(Collection<? extends AxisExt> c) {
         super(c);
     }
 
-    public AxisList(Axis... c) {
+    public AxisList(AxisExt... c) {
         this(Arrays.asList(c));
     }
 
-    public Axis find(String name) {
-        for (Axis a : this) {
+    public AxisExt find(String name) {
+        for (AxisExt a : this) {
             if(a.name.equals(name))
                 return a;
         }
@@ -64,12 +64,12 @@ public class AxisList extends ArrayList<Axis> {
     /**
      * Creates a subset of the list that only contains the type assignable to the specified type.
      */
-    public AxisList subList(Class<? extends Axis> subType) {
+    public AxisList subList(Class<? extends AxisExt> subType) {
         return new AxisList(Util.filter(this,subType));
     }
 
     @Override
-    public boolean add(Axis axis) {
+    public boolean add(AxisExt axis) {
         return axis!=null && super.add(axis);
     }
 

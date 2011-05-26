@@ -23,11 +23,11 @@
  */
 package hudson.tasks;
 
-import hudson.FilePath;
+import hudson.FilePathExt;
 import hudson.Launcher;
 import hudson.Util;
 import hudson.EnvVars;
-import hudson.model.AbstractBuild;
+import hudson.model.AbstractBuildExt;
 import hudson.model.BuildListener;
 import hudson.model.TaskListener;
 
@@ -54,13 +54,13 @@ public abstract class CommandInterpreter extends Builder {
     }
 
     @Override
-    public boolean perform(AbstractBuild<?,?> build, Launcher launcher, BuildListener listener) throws InterruptedException {
+    public boolean perform(AbstractBuildExt<?,?> build, Launcher launcher, BuildListener listener) throws InterruptedException {
         return perform(build,launcher,(TaskListener)listener);
     }
 
-    public boolean perform(AbstractBuild<?,?> build, Launcher launcher, TaskListener listener) throws InterruptedException {
-        FilePath ws = build.getWorkspace();
-        FilePath script=null;
+    public boolean perform(AbstractBuildExt<?,?> build, Launcher launcher, TaskListener listener) throws InterruptedException {
+        FilePathExt ws = build.getWorkspace();
+        FilePathExt script=null;
         try {
             try {
                 script = createScriptFile(ws);
@@ -100,11 +100,11 @@ public abstract class CommandInterpreter extends Builder {
     /**
      * Creates a script file in a temporary name in the specified directory.
      */
-    public FilePath createScriptFile(FilePath dir) throws IOException, InterruptedException {
+    public FilePathExt createScriptFile(FilePathExt dir) throws IOException, InterruptedException {
         return dir.createTextTempFile("hudson", getFileExtension(), getContents(), false);
     }
 
-    public abstract String[] buildCommandLine(FilePath script);
+    public abstract String[] buildCommandLine(FilePathExt script);
 
     protected abstract String getContents();
 

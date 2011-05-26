@@ -65,11 +65,11 @@ public class StreamBuildListener extends StreamTaskListener implements BuildList
         super(w,charset);
     }
 
-    public void started(List<Cause> causes) {
+    public void started(List<CauseExt> causes) {
         PrintStream l = getLogger();
         if (causes==null || causes.isEmpty())
             l.println("Started");
-        else for (Cause cause : causes) {
+        else for (CauseExt cause : causes) {
             cause.print(this);
         }
     }

@@ -23,7 +23,7 @@
  */
 package hudson.tasks.junit;
 
-import hudson.model.AbstractBuild;
+import hudson.model.AbstractBuildExt;
 import hudson.model.Hudson;
 import hudson.tasks.test.TestObject;
 import hudson.tasks.test.TestResult;
@@ -64,7 +64,7 @@ public class History {
     public List<TestResult> getList(int start, int end) {
     	List<TestResult> list = new ArrayList<TestResult>();
     	end = Math.min(end, testObject.getOwner().getParent().getBuilds().size());
-    	for (AbstractBuild<?,?> b: testObject.getOwner().getParent().getBuilds().subList(start, end)) {
+    	for (AbstractBuildExt<?,?> b: testObject.getOwner().getParent().getBuilds().subList(start, end)) {
     		if (b.isBuilding()) continue;
     		TestResult o = testObject.getResultInBuild(b);
     		if (o != null) {
@@ -157,7 +157,7 @@ public class History {
         }
 
          private void generateUrl() {
-            AbstractBuild<?,?> build = o.getOwner();
+            AbstractBuildExt<?,?> build = o.getOwner();
             String buildLink = build.getUrl();
             String actionUrl = o.getTestResultAction().getUrlName();
             this.url = Hudson.getInstance().getRootUrl() + buildLink + actionUrl + o.getUrl();             

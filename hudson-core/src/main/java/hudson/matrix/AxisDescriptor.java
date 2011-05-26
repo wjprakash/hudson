@@ -31,12 +31,12 @@ import hudson.util.FormValidation;
 import org.kohsuke.stapler.QueryParameter;
 
 /**
- * {@link Descriptor} for {@link Axis}
+ * {@link Descriptor} for {@link AxisExt}
  *
  * @author Kohsuke Kawaguchi
  */
-public abstract class AxisDescriptor extends Descriptor<Axis> {
-    protected AxisDescriptor(Class<? extends Axis> clazz) {
+public abstract class AxisDescriptor extends Descriptor<AxisExt> {
+    protected AxisDescriptor(Class<? extends AxisExt> clazz) {
         super(clazz);
     }
 

@@ -23,7 +23,7 @@
  */
 package hudson.model;
 
-import hudson.diagnosis.OldDataMonitor;
+import hudson.diagnosis.OldDataMonitorExt;
 import hudson.model.Queue.Task;
 import hudson.model.queue.FoldableAction;
 import hudson.util.XStream2;
@@ -43,16 +43,16 @@ public class CauseAction implements FoldableAction, RunAction {
      */
     @Deprecated
     // there can be multiple causes, so this is deprecated
-    private transient Cause cause;
+    private transient CauseExt cause;
 	
-    private List<Cause> causes = new ArrayList<Cause>();
+    private List<CauseExt> causes = new ArrayList<CauseExt>();
 
 	@Exported(visibility=2)
-	public List<Cause> getCauses() {
+	public List<CauseExt> getCauses() {
 		return causes;
 	}
 		
-	public CauseAction(Cause c) {
+	public CauseAction(CauseExt c) {
 		this.causes.add(c);
 	}
 	
@@ -75,11 +75,11 @@ public class CauseAction implements FoldableAction, RunAction {
 
     /**
      * Get list of causes with duplicates combined into counters.
-     * @return Map of Cause to number of occurrences of that Cause
+     * @return Map of CauseExt to number of occurrences of that CauseExt
      */
-    public Map<Cause,Integer> getCauseCounts() {
-        Map<Cause,Integer> result = new LinkedHashMap<Cause,Integer>();
-        for (Cause c : causes) {
+    public Map<CauseExt,Integer> getCauseCounts() {
+        Map<CauseExt,Integer> result = new LinkedHashMap<CauseExt,Integer>();
+        for (CauseExt c : causes) {
             Integer i = result.get(c);
             result.put(c, i == null ? 1 : i.intValue() + 1);
         }
@@ -104,12 +104,12 @@ public class CauseAction implements FoldableAction, RunAction {
     }
 
     /**
-     * When hooked up to build, notify {@link Cause}s.
+     * When hooked up to build, notify {@link CauseExt}s.
      */
     public void onAttached(Run owner) {
-        if (owner instanceof AbstractBuild) {// this should be always true but being defensive here
-            AbstractBuild b = (AbstractBuild) owner;
-            for (Cause c : causes) {
+        if (owner instanceof AbstractBuildExt) {// this should be always true but being defensive here
+            AbstractBuildExt b = (AbstractBuildExt) owner;
+            for (CauseExt c : causes) {
                 c.onAddedTo(b);
             }
         }
@@ -130,9 +130,9 @@ public class CauseAction implements FoldableAction, RunAction {
         @Override protected void callback(CauseAction ca, UnmarshallingContext context) {
             // if we are being read in from an older version
             if (ca.cause != null) {
-                if (ca.causes == null) ca.causes = new ArrayList<Cause>();
+                if (ca.causes == null) ca.causes = new ArrayList<CauseExt>();
                 ca.causes.add(ca.cause);
-                OldDataMonitor.report(context, "1.288");
+                OldDataMonitorExt.report(context, "1.288");
             }
         }
     }

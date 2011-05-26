@@ -25,7 +25,7 @@ package hudson.tasks;
 
 import hudson.ExtensionPoint;
 import hudson.Launcher;
-import hudson.DescriptorExtensionList;
+import hudson.DescriptorExtensionListExt;
 import hudson.LauncherDecorator;
 import hudson.model.*;
 import hudson.model.Run.RunnerAbortedException;
@@ -87,7 +87,7 @@ public abstract class BuildWrapper extends AbstractDescribableImpl<BuildWrapper>
          *      and reports a nice error message.
          * @since 1.150
          */
-        public boolean tearDown( AbstractBuild build, BuildListener listener ) throws IOException, InterruptedException {
+        public boolean tearDown( AbstractBuildExt build, BuildListener listener ) throws IOException, InterruptedException {
             if (build instanceof Build)
                 return tearDown((Build)build, listener);
             else
@@ -96,7 +96,7 @@ public abstract class BuildWrapper extends AbstractDescribableImpl<BuildWrapper>
 
         /**
          * @deprecated since 2007-10-28.
-         *      Use {@link #tearDown(AbstractBuild, BuildListener)} instead.
+         *      Use {@link #tearDown(AbstractBuildExt, BuildListener)} instead.
          */
         @Deprecated
         public boolean tearDown( Build build, BuildListener listener ) throws IOException, InterruptedException {
@@ -124,7 +124,7 @@ public abstract class BuildWrapper extends AbstractDescribableImpl<BuildWrapper>
      *      and reports a nice error message.
      * @since 1.150
      */
-    public Environment setUp( AbstractBuild build, Launcher launcher, BuildListener listener ) throws IOException, InterruptedException {
+    public Environment setUp( AbstractBuildExt build, Launcher launcher, BuildListener listener ) throws IOException, InterruptedException {
         if (build instanceof Build)
             return setUp((Build)build,launcher,listener);
         else
@@ -135,7 +135,7 @@ public abstract class BuildWrapper extends AbstractDescribableImpl<BuildWrapper>
 
     /**
      * @deprecated since 2007-10-28.
-     *      Use {@link #setUp(AbstractBuild, Launcher, BuildListener)} instead.
+     *      Use {@link #setUp(AbstractBuildExt, Launcher, BuildListener)} instead.
      */
     @Deprecated
     public Environment setUp( Build build, Launcher launcher, BuildListener listener ) throws IOException, InterruptedException {
@@ -146,7 +146,7 @@ public abstract class BuildWrapper extends AbstractDescribableImpl<BuildWrapper>
      * Provides an opportunity for a {@link BuildWrapper} to decorate a {@link Launcher} to be used in the build.
      *
      * <p>
-     * This hook is called very early on in the build (even before {@link #setUp(AbstractBuild, Launcher, BuildListener)} is invoked.)
+     * This hook is called very early on in the build (even before {@link #setUp(AbstractBuildExt, Launcher, BuildListener)} is invoked.)
      * The typical use of {@link Launcher} decoration involves in modifying the environment that processes run,
      * such as the use of sudo/pfexec/chroot, or manipulating environment variables.
      *
@@ -171,7 +171,7 @@ public abstract class BuildWrapper extends AbstractDescribableImpl<BuildWrapper>
      * @since 1.280
      * @see LauncherDecorator
      */
-    public Launcher decorateLauncher(AbstractBuild build, Launcher launcher, BuildListener listener) throws IOException, InterruptedException, RunnerAbortedException {
+    public Launcher decorateLauncher(AbstractBuildExt build, Launcher launcher, BuildListener listener) throws IOException, InterruptedException, RunnerAbortedException {
         return launcher;
     }
 
@@ -179,7 +179,7 @@ public abstract class BuildWrapper extends AbstractDescribableImpl<BuildWrapper>
      * Provides an opportunity for a {@link BuildWrapper} to decorate the {@link BuildListener} logger to be used by the build.
      * 
      * <p>
-     * This hook is called very early on in the build (even before {@link #setUp(AbstractBuild, Launcher, BuildListener)} is invoked.)
+     * This hook is called very early on in the build (even before {@link #setUp(AbstractBuildExt, Launcher, BuildListener)} is invoked.)
      * 
      * <p>
      * The default implementation is no-op, which just returns the {@code logger} parameter as-is.
@@ -197,7 +197,7 @@ public abstract class BuildWrapper extends AbstractDescribableImpl<BuildWrapper>
      *      to suppress stack trace.
      * @since 1.374
      */
-    public OutputStream decorateLogger(AbstractBuild build, OutputStream logger) throws IOException, InterruptedException, RunnerAbortedException {
+    public OutputStream decorateLogger(AbstractBuildExt build, OutputStream logger) throws IOException, InterruptedException, RunnerAbortedException {
         return logger;
     }
 
@@ -210,9 +210,9 @@ public abstract class BuildWrapper extends AbstractDescribableImpl<BuildWrapper>
      *      null if there's no such action.
      * @since 1.226
      * @deprecated
-     *      Use {@link #getProjectActions(AbstractProject)} instead.
+     *      Use {@link #getProjectActions(AbstractProjectExt)} instead.
      */
-    public Action getProjectAction(AbstractProject job) {
+    public Action getProjectAction(AbstractProjectExt job) {
         return null;
     }
 
@@ -225,7 +225,7 @@ public abstract class BuildWrapper extends AbstractDescribableImpl<BuildWrapper>
      *      can be empty but never null
      * @since 1.341
      */
-    public Collection<? extends Action> getProjectActions(AbstractProject job) {
+    public Collection<? extends Action> getProjectActions(AbstractProjectExt job) {
         // delegate to getJobAction (singular) for backward compatible behavior
         Action a = getProjectAction(job);
         if (a==null)    return Collections.emptyList();
@@ -233,7 +233,7 @@ public abstract class BuildWrapper extends AbstractDescribableImpl<BuildWrapper>
     }
 
     /**
-     * Called to define {@linkplain AbstractBuild#getBuildVariables()}.
+     * Called to define {@linkplain AbstractBuildExt#getBuildVariables()}.
      *
      * This provides an opportunity for a BuildWrapper to append any additional
      * build variables defined for the current build.
@@ -244,7 +244,7 @@ public abstract class BuildWrapper extends AbstractDescribableImpl<BuildWrapper>
      *      Contains existing build variables. Add additional build variables that you contribute
      *      to this map.
      */
-    public void makeBuildVariables(AbstractBuild build, Map<String,String> variables) {
+    public void makeBuildVariables(AbstractBuildExt build, Map<String,String> variables) {
     	// noop
     }
 
@@ -257,10 +257,10 @@ public abstract class BuildWrapper extends AbstractDescribableImpl<BuildWrapper>
      *      The build in progress for which this {@link BuildWrapper} is called. Never null.
      * @param sensitiveVariables
      *      Contains names of sensitive build variables. Names of sensitive variables
-     *      that were added with {@link #makeBuildVariables(hudson.model.AbstractBuild, java.util.Map)}
+     *      that were added with {@link #makeBuildVariables(hudson.model.AbstractBuildExt, java.util.Map)}
      * @since 1.378
      */
-    public void makeSensitiveBuildVariables(AbstractBuild build, Set<String> sensitiveVariables) {
+    public void makeSensitiveBuildVariables(AbstractBuildExt build, Set<String> sensitiveVariables) {
         // noop
     }
     
@@ -268,7 +268,7 @@ public abstract class BuildWrapper extends AbstractDescribableImpl<BuildWrapper>
      * Returns all the registered {@link BuildWrapper} descriptors.
      */
     // for compatibility we can't use BuildWrapperDescriptor
-    public static DescriptorExtensionList<BuildWrapper,Descriptor<BuildWrapper>> all() {
+    public static DescriptorExtensionListExt<BuildWrapper,Descriptor<BuildWrapper>> all() {
         // use getDescriptorList and not getExtensionList to pick up legacy instances
         return Hudson.getInstance().<BuildWrapper,Descriptor<BuildWrapper>>getDescriptorList(BuildWrapper.class);
     }

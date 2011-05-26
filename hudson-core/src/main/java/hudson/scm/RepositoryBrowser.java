@@ -24,7 +24,7 @@
 package hudson.scm;
 
 import hudson.ExtensionPoint;
-import hudson.DescriptorExtensionList;
+import hudson.DescriptorExtensionListExt;
 import hudson.Extension;
 import hudson.model.AbstractDescribableImpl;
 import hudson.model.Descriptor;
@@ -98,8 +98,8 @@ public abstract class RepositoryBrowser<E extends ChangeLogSet.Entry> extends Ab
     /**
      * Returns all the registered {@link RepositoryBrowser} descriptors.
      */
-    public static DescriptorExtensionList<RepositoryBrowser<?>,Descriptor<RepositoryBrowser<?>>> all() {
-        return (DescriptorExtensionList)Hudson.getInstance().getDescriptorList(RepositoryBrowser.class);
+    public static DescriptorExtensionListExt<RepositoryBrowser<?>,Descriptor<RepositoryBrowser<?>>> all() {
+        return (DescriptorExtensionListExt)Hudson.getInstance().getDescriptorList(RepositoryBrowser.class);
     }
 
     private static final long serialVersionUID = 1L;

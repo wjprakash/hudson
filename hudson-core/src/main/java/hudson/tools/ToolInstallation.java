@@ -24,11 +24,11 @@
 
 package hudson.tools;
 
-import hudson.DescriptorExtensionList;
+import hudson.DescriptorExtensionListExt;
 import hudson.EnvVars;
 import hudson.Extension;
 import hudson.ExtensionPoint;
-import hudson.diagnosis.OldDataMonitor;
+import hudson.diagnosis.OldDataMonitorExt;
 import hudson.model.*;
 import hudson.slaves.NodeSpecific;
 import hudson.util.DescribableList;
@@ -169,7 +169,7 @@ public abstract class ToolInstallation extends AbstractDescribableImpl<ToolInsta
             String s;
             if (obj.home == null && (s = oldHomeField(obj)) != null) {
                 obj.home = s;
-                OldDataMonitor.report(context, "1.286");
+                OldDataMonitorExt.report(context, "1.286");
             }
         }
         protected abstract String oldHomeField(ToolInstallation obj);
@@ -178,7 +178,7 @@ public abstract class ToolInstallation extends AbstractDescribableImpl<ToolInsta
     /**
      * Returns all the registered {@link ToolDescriptor}s.
      */
-    public static DescriptorExtensionList<ToolInstallation,ToolDescriptor<?>> all() {
+    public static DescriptorExtensionListExt<ToolInstallation,ToolDescriptor<?>> all() {
         // use getDescriptorList and not getExtensionList to pick up legacy instances
         return Hudson.getInstance().<ToolInstallation,ToolDescriptor<?>>getDescriptorList(ToolInstallation.class);
     }

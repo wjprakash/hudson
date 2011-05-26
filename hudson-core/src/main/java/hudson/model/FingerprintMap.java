@@ -24,7 +24,7 @@
 package hudson.model;
 
 import hudson.Util;
-import hudson.diagnosis.OldDataMonitor;
+import hudson.diagnosis.OldDataMonitorExt;
 import hudson.util.KeyedDataStorage;
 
 import java.io.File;
@@ -66,11 +66,11 @@ public final class FingerprintMap extends KeyedDataStorage<Fingerprint,Fingerpri
      *      will have this build as the owner. Otherwise null, to indicate
      *      an owner-less build.
      */
-    public Fingerprint getOrCreate(AbstractBuild build, String fileName, byte[] md5sum) throws IOException {
+    public Fingerprint getOrCreate(AbstractBuildExt build, String fileName, byte[] md5sum) throws IOException {
         return getOrCreate(build,fileName, Util.toHexString(md5sum));
     }
 
-    public Fingerprint getOrCreate(AbstractBuild build, String fileName, String md5sum) throws IOException {
+    public Fingerprint getOrCreate(AbstractBuildExt build, String fileName, String md5sum) throws IOException {
         return super.getOrCreate(md5sum, new FingerprintParams(build,fileName));
     }
 
@@ -104,7 +104,7 @@ public final class FingerprintMap extends KeyedDataStorage<Fingerprint,Fingerpri
     }
 
     private Object readResolve() {
-        if (core != null) OldDataMonitor.report(Hudson.getInstance(), "1.91");
+        if (core != null) OldDataMonitorExt.report(Hudson.getInstance(), "1.91");
         return this;
     }
 }

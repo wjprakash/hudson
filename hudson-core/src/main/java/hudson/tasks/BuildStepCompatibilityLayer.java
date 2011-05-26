@@ -27,8 +27,8 @@ import hudson.model.Build;
 import hudson.model.BuildListener;
 import hudson.model.Action;
 import hudson.model.Project;
-import hudson.model.AbstractBuild;
-import hudson.model.AbstractProject;
+import hudson.model.AbstractBuildExt;
+import hudson.model.AbstractProjectExt;
 import hudson.model.Run;
 import hudson.model.CheckPoint;
 import hudson.Launcher;
@@ -49,28 +49,28 @@ public abstract class BuildStepCompatibilityLayer implements BuildStep {
 //
 // new definitions >= 1.150
 //
-    public boolean prebuild(AbstractBuild<?,?> build, BuildListener listener) {
+    public boolean prebuild(AbstractBuildExt<?,?> build, BuildListener listener) {
         if (build instanceof Build)
             return prebuild((Build)build,listener);
         else
             return true;
     }
 
-    public boolean perform(AbstractBuild<?,?> build, Launcher launcher, BuildListener listener) throws InterruptedException, IOException {
+    public boolean perform(AbstractBuildExt<?,?> build, Launcher launcher, BuildListener listener) throws InterruptedException, IOException {
         if (build instanceof Build)
             return perform((Build)build,launcher,listener);
         else
             return true;
     }
 
-    public Action getProjectAction(AbstractProject<?, ?> project) {
+    public Action getProjectAction(AbstractProjectExt<?, ?> project) {
         if (project instanceof Project)
             return getProjectAction((Project) project);
         else
             return null;
     }
 
-    public Collection<? extends Action> getProjectActions(AbstractProject<?, ?> project) {
+    public Collection<? extends Action> getProjectActions(AbstractProjectExt<?, ?> project) {
         // delegate to getJobAction (singular) for backward compatible behavior
         Action a = getProjectAction(project);
         if (a==null)    return Collections.emptyList();
@@ -83,7 +83,7 @@ public abstract class BuildStepCompatibilityLayer implements BuildStep {
 //
     /**
      * @deprecated
-     *      Use {@link #prebuild(AbstractBuild, BuildListener)} instead.
+     *      Use {@link #prebuild(AbstractBuildExt, BuildListener)} instead.
      */
     public boolean prebuild(Build<?,?> build, BuildListener listener) {
         return true;
@@ -91,7 +91,7 @@ public abstract class BuildStepCompatibilityLayer implements BuildStep {
 
     /**
      * @deprecated
-     *      Use {@link #perform(AbstractBuild, Launcher, BuildListener)} instead.
+     *      Use {@link #perform(AbstractBuildExt, Launcher, BuildListener)} instead.
      */
     public boolean perform(Build<?,?> build, Launcher launcher, BuildListener listener) throws InterruptedException, IOException {
         throw new UnsupportedOperationException();
@@ -99,7 +99,7 @@ public abstract class BuildStepCompatibilityLayer implements BuildStep {
 
     /**
      * @deprecated
-     *      Use {@link #getProjectAction(AbstractProject)} instead.
+     *      Use {@link #getProjectAction(AbstractProjectExt)} instead.
      */
     public Action getProjectAction(Project<?,?> project) {
         return null;
