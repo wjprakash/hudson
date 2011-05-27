@@ -46,13 +46,13 @@ import org.kohsuke.args4j.CmdLineException;
 
 
 /**
- * Partial default implementation of {@link Item}.
+ * Partial default implementation of {@link ItemExt}.
  *
  * @author Kohsuke Kawaguchi
  */
-// Item doesn't necessarily have to be ActionableExt, but
+// ItemExt doesn't necessarily have to be ActionableExt, but
 // Java doesn't let multiple inheritance.
-public abstract class AbstractItemExt extends ActionableExt implements Item, AccessControlled, DescriptorByNameOwner {
+public abstract class AbstractItemExt extends ActionableExt implements ItemExt, AccessControlled, DescriptorByNameOwner {
     /**
      * Project name.
      */
@@ -80,7 +80,7 @@ public abstract class AbstractItemExt extends ActionableExt implements Item, Acc
 
     /**
      * Get the term used in the UI to represent this kind of
-     * {@link Item}. Must start with a capital letter.
+     * {@link ItemExt}. Must start with a capital letter.
      */
     public String getPronoun() {
         return Messages.AbstractItem_Pronoun();
@@ -97,7 +97,7 @@ public abstract class AbstractItemExt extends ActionableExt implements Item, Acc
     /**
      * This bridge method is to maintain binary compatibility with {@link TopLevelItem#getParent()}.
      */
-    @WithBridgeMethods(value=Hudson.class,castRequired=true)
+    @WithBridgeMethods(value=HudsonExt.class,castRequired=true)
     public ItemGroup getParent() {
         assert parent!=null;
         return parent;
@@ -144,7 +144,7 @@ public abstract class AbstractItemExt extends ActionableExt implements Item, Acc
                 if (this.name.equals(newName))
                     return;
 
-                Item existing = parent.getItem(newName);
+                ItemExt existing = parent.getItem(newName);
                 if (existing != null && existing!=this)
                     // the look up is case insensitive, so we need "existing!=this"
                     // to allow people to rename "Foo" to "foo", for example.
@@ -242,9 +242,9 @@ public abstract class AbstractItemExt extends ActionableExt implements Item, Acc
     }
 
     /**
-     * Gets all the jobs that this {@link Item} contains as descendants.
+     * Gets all the jobs that this {@link ItemExt} contains as descendants.
      */
-    public abstract Collection<? extends Job> getAllJobs();
+    public abstract Collection<? extends JobExt> getAllJobs();
 
     public final String getFullName() {
         String n = getParent().getFullName();
@@ -259,21 +259,21 @@ public abstract class AbstractItemExt extends ActionableExt implements Item, Acc
     }
 
     /**
-     * Called right after when a {@link Item} is loaded from disk.
+     * Called right after when a {@link ItemExt} is loaded from disk.
      * This is an opporunity to do a post load processing.
      */
-    public void onLoad(ItemGroup<? extends Item> parent, String name) throws IOException {
+    public void onLoad(ItemGroup<? extends ItemExt> parent, String name) throws IOException {
         this.parent = parent;
         doSetName(name);
     }
 
     /**
-     * When a {@link Item} is copied from existing one,
+     * When a {@link ItemExt} is copied from existing one,
      * the files are first copied on the file system,
      * then it will be loaded, then this method will be invoked
      * to perform any implementation-specific work.
      */
-    public void onCopiedFrom(Item src) {
+    public void onCopiedFrom(ItemExt src) {
     }
 
     public String getShortUrl() {
@@ -295,7 +295,7 @@ public abstract class AbstractItemExt extends ActionableExt implements Item, Acc
      * Returns the {@link ACL} for this object.
      */
     public ACL getACL() {
-        return Hudson.getInstance().getAuthorizationStrategy().getACL(this);
+        return HudsonExt.getInstance().getAuthorizationStrategy().getACL(this);
     }
 
     /**
@@ -325,8 +325,8 @@ public abstract class AbstractItemExt extends ActionableExt implements Item, Acc
         return Items.getConfigFile(this);
     }
 
-    public Descriptor getDescriptorByName(String className) {
-        return Hudson.getInstance().getDescriptorByName(className);
+    public DescriptorExt getDescriptorByName(String className) {
+        return HudsonExt.getInstance().getDescriptorByName(className);
     }
 
     /**
@@ -342,7 +342,7 @@ public abstract class AbstractItemExt extends ActionableExt implements Item, Acc
             // ignore
         }
 
-        Hudson.getInstance().rebuildDependencyGraph();
+        HudsonExt.getInstance().rebuildDependencyGraph();
     }
 
     /**
@@ -372,7 +372,7 @@ public abstract class AbstractItemExt extends ActionableExt implements Item, Acc
     @CLIResolver
     public static AbstractItemExt resolveForCLI(
             @Argument(required=true,metaVar="NAME",usage="Job name") String name) throws CmdLineException {
-        AbstractItemExt item = Hudson.getInstance().getItemByFullName(name, AbstractItemExt.class);
+        AbstractItemExt item = HudsonExt.getInstance().getItemByFullName(name, AbstractItemExt.class);
         if (item==null)
             throw new CmdLineException(null,Messages.AbstractItem_NoSuchJobExists(name,AbstractProjectExt.findNearest(name).getFullName()));
         return item;

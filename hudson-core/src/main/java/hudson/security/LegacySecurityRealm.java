@@ -29,7 +29,7 @@ import org.acegisecurity.AuthenticationException;
 import org.springframework.web.context.WebApplicationContext;
 import org.kohsuke.stapler.StaplerRequest;
 import groovy.lang.Binding;
-import hudson.model.Descriptor;
+import hudson.model.DescriptorExt;
 import hudson.util.spring.BeanBuilder;
 import hudson.Extension;
 import net.sf.json.JSONObject;
@@ -89,7 +89,7 @@ public final class LegacySecurityRealm extends SecurityRealm implements Authenti
     }
 
     @Extension
-    public static final Descriptor<SecurityRealm> DESCRIPTOR = new Descriptor<SecurityRealm>() {
+    public static final DescriptorExt<SecurityRealm> DESCRIPTOR = new DescriptorExt<SecurityRealm>() {
         public SecurityRealm newInstance(StaplerRequest req, JSONObject formData) throws FormException {
             return new LegacySecurityRealm();
         }

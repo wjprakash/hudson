@@ -10,7 +10,7 @@ import java.util.Arrays;
 /**
  * @author huybrechts
  */
-public abstract class ChoiceParameterDefinitionExt extends SimpleParameterDefinition {
+public abstract class ChoiceParameterDefinitionExt extends SimpleParameterDefinitionExt {
     private final List<String> choices;
 
     public ChoiceParameterDefinitionExt(String name, String choices, String description) {
@@ -54,7 +54,7 @@ public abstract class ChoiceParameterDefinitionExt extends SimpleParameterDefini
     }
 
     @Extension
-    public static class DescriptorImpl extends ParameterDescriptor {
+    public static class DescriptorImpl extends ParameterDescriptorExt {
         @Override
         public String getDisplayName() {
             return Messages.ChoiceParameterDefinition_DisplayName();

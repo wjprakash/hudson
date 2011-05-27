@@ -26,9 +26,9 @@ package hudson.cli;
 import groovy.lang.GroovyShell;
 import groovy.lang.Binding;
 import hudson.model.AbstractProjectExt;
-import hudson.model.Hudson;
-import hudson.model.Item;
-import hudson.model.Run;
+import hudson.model.HudsonExt;
+import hudson.model.ItemExt;
+import hudson.model.RunExt;
 import hudson.remoting.Callable;
 import hudson.AbortException;
 import hudson.Extension;
@@ -70,17 +70,17 @@ public class GroovyCommand extends CLICommand implements Serializable {
 
     protected int run() throws Exception {
         // this allows the caller to manipulate the JVM state, so require the admin privilege.
-        Hudson.getInstance().checkPermission(Hudson.ADMINISTER);
+        HudsonExt.getInstance().checkPermission(HudsonExt.ADMINISTER);
 
         Binding binding = new Binding();
         binding.setProperty("out",new PrintWriter(stdout,true));
         String j = getClientEnvironmentVariable("JOB_NAME");
         if (j!=null) {
-            Item job = Hudson.getInstance().getItemByFullName(j);
+            ItemExt job = HudsonExt.getInstance().getItemByFullName(j);
             binding.setProperty("currentJob", job);
             String b = getClientEnvironmentVariable("BUILD_NUMBER");
             if (b!=null && job instanceof AbstractProjectExt) {
-                Run r = ((AbstractProjectExt) job).getBuildByNumber(Integer.parseInt(b));
+                RunExt r = ((AbstractProjectExt) job).getBuildByNumber(Integer.parseInt(b));
                 binding.setProperty("currentBuild", r);
             }
         }

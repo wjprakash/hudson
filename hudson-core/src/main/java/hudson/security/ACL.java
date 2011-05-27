@@ -28,14 +28,14 @@ import org.acegisecurity.Authentication;
 import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 import org.acegisecurity.acls.sid.PrincipalSid;
 import org.acegisecurity.acls.sid.Sid;
-import hudson.model.Hudson;
-import hudson.model.Executor;
+import hudson.model.HudsonExt;
+import hudson.model.ExecutorExt;
 
 /**
- * Gate-keeper that controls access to Hudson's model objects.
+ * Gate-keeper that controls access to HudsonExt's model objects.
  *
  * @author Kohsuke Kawaguchi
- * @see http://wiki.hudson-ci.org/display/HUDSON/Making+your+plugin+behave+in+secured+Hudson
+ * @see http://wiki.hudson-ci.org/display/HUDSON/Making+your+plugin+behave+in+secured+HudsonExt
  */
 public abstract class ACL {
     /**
@@ -48,7 +48,7 @@ public abstract class ACL {
      *      if the user doesn't have the permission.
      */
     public final void checkPermission(Permission p) {
-        Authentication a = Hudson.getAuthentication();
+        Authentication a = HudsonExt.getAuthentication();
         if(!hasPermission(a,p))
             throw new AccessDeniedException2(a,p);
     }
@@ -60,7 +60,7 @@ public abstract class ACL {
      *      if the user doesn't have the permission.
      */
     public final boolean hasPermission(Permission p) {
-        return hasPermission(Hudson.getAuthentication(),p);
+        return hasPermission(HudsonExt.getAuthentication(),p);
     }
 
     /**
@@ -102,14 +102,14 @@ public abstract class ACL {
     protected static final Sid[] AUTOMATIC_SIDS = new Sid[]{EVERYONE,ANONYMOUS};
 
     /**
-     * {@link Sid} that represents the Hudson itself.
+     * {@link Sid} that represents the HudsonExt itself.
      * <p>
-     * This is used when Hudson is performing computation for itself, instead
+     * This is used when HudsonExt is performing computation for itself, instead
      * of acting on behalf of an user, such as doing builds.
      *
      * <p>
      * (Note that one of the features being considered is to keep track of who triggered
-     * a build &mdash; so in a future, perhaps {@link Executor} will run on behalf of
+     * a build &mdash; so in a future, perhaps {@link ExecutorExt} will run on behalf of
      * the user who triggered a build.)
      */
     public static final Authentication SYSTEM = new UsernamePasswordAuthenticationToken("SYSTEM","SYSTEM");

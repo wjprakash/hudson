@@ -24,7 +24,7 @@
 package hudson.model.queue;
 
 import hudson.model.Action;
-import hudson.model.Executor;
+import hudson.model.ExecutorExt;
 import hudson.model.Queue;
 import hudson.model.Queue.BuildableItem;
 import hudson.model.Queue.Task;
@@ -76,7 +76,7 @@ public final class WorkUnitContext {
             protected void onCriteriaMet() {
                 // on behalf of the member Executors,
                 // the one that executes the main thing will send notifications
-                Executor e = Executor.currentExecutor();
+                ExecutorExt e = ExecutorExt.currentExecutor();
                 if (e.getCurrentWorkUnit().isMainWork()) {
                     e.getOwner().taskAccepted(e,task);
                 }
@@ -91,7 +91,7 @@ public final class WorkUnitContext {
      * to create its {@link WorkUnit}.
      */
     public WorkUnit createWorkUnit(SubTask execUnit) {
-        future.addExecutor(Executor.currentExecutor());
+        future.addExecutor(ExecutorExt.currentExecutor());
         WorkUnit wu = new WorkUnit(this, execUnit);
         workUnits.add(wu);
         return wu;
@@ -106,14 +106,14 @@ public final class WorkUnitContext {
     }
 
     /**
-     * All the {@link Executor}s that jointly execute a {@link Task} call this method to synchronize on the start.
+     * All the {@link ExecutorExt}s that jointly execute a {@link Task} call this method to synchronize on the start.
      */
     public void synchronizeStart() throws InterruptedException {
         startLatch.synchronize();
     }
 
     /**
-     * All the {@link Executor}s that jointly execute a {@link Task} call this method to synchronize on the end of the task.
+     * All the {@link ExecutorExt}s that jointly execute a {@link Task} call this method to synchronize on the end of the task.
      *
      * @throws InterruptedException
      *      If any of the member thread is interrupted while waiting for other threads to join, all
@@ -123,7 +123,7 @@ public final class WorkUnitContext {
         endLatch.synchronize();
 
         // the main thread will send a notification
-        Executor e = Executor.currentExecutor();
+        ExecutorExt e = ExecutorExt.currentExecutor();
         WorkUnit wu = e.getCurrentWorkUnit();
         if (wu.isMainWork()) {
             if (problems == null) {
@@ -148,7 +148,7 @@ public final class WorkUnitContext {
 
         Thread c = Thread.currentThread();
         for (WorkUnit wu : workUnits) {
-            Executor e = wu.getExecutor();
+            ExecutorExt e = wu.getExecutor();
             if (e!=null && e!=c)
                 e.interrupt();
         }

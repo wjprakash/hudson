@@ -24,8 +24,8 @@
 package hudson.matrix;
 
 import hudson.Util;
-import hudson.model.Descriptor.FormException;
-import hudson.model.Hudson;
+import hudson.model.DescriptorExt.FormException;
+import hudson.model.HudsonExt;
 import hudson.model.ItemGroup;
 import hudson.model.Result;
 import hudson.tasks.BuildStepDescriptor;
@@ -50,7 +50,7 @@ import org.kohsuke.stapler.StaplerResponse;
 public class MatrixProject extends MatrixProjectExt{
     
     public MatrixProject(String name) {
-        this(Hudson.getInstance(), name);
+        this(HudsonExt.getInstance(), name);
     }
 
     public MatrixProject(ItemGroup parent, String name) {

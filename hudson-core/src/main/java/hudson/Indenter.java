@@ -23,14 +23,14 @@
  */
 package hudson;
 
-import hudson.model.Job;
+import hudson.model.JobExt;
 
 /**
  * Used by <tt>projectView.jelly</tt> to indent modules.
  *
  * @author Kohsuke Kawaguchi
  */
-public abstract class Indenter<J extends Job> {
+public abstract class Indenter<J extends JobExt> {
     protected abstract int getNestLevel(J job);
 
     public final String getCss(J job) {

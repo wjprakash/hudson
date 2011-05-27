@@ -27,13 +27,13 @@ import hudson.model.Queue.FlyweightTask;
 import hudson.model.queue.WorkUnit;
 
 /**
- * {@link Executor} that's temporarily added to carry out tasks that doesn't consume
+ * {@link ExecutorExt} that's temporarily added to carry out tasks that doesn't consume
  * regular executors, like a matrix project parent build.
  *
  * @author Kohsuke Kawaguchi
  * @see FlyweightTask
  */
-public class OneOffExecutor extends Executor {
+public class OneOffExecutor extends ExecutorExt {
     private WorkUnit work;
 
     public OneOffExecutor(ComputerExt owner, WorkUnit work) {

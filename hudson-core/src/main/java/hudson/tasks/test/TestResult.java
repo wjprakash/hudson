@@ -25,7 +25,7 @@ package hudson.tasks.test;
 
 import hudson.tasks.junit.TestAction;
 import hudson.model.AbstractBuildExt;
-import hudson.model.Run;
+import hudson.model.RunExt;
 import hudson.model.Result;
 
 import java.util.Collection;
@@ -199,7 +199,7 @@ public abstract class TestResult extends TestObject {
      * If this test failed, then return the run
      * when this test started failing.
      */
-    public Run<?,?> getFailedSinceRun() {
+    public RunExt<?,?> getFailedSinceRun() {
         return null;
     }
 

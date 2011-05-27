@@ -23,8 +23,8 @@
  */
 package hudson;
 
-import hudson.model.Hudson;
-import hudson.model.Descriptor;
+import hudson.model.HudsonExt;
+import hudson.model.DescriptorExt;
 import hudson.model.Saveable;
 import hudson.model.listeners.ItemListener;
 import hudson.model.listeners.SaveableListener;
@@ -36,17 +36,17 @@ import java.io.File;
 import com.thoughtworks.xstream.XStream;
 
 /**
- * Base class of Hudson plugin.
+ * Base class of HudsonExt plugin.
  *
  * <p>
  * A plugin needs to derive from this class.
  *
  * <p>
- * One instance of a plugin is created by Hudson, and used as the entry point
+ * One instance of a plugin is created by HudsonExt, and used as the entry point
  * to plugin functionality.
  *
  * <p>
- * A plugin is bound to URL space of Hudson as <tt>${rootURL}/plugin/foo/</tt>,
+ * A plugin is bound to URL space of HudsonExt as <tt>${rootURL}/plugin/foo/</tt>,
  * where "foo" is taken from your plugin name "foo.hpi". All your web resources
  * in src/main/webapp are visible from this URL, and you can also define Jelly
  * views against your PluginExt class, and those are visible in this URL, too.
@@ -55,10 +55,10 @@ import com.thoughtworks.xstream.XStream;
  * {@link PluginExt} can have an optional <tt>config.jelly</tt> page. If present,
  * it will become a part of the system configuration page (http://server/hudson/configure).
  * This is convenient for exposing/maintaining configuration that doesn't
- * fit any {@link Descriptor}s.
+ * fit any {@link DescriptorExt}s.
  *
  * <p>
- * Up until Hudson 1.150 or something, subclasses of {@link PluginExt} required
+ * Up until HudsonExt 1.150 or something, subclasses of {@link PluginExt} required
  * <tt>@plugin</tt> javadoc annotation, but that is no longer a requirement.
  *
  * @author Kohsuke Kawaguchi
@@ -93,9 +93,9 @@ public abstract class PluginExt implements Saveable {
      *
      * <p>
      * This method is called after {@link #setServletContext(ServletContext)} is invoked.
-     * You can also use {@link Hudson#getInstance()} to access the singleton hudson instance,
+     * You can also use {@link HudsonExt#getInstance()} to access the singleton hudson instance,
      * although the plugin start up happens relatively early in the initialization
-     * stage and not all the data are loaded in Hudson.
+     * stage and not all the data are loaded in HudsonExt.
      *
      * <p>
      * If a plugin wants to run an initialization step after all plugins and extension points
@@ -122,7 +122,7 @@ public abstract class PluginExt implements Saveable {
     public void postInitialize() throws Exception {}
 
     /**
-     * Called to orderly shut down Hudson.
+     * Called to orderly shut down HudsonExt.
      *
      * <p>
      * This is a good opportunity to clean up resources that plugin started.
@@ -177,8 +177,8 @@ public abstract class PluginExt implements Saveable {
      * @since 1.245
      */
     protected XmlFile getConfigXml() {
-        return new XmlFile(Hudson.XSTREAM,
-                new File(Hudson.getInstance().getRootDir(),wrapper.getShortName()+".xml"));
+        return new XmlFile(HudsonExt.XSTREAM,
+                new File(HudsonExt.getInstance().getRootDir(),wrapper.getShortName()+".xml"));
     }
 
 

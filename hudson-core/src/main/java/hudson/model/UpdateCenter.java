@@ -172,7 +172,7 @@ public class UpdateCenter extends AbstractModelObjectExt implements Saveable {
     }
 
     /**
-     * Returns latest Hudson upgrade job.
+     * Returns latest HudsonExt upgrade job.
      * @return HudsonUpgradeJob or null if not found
      */
     public HudsonUpgradeJob getHudsonJob() {
@@ -268,12 +268,12 @@ public class UpdateCenter extends AbstractModelObjectExt implements Saveable {
     }
 
     /**
-     * Schedules a Hudson upgrade.
+     * Schedules a HudsonExt upgrade.
      */
     public void doUpgrade(StaplerResponse rsp) throws IOException, ServletException {
         requirePOST();
-        Hudson.getInstance().checkPermission(Hudson.ADMINISTER);
-        HudsonUpgradeJob job = new HudsonUpgradeJob(getCoreSource(), Hudson.getAuthentication());
+        HudsonExt.getInstance().checkPermission(HudsonExt.ADMINISTER);
+        HudsonUpgradeJob job = new HudsonUpgradeJob(getCoreSource(), HudsonExt.getAuthentication());
         if(!Lifecycle.get().canRewriteHudsonWar()) {
             sendError("Hudson upgrade not supported in this running mode");
             return;
@@ -296,13 +296,13 @@ public class UpdateCenter extends AbstractModelObjectExt implements Saveable {
      */
     public void doDowngrade(StaplerResponse rsp) throws IOException, ServletException {
         requirePOST();
-        Hudson.getInstance().checkPermission(Hudson.ADMINISTER);
+        HudsonExt.getInstance().checkPermission(HudsonExt.ADMINISTER);
         if(!isDowngradable()) {
             sendError("Hudson downgrade is not possible, probably backup does not exist");
             return;
         }
 
-        HudsonDowngradeJob job = new HudsonDowngradeJob(getCoreSource(), Hudson.getAuthentication());
+        HudsonDowngradeJob job = new HudsonDowngradeJob(getCoreSource(), HudsonExt.getAuthentication());
         LOGGER.info("Scheduling the core downgrade");
         addJob(job);
         rsp.sendRedirect2(".");
@@ -381,7 +381,7 @@ public class UpdateCenter extends AbstractModelObjectExt implements Saveable {
     }
 
     private XmlFile getConfigFile() {
-        return new XmlFile(XSTREAM,new File(Hudson.getInstance().root,
+        return new XmlFile(XSTREAM,new File(HudsonExt.getInstance().root,
                                     UpdateCenter.class.getName()+".xml"));
     }
 
@@ -434,7 +434,7 @@ public class UpdateCenter extends AbstractModelObjectExt implements Saveable {
 
 
     /**
-     * {@link AdministrativeMonitorExt} that checks if there's Hudson update.
+     * {@link AdministrativeMonitorExt} that checks if there's HudsonExt update.
      */
     @Extension
     public static final class CoreUpdateMonitor extends AdministrativeMonitorExt {
@@ -444,7 +444,7 @@ public class UpdateCenter extends AbstractModelObjectExt implements Saveable {
         }
 
         public Data getData() {
-            UpdateSite cs = Hudson.getInstance().getUpdateCenter().getCoreSource();
+            UpdateSite cs = HudsonExt.getInstance().getUpdateCenter().getCoreSource();
             if (cs!=null)   return cs.getData();
             return null;
         }
@@ -736,7 +736,7 @@ public class UpdateCenter extends AbstractModelObjectExt implements Saveable {
     }
 
     /**
-     * Base class for a job that downloads a file from the Hudson project.
+     * Base class for a job that downloads a file from the HudsonExt project.
      */
     public abstract class DownloadJob extends UpdateCenterJob {
         /**
@@ -888,7 +888,7 @@ public class UpdateCenter extends AbstractModelObjectExt implements Saveable {
          */
         public final Plugin plugin;
 
-        private final PluginManagerExt pm = Hudson.getInstance().getPluginManager();
+        private final PluginManagerExt pm = HudsonExt.getInstance().getPluginManager();
 
         public InstallationJob(Plugin plugin, UpdateSite site, Authentication auth) {
             super(site, auth);
@@ -942,7 +942,7 @@ public class UpdateCenter extends AbstractModelObjectExt implements Saveable {
          */
         public final Plugin plugin;
 
-        private final PluginManagerExt pm = Hudson.getInstance().getPluginManager();
+        private final PluginManagerExt pm = HudsonExt.getInstance().getPluginManager();
 
         public PluginDowngradeJob(Plugin plugin, UpdateSite site, Authentication auth) {
             super(site, auth);
@@ -1015,7 +1015,7 @@ public class UpdateCenter extends AbstractModelObjectExt implements Saveable {
     }
 
     /**
-     * Represents the state of the upgrade activity of Hudson core.
+     * Represents the state of the upgrade activity of HudsonExt core.
      */
     public final class HudsonUpgradeJob extends DownloadJob {
         public HudsonUpgradeJob(UpdateSite site, Authentication auth) {
@@ -1122,7 +1122,7 @@ public class UpdateCenter extends AbstractModelObjectExt implements Saveable {
      * This has to wait until after all plugins load, to let custom UpdateCenterConfiguration take effect first.
      */
     @Initializer(after=PLUGINS_STARTED)
-    public static void init(Hudson h) throws IOException {
+    public static void init(HudsonExt h) throws IOException {
         h.getUpdateCenter().load();
     }
 

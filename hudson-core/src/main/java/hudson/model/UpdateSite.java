@@ -74,7 +74,7 @@ import javax.servlet.ServletContext;
  * Source of the update center information, like "http://hudson-ci.org/update-center.json"
  *
  * <p>
- * Hudson can have multiple {@link UpdateSite}s registered in the system, so that it can pick up plugins
+ * HudsonExt can have multiple {@link UpdateSite}s registered in the system, so that it can pick up plugins
  * from different locations.
  *
  * @author Andrew Bayer
@@ -173,9 +173,9 @@ public class UpdateSite {
                 certs.add(c);
             }
 
-            // all default root CAs in JVM are trusted, plus certs bundled in Hudson
+            // all default root CAs in JVM are trusted, plus certs bundled in HudsonExt
             Set<TrustAnchor> anchors = CertificateUtil.getDefaultRootCAs();
-            ServletContext context = Hudson.getInstance().servletContext;
+            ServletContext context = HudsonExt.getInstance().servletContext;
             for (String cert : (Set<String>) context.getResourcePaths("/WEB-INF/update-center-rootCAs")) {
                 if (cert.endsWith(".txt"))  continue;       // skip text files that are meant to be documentation
                 anchors.add(new TrustAnchor((X509Certificate)cf.generateCertificate(context.getResourceAsStream(cert)),null));
@@ -287,7 +287,7 @@ public class UpdateSite {
      * This is where we store the update center data.
      */
     private TextFile getDataFile() {
-        return new TextFile(new File(Hudson.getInstance().getRootDir(),
+        return new TextFile(new File(HudsonExt.getInstance().getRootDir(),
                                      "updates/" + getId()+".json"));
     }
     
@@ -302,7 +302,7 @@ public class UpdateSite {
         if(data==null)      return Collections.emptyList(); // fail to determine
         
         List<Plugin> r = new ArrayList<Plugin>();
-        for (PluginWrapperExt pw : Hudson.getInstance().getPluginManager().getPlugins()) {
+        for (PluginWrapperExt pw : HudsonExt.getInstance().getPluginManager().getPlugins()) {
             Plugin p = pw.getUpdateInfo();
             if(p!=null) r.add(p);
         }
@@ -317,7 +317,7 @@ public class UpdateSite {
         Data data = getData();
         if(data==null)      return false;
         
-        for (PluginWrapperExt pw : Hudson.getInstance().getPluginManager().getPlugins()) {
+        for (PluginWrapperExt pw : HudsonExt.getInstance().getPluginManager().getPlugins()) {
             if(!pw.isBundled() && pw.getUpdateInfo()!=null)
                 // do not advertize updates to bundled plugins, since we generally want users to get them
                 // as a part of hudson.war updates. This also avoids unnecessary pinning of plugins. 
@@ -361,7 +361,7 @@ public class UpdateSite {
         public final Map<String,Plugin> plugins = new TreeMap<String,Plugin>(String.CASE_INSENSITIVE_ORDER);
 
         /**
-         * If this is non-null, Hudson is going to check the connectivity to this URL to make sure
+         * If this is non-null, HudsonExt is going to check the connectivity to this URL to make sure
          * the network connection is up. Null to skip the check.
          */
         public final String connectionCheckUrl;
@@ -385,7 +385,7 @@ public class UpdateSite {
          * Is there a new version of the core?
          */
         public boolean hasCoreUpdates() {
-            return core != null && core.isNewerThan(Hudson.VERSION);
+            return core != null && core.isNewerThan(HudsonExt.VERSION);
         }
 
         /**
@@ -464,7 +464,7 @@ public class UpdateSite {
          */
         public final String compatibleSinceVersion;
         /**
-         * Version of Hudson core this plugin was compiled against.
+         * Version of HudsonExt core this plugin was compiled against.
          */
         public final String requiredCore;
         /**
@@ -518,7 +518,7 @@ public class UpdateSite {
          * Otherwise null.
          */
         public PluginWrapperExt getInstalled() {
-            PluginManagerExt pm = Hudson.getInstance().getPluginManager();
+            PluginManagerExt pm = HudsonExt.getInstance().getPluginManager();
             return pm.getPlugin(name);
         }
 
@@ -549,7 +549,7 @@ public class UpdateSite {
             List<Plugin> deps = new ArrayList<Plugin>();
 
             for(Map.Entry<String,String> e : dependencies.entrySet()) {
-                Plugin depPlugin = Hudson.getInstance().getUpdateCenter().getPlugin(e.getKey());
+                Plugin depPlugin = HudsonExt.getInstance().getUpdateCenter().getPlugin(e.getKey());
                 VersionNumber requiredVersion = new VersionNumber(e.getValue());
                 
                 // Is the plugin installed already? If not, add it.
@@ -571,7 +571,7 @@ public class UpdateSite {
         public boolean isForNewerHudson() {
             try {
                 return requiredCore!=null && new VersionNumber(requiredCore).isNewerThan(
-                  new VersionNumber(Hudson.VERSION.replaceFirst("SHOT *\\(private.*\\)", "SHOT")));
+                  new VersionNumber(HudsonExt.VERSION.replaceFirst("SHOT *\\(private.*\\)", "SHOT")));
             } catch (NumberFormatException nfe) {
                 return true;  // If unable to parse version
             }
@@ -593,22 +593,22 @@ public class UpdateSite {
          * asynchronously in another thread.
          */
         public Future<UpdateCenterJob> deploy() {
-            Hudson.getInstance().checkPermission(Hudson.ADMINISTER);
-            UpdateCenter uc = Hudson.getInstance().getUpdateCenter();
+            HudsonExt.getInstance().checkPermission(HudsonExt.ADMINISTER);
+            UpdateCenter uc = HudsonExt.getInstance().getUpdateCenter();
             for (Plugin dep : getNeededDependencies()) {
                 LOGGER.log(Level.WARNING, "Adding dependent install of " + dep.name + " for plugin " + name);
                 dep.deploy();
             }
-            return uc.addJob(uc.new InstallationJob(this, UpdateSite.this, Hudson.getAuthentication()));
+            return uc.addJob(uc.new InstallationJob(this, UpdateSite.this, HudsonExt.getAuthentication()));
         }
 
         /**
          * Schedules the downgrade of this plugin.
          */
         public Future<UpdateCenterJob> deployBackup() {
-            Hudson.getInstance().checkPermission(Hudson.ADMINISTER);
-            UpdateCenter uc = Hudson.getInstance().getUpdateCenter();
-            return uc.addJob(uc.new PluginDowngradeJob(this, UpdateSite.this, Hudson.getAuthentication()));
+            HudsonExt.getInstance().checkPermission(HudsonExt.ADMINISTER);
+            UpdateCenter uc = HudsonExt.getInstance().getUpdateCenter();
+            return uc.addJob(uc.new PluginDowngradeJob(this, UpdateSite.this, HudsonExt.getAuthentication()));
         }
         /**
          * Making the installation web bound.

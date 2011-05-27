@@ -29,15 +29,15 @@ import org.acegisecurity.Authentication;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import hudson.model.Hudson;
+import hudson.model.HudsonExt;
 
 /**
  * {@link RememberMeServices} proxy.
  *
  * <p>
- * In Hudson, we need {@link Hudson} instance to perform remember-me service,
- * because it relies on {@link Hudson#getSecretKey()}. However, security
- * filters can be initialized before Hudson is initialized.
+ * In HudsonExt, we need {@link HudsonExt} instance to perform remember-me service,
+ * because it relies on {@link HudsonExt#getSecretKey()}. However, security
+ * filters can be initialized before HudsonExt is initialized.
  * (See #1210 for example.)
  *
  * <p>

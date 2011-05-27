@@ -27,10 +27,10 @@ import hudson.Util;
 import hudson.model.AbstractBuildExt;
 import hudson.model.AbstractProjectExt;
 import hudson.model.BuildListener;
-import hudson.model.Executor;
-import hudson.model.Fingerprint;
-import hudson.model.Hudson;
-import hudson.model.JobProperty;
+import hudson.model.ExecutorExt;
+import hudson.model.FingerprintExt;
+import hudson.model.HudsonExt;
+import hudson.model.JobPropertyExt;
 import hudson.model.Node;
 import hudson.model.ParametersAction;
 import hudson.model.Queue;
@@ -94,7 +94,7 @@ public class MatrixBuildExt extends AbstractBuildExt<MatrixProjectExt,MatrixBuil
         public String getTooltip() {
             MatrixRunExt r = getRun();
             if(r!=null) return r.getIconColor().getDescription();
-            Queue.Item item = Hudson.getInstance().getQueue().getItem(getParent().getItem(combination));
+            Queue.Item item = HudsonExt.getInstance().getQueue().getItem(getParent().getItem(combination));
             if(item!=null)
                 return item.getWhy();
             return null;    // fall back
@@ -138,8 +138,8 @@ public class MatrixBuildExt extends AbstractBuildExt<MatrixProjectExt,MatrixBuil
     }
 
     @Override
-    public Fingerprint.RangeSet getDownstreamRelationship(AbstractProjectExt that) {
-        Fingerprint.RangeSet rs = super.getDownstreamRelationship(that);
+    public FingerprintExt.RangeSet getDownstreamRelationship(AbstractProjectExt that) {
+        FingerprintExt.RangeSet rs = super.getDownstreamRelationship(that);
         for(MatrixRunExt run : getRuns())
             rs.add(run.getDownstreamRelationship(that));
         return rs;
@@ -163,7 +163,7 @@ public class MatrixBuildExt extends AbstractBuildExt<MatrixProjectExt,MatrixBuil
             }
 
             //let properties do their job
-            for (JobProperty prop : p.getProperties().values()) {
+            for (JobPropertyExt prop : p.getProperties().values()) {
                 if (prop instanceof MatrixAggregatable) {
                     MatrixAggregatable ma = (MatrixAggregatable) prop;
                     MatrixAggregator a = ma.createAggregator(MatrixBuildExt.this, launcher, listener);
@@ -229,14 +229,14 @@ public class MatrixBuildExt extends AbstractBuildExt<MatrixProjectExt,MatrixBuil
             }
             finally {
                 // if the build was aborted in the middle. Cancel all the configuration builds.
-                Queue q = Hudson.getInstance().getQueue();
+                Queue q = HudsonExt.getInstance().getQueue();
                 synchronized(q) {// avoid micro-locking in q.cancel.
                     for (MatrixConfiguration c : activeConfigurations) {
                         if(q.cancel(c))
                             logger.println(Messages.MatrixBuild_Cancelled(c.getDisplayName()));
                         MatrixRunExt b = c.getBuildByNumber(n);
                         if(b!=null) {
-                            Executor exe = b.getExecutor();
+                            ExecutorExt exe = b.getExecutor();
                             if(exe!=null) {
                                 logger.println(Messages.MatrixBuild_Interrupting(b.getDisplayName()));
                                 exe.interrupt();
@@ -269,7 +269,7 @@ public class MatrixBuildExt extends AbstractBuildExt<MatrixProjectExt,MatrixBuil
 
                 if(appearsCancelledCount>=5) {
                     // there's conceivably a race condition in computating b and qi, as their computation
-                    // are not synchronized. There are indeed several reports of Hudson incorrectly assuming
+                    // are not synchronized. There are indeed several reports of HudsonExt incorrectly assuming
                     // builds being cancelled. See
                     // http://www.nabble.com/Master-slave-problem-tt14710987.html and also
                     // http://www.nabble.com/Anyone-using-AccuRev-plugin--tt21634577.html#a21671389

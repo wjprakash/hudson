@@ -23,7 +23,7 @@
  */
 package hudson.model.labels;
 
-import hudson.model.Label;
+import hudson.model.LabelExt;
 import hudson.util.VariableResolver;
 
 /**
@@ -32,7 +32,7 @@ import hudson.util.VariableResolver;
  * @author Kohsuke Kawaguchi
  * @since  1.372
  */
-public abstract class LabelExpression extends Label {
+public abstract class LabelExpression extends LabelExt {
     protected LabelExpression(String name) {
         super(name);
     }
@@ -43,9 +43,9 @@ public abstract class LabelExpression extends Label {
     }
 
     public static class Not extends LabelExpression {
-        private final Label base;
+        private final LabelExt base;
 
-        public Not(Label base) {
+        public Not(LabelExt base) {
             super('!'+paren(LabelOperatorPrecedence.NOT,base));
             this.base = base;
         }
@@ -65,9 +65,9 @@ public abstract class LabelExpression extends Label {
      * No-op but useful for preserving the parenthesis in the user input.
      */
     public static class Paren extends LabelExpression {
-        private final Label base;
+        private final LabelExt base;
 
-        public Paren(Label base) {
+        public Paren(LabelExt base) {
             super('('+base.getExpression()+')');
             this.base = base;
         }
@@ -86,22 +86,22 @@ public abstract class LabelExpression extends Label {
     /**
      * Puts the label name into a parenthesis if the given operator will have a higher precedence.
      */
-    static String paren(LabelOperatorPrecedence op, Label l) {
+    static String paren(LabelOperatorPrecedence op, LabelExt l) {
         if (op.compareTo(l.precedence())<0)
             return '('+l.getExpression()+')';
         return l.getExpression();
     }
 
     public static abstract class Binary extends LabelExpression {
-        private final Label lhs,rhs;
+        private final LabelExt lhs,rhs;
 
-        public Binary(Label lhs, Label rhs, LabelOperatorPrecedence op) {
+        public Binary(LabelExt lhs, LabelExt rhs, LabelOperatorPrecedence op) {
             super(combine(lhs, rhs, op));
             this.lhs = lhs;
             this.rhs = rhs;
         }
 
-        private static String combine(Label lhs, Label rhs, LabelOperatorPrecedence op) {
+        private static String combine(LabelExt lhs, LabelExt rhs, LabelOperatorPrecedence op) {
             return paren(op,lhs)+op.str+paren(op,rhs);
         }
 
@@ -118,7 +118,7 @@ public abstract class LabelExpression extends Label {
     }
 
     public static final class And extends Binary {
-        public And(Label lhs, Label rhs) {
+        public And(LabelExt lhs, LabelExt rhs) {
             super(lhs, rhs, LabelOperatorPrecedence.AND);
         }
 
@@ -134,7 +134,7 @@ public abstract class LabelExpression extends Label {
     }
 
     public static final class Or extends Binary {
-        public Or(Label lhs, Label rhs) {
+        public Or(LabelExt lhs, LabelExt rhs) {
             super(lhs, rhs, LabelOperatorPrecedence.OR);
         }
 
@@ -150,7 +150,7 @@ public abstract class LabelExpression extends Label {
     }
 
     public static final class Iff extends Binary {
-        public Iff(Label lhs, Label rhs) {
+        public Iff(LabelExt lhs, LabelExt rhs) {
             super(lhs, rhs, LabelOperatorPrecedence.IFF);
         }
 
@@ -166,7 +166,7 @@ public abstract class LabelExpression extends Label {
     }
 
     public static final class Implies extends Binary {
-        public Implies(Label lhs, Label rhs) {
+        public Implies(LabelExt lhs, LabelExt rhs) {
             super(lhs, rhs, LabelOperatorPrecedence.IMPLIES);
         }
 

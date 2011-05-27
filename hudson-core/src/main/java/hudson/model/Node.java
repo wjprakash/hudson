@@ -37,7 +37,7 @@ import hudson.remoting.VirtualChannel;
 import hudson.security.ACL;
 import hudson.security.AccessControlled;
 import hudson.security.Permission;
-import hudson.slaves.NodeDescriptor;
+import hudson.slaves.NodeDescriptorExt;
 import hudson.slaves.NodeProperty;
 import hudson.slaves.NodePropertyDescriptor;
 import hudson.util.ClockDifference;
@@ -57,19 +57,19 @@ import org.kohsuke.stapler.export.ExportedBean;
 import org.kohsuke.stapler.export.Exported;
 
 /**
- * Base type of Hudson slaves (although in practice, you probably extend {@link Slave} to define a new slave type.)
+ * Base type of HudsonExt slaves (although in practice, you probably extend {@link Slave} to define a new slave type.)
  *
  * <p>
- * As a special case, {@link Hudson} extends from here.
+ * As a special case, {@link HudsonExt} extends from here.
  *
  * @author Kohsuke Kawaguchi
  * @see NodeMonitor
- * @see NodeDescriptor
+ * @see NodeDescriptorExt
  */
 @ExportedBean
 public abstract class Node extends AbstractModelObjectExt implements Describable<Node>, ExtensionPoint, AccessControlled {
     /**
-     * Newly copied slaves get this flag set, so that Hudson doesn't try to start this node until its configuration
+     * Newly copied slaves get this flag set, so that HudsonExt doesn't try to start this node until its configuration
      * is saved once.
      */
     protected volatile transient boolean holdOffLaunchUntilSave;
@@ -96,7 +96,7 @@ public abstract class Node extends AbstractModelObjectExt implements Describable
     public abstract String getNodeName();
 
     /**
-     * When the user clones a {@link Node}, Hudson uses this method to change the node name right after
+     * When the user clones a {@link Node}, HudsonExt uses this method to change the node name right after
      * the cloned {@link Node} object is instantiated.
      *
      * <p>
@@ -146,7 +146,7 @@ public abstract class Node extends AbstractModelObjectExt implements Describable
      *      such as when this node has no executors at all.
      */
     public final ComputerExt toComputer() {
-        return Hudson.getInstance().getComputer(this);
+        return HudsonExt.getInstance().getComputer(this);
     }
 
     /**
@@ -161,7 +161,7 @@ public abstract class Node extends AbstractModelObjectExt implements Describable
 
     /**
      * Creates a new {@link ComputerExt} object that acts as the UI peer of this {@link Node}.
-     * Nobody but {@link Hudson#updateComputerList()} should call this method.
+     * Nobody but {@link HudsonExt#updateComputerList()} should call this method.
      */
     protected abstract ComputerExt createComputer();
 
@@ -187,7 +187,7 @@ public abstract class Node extends AbstractModelObjectExt implements Describable
      */
     @Exported
     public Set<LabelAtom> getAssignedLabels() {
-        Set<LabelAtom> r = Label.parse(getLabelString());
+        Set<LabelAtom> r = LabelExt.parse(getLabelString());
         r.add(getSelfLabel());
         r.addAll(getDynamicLabels());
         return Collections.unmodifiableSet(r);
@@ -204,7 +204,7 @@ public abstract class Node extends AbstractModelObjectExt implements Describable
         for (LabelFinder labeler : LabelFinder.all()) {
             // Filter out any bad(null) results from plugins
             // for compatibility reasons, findLabels may return LabelExpression and not atom.
-            for (Label label : labeler.findLabels(this))
+            for (LabelExt label : labeler.findLabels(this))
                 if (label instanceof LabelAtom) result.add((LabelAtom)label);
         }
         return result;
@@ -224,7 +224,7 @@ public abstract class Node extends AbstractModelObjectExt implements Describable
     /**
      * Gets the special label that represents this node itself.
      */
-    @WithBridgeMethods(Label.class)
+    @WithBridgeMethods(LabelExt.class)
     public LabelAtom getSelfLabel() {
         return LabelAtom.get(getNodeName());
     }
@@ -240,7 +240,7 @@ public abstract class Node extends AbstractModelObjectExt implements Describable
      * @since 1.360
      */
     public CauseOfBlockage canTake(Task task) {
-        Label l = task.getAssignedLabel();
+        LabelExt l = task.getAssignedLabel();
         if(l!=null && !l.contains(this))
             return CauseOfBlockage.fromMessage(Messages._Node_LabelMissing(getNodeName(),l));   // the task needs to be executed on label that this node doesn't have.
 
@@ -275,7 +275,7 @@ public abstract class Node extends AbstractModelObjectExt implements Describable
      * Gets the root directory of this node.
      *
      * <p>
-     * Hudson always owns a directory on every node. This method
+     * HudsonExt always owns a directory on every node. This method
      * returns that.
      *
      * @return
@@ -309,7 +309,7 @@ public abstract class Node extends AbstractModelObjectExt implements Describable
     }
     
     public ACL getACL() {
-        return Hudson.getInstance().getAuthorizationStrategy().getACL(this);
+        return HudsonExt.getInstance().getAuthorizationStrategy().getACL(this);
     }
     
     public final void checkPermission(Permission permission) {
@@ -320,7 +320,7 @@ public abstract class Node extends AbstractModelObjectExt implements Describable
         return getACL().hasPermission(permission);
     }
 
-    public abstract NodeDescriptor getDescriptor();
+    public abstract NodeDescriptorExt getDescriptor();
 
     /**
      * Estimates the clock difference with this slave.
@@ -333,7 +333,7 @@ public abstract class Node extends AbstractModelObjectExt implements Describable
     public abstract ClockDifference getClockDifference() throws IOException, InterruptedException;
 
     /**
-     * Constants that control how Hudson allocates jobs to slaves.
+     * Constants that control how HudsonExt allocates jobs to slaves.
      */
     public enum Mode {
         NORMAL(Messages.Node_Mode_NORMAL()),

@@ -28,8 +28,8 @@ import hudson.ExtensionPoint;
 import hudson.FilePathExt;
 import hudson.Util;
 import hudson.model.Describable;
-import hudson.model.Hudson;
-import hudson.model.Label;
+import hudson.model.HudsonExt;
+import hudson.model.LabelExt;
 import hudson.model.Node;
 import hudson.model.TaskListener;
 import java.io.IOException;
@@ -66,7 +66,7 @@ public abstract class ToolInstaller implements Describable<ToolInstaller>, Exten
     }
 
     /**
-     * Label to limit which nodes this installation can be performed on.
+     * LabelExt to limit which nodes this installation can be performed on.
      * Can be null to not impose a limit.
      */
     public final String getLabel() {
@@ -78,7 +78,7 @@ public abstract class ToolInstaller implements Describable<ToolInstaller>, Exten
      * (By default, just checks the label.)
      */
     public boolean appliesTo(Node node) {
-        Label l = Hudson.getInstance().getLabel(label);
+        LabelExt l = HudsonExt.getInstance().getLabel(label);
         return l == null || l.contains(node);
     }
 
@@ -101,7 +101,7 @@ public abstract class ToolInstaller implements Describable<ToolInstaller>, Exten
      * @param tool the tool being installed
      * @param node the computer on which to install the tool
      * @return {@link ToolInstallation#getHome} if specified, else a path within the local
-     *         Hudson work area named according to {@link ToolInstallation#getName}
+     *         HudsonExt work area named according to {@link ToolInstallation#getName}
      * @since 1.310
      */
     protected final FilePathExt preferredLocation(ToolInstallation tool, Node node) {
@@ -121,6 +121,6 @@ public abstract class ToolInstaller implements Describable<ToolInstaller>, Exten
     }
 
     public ToolInstallerDescriptor<?> getDescriptor() {
-        return (ToolInstallerDescriptor) Hudson.getInstance().getDescriptorOrDie(getClass());
+        return (ToolInstallerDescriptor) HudsonExt.getInstance().getDescriptorOrDie(getClass());
     }
 }

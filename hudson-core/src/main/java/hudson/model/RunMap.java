@@ -38,16 +38,16 @@ import java.text.SimpleDateFormat;
 import java.text.ParseException;
 
 /**
- * {@link Map} from build number to {@link Run}.
+ * {@link Map} from build number to {@link RunExt}.
  *
  * <p>
  * This class is multi-thread safe by using copy-on-write technique,
- * and it also updates the bi-directional links within {@link Run}
+ * and it also updates the bi-directional links within {@link RunExt}
  * accordingly.
  *
  * @author Kohsuke Kawaguchi
  */
-public final class RunMap<R extends Run<?,R>> extends AbstractMap<Integer,R> implements SortedMap<Integer,R> {
+public final class RunMap<R extends RunExt<?,R>> extends AbstractMap<Integer,R> implements SortedMap<Integer,R> {
     // copy-on-write map
     private transient volatile SortedMap<Integer,R> builds =
         new TreeMap<Integer,R>(COMPARATOR);
@@ -170,9 +170,9 @@ public final class RunMap<R extends Run<?,R>> extends AbstractMap<Integer,R> imp
     };
 
     /**
-     * {@link Run} factory.
+     * {@link RunExt} factory.
      */
-    public interface Constructor<R extends Run<?,R>> {
+    public interface Constructor<R extends RunExt<?,R>> {
         R create(File dir) throws IOException;
     }
 
@@ -180,12 +180,12 @@ public final class RunMap<R extends Run<?,R>> extends AbstractMap<Integer,R> imp
      * Fills in {@link RunMap} by loading build records from the file system.
      *
      * @param job
-     *      Job that owns this map.
+     *      JobExt that owns this map.
      * @param cons
-     *      Used to create new instance of {@link Run}.
+     *      Used to create new instance of {@link RunExt}.
      */
-    public synchronized void load(Job job, Constructor<R> cons) {
-        final SimpleDateFormat formatter = Run.ID_FORMATTER.get();
+    public synchronized void load(JobExt job, Constructor<R> cons) {
+        final SimpleDateFormat formatter = RunExt.ID_FORMATTER.get();
 
         TreeMap<Integer,R> builds = new TreeMap<Integer,R>(RunMap.COMPARATOR);
         File buildDir = job.getBuildDir();

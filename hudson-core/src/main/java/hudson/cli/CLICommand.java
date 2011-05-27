@@ -30,7 +30,7 @@ import hudson.ExtensionPoint;
 import hudson.cli.declarative.CLIMethod;
 import hudson.ExtensionPoint.LegacyInstancesAreScopedToHudson;
 import hudson.cli.declarative.OptionHandlerExtension;
-import hudson.model.Hudson;
+import hudson.model.HudsonExt;
 import hudson.remoting.Callable;
 import hudson.remoting.Channel;
 import hudson.remoting.ChannelProperty;
@@ -56,7 +56,7 @@ import java.util.Locale;
 import java.util.logging.Logger;
 
 /**
- * Base class for Hudson CLI.
+ * Base class for HudsonExt CLI.
  *
  * <h2>How does a CLI command work</h2>
  * <p>
@@ -66,7 +66,7 @@ import java.util.logging.Logger;
  * the remoted stdin/out/err.
  *
  * <p>
- * The Hudson master then picks the right {@link CLICommand} to execute, clone it, and
+ * The HudsonExt master then picks the right {@link CLICommand} to execute, clone it, and
  * calls {@link #main(List, Locale, InputStream, PrintStream, PrintStream)} method.
  *
  * <h2>Note for CLI command implementor</h2>
@@ -75,7 +75,7 @@ import java.util.logging.Logger;
  *
  * <ul>
  * <li>
- * Put {@link Extension} on your implementation to have it discovered by Hudson.
+ * Put {@link Extension} on your implementation to have it discovered by HudsonExt.
  *
  * <li>
  * Use <a href="http://java.net/projects/args4j/">args4j</a> annotation on your implementation to define
@@ -170,17 +170,17 @@ public abstract class CLICommand implements ExtensionPoint, Cloneable {
         SecurityContext sc = SecurityContextHolder.getContext();
         Authentication old = sc.getAuthentication();
 
-        CliAuthenticator authenticator = Hudson.getInstance().getSecurityRealm().createCliAuthenticator(this);
+        CliAuthenticator authenticator = HudsonExt.getInstance().getSecurityRealm().createCliAuthenticator(this);
         new ClassParser().parse(authenticator,p);
 
         try {
             p.parseArgument(args.toArray(new String[args.size()]));
             Authentication auth = authenticator.authenticate();
-            if (auth==Hudson.ANONYMOUS)
+            if (auth==HudsonExt.ANONYMOUS)
                 auth = loadStoredAuthentication();
             sc.setAuthentication(auth); // run the CLI with the right credential
             if (!(this instanceof LoginCommand || this instanceof HelpCommand))
-                Hudson.getInstance().checkPermission(Hudson.READ);
+                HudsonExt.getInstance().checkPermission(HudsonExt.READ);
             return run();
         } catch (CmdLineException e) {
             stderr.println(e.getMessage());
@@ -207,7 +207,7 @@ public abstract class CLICommand implements ExtensionPoint, Cloneable {
         } catch (IOException e) {
             stderr.println("Failed to access the stored credential");
             e.printStackTrace(stderr);  // recover
-            return Hudson.ANONYMOUS;
+            return HudsonExt.ANONYMOUS;
         }
     }
 
@@ -225,10 +225,10 @@ public abstract class CLICommand implements ExtensionPoint, Cloneable {
      * @param auth
      *      Always non-null.
      *      If the underlying transport had already performed authentication, this object is something other than
-     *      {@link Hudson#ANONYMOUS}.
+     *      {@link HudsonExt#ANONYMOUS}.
      */
     protected boolean shouldPerformAuthentication(Authentication auth) {
-        return auth==Hudson.ANONYMOUS;
+        return auth==HudsonExt.ANONYMOUS;
     }
 
     /**
@@ -245,11 +245,11 @@ public abstract class CLICommand implements ExtensionPoint, Cloneable {
      * then this method can return a valid identity of the client.
      *
      * <p>
-     * If the transport doesn't do authentication, this method returns {@link Hudson#ANONYMOUS}.
+     * If the transport doesn't do authentication, this method returns {@link HudsonExt#ANONYMOUS}.
      */
     public Authentication getTransportAuthentication() {
         Authentication a = channel.getProperty(TRANSPORT_AUTHENTICATION);
-        if (a==null)    a = Hudson.ANONYMOUS;
+        if (a==null)    a = HudsonExt.ANONYMOUS;
         return a;
     }
 
@@ -259,7 +259,7 @@ public abstract class CLICommand implements ExtensionPoint, Cloneable {
      * @return
      *      0 to indicate a success, otherwise an error code.
      * @throws AbortException
-     *      If the processing should be aborted. Hudson will report the error message
+     *      If the processing should be aborted. HudsonExt will report the error message
      *      without stack trace, and then exits this command.
      * @throws Exception
      *      All the other exceptions cause the stack trace to be dumped, and then
@@ -342,7 +342,7 @@ public abstract class CLICommand implements ExtensionPoint, Cloneable {
      */
     protected void registerOptionHandlers() {
         try {
-            for (Class c : Index.list(OptionHandlerExtension.class,Hudson.getInstance().pluginManager.uberClassLoader,Class.class)) {
+            for (Class c : Index.list(OptionHandlerExtension.class,HudsonExt.getInstance().pluginManager.uberClassLoader,Class.class)) {
                 Type t = Types.getBaseClass(c, OptionHandler.class);
                 CmdLineParser.registerHandler(Types.erasure(Types.getTypeArgument(t,0)), c);
             }
@@ -355,7 +355,7 @@ public abstract class CLICommand implements ExtensionPoint, Cloneable {
      * Returns all the registered {@link CLICommand}s.
      */
     public static ExtensionList<CLICommand> all() {
-        return Hudson.getInstance().getExtensionList(CLICommand.class);
+        return HudsonExt.getInstance().getExtensionList(CLICommand.class);
     }
 
     /**

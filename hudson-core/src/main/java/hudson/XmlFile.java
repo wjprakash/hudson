@@ -28,7 +28,7 @@ import com.thoughtworks.xstream.converters.ConversionException;
 import com.thoughtworks.xstream.converters.Converter;
 import com.thoughtworks.xstream.io.StreamException;
 import com.thoughtworks.xstream.io.xml.XppReader;
-import hudson.model.Descriptor;
+import hudson.model.DescriptorExt;
 import hudson.util.AtomicFileWriter;
 import hudson.util.IOException2;
 import hudson.util.XStream2;
@@ -89,9 +89,9 @@ import java.util.logging.Logger;
  *
  * <p>
  * In some limited cases (specifically when the class is the root object
- * to be read from XML, such as {@link Descriptor}), it is possible
+ * to be read from XML, such as {@link DescriptorExt}), it is possible
  * to completely and drastically change the data format. See
- * {@link Descriptor#load()} for more about this technique.
+ * {@link DescriptorExt#load()} for more about this technique.
  *
  * <p>
  * There's a few other possibilities, such as implementing a custom

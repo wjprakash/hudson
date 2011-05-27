@@ -23,7 +23,7 @@
  */
 package hudson;
 
-import hudson.model.Hudson;
+import hudson.model.HudsonExt;
 
 import java.net.SocketAddress;
 
@@ -54,6 +54,6 @@ public abstract class UDPBroadcastFragment implements ExtensionPoint {
      * Returns all the registered {@link UDPBroadcastFragment}s.
      */
     public static ExtensionList<UDPBroadcastFragment> all() {
-        return Hudson.getInstance().getExtensionList(UDPBroadcastFragment.class);
+        return HudsonExt.getInstance().getExtensionList(UDPBroadcastFragment.class);
     }
 }

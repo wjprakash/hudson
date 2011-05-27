@@ -27,21 +27,21 @@ package hudson;
 import hudson.model.AbstractProjectExt;
 import hudson.model.Action;
 import hudson.model.Describable;
-import hudson.model.Descriptor;
+import hudson.model.DescriptorExt;
 import hudson.model.DescriptorVisibilityFilter;
-import hudson.model.Hudson;
-import hudson.model.Item;
+import hudson.model.HudsonExt;
+import hudson.model.ItemExt;
 import hudson.model.Items;
-import hudson.model.Job;
-import hudson.model.JobPropertyDescriptor;
+import hudson.model.JobExt;
+import hudson.model.JobPropertyDescriptorExt;
 import hudson.model.ModelObject;
 import hudson.model.Node;
 import hudson.model.PageDecorator;
-import hudson.model.ParameterDefinition;
-import hudson.model.ParameterDefinition.ParameterDescriptor;
-import hudson.model.Project;
-import hudson.model.Run;
-import hudson.model.JDK;
+import hudson.model.ParameterDefinitionExt;
+import hudson.model.ParameterDefinitionExt.ParameterDescriptorExt;
+import hudson.model.ProjectExt;
+import hudson.model.RunExt;
+import hudson.model.JDKExt;
 import hudson.security.AccessControlled;
 import hudson.security.AuthorizationStrategy;
 import hudson.security.Permission;
@@ -113,7 +113,7 @@ import java.util.regex.Pattern;
  *
  * <p>
  * An instance of this class is created for each request and made accessible
- * from view pages via the variable 'h' (h stands for Hudson.)
+ * from view pages via the variable 'h' (h stands for HudsonExt.)
  *
  * @author Kohsuke Kawaguchi
  */
@@ -168,8 +168,8 @@ public class FunctionsExt {
         }
     }
 
-    public JDK.DescriptorImpl getJDKDescriptor() {
-        return Hudson.getInstance().getDescriptorByType(JDK.DescriptorImpl.class);
+    public JDKExt.DescriptorImpl getJDKDescriptor() {
+        return HudsonExt.getInstance().getDescriptorByType(JDKExt.DescriptorImpl.class);
     }
 
     /**
@@ -231,24 +231,24 @@ public class FunctionsExt {
      * </pre>
      *
      * <p>
-     * The head portion is the part of the URL from the {@link Hudson}
-     * object to the first {@link Run} subtype. When "next/prev build"
+     * The head portion is the part of the URL from the {@link HudsonExt}
+     * object to the first {@link RunExt} subtype. When "next/prev build"
      * is chosen, this part remains intact.
      *
      * <p>
-     * The <tt>524</tt> is the path from {@link Job} to {@link Run}.
+     * The <tt>524</tt> is the path from {@link JobExt} to {@link RunExt}.
      *
      * <p>
      * The <tt>bbb</tt> portion is the path after that till the last
-     * {@link Run} subtype. The <tt>ccc</tt> portion is the part
+     * {@link RunExt} subtype. The <tt>ccc</tt> portion is the part
      * after that.
      */
     public static final class RunUrl {
         private final String head, base, rest;
-        private final Run run;
+        private final RunExt run;
 
 
-        public RunUrl(Run run, String head, String base, String rest) {
+        public RunUrl(RunExt run, String head, String base, String rest) {
             this.run = run;
             this.head = head;
             this.base = base;
@@ -273,7 +273,7 @@ public class FunctionsExt {
             return getUrl(run.getPreviousBuild());
         }
 
-        private String getUrl(Run n) {
+        private String getUrl(RunExt n) {
             if(n ==null)
                 return null;
             else {
@@ -286,7 +286,7 @@ public class FunctionsExt {
         return Node.Mode.values();
     }
 
-    public static String getProjectListString(List<Project> projects) {
+    public static String getProjectListString(List<ProjectExt> projects) {
         return Items.toNameList(projects);
     }
 
@@ -316,7 +316,7 @@ public class FunctionsExt {
     }
 
     public static List<LogRecord> getLogRecords() {
-        return Hudson.logRecords;
+        return HudsonExt.logRecords;
     }
 
     public static String printLogRecord(LogRecord r) {
@@ -454,7 +454,7 @@ public class FunctionsExt {
     }
 
     public static void checkPermission(Permission permission) throws IOException, ServletException {
-        checkPermission(Hudson.getInstance(),permission);
+        checkPermission(HudsonExt.getInstance(),permission);
     }
 
     public static void checkPermission(AccessControlled object, Permission permission) throws IOException, ServletException {
@@ -464,27 +464,27 @@ public class FunctionsExt {
     }
 
 
-    public static List<JobPropertyDescriptor> getJobPropertyDescriptors(Class<? extends Job> clazz) {
-        return JobPropertyDescriptor.getPropertyDescriptors(clazz);
+    public static List<JobPropertyDescriptorExt> getJobPropertyDescriptors(Class<? extends JobExt> clazz) {
+        return JobPropertyDescriptorExt.getPropertyDescriptors(clazz);
     }
 
-    public static List<Descriptor<BuildWrapper>> getBuildWrapperDescriptors(AbstractProjectExt<?,?> project) {
+    public static List<DescriptorExt<BuildWrapper>> getBuildWrapperDescriptors(AbstractProjectExt<?,?> project) {
         return BuildWrappers.getFor(project);
     }
 
-    public static List<Descriptor<SecurityRealm>> getSecurityRealmDescriptors() {
+    public static List<DescriptorExt<SecurityRealm>> getSecurityRealmDescriptors() {
         return SecurityRealm.all();
     }
 
-    public static List<Descriptor<AuthorizationStrategy>> getAuthorizationStrategyDescriptors() {
+    public static List<DescriptorExt<AuthorizationStrategy>> getAuthorizationStrategyDescriptors() {
         return AuthorizationStrategy.all();
     }
 
-    public static List<Descriptor<Builder>> getBuilderDescriptors(AbstractProjectExt<?,?> project) {
+    public static List<DescriptorExt<Builder>> getBuilderDescriptors(AbstractProjectExt<?,?> project) {
         return BuildStepDescriptor.filter(Builder.all(), project.getClass());
     }
 
-    public static List<Descriptor<Publisher>> getPublisherDescriptors(AbstractProjectExt<?,?> project) {
+    public static List<DescriptorExt<Publisher>> getPublisherDescriptors(AbstractProjectExt<?,?> project) {
         return BuildStepDescriptor.filter(Publisher.all(), project.getClass());
     }
 
@@ -492,33 +492,33 @@ public class FunctionsExt {
         return SCM._for(project);
     }
 
-    public static List<Descriptor<ComputerLauncher>> getComputerLauncherDescriptors() {
-        return Hudson.getInstance().<ComputerLauncher,Descriptor<ComputerLauncher>>getDescriptorList(ComputerLauncher.class);
+    public static List<DescriptorExt<ComputerLauncher>> getComputerLauncherDescriptors() {
+        return HudsonExt.getInstance().<ComputerLauncher,DescriptorExt<ComputerLauncher>>getDescriptorList(ComputerLauncher.class);
     }
 
-    public static List<Descriptor<RetentionStrategy<?>>> getRetentionStrategyDescriptors() {
+    public static List<DescriptorExt<RetentionStrategy<?>>> getRetentionStrategyDescriptors() {
         return RetentionStrategy.all();
     }
 
-    public static List<ParameterDescriptor> getParameterDescriptors() {
-        return ParameterDefinition.all();
+    public static List<ParameterDescriptorExt> getParameterDescriptors() {
+        return ParameterDefinitionExt.all();
     }
 
-    public static List<Descriptor<ViewsTabBar>> getViewsTabBarDescriptors() {
+    public static List<DescriptorExt<ViewsTabBar>> getViewsTabBarDescriptors() {
         return ViewsTabBar.all();
     }
     
-    public static List<Descriptor<CaptchaSupport>> getCaptchaSupportDescriptors() {
+    public static List<DescriptorExt<CaptchaSupport>> getCaptchaSupportDescriptors() {
         return CaptchaSupport.all();
     }
 
-    public static List<Descriptor<MyViewsTabBar>> getMyViewsTabBarDescriptors() {
+    public static List<DescriptorExt<MyViewsTabBar>> getMyViewsTabBarDescriptors() {
         return MyViewsTabBar.all();
     }
 
     public static List<NodePropertyDescriptor> getNodePropertyDescriptors(Class<? extends Node> clazz) {
         List<NodePropertyDescriptor> result = new ArrayList<NodePropertyDescriptor>();
-        Collection<NodePropertyDescriptor> list = (Collection) Hudson.getInstance().getDescriptorList(NodeProperty.class);
+        Collection<NodePropertyDescriptor> list = (Collection) HudsonExt.getInstance().getDescriptorList(NodeProperty.class);
         for (NodePropertyDescriptor npd : list) {
             if (npd.isApplicable(clazz)) {
                 result.add(npd);
@@ -531,9 +531,9 @@ public class FunctionsExt {
      * Gets all the descriptors sorted by their inheritance tree of {@link Describable}
      * so that descriptors of similar types come nearby.
      */
-    public static Collection<Descriptor> getSortedDescriptorsForGlobalConfig() {
-        Map<String,Descriptor> r = new TreeMap<String, Descriptor>();
-        for (Descriptor<?> d : Hudson.getInstance().getExtensionList(Descriptor.class)) {
+    public static Collection<hudson.model.Descriptor> getSortedDescriptorsForGlobalConfig() {
+        Map<String,DescriptorExt> r = new TreeMap<String, DescriptorExt>();
+        for (DescriptorExt<?> d : HudsonExt.getInstance().getExtensionList(DescriptorExt.class)) {
             if (d.getGlobalConfigPage()==null)  continue;
             r.put(buildSuperclassHierarchy(d.clazz, new StringBuilder()).toString(),d);
         }
@@ -750,14 +750,14 @@ public class FunctionsExt {
     }
 
     public static String getVersion() {
-        return Hudson.VERSION;
+        return HudsonExt.VERSION;
     }
 
     /**
      * Resoruce path prefix.
      */
     public static String getResourcePath() {
-        return Hudson.RESOURCE_PATH;
+        return HudsonExt.RESOURCE_PATH;
     }
 
      
@@ -799,12 +799,12 @@ public class FunctionsExt {
     }
 
     /**
-     * Converts the Hudson build status to CruiseControl build status,
+     * Converts the HudsonExt build status to CruiseControl build status,
      * which is either Success, Failure, Exception, or Unknown.
      */
-    public static String toCCStatus(Item i) {
-        if (i instanceof Job) {
-            Job j = (Job) i;
+    public static String toCCStatus(ItemExt i) {
+        if (i instanceof JobExt) {
+            JobExt j = (JobExt) i;
             switch (j.getIconColor().noAnime()) {
             case ABORTED:
             case RED:
@@ -826,7 +826,7 @@ public class FunctionsExt {
      * Checks if the current user is anonymous.
      */
     public static boolean isAnonymous() {
-        return Hudson.getAuthentication() instanceof AnonymousAuthenticationToken;
+        return HudsonExt.getAuthentication() instanceof AnonymousAuthenticationToken;
     }
 
     /**
@@ -895,8 +895,8 @@ public class FunctionsExt {
      */
     public String getCheckUrl(String userDefined, Object descriptor, String field) {
         if(userDefined!=null || field==null)   return userDefined;
-        if (descriptor instanceof Descriptor) {
-            Descriptor d = (Descriptor) descriptor;
+        if (descriptor instanceof DescriptorExt) {
+            DescriptorExt d = (DescriptorExt) descriptor;
             return d.getCheckUrl(field);
         }
         return null;
@@ -912,12 +912,12 @@ public class FunctionsExt {
      * Gets all the {@link PageDecorator}s.
      */
     public static List<PageDecorator> getPageDecorators() {
-        // this method may be called to render start up errors, at which point Hudson doesn't exist yet. see HUDSON-3608 
-        if(Hudson.getInstance()==null)  return Collections.emptyList();
+        // this method may be called to render start up errors, at which point HudsonExt doesn't exist yet. see HUDSON-3608 
+        if(HudsonExt.getInstance()==null)  return Collections.emptyList();
         return PageDecorator.all();
     }
     
-    public static List<Descriptor<Cloud>> getCloudDescriptors() {
+    public static List<DescriptorExt<Cloud>> getCloudDescriptors() {
         return Cloud.all();
     }
 
@@ -930,14 +930,14 @@ public class FunctionsExt {
         return body;
     }
 
-    public static List<Descriptor<CrumbIssuer>> getCrumbIssuerDescriptors() {
+    public static List<DescriptorExt<CrumbIssuer>> getCrumbIssuerDescriptors() {
         return CrumbIssuer.all();
     }
 
     
 
     public static String getCrumbRequestField() {
-        Hudson h = Hudson.getInstance();
+        HudsonExt h = HudsonExt.getInstance();
         CrumbIssuer issuer = h != null ? h.getCrumbIssuer() : null;
         return issuer != null ? issuer.getDescriptor().getCrumbRequestField() : "";
     }
@@ -993,10 +993,10 @@ public class FunctionsExt {
     }
 
     /**
-     * Returns {@code true} if the {@link Run#ARTIFACTS} permission is enabled,
+     * Returns {@code true} if the {@link RunExt#ARTIFACTS} permission is enabled,
      * {@code false} otherwise.
      *
-     * <p>When the {@link Run#ARTIFACTS} permission is not turned on using the
+     * <p>When the {@link RunExt#ARTIFACTS} permission is not turned on using the
      * {@code hudson.security.ArtifactsPermission}, this permission must not be
      * considered to be set to {@code false} for every user. It must rather be
      * like if the permission doesn't exist at all (which means that every user

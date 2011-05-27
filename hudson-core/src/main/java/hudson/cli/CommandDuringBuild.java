@@ -24,9 +24,9 @@
 
 package hudson.cli;
 
-import hudson.model.Hudson;
-import hudson.model.Job;
-import hudson.model.Run;
+import hudson.model.HudsonExt;
+import hudson.model.JobExt;
+import hudson.model.RunExt;
 import hudson.remoting.Callable;
 import org.kohsuke.args4j.CmdLineException;
 
@@ -39,10 +39,10 @@ import java.io.IOException;
  */
 public abstract class CommandDuringBuild extends CLICommand {
     /**
-     * This method makes sense only when called from within the build kicked by Hudson.
-     * We use the environment variables that Hudson sets to determine the build that is being run.
+     * This method makes sense only when called from within the build kicked by HudsonExt.
+     * We use the environment variables that HudsonExt sets to determine the build that is being run.
      */
-    protected Run getCurrentlyBuilding() throws CmdLineException {
+    protected RunExt getCurrentlyBuilding() throws CmdLineException {
         try {
             CLICommand c = CLICommand.getCurrent();
             if (c==null)    throw new IllegalStateException("Not executing a CLI command");
@@ -51,11 +51,11 @@ public abstract class CommandDuringBuild extends CLICommand {
             if (envs[0]==null || envs[1]==null)
                 throw new CmdLineException("This CLI command works only when invoked from inside a build");
 
-            Job j = Hudson.getInstance().getItemByFullName(envs[0],Job.class);
+            JobExt j = HudsonExt.getInstance().getItemByFullName(envs[0],JobExt.class);
             if (j==null)    throw new CmdLineException("No such job: "+envs[0]);
 
             try {
-                Run r = j.getBuildByNumber(Integer.parseInt(envs[1]));
+                RunExt r = j.getBuildByNumber(Integer.parseInt(envs[1]));
                 if (r==null)    throw new CmdLineException("No such build #"+envs[1]+" in "+envs[0]);
                 return r;
             } catch (NumberFormatException e) {

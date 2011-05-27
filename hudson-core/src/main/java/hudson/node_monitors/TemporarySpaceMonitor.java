@@ -28,7 +28,7 @@ import hudson.FilePathExt;
 import hudson.FilePathExt.FileCallable;
 import hudson.FunctionsExt;
 import hudson.model.ComputerExt;
-import hudson.model.Hudson;
+import hudson.model.HudsonExt;
 import hudson.node_monitors.DiskSpaceMonitorDescriptor.DiskSpace;
 import hudson.remoting.VirtualChannel;
 import org.jvnet.animal_sniffer.IgnoreJRERequirement;
@@ -58,7 +58,7 @@ public class TemporarySpaceMonitor extends AbstractDiskSpaceMonitor {
     @Override
     public String getColumnCaption() {
         // Hide this column from non-admins
-        return Hudson.getInstance().hasPermission(Hudson.ADMINISTER) ? super.getColumnCaption() : null;
+        return HudsonExt.getInstance().hasPermission(HudsonExt.ADMINISTER) ? super.getColumnCaption() : null;
     }
 
     public static final DiskSpaceMonitorDescriptor DESCRIPTOR = new DiskSpaceMonitorDescriptor() {

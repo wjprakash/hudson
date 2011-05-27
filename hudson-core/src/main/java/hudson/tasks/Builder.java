@@ -29,8 +29,8 @@ import hudson.DescriptorExtensionListExt;
 import hudson.model.Build;
 import hudson.model.BuildListener;
 import hudson.model.Describable;
-import hudson.model.Descriptor;
-import hudson.model.Hudson;
+import hudson.model.DescriptorExt;
+import hudson.model.HudsonExt;
 
 
 /**
@@ -46,7 +46,7 @@ public abstract class Builder extends BuildStepCompatibilityLayer implements Bui
     
 
 //
-// these two methods need to remain to keep binary compatibility with plugins built with Hudson < 1.150
+// these two methods need to remain to keep binary compatibility with plugins built with HudsonExt < 1.150
 //
     /**
      * Default implementation that does nothing.
@@ -63,15 +63,15 @@ public abstract class Builder extends BuildStepCompatibilityLayer implements Bui
         return BuildStepMonitor.NONE;
     }
 
-    public Descriptor<Builder> getDescriptor() {
-        return Hudson.getInstance().getDescriptorOrDie(getClass());
+    public DescriptorExt<Builder> getDescriptor() {
+        return HudsonExt.getInstance().getDescriptorOrDie(getClass());
     }
 
     /**
      * Returns all the registered {@link Builder} descriptors.
      */
     // for backward compatibility, the signature is not BuildStepDescriptor
-    public static DescriptorExtensionListExt<Builder,Descriptor<Builder>> all() {
-        return Hudson.getInstance().<Builder,Descriptor<Builder>>getDescriptorList(Builder.class);
+    public static DescriptorExtensionListExt<Builder,DescriptorExt<Builder>> all() {
+        return HudsonExt.getInstance().<Builder,DescriptorExt<Builder>>getDescriptorList(Builder.class);
     }
 }

@@ -28,7 +28,7 @@ import hudson.ExtensionPoint;
 import hudson.matrix.MatrixConfiguration;
 
 /**
- * {@link Item} that can be directly displayed under {@link Hudson} or other containers.
+ * {@link ItemExt} that can be directly displayed under {@link Hudson} or other containers.
  * Ones that don't need to be under specific parent (say, unlike {@link MatrixConfiguration}),
  * and thus can be freely moved, copied, etc.
  *
@@ -38,7 +38,7 @@ import hudson.matrix.MatrixConfiguration;
  *
  * @author Kohsuke Kawaguchi
  */
-public interface TopLevelItem extends Item, ExtensionPoint, Describable<TopLevelItem> {
+public interface TopLevelItem extends ItemExt, ExtensionPoint, Describable<TopLevelItem> {
     /**
      *
      * @see Describable#getDescriptor()

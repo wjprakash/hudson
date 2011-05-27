@@ -27,12 +27,12 @@ import hudson.model.AbstractBuildExt;
 import hudson.model.AbstractProjectExt;
 import hudson.model.CauseExt;
 import hudson.model.ParametersAction;
-import hudson.model.ParameterValue;
+import hudson.model.ParameterValueExt;
 import hudson.model.ParametersDefinitionProperty;
-import hudson.model.ParameterDefinition;
+import hudson.model.ParameterDefinitionExt;
 import hudson.Extension;
 import hudson.AbortException;
-import hudson.model.Item;
+import hudson.model.ItemExt;
 import hudson.util.EditDistance;
 import org.kohsuke.args4j.Argument;
 import org.kohsuke.args4j.Option;
@@ -67,7 +67,7 @@ public class BuildCommand extends CLICommand {
     public Map<String,String> parameters = new HashMap<String, String>();
 
     protected int run() throws Exception {
-        job.checkPermission(Item.BUILD);
+        job.checkPermission(ItemExt.BUILD);
 
         ParametersAction a = null;
         if (!parameters.isEmpty()) {
@@ -75,11 +75,11 @@ public class BuildCommand extends CLICommand {
             if (pdp==null)
                 throw new AbortException(job.getFullDisplayName()+" is not parameterized but the -p option was specified");
 
-            List<ParameterValue> values = new ArrayList<ParameterValue>(); 
+            List<ParameterValueExt> values = new ArrayList<ParameterValueExt>(); 
 
             for (Entry<String, String> e : parameters.entrySet()) {
                 String name = e.getKey();
-                ParameterDefinition pd = pdp.getParameterDefinition(name);
+                ParameterDefinitionExt pd = pdp.getParameterDefinition(name);
                 if (pd==null)
                     throw new AbortException(String.format("\'%s\' is not a valid parameter. Did you mean %s?",
                             name, EditDistance.findNearest(name, pdp.getParameterDefinitionNames())));

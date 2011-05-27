@@ -45,11 +45,11 @@ public class BuildTimelineWidgetExt {
         this.builds = builds;
     }
 
-    public Run<?, ?> getFirstBuild() {
+    public RunExt<?, ?> getFirstBuild() {
         return builds.getFirstBuild();
     }
 
-    public Run<?, ?> getLastBuild() {
+    public RunExt<?, ?> getLastBuild() {
         return builds.getLastBuild();
     }
 

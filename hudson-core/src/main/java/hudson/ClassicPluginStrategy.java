@@ -24,7 +24,7 @@
 package hudson;
 
 import hudson.PluginWrapperExt.Dependency;
-import hudson.model.Hudson;
+import hudson.model.HudsonExt;
 import hudson.util.IOException2;
 import hudson.util.MaskingClassLoader;
 import hudson.util.VersionNumber;
@@ -200,7 +200,7 @@ public class ClassicPluginStrategy implements PluginStrategy {
             classLoader.addPathFiles(paths);
             return classLoader;
         } else {
-            // Tom reported that AntClassLoader has a performance issue when Hudson keeps trying to load a class that doesn't exist,
+            // Tom reported that AntClassLoader has a performance issue when HudsonExt keeps trying to load a class that doesn't exist,
             // so providing a legacy URLClassLoader support, too
             List<URL> urls = new ArrayList<URL>();
             for (File path : paths)
@@ -228,7 +228,7 @@ public class ClassicPluginStrategy implements PluginStrategy {
             String yourName = atts.getValue("Short-Name");
             if (shortName.equals(yourName))   return;
 
-            // some earlier versions of maven-hpi-plugin apparently puts "null" as a literal in Hudson-Version. watch out for them.
+            // some earlier versions of maven-hpi-plugin apparently puts "null" as a literal in HudsonExt-Version. watch out for them.
             String hudsonVersion = atts.getValue("Hudson-Version");
             if (hudsonVersion == null || hudsonVersion.equals("null") || new VersionNumber(hudsonVersion).compareTo(splitWhen) <= 0)
                 optionalDependencies.add(new PluginWrapperExt.Dependency(shortName+':'+requireVersion));
@@ -258,7 +258,7 @@ public class ClassicPluginStrategy implements PluginStrategy {
     public void initializeComponents(PluginWrapperExt plugin) {
     }
 
-    public <T> List<ExtensionComponent<T>> findComponents(Class<T> type, Hudson hudson) {
+    public <T> List<ExtensionComponent<T>> findComponents(Class<T> type, HudsonExt hudson) {
 
         List<ExtensionFinder> finders;
         if (type==ExtensionFinder.class) {
@@ -269,7 +269,7 @@ public class ClassicPluginStrategy implements PluginStrategy {
         }
 
         /**
-         * See {@link ExtensionFinder#scout(Class, Hudson)} for the dead lock issue and what this does.
+         * See {@link ExtensionFinder#scout(Class, HudsonExt)} for the dead lock issue and what this does.
          */
         if (LOGGER.isLoggable(Level.FINER))
             LOGGER.log(Level.FINER,"Scout-loading ExtensionList: "+type, new Throwable());

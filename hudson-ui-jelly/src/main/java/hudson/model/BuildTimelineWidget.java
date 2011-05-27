@@ -59,7 +59,7 @@ public class BuildTimelineWidget extends BuildTimelineWidgetExt{
 
     public TimelineEventList doData(StaplerRequest req, @QueryParameter long min, @QueryParameter long max) throws IOException {
         TimelineEventList result = new TimelineEventList();
-        for (Run r : builds.byTimestamp(min, max)) {
+        for (RunExt r : builds.byTimestamp(min, max)) {
             Event e = new Event();
             e.start = r.getTime();
             e.end = new Date(r.timestamp + r.getDuration());

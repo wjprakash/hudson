@@ -28,7 +28,7 @@ import hudson.ExtensionList;
 import hudson.ExtensionPoint;
 import hudson.Launcher;
 import hudson.model.AbstractBuildExt;
-import hudson.model.Hudson;
+import hudson.model.HudsonExt;
 import hudson.model.TaskListener;
 import hudson.tasks.Publisher;
 
@@ -41,7 +41,7 @@ import java.io.IOException;
  * This extension point encapsulates the knowledge of a particular test report format and its parsing process,
  * thereby improving the pluggability of test result parsing; integration with a new test tool can be done
  * by just writing a parser, without writing a custom {@link Publisher}, and the test reports are displayed
- * with the default UI and recognized by the rest of Hudson as test reports.
+ * with the default UI and recognized by the rest of HudsonExt as test reports.
  *
  * <p>
  * Most typical implementations of this class should extend from {@link DefaultTestResultParserImpl},
@@ -74,7 +74,7 @@ public abstract class TestResultParser implements ExtensionPoint {
      * All registered {@link TestResultParser}s
      */
     public static ExtensionList<TestResultParser> all() {
-        return Hudson.getInstance().getExtensionList(TestResultParser.class);
+        return HudsonExt.getInstance().getExtensionList(TestResultParser.class);
     }
 
     /**
@@ -110,9 +110,9 @@ public abstract class TestResultParser implements ExtensionPoint {
      *      it, and instead just forward that through the call stack.
      * @throws IOException
      *      If you don't care about handling exceptions gracefully, you can just throw IOException
-     *      and let the default exception handling in Hudson takes care of it.
+     *      and let the default exception handling in HudsonExt takes care of it.
      * @throws AbortException
-     *      If you encounter an error that you handled gracefully, throw this exception and Hudson
+     *      If you encounter an error that you handled gracefully, throw this exception and HudsonExt
      *      will not show a stack trace.
      */
     public abstract TestResult parse(String testResultLocations,

@@ -25,17 +25,17 @@
 package hudson.tools;
 
 import hudson.DescriptorExtensionListExt;
-import hudson.model.Descriptor;
-import hudson.model.Hudson;
+import hudson.model.DescriptorExt;
+import hudson.model.HudsonExt;
 
 import java.util.List;
 import java.util.ArrayList;
 
 /**
- * Descriptor for a {@link ToolInstaller}.
+ * DescriptorExt for a {@link ToolInstaller}.
  * @since 1.305
  */
-public abstract class ToolInstallerDescriptor<T extends ToolInstaller> extends Descriptor<ToolInstaller> {
+public abstract class ToolInstallerDescriptor<T extends ToolInstaller> extends DescriptorExt<ToolInstaller> {
 
     /**
      * Controls what kind of {@link ToolInstallation} this installer can be applied to.
@@ -48,7 +48,7 @@ public abstract class ToolInstallerDescriptor<T extends ToolInstaller> extends D
     }
 
     public static DescriptorExtensionListExt<ToolInstaller,ToolInstallerDescriptor<?>> all() {
-        return Hudson.getInstance().<ToolInstaller,ToolInstallerDescriptor<?>>getDescriptorList(ToolInstaller.class);
+        return HudsonExt.getInstance().<ToolInstaller,ToolInstallerDescriptor<?>>getDescriptorList(ToolInstaller.class);
     }
 
     /**

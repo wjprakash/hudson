@@ -24,18 +24,18 @@
 package hudson.matrix;
 
 import hudson.Util;
-import hudson.model.Descriptor;
-import hudson.model.Failure;
-import hudson.model.Hudson;
+import hudson.model.DescriptorExt;
+import hudson.model.FailureExt;
+import hudson.model.HudsonExt;
 import hudson.util.FormValidation;
 import org.kohsuke.stapler.QueryParameter;
 
 /**
- * {@link Descriptor} for {@link AxisExt}
+ * {@link DescriptorExt} for {@link AxisExt}
  *
  * @author Kohsuke Kawaguchi
  */
-public abstract class AxisDescriptor extends Descriptor<AxisExt> {
+public abstract class AxisDescriptor extends DescriptorExt<AxisExt> {
     protected AxisDescriptor(Class<? extends AxisExt> clazz) {
         super(clazz);
     }
@@ -58,9 +58,9 @@ public abstract class AxisDescriptor extends Descriptor<AxisExt> {
             return FormValidation.ok();
 
         try {
-            Hudson.checkGoodName(value);
+            HudsonExt.checkGoodName(value);
             return FormValidation.ok();
-        } catch (Failure e) {
+        } catch (FailureExt e) {
             return FormValidation.error(e.getMessage());
         }
     }

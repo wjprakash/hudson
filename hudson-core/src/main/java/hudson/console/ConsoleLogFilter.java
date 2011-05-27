@@ -27,7 +27,7 @@ package hudson.console;
 import hudson.ExtensionList;
 import hudson.ExtensionPoint;
 import hudson.model.AbstractBuildExt;
-import hudson.model.Hudson;
+import hudson.model.HudsonExt;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -52,6 +52,6 @@ public abstract class ConsoleLogFilter implements ExtensionPoint {
      * All the registered {@link ConsoleLogFilter}s.
      */
     public static ExtensionList<ConsoleLogFilter> all() {
-        return Hudson.getInstance().getExtensionList(ConsoleLogFilter.class);
+        return HudsonExt.getInstance().getExtensionList(ConsoleLogFilter.class);
     }
 }

@@ -36,7 +36,7 @@ import hudson.model.AbstractProjectExt;
 import hudson.model.Action;
 import hudson.model.BuildListener;
 import hudson.model.CheckPoint;
-import hudson.model.Descriptor;
+import hudson.model.DescriptorExt;
 import hudson.model.Result;
 import hudson.model.Saveable;
 import hudson.tasks.BuildStepDescriptor;
@@ -87,7 +87,7 @@ public class JUnitResultArchiver extends Recorder implements Serializable,
      * For compatibility reasons, can be null.
      * @since 1.320
      */
-    private final DescribableList<TestDataPublisher, Descriptor<TestDataPublisher>> testDataPublishers;
+    private final DescribableList<TestDataPublisher, DescriptorExt<TestDataPublisher>> testDataPublishers;
 
 	/**
 	 * left for backwards compatibility
@@ -100,7 +100,7 @@ public class JUnitResultArchiver extends Recorder implements Serializable,
 
     @Deprecated
     public JUnitResultArchiver(String testResults,
-            DescribableList<TestDataPublisher, Descriptor<TestDataPublisher>> testDataPublishers) {
+            DescribableList<TestDataPublisher, DescriptorExt<TestDataPublisher>> testDataPublishers) {
         this(testResults, false, testDataPublishers);
     }
 	
@@ -108,7 +108,7 @@ public class JUnitResultArchiver extends Recorder implements Serializable,
 	public JUnitResultArchiver(
 			String testResults,
             boolean keepLongStdio,
-			DescribableList<TestDataPublisher, Descriptor<TestDataPublisher>> testDataPublishers) {
+			DescribableList<TestDataPublisher, DescriptorExt<TestDataPublisher>> testDataPublishers) {
 		this.testResults = testResults;
         this.keepLongStdio = keepLongStdio;
 		this.testDataPublishers = testDataPublishers;
@@ -203,7 +203,7 @@ public class JUnitResultArchiver extends Recorder implements Serializable,
 		return testResults;
 	}
 
-	public DescribableList<TestDataPublisher, Descriptor<TestDataPublisher>> getTestDataPublishers() {
+	public DescribableList<TestDataPublisher, DescriptorExt<TestDataPublisher>> getTestDataPublishers() {
 		return testDataPublishers;
 	}
 
@@ -245,10 +245,10 @@ public class JUnitResultArchiver extends Recorder implements Serializable,
 
 		@Override
 		public Publisher newInstance(StaplerRequest req, JSONObject formData)
-				throws hudson.model.Descriptor.FormException {
+				throws hudson.model.DescriptorExt.FormException {
 			String testResults = formData.getString("testResults");
             boolean keepLongStdio = formData.getBoolean("keepLongStdio");
-			DescribableList<TestDataPublisher, Descriptor<TestDataPublisher>> testDataPublishers = new DescribableList<TestDataPublisher, Descriptor<TestDataPublisher>>(Saveable.NOOP);
+			DescribableList<TestDataPublisher, DescriptorExt<TestDataPublisher>> testDataPublishers = new DescribableList<TestDataPublisher, DescriptorExt<TestDataPublisher>>(Saveable.NOOP);
             try {
                 testDataPublishers.rebuild(req, formData, TestDataPublisher.all());
             } catch (IOException e) {

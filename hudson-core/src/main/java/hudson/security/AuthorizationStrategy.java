@@ -23,6 +23,7 @@
  */
 package hudson.security;
 
+import hudson.model.View;
 import hudson.DescriptorExtensionListExt;
 import hudson.Extension;
 import hudson.ExtensionPoint;
@@ -40,12 +41,12 @@ import org.acegisecurity.Authentication;
 import org.kohsuke.stapler.StaplerRequest;
 
 /**
- * Controls authorization throughout Hudson.
+ * Controls authorization throughout HudsonExt.
  *
  * <h2>Persistence</h2>
  * <p>
- * This object will be persisted along with {@link Hudson} object.
- * Hudson by itself won't put the ACL returned from {@link #getRootACL()} into the serialized object graph,
+ * This object will be persisted along with {@link HudsonExt} object.
+ * HudsonExt by itself won't put the ACL returned from {@link #getRootACL()} into the serialized object graph,
  * so if that object contains state and needs to be persisted, it's the responsibility of
  * {@link AuthorizationStrategy} to do so (by keeping them in an instance field.)
  *
@@ -53,7 +54,7 @@ import org.kohsuke.stapler.StaplerRequest;
  * <p>
  * The corresponding {@link Describable} instance will be asked to create a new {@link AuthorizationStrategy}
  * every time the system configuration is updated. Implementations that keep more state in ACL beyond
- * the system configuration should use {@link Hudson#getAuthorizationStrategy()} to talk to the current
+ * the system configuration should use {@link HudsonExt#getAuthorizationStrategy()} to talk to the current
  * instance to carry over the state. 
  *
  * @author Kohsuke Kawaguchi
@@ -70,14 +71,14 @@ public abstract class AuthorizationStrategy extends AbstractDescribableImpl<Auth
 
     /**
      * @deprecated since 1.277
-     *      Override {@link #getACL(Job)} instead.
+     *      Override {@link #getACL(JobExt)} instead.
      */
     @Deprecated
     public ACL getACL(AbstractProjectExt<?,?> project) {
-    	return getACL((Job)project);
+    	return getACL((JobExt)project);
     }
 
-    public ACL getACL(Job<?,?> project) {
+    public ACL getACL(JobExt<?,?> project) {
     	return getRootACL();
     }
 
@@ -169,8 +170,8 @@ public abstract class AuthorizationStrategy extends AbstractDescribableImpl<Auth
     /**
      * Returns all the registered {@link AuthorizationStrategy} descriptors.
      */
-    public static DescriptorExtensionListExt<AuthorizationStrategy,Descriptor<AuthorizationStrategy>> all() {
-        return Hudson.getInstance().<AuthorizationStrategy,Descriptor<AuthorizationStrategy>>getDescriptorList(AuthorizationStrategy.class);
+    public static DescriptorExtensionListExt<AuthorizationStrategy,DescriptorExt<AuthorizationStrategy>> all() {
+        return HudsonExt.getInstance().<AuthorizationStrategy,DescriptorExt<AuthorizationStrategy>>getDescriptorList(AuthorizationStrategy.class);
     }
 
     /**
@@ -183,7 +184,7 @@ public abstract class AuthorizationStrategy extends AbstractDescribableImpl<Auth
     
     /**
      * {@link AuthorizationStrategy} that implements the semantics
-     * of unsecured Hudson where everyone has full control.
+     * of unsecured HudsonExt where everyone has full control.
      *
      * <p>
      * This singleton is safe because {@link Unsecured} is stateless.
@@ -214,7 +215,7 @@ public abstract class AuthorizationStrategy extends AbstractDescribableImpl<Auth
         };
 
         @Extension
-        public static final class DescriptorImpl extends Descriptor<AuthorizationStrategy> {
+        public static final class DescriptorImpl extends DescriptorExt<AuthorizationStrategy> {
             public String getDisplayName() {
                 return Messages.AuthorizationStrategy_DisplayName();
             }

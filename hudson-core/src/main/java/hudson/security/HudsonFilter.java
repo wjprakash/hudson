@@ -23,7 +23,7 @@
  */
 package hudson.security;
 
-import hudson.model.Hudson;
+import hudson.model.HudsonExt;
 
 import java.io.IOException;
 import java.util.logging.Logger;
@@ -42,7 +42,7 @@ import org.acegisecurity.ui.rememberme.RememberMeServices;
 import org.acegisecurity.userdetails.UserDetailsService;
 
 /**
- * {@link Filter} that Hudson uses to implement security support.
+ * {@link Filter} that HudsonExt uses to implement security support.
  *
  * <p>
  * This is the instance the servlet container creates, but
@@ -59,7 +59,7 @@ public class HudsonFilter implements Filter {
     private volatile Filter filter;
     
     /**
-     * The {@link #init(FilterConfig)} may be called before the Hudson instance is up (which is
+     * The {@link #init(FilterConfig)} may be called before the HudsonExt instance is up (which is
      * required for initialization of the filter).  So we store the
      * filterConfig for later lazy-initialization of the filter.
      */
@@ -70,7 +70,7 @@ public class HudsonFilter implements Filter {
      * even when security setting is reconfigured.
      *
      * @deprecated in 1.271.
-     * This proxy always delegate to {@code Hudson.getInstance().getSecurityRealm().getSecurityComponents().manager},
+     * This proxy always delegate to {@code HudsonExt.getInstance().getSecurityRealm().getSecurityComponents().manager},
      * so use that instead.
      */
     public static final AuthenticationManagerProxy AUTHENTICATION_MANAGER = new AuthenticationManagerProxy();
@@ -80,7 +80,7 @@ public class HudsonFilter implements Filter {
      * even when security setting is reconfigured.
      *
      * @deprecated in 1.271.
-     * This proxy always delegate to {@code Hudson.getInstance().getSecurityRealm().getSecurityComponents().userDetails},
+     * This proxy always delegate to {@code HudsonExt.getInstance().getSecurityRealm().getSecurityComponents().userDetails},
      * so use that instead.
      */
     public static final UserDetailsServiceProxy USER_DETAILS_SERVICE_PROXY = new UserDetailsServiceProxy();
@@ -90,19 +90,19 @@ public class HudsonFilter implements Filter {
      * even when security setting is reconfigured.
      *
      * @deprecated in 1.271.
-     * This proxy always delegate to {@code Hudson.getInstance().getSecurityRealm().getSecurityComponents().rememberMe},
+     * This proxy always delegate to {@code HudsonExt.getInstance().getSecurityRealm().getSecurityComponents().rememberMe},
      * so use that instead.
      */
     public static final RememberMeServicesProxy REMEMBER_ME_SERVICES_PROXY = new RememberMeServicesProxy();
 
     public void init(FilterConfig filterConfig) throws ServletException {
         this.filterConfig = filterConfig;
-        // this is how we make us available to the rest of Hudson.
+        // this is how we make us available to the rest of HudsonExt.
         filterConfig.getServletContext().setAttribute(HudsonFilter.class.getName(),this);
         try {
-            Hudson hudson = Hudson.getInstance();
+            HudsonExt hudson = HudsonExt.getInstance();
             if (hudson != null) {
-                // looks like we are initialized after Hudson came into being. initialize it now. See #3069
+                // looks like we are initialized after HudsonExt came into being. initialize it now. See #3069
                 LOGGER.fine("Security wasn't initialized; Initializing it...");
                 SecurityRealm securityRealm = hudson.getSecurityRealm();
                 reset(securityRealm);
@@ -158,7 +158,7 @@ public class HudsonFilter implements Filter {
         Filter f = filter;
 
         if(f==null) {
-            // Hudson is starting up.
+            // HudsonExt is starting up.
             chain.doFilter(request,response);
         } else {
             f.doFilter(request,response,chain);

@@ -25,7 +25,7 @@ package hudson.logging;
 
 import hudson.FeedAdapter;
 import hudson.FunctionsExt;
-import hudson.model.Hudson;
+import hudson.model.HudsonExt;
 import hudson.model.RSS;
 import hudson.tasks.Mailer;
 import java.io.IOException;
@@ -53,7 +53,7 @@ public class LogRecorderManager extends LogRecorderManagerExt{
      * Creates a new log recorder.
      */
     public HttpResponse doNewLogRecorder(@QueryParameter String name) {
-        Hudson.checkGoodName(name);
+        HudsonExt.checkGoodName(name);
         
         logRecorders.put(name,new LogRecorderExt(name));
 
@@ -65,7 +65,7 @@ public class LogRecorderManager extends LogRecorderManagerExt{
      * Configure the logging level.
      */
     public HttpResponse doConfigLogger(@QueryParameter String name, @QueryParameter String level) {
-        Hudson.getInstance().checkPermission(Hudson.ADMINISTER);
+        HudsonExt.getInstance().checkPermission(HudsonExt.ADMINISTER);
         Level lv;
         if(level.equals("inherit"))
             lv = null;
@@ -79,7 +79,7 @@ public class LogRecorderManager extends LogRecorderManagerExt{
      * RSS feed for log entries.
      */
     public void doRss( StaplerRequest req, StaplerResponse rsp ) throws IOException, ServletException {
-        doRss(req, rsp, Hudson.logRecords);
+        doRss(req, rsp, HudsonExt.logRecords);
     }
 
     /**

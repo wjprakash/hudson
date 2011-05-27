@@ -32,7 +32,7 @@ import hudson.model.AbstractBuildExt;
 import hudson.model.BuildListener;
 import hudson.model.Describable;
 import hudson.model.Environment;
-import hudson.model.Hudson;
+import hudson.model.HudsonExt;
 import hudson.model.Node;
 import hudson.model.Queue.Task;
 
@@ -70,7 +70,7 @@ public abstract class NodeProperty<N extends Node> implements Describable<NodePr
     protected void setNode(N node) { this.node = node; }
 
     public NodePropertyDescriptor getDescriptor() {
-        return (NodePropertyDescriptor)Hudson.getInstance().getDescriptorOrDie(getClass());
+        return (NodePropertyDescriptor)HudsonExt.getInstance().getDescriptorOrDie(getClass());
     }
 
     /**
@@ -102,7 +102,7 @@ public abstract class NodeProperty<N extends Node> implements Describable<NodePr
      *      non-null if the build can continue, null if there was an error
      *      and the build needs to be aborted.
      * @throws IOException
-     *      terminates the build abnormally. Hudson will handle the exception
+     *      terminates the build abnormally. HudsonExt will handle the exception
      *      and reports a nice error message.
      */
     public Environment setUp( AbstractBuildExt build, Launcher launcher, BuildListener listener ) throws IOException, InterruptedException {
@@ -113,7 +113,7 @@ public abstract class NodeProperty<N extends Node> implements Describable<NodePr
      * Lists up all the registered {@link NodeDescriptor}s in the system.
      */
     public static DescriptorExtensionListExt<NodeProperty<?>,NodePropertyDescriptor> all() {
-        return (DescriptorExtensionListExt)Hudson.getInstance().getDescriptorList(NodeProperty.class);
+        return (DescriptorExtensionListExt)HudsonExt.getInstance().getDescriptorList(NodeProperty.class);
     }
 
     /**

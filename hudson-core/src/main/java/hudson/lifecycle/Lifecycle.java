@@ -26,7 +26,7 @@ package hudson.lifecycle;
 import hudson.ExtensionPoint;
 import hudson.FunctionsExt;
 import hudson.Util;
-import hudson.model.Hudson;
+import hudson.model.HudsonExt;
 
 import java.io.File;
 import java.io.IOException;
@@ -35,10 +35,10 @@ import java.util.logging.Logger;
 import org.apache.commons.io.FileUtils;
 
 /**
- * Provides the capability for starting/stopping/restarting/uninstalling Hudson.
+ * Provides the capability for starting/stopping/restarting/uninstalling HudsonExt.
  *
  * <p>
- * The steps to perform these operations depend on how Hudson is launched,
+ * The steps to perform these operations depend on how HudsonExt is launched,
  * so the concrete instance of this method (which is VM-wide singleton) is discovered
  * by looking up a FQCN from the system property "hudson.lifecycle".
  *
@@ -59,7 +59,7 @@ public abstract class Lifecycle implements ExtensionPoint {
             String p = System.getProperty("hudson.lifecycle");
             if(p!=null) {
                 try {
-                    ClassLoader cl = Hudson.getInstance().getPluginManager().uberClassLoader;
+                    ClassLoader cl = HudsonExt.getInstance().getPluginManager().uberClassLoader;
                     instance = (Lifecycle)cl.loadClass(p).newInstance();
                 } catch (InstantiationException e) {
                     InstantiationError x = new InstantiationError(e.getMessage());
@@ -102,7 +102,7 @@ public abstract class Lifecycle implements ExtensionPoint {
      * return it location. Otherwise return null to indicate that it is unknown.
      *
      * <p>
-     * When a non-null value is returned, Hudson will offer an upgrade UI
+     * When a non-null value is returned, HudsonExt will offer an upgrade UI
      * to a newer version.
      */
     public File getHudsonWar() {
@@ -149,7 +149,7 @@ public abstract class Lifecycle implements ExtensionPoint {
     }
 
     /**
-     * If this life cycle supports a restart of Hudson, do so.
+     * If this life cycle supports a restart of HudsonExt, do so.
      * Otherwise, throw {@link UnsupportedOperationException},
      * which is what the default implementation does.
      *
@@ -166,7 +166,7 @@ public abstract class Lifecycle implements ExtensionPoint {
     }
 
     /**
-     * Can the {@link #restart()} method restart Hudson?
+     * Can the {@link #restart()} method restart HudsonExt?
      *
      * @throws RestartNotSupportedException
      *      If the restart is not supported, throw this exception and explain the cause.

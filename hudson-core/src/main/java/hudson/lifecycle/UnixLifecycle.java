@@ -23,14 +23,14 @@
  */
 package hudson.lifecycle;
 
-import hudson.model.Hudson;
+import hudson.model.HudsonExt;
 import hudson.util.jna.NativeAccessException;
 import hudson.util.jna.NativeFunction;
 import hudson.util.jna.NativeUtils;
 import java.io.IOException;
 
 /**
- * {@link Lifecycle} implementation when Hudson runs on the embedded
+ * {@link Lifecycle} implementation when HudsonExt runs on the embedded
  * servlet container on Unix.
  *
  * <p>
@@ -45,7 +45,7 @@ public class UnixLifecycle extends Lifecycle {
 
     @Override
     public void restart() throws IOException, InterruptedException {
-        Hudson h = Hudson.getInstance();
+        HudsonExt h = HudsonExt.getInstance();
         if (h != null) {
             h.cleanUp();
         }
@@ -63,7 +63,7 @@ public class UnixLifecycle extends Lifecycle {
         // http://factor-language.blogspot.com/2007/07/execve-returning-enotsup-on-mac-os-x.html
         // on Mac, execv fails with ENOTSUP if the caller is multi-threaded, resulting in an error like
         // the one described in http://www.nabble.com/Restarting-hudson-not-working-on-MacOS--to24641779.html
-        if (Hudson.isDarwin()) {
+        if (HudsonExt.isDarwin()) {
             throw new RestartNotSupportedException("Restart is not supported on Mac OS X");
         } else {
             try {

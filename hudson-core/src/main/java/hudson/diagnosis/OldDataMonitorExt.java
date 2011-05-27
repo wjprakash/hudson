@@ -25,11 +25,11 @@ package hudson.diagnosis;
 
 import hudson.XmlFile;
 import hudson.model.AdministrativeMonitorExt;
-import hudson.model.Hudson;
+import hudson.model.HudsonExt;
 import hudson.Extension;
-import hudson.model.Item;
-import hudson.model.Job;
-import hudson.model.Run;
+import hudson.model.ItemExt;
+import hudson.model.JobExt;
+import hudson.model.RunExt;
 import hudson.model.Saveable;
 import hudson.model.listeners.ItemListener;
 import hudson.model.listeners.RunListener;
@@ -80,17 +80,17 @@ public class OldDataMonitorExt extends AdministrativeMonitorExt {
     }
 
     private static void remove(Saveable obj, boolean isDelete) {
-        OldDataMonitorExt odm = (OldDataMonitorExt)Hudson.getInstance().getAdministrativeMonitor("OldData");
+        OldDataMonitorExt odm = (OldDataMonitorExt)HudsonExt.getInstance().getAdministrativeMonitor("OldData");
         synchronized (odm) {
             if (odm.updating) return; // Skip during doUpgrade or doDiscard
             odm.data.remove(obj);
-            if (isDelete && obj instanceof Job<?,?>)
-                for (Run r : ((Job<?,?>)obj).getBuilds())
+            if (isDelete && obj instanceof JobExt<?,?>)
+                for (RunExt r : ((JobExt<?,?>)obj).getBuilds())
                     odm.data.remove(r);
         }
     }
 
-    // Listeners to remove data here if resaved or deleted in regular Hudson usage
+    // Listeners to remove data here if resaved or deleted in regular HudsonExt usage
 
     @Extension
     public static final SaveableListener changeListener = new SaveableListener() {
@@ -103,15 +103,15 @@ public class OldDataMonitorExt extends AdministrativeMonitorExt {
     @Extension
     public static final ItemListener itemDeleteListener = new ItemListener() {
         @Override
-        public void onDeleted(Item item) {
+        public void onDeleted(ItemExt item) {
             remove(item, true);
         }
     };
 
     @Extension
-    public static final RunListener<Run> runDeleteListener = new RunListener<Run>() {
+    public static final RunListener<RunExt> runDeleteListener = new RunListener<RunExt>() {
         @Override
-        public void onDeleted(Run run) {
+        public void onDeleted(RunExt run) {
             remove(run, true);
         }
     };
@@ -121,10 +121,10 @@ public class OldDataMonitorExt extends AdministrativeMonitorExt {
      * and converted in-memory to a new structure.
      * @param obj Saveable object; calling save() on this object will persist
      *            the data in its new format to disk.
-     * @param version Hudson release when the data structure changed.
+     * @param version HudsonExt release when the data structure changed.
      */
     public static void report(Saveable obj, String version) {
-        OldDataMonitorExt odm = (OldDataMonitorExt)Hudson.getInstance().getAdministrativeMonitor("OldData");
+        OldDataMonitorExt odm = (OldDataMonitorExt)HudsonExt.getInstance().getAdministrativeMonitor("OldData");
         synchronized (odm) {
             try {
                 VersionRange vr = odm.data.get(obj);
@@ -140,7 +140,7 @@ public class OldDataMonitorExt extends AdministrativeMonitorExt {
      * Inform monitor that some data in a deprecated format has been loaded, during
      * XStream unmarshalling when the Saveable containing this object is not available.
      * @param context XStream unmarshalling context
-     * @param version Hudson release when the data structure changed.
+     * @param version HudsonExt release when the data structure changed.
      */
     public static void report(UnmarshallingContext context, String version) {
         RobustReflectionConverter.addErrorInContext(context, new ReportException(version));
@@ -170,7 +170,7 @@ public class OldDataMonitorExt extends AdministrativeMonitorExt {
             }
         }
         if (buf.length() == 0) return;
-        OldDataMonitorExt odm = (OldDataMonitorExt)Hudson.getInstance().getAdministrativeMonitor("OldData");
+        OldDataMonitorExt odm = (OldDataMonitorExt)HudsonExt.getInstance().getAdministrativeMonitor("OldData");
         synchronized (odm) {
             VersionRange vr = odm.data.get(obj);
             if (vr != null) vr.extra = buf.toString();
@@ -179,7 +179,7 @@ public class OldDataMonitorExt extends AdministrativeMonitorExt {
     }
 
     public static class VersionRange {
-        private static VersionNumber currentVersion = Hudson.getVersion();
+        private static VersionNumber currentVersion = HudsonExt.getVersion();
 
         VersionNumber min, max;
         boolean single = true;

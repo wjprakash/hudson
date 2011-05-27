@@ -100,7 +100,7 @@ public abstract class AbstractBuild extends AbstractBuildExt{
      * as {@link #getExecutor()} returns null.
      */
     public synchronized void doStop(StaplerRequest req, StaplerResponse rsp) throws IOException, ServletException {
-        Executor e = getExecutor();
+        ExecutorExt e = getExecutor();
         if (e!=null)
             e.doStop(req,rsp);
         else

@@ -23,8 +23,8 @@
  */
 package hudson.slaves;
 
-import hudson.model.Descriptor.FormException;
-import hudson.model.Hudson;
+import hudson.model.DescriptorExt.FormException;
+import hudson.model.HudsonExt;
 import hudson.model.Slave;
 import hudson.model.TaskListener;
 import hudson.util.StreamTaskListener;
@@ -62,7 +62,7 @@ public abstract class AbstractCloudSlave extends Slave {
             _terminate(new StreamTaskListener(System.out, Charset.defaultCharset()));
         } finally {
             try {
-                Hudson.getInstance().removeNode(this);
+                HudsonExt.getInstance().removeNode(this);
             } catch (IOException e) {
                 LOGGER.log(Level.WARNING, "Failed to remove "+name,e);
             }

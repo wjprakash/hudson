@@ -29,10 +29,10 @@ import hudson.Extension;
 import hudson.DescriptorExtensionListExt;
 import hudson.ExtensionList;
 import hudson.scm.RepositoryBrowser;
-import hudson.model.Run;
+import hudson.model.RunExt;
 import hudson.model.TaskListener;
-import hudson.model.Descriptor;
-import hudson.model.Hudson;
+import hudson.model.DescriptorExt;
+import hudson.model.HudsonExt;
 import hudson.util.CopyOnWriteList;
 import org.jvnet.tiger_types.Types;
 
@@ -43,8 +43,8 @@ import java.lang.reflect.Type;
  * Receives notifications about builds.
  *
  * <p>
- * Listener is always Hudson-wide, so once registered it gets notifications for every build
- * that happens in this Hudson.
+ * Listener is always HudsonExt-wide, so once registered it gets notifications for every build
+ * that happens in this HudsonExt.
  *
  * <p>
  * This is an abstract class so that methods added in the future won't break existing listeners.
@@ -52,7 +52,7 @@ import java.lang.reflect.Type;
  * @author Kohsuke Kawaguchi
  * @since 1.145
  */
-public abstract class RunListener<R extends Run> implements ExtensionPoint {
+public abstract class RunListener<R extends RunExt> implements ExtensionPoint {
     public final Class<R> targetType;
 
     protected RunListener(Class<R> targetType) {
@@ -80,11 +80,11 @@ public abstract class RunListener<R extends Run> implements ExtensionPoint {
     public void onCompleted(R r, TaskListener listener) {}
 
     /**
-     * Called after a build is moved to the {@link Run.State#COMPLETED} state.
+     * Called after a build is moved to the {@link RunExt.State#COMPLETED} state.
      *
      * <p>
      * At this point, all the records related to a build is written down to the disk. As such,
-     * {@link TaskListener} is no longer available. This happens later than {@link #onCompleted(Run, TaskListener)}.
+     * {@link TaskListener} is no longer available. This happens later than {@link #onCompleted(RunExt, TaskListener)}.
      */
     public void onFinalized(R r) {}
 
@@ -135,7 +135,7 @@ public abstract class RunListener<R extends Run> implements ExtensionPoint {
     /**
      * Fires the {@link #onCompleted} event.
      */
-    public static void fireCompleted(Run r, TaskListener listener) {
+    public static void fireCompleted(RunExt r, TaskListener listener) {
         for (RunListener l : all()) {
             if(l.targetType.isInstance(r))
                 l.onCompleted(r,listener);
@@ -145,7 +145,7 @@ public abstract class RunListener<R extends Run> implements ExtensionPoint {
     /**
      * Fires the {@link #onStarted} event.
      */
-    public static void fireStarted(Run r, TaskListener listener) {
+    public static void fireStarted(RunExt r, TaskListener listener) {
         for (RunListener l : all()) {
             if(l.targetType.isInstance(r))
                 l.onStarted(r,listener);
@@ -153,9 +153,9 @@ public abstract class RunListener<R extends Run> implements ExtensionPoint {
     }
 
     /**
-     * Fires the {@link #onFinalized(Run)} event.
+     * Fires the {@link #onFinalized(RunExt)} event.
      */
-    public static void fireFinalized(Run r) {
+    public static void fireFinalized(RunExt r) {
         for (RunListener l : all()) {
             if(l.targetType.isInstance(r))
                 l.onFinalized(r);
@@ -163,9 +163,9 @@ public abstract class RunListener<R extends Run> implements ExtensionPoint {
     }
 
     /**
-     * Fires the {@link #onFinalized(Run)} event.
+     * Fires the {@link #onFinalized(RunExt)} event.
      */
-    public static void fireDeleted(Run r) {
+    public static void fireDeleted(RunExt r) {
         for (RunListener l : all()) {
             if(l.targetType.isInstance(r))
                 l.onDeleted(r);
@@ -176,6 +176,6 @@ public abstract class RunListener<R extends Run> implements ExtensionPoint {
      * Returns all the registered {@link RunListener} descriptors.
      */
     public static ExtensionList<RunListener> all() {
-        return Hudson.getInstance().getExtensionList(RunListener.class);
+        return HudsonExt.getInstance().getExtensionList(RunListener.class);
     }
 }

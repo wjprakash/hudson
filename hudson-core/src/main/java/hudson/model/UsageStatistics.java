@@ -89,7 +89,7 @@ public class UsageStatistics extends PageDecorator {
      */
     public boolean isDue() {
         // user opted out. no data collection.
-        if(!Hudson.getInstance().isUsageStatisticsCollected() || DISABLED)     return false;
+        if(!HudsonExt.getInstance().isUsageStatisticsCollected() || DISABLED)     return false;
         
         long now = System.currentTimeMillis();
         if(now - lastAttempt > DAY) {
@@ -115,15 +115,15 @@ public class UsageStatistics extends PageDecorator {
     }
 
     /**
-     * Gets the encrypted usage stat data to be sent to the Hudson server.
+     * Gets the encrypted usage stat data to be sent to the HudsonExt server.
      */
     public String getStatData() throws IOException {
-        Hudson h = Hudson.getInstance();
+        HudsonExt h = HudsonExt.getInstance();
 
         JSONObject o = new JSONObject();
         o.put("stat",1);
         o.put("install", Util.getDigestOf(h.getSecretKey()));
-        o.put("version",Hudson.VERSION);
+        o.put("version",HudsonExt.VERSION);
 
         List<JSONObject> nodes = new ArrayList<JSONObject>();
         for( ComputerExt c : h.getComputers() ) {

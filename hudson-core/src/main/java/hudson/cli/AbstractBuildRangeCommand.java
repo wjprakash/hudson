@@ -2,7 +2,7 @@ package hudson.cli;
 
 import hudson.model.AbstractBuildExt;
 import hudson.model.AbstractProjectExt;
-import hudson.model.Fingerprint.RangeSet;
+import hudson.model.FingerprintExt.RangeSet;
 import org.kohsuke.args4j.Argument;
 
 import java.io.IOException;

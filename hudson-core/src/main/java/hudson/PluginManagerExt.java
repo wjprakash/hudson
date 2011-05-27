@@ -31,7 +31,7 @@ import hudson.PluginWrapperExt.Dependency;
 import hudson.init.InitStrategy;
 import hudson.init.InitializerFinder;
 import hudson.model.AbstractModelObjectExt;
-import hudson.model.Hudson;
+import hudson.model.HudsonExt;
 import hudson.util.CyclicGraphDetector;
 import hudson.util.CyclicGraphDetector.CycleDetectedException;
 import hudson.util.Service;
@@ -89,14 +89,14 @@ public abstract class PluginManagerExt extends AbstractModelObjectExt {
 
     /**
      * @deprecated as of 1.355
-     *      {@link PluginManagerExt} can now live longer than {@link Hudson} instance, so
-     *      use {@code Hudson.getInstance().servletContext} instead.
+     *      {@link PluginManagerExt} can now live longer than {@link HudsonExt} instance, so
+     *      use {@code HudsonExt.getInstance().servletContext} instead.
      */
     public final ServletContext context;
 
     /**
      * {@link ClassLoader} that can load all the publicly visible classes from plugins
-     * (and including the classloader that loads Hudson itself.)
+     * (and including the classloader that loads HudsonExt itself.)
      *
      */
     // implementation is minimal --- just enough to run XStream
@@ -105,7 +105,7 @@ public abstract class PluginManagerExt extends AbstractModelObjectExt {
 
     /**
      * Once plugin is uploaded, this flag becomes true.
-     * This is used to report a message that Hudson needs to be restarted
+     * This is used to report a message that HudsonExt needs to be restarted
      * for new plugins to take effect.
      */
     public volatile boolean pluginUploaded = false;
@@ -114,7 +114,7 @@ public abstract class PluginManagerExt extends AbstractModelObjectExt {
      * The initialization of {@link PluginManagerExt} splits into two parts;
      * one is the part about listing them, extracting them, and preparing classloader for them.
      * The 2nd part is about creating instances. Once the former completes this flags become true,
-     * as the 2nd part can be repeated for each Hudson instance.
+     * as the 2nd part can be repeated for each HudsonExt instance.
      */
     private boolean pluginListed = false;
     
@@ -136,7 +136,7 @@ public abstract class PluginManagerExt extends AbstractModelObjectExt {
     /**
      * Called immediately after the construction.
      * This is a separate method so that code executed from here will see a valid value in
-     * {@link Hudson#pluginManager}. 
+     * {@link HudsonExt#pluginManager}. 
      */
     public TaskBuilder initTasks(final InitStrategy initStrategy) {
         TaskBuilder builder;
@@ -224,7 +224,7 @@ public abstract class PluginManagerExt extends AbstractModelObjectExt {
                                         }.run(getPlugins());
                                     } catch (CycleDetectedException e) {
                                         stop(); // disable all plugins since classloading from them can lead to StackOverflow
-                                        throw e;    // let Hudson fail
+                                        throw e;    // let HudsonExt fail
                                     }
                                     Collections.sort(plugins);
                                 }
@@ -251,7 +251,7 @@ public abstract class PluginManagerExt extends AbstractModelObjectExt {
                  * Once the plugins are listed, schedule their initialization.
                  */
                 public void run(Reactor session) throws Exception {
-                    Hudson.getInstance().lookup.set(PluginInstanceStore.class,new PluginInstanceStore());
+                    HudsonExt.getInstance().lookup.set(PluginInstanceStore.class,new PluginInstanceStore());
                     TaskGraphBuilder g = new TaskGraphBuilder();
 
                     // schedule execution of loading plugins

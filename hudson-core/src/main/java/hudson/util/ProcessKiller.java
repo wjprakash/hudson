@@ -26,7 +26,7 @@ package hudson.util;
 
 import hudson.ExtensionList;
 import hudson.ExtensionPoint;
-import hudson.model.Hudson;
+import hudson.model.HudsonExt;
 import hudson.util.ProcessTree.OSProcess;
 
 import java.io.IOException;
@@ -62,7 +62,7 @@ public abstract class ProcessKiller implements ExtensionPoint, Serializable {
      * Returns all the registered {@link ProcessKiller} descriptors.
      */
     public static ExtensionList<ProcessKiller> all() {
-        return Hudson.getInstance().getExtensionList(ProcessKiller.class);
+        return HudsonExt.getInstance().getExtensionList(ProcessKiller.class);
     }
 
     /**
@@ -70,8 +70,8 @@ public abstract class ProcessKiller implements ExtensionPoint, Serializable {
      *
      * @param process process to be killed. Always a {@linkplain ProcessTree.Local local process}.
      * @return
-     *      true if the killing was successful, and Hudson won't try to use other {@link ProcessKiller}
-     *      implementations to kill the process. false if the killing failed or is unattempted, and Hudson will continue
+     *      true if the killing was successful, and HudsonExt won't try to use other {@link ProcessKiller}
+     *      implementations to kill the process. false if the killing failed or is unattempted, and HudsonExt will continue
      *      to use the rest of the {@link ProcessKiller} implementations to try to kill the process.
      * @throws IOException
      *      The caller will log this exception and otherwise treat as if the method returned false, and moves on

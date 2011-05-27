@@ -26,8 +26,8 @@ package hudson.model.queue;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import hudson.model.ComputerExt;
-import hudson.model.Executor;
-import hudson.model.Label;
+import hudson.model.ExecutorExt;
+import hudson.model.LabelExt;
 import hudson.model.LoadBalancer;
 import hudson.model.Node;
 import hudson.model.Queue.BuildableItem;
@@ -52,7 +52,7 @@ import static java.lang.Math.*;
  * <p>
  * The heart of the placement problem is a mapping problem. We are given a {@link Task},
  * (which in the general case consists of a set of {@link SubTask}s), and we are also given a number
- * of idle {@link Executor}s, and our goal is to find a mapping from the former to the latter,
+ * of idle {@link ExecutorExt}s, and our goal is to find a mapping from the former to the latter,
  * which determines where each {@link SubTask} gets executed.
  *
  * <p>
@@ -63,13 +63,13 @@ import static java.lang.Math.*;
  * "Same node" constraint. Some of the subtasks need to be co-located on the same node.
  * See {@link SubTask#getSameNodeConstraint()}
  * <li>
- * Label constraint. {@link SubTask}s can specify that it can be only run on nodes that has the label.
+ * LabelExt constraint. {@link SubTask}s can specify that it can be only run on nodes that has the label.
  * </ul>
  *
  * <p>
  * We first fold the former constraint into the problem definition. That is, we now consider
  * a set of {@link SubTask}s that need to be co-located as a single {@link WorkChunk}. Similarly,
- * we consider a set of all {@link Executor}s from the same node as {@link ExecutorChunk}.
+ * we consider a set of all {@link ExecutorExt}s from the same node as {@link ExecutorChunk}.
  * Now, the problem becomes the weighted matching problem from {@link WorkChunk} to {@link ExecutorChunk}.
  *
  * <p>
@@ -164,10 +164,10 @@ public class MappingWorksheet {
 
         /**
          * If this task needs to be run on a node with a particular label,
-         * return that {@link Label}. Otherwise null, indicating
+         * return that {@link LabelExt}. Otherwise null, indicating
          * it can run on anywhere.
          */
-        public final Label assignedLabel;
+        public final LabelExt assignedLabel;
 
         /**
          * If the previous execution of this task run on a certain node
@@ -372,7 +372,7 @@ public class MappingWorksheet {
     }
 
     public static abstract class ExecutorSlot {
-        public abstract Executor getExecutor();
+        public abstract ExecutorExt getExecutor();
 
         public abstract boolean isAvailable();
 

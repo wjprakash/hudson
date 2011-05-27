@@ -50,32 +50,32 @@ import java.util.Set;
  * that were specified when scheduling.
  */
 @ExportedBean
-public class ParametersAction implements Action, Iterable<ParameterValue>, QueueAction, EnvironmentContributingAction {
+public class ParametersAction implements Action, Iterable<ParameterValueExt>, QueueAction, EnvironmentContributingAction {
 
-    private final List<ParameterValue> parameters;
+    private final List<ParameterValueExt> parameters;
 
     /**
      * @deprecated since 1.283; kept to avoid warnings loading old build data, but now transient.
      */
     private transient AbstractBuildExt<?, ?> build;
 
-    public ParametersAction(List<ParameterValue> parameters) {
+    public ParametersAction(List<ParameterValueExt> parameters) {
         this.parameters = parameters;
     }
     
-    public ParametersAction(ParameterValue... parameters) {
+    public ParametersAction(ParameterValueExt... parameters) {
         this(Arrays.asList(parameters));
     }
 
     public void createBuildWrappers(AbstractBuildExt<?,?> build, Collection<? super BuildWrapper> result) {
-        for (ParameterValue p : parameters) {
+        for (ParameterValueExt p : parameters) {
             BuildWrapper w = p.createBuildWrapper(build);
             if(w!=null) result.add(w);
         }
     }
 
     public void buildEnvVars(AbstractBuildExt<?,?> build, EnvVars env) {
-        for (ParameterValue p : parameters)
+        for (ParameterValueExt p : parameters)
             p.buildEnvVars(build,env);
     }
 
@@ -95,7 +95,7 @@ public class ParametersAction implements Action, Iterable<ParameterValue>, Queue
     public VariableResolver<String> createVariableResolver(AbstractBuildExt<?,?> build) {
         VariableResolver[] resolvers = new VariableResolver[parameters.size()+1];
         int i=0;
-        for (ParameterValue p : parameters)
+        for (ParameterValueExt p : parameters)
             resolvers[i++] = p.createVariableResolver(build);
 
         resolvers[i] = build.getBuildVariableResolver();
@@ -103,17 +103,17 @@ public class ParametersAction implements Action, Iterable<ParameterValue>, Queue
         return new VariableResolver.Union<String>(resolvers);
     }
 
-    public Iterator<ParameterValue> iterator() {
+    public Iterator<ParameterValueExt> iterator() {
         return parameters.iterator();
     }
 
     @Exported(visibility=2)
-    public List<ParameterValue> getParameters() {
+    public List<ParameterValueExt> getParameters() {
         return Collections.unmodifiableList(parameters);
     }
 
-    public ParameterValue getParameter(String name) {
-        for (ParameterValue p : parameters)
+    public ParameterValueExt getParameter(String name) {
+        for (ParameterValueExt p : parameters)
             if (p.getName().equals(name))
                 return p;
         return null;
@@ -140,11 +140,11 @@ public class ParametersAction implements Action, Iterable<ParameterValue>, Queue
             return !parameters.isEmpty();
         } else {
             // I don't think we need multiple ParametersActions, but let's be defensive
-            Set<ParameterValue> params = new HashSet<ParameterValue>();
+            Set<ParameterValueExt> params = new HashSet<ParameterValueExt>();
             for (ParametersAction other: others) {
                 params.addAll(other.parameters);
             }
-            return !params.equals(new HashSet<ParameterValue>(this.parameters));
+            return !params.equals(new HashSet<ParameterValueExt>(this.parameters));
         }
     }
 

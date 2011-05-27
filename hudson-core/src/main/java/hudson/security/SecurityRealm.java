@@ -29,8 +29,8 @@ import hudson.DescriptorExtensionListExt;
 import hudson.Extension;
 import hudson.cli.CLICommand;
 import hudson.model.AbstractDescribableImpl;
-import hudson.model.Descriptor;
-import hudson.model.Hudson;
+import hudson.model.DescriptorExt;
+import hudson.model.HudsonExt;
 import hudson.security.FederatedLoginService.FederatedIdentity;
 import hudson.security.captcha.CaptchaSupport;
 import hudson.util.DescriptorList;
@@ -67,12 +67,12 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Pluggable security realm that connects external user database to Hudson.
+ * Pluggable security realm that connects external user database to HudsonExt.
  *
  * <p>
  * If additional views/URLs need to be exposed,
  * an active {@link SecurityRealm} is bound to <tt>CONTEXT_ROOT/securityRealm/</tt>
- * through {@link Hudson#getSecurityRealm()}, so you can define additional pages and
+ * through {@link HudsonExt#getSecurityRealm()}, so you can define additional pages and
  * operations on your {@link SecurityRealm}.
  *
  * <h2>How do I implement this class?</h2>
@@ -83,7 +83,7 @@ import java.util.logging.Logger;
  * One is to override the {@link #createSecurityComponents()} and create key Acegi components
  * that control the authentication process.
  * The default {@link SecurityRealm#createFilter(FilterConfig)} implementation then assembles them
- * into a chain of {@link Filter}s. All the incoming requests to Hudson go through this filter chain,
+ * into a chain of {@link Filter}s. All the incoming requests to HudsonExt go through this filter chain,
  * and when the filter chain is done, {@link SecurityContext#getAuthentication()} would tell us
  * who the current user is.
  *
@@ -99,7 +99,7 @@ import java.util.logging.Logger;
  * The other way of doing this is to ignore {@link #createSecurityComponents()} completely (by returning
  * {@link SecurityComponents} created by the default constructor) and just concentrate on {@link #createFilter(FilterConfig)}.
  * As long as the resulting filter chain properly sets up {@link Authentication} object at the end of the processing,
- * Hudson doesn't really need you to fit the standard Acegi models like {@link AuthenticationManager} and
+ * HudsonExt doesn't really need you to fit the standard Acegi models like {@link AuthenticationManager} and
  * {@link UserDetailsService}.
  *
  * <p>
@@ -156,7 +156,7 @@ public abstract class SecurityRealm extends AbstractDescribableImpl<SecurityReal
      *      The command about to be executed.
      * @return
      *      never null. By default, this method returns a no-op authenticator that always authenticates
-     *      the session as authenticated by the transport (which is often just {@link Hudson#ANONYMOUS}.)
+     *      the session as authenticated by the transport (which is often just {@link HudsonExt#ANONYMOUS}.)
      */
     public CliAuthenticator createCliAuthenticator(final CLICommand command) {
         return new CliAuthenticator() {
@@ -171,11 +171,11 @@ public abstract class SecurityRealm extends AbstractDescribableImpl<SecurityReal
      * {@inheritDoc}
      *
      * <p>
-     * {@link SecurityRealm} is a singleton resource in Hudson, and therefore
+     * {@link SecurityRealm} is a singleton resource in HudsonExt, and therefore
      * it's always configured through <tt>config.jelly</tt> and never with
      * <tt>global.jelly</tt>. 
      */
-    public Descriptor<SecurityRealm> getDescriptor() {
+    public DescriptorExt<SecurityRealm> getDescriptor() {
         return super.getDescriptor();
     }
 
@@ -195,7 +195,7 @@ public abstract class SecurityRealm extends AbstractDescribableImpl<SecurityReal
      * by the container.
      *
      * <p>
-     * Path is relative from the context root of the Hudson application.
+     * Path is relative from the context root of the HudsonExt application.
      * The URL returned by this method will get the "from" query parameter indicating
      * the page that the user was at.
      */
@@ -209,7 +209,7 @@ public abstract class SecurityRealm extends AbstractDescribableImpl<SecurityReal
      * <p>
      * If the method returns false, "logout" link will not be displayed. This is useful
      * when authentication doesn't require an explicit login activity (such as NTLM authentication
-     * or Kerberos authentication, where Hudson has no ability to log off the current user.)
+     * or Kerberos authentication, where HudsonExt has no ability to log off the current user.)
      *
      * <p>
      * By default, this method returns true.
@@ -222,7 +222,7 @@ public abstract class SecurityRealm extends AbstractDescribableImpl<SecurityReal
 
     /**
      * Controls where the user is sent to after a logout. By default, it's the top page
-     * of Hudson, but you can return arbitrary URL.
+     * of HudsonExt, but you can return arbitrary URL.
      *
      * @param req
      *      {@link StaplerRequest} that represents the current request. Primarily so that
@@ -248,7 +248,7 @@ public abstract class SecurityRealm extends AbstractDescribableImpl<SecurityReal
         this.captchaSupport = captchaSupport;
     }
 
-    public List<Descriptor<CaptchaSupport>> getCaptchaSupportDescriptors() {
+    public List<DescriptorExt<CaptchaSupport>> getCaptchaSupportDescriptors() {
         return CaptchaSupport.all();
     }
 
@@ -453,7 +453,7 @@ public abstract class SecurityRealm extends AbstractDescribableImpl<SecurityReal
          * so it doesn't have a descriptor.
          */
         @Override
-        public Descriptor<SecurityRealm> getDescriptor() {
+        public DescriptorExt<SecurityRealm> getDescriptor() {
             return null;
         }
 
@@ -523,7 +523,7 @@ public abstract class SecurityRealm extends AbstractDescribableImpl<SecurityReal
             // create our default TokenBasedRememberMeServices, which depends on the availability of the secret key
             TokenBasedRememberMeServices2 rms = new TokenBasedRememberMeServices2();
             rms.setUserDetailsService(uds);
-            rms.setKey(Hudson.getInstance().getSecretKey());
+            rms.setKey(HudsonExt.getInstance().getSecretKey());
             rms.setParameter("remember_me"); // this is the form field name in login.jelly
             return rms;
         }
@@ -539,8 +539,8 @@ public abstract class SecurityRealm extends AbstractDescribableImpl<SecurityReal
     /**
      * Returns all the registered {@link SecurityRealm} descriptors.
      */
-    public static DescriptorExtensionListExt<SecurityRealm, Descriptor<SecurityRealm>> all() {
-        return Hudson.getInstance().<SecurityRealm, Descriptor<SecurityRealm>>getDescriptorList(SecurityRealm.class);
+    public static DescriptorExtensionListExt<SecurityRealm, DescriptorExt<SecurityRealm>> all() {
+        return HudsonExt.getInstance().<SecurityRealm, DescriptorExt<SecurityRealm>>getDescriptorList(SecurityRealm.class);
     }
     private static final Logger LOGGER = Logger.getLogger(SecurityRealm.class.getName());
     /**

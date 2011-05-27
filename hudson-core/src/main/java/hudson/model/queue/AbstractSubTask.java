@@ -23,7 +23,7 @@
  */
 package hudson.model.queue;
 
-import hudson.model.Label;
+import hudson.model.LabelExt;
 import hudson.model.Node;
 import hudson.model.ResourceList;
 
@@ -34,7 +34,7 @@ import hudson.model.ResourceList;
  * @author Kohsuke Kawaguchi
  */
 public abstract class AbstractSubTask implements SubTask {
-    public Label getAssignedLabel() {
+    public LabelExt getAssignedLabel() {
         return null;
     }
 

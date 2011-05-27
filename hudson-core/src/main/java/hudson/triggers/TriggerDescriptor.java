@@ -23,15 +23,15 @@
  */
 package hudson.triggers;
 
-import hudson.model.Descriptor;
-import hudson.model.Item;
+import hudson.model.DescriptorExt;
+import hudson.model.ItemExt;
 import hudson.scm.SCM;
 
 /**
- * {@link Descriptor} for Trigger.
+ * {@link DescriptorExt} for Trigger.
  * @author Kohsuke Kawaguchi
  */
-public abstract class TriggerDescriptor extends Descriptor<Trigger<?>> {
+public abstract class TriggerDescriptor extends DescriptorExt<Trigger<?>> {
     protected TriggerDescriptor(Class<? extends Trigger<?>> clazz) {
         super(clazz);
     }
@@ -48,10 +48,10 @@ public abstract class TriggerDescriptor extends Descriptor<Trigger<?>> {
 
     /**
      * Returns true if this trigger is applicable to the
-     * given {@link Item}.
+     * given {@link ItemExt}.
      *
      * @return
      *      true to allow user to configure a trigger for this item.
      */
-    public abstract boolean isApplicable(Item item);
+    public abstract boolean isApplicable(ItemExt item);
 }

@@ -24,8 +24,8 @@
 package hudson.console;
 
 import hudson.ExtensionPoint;
-import hudson.model.Descriptor;
-import hudson.model.Hudson;
+import hudson.model.DescriptorExt;
+import hudson.model.HudsonExt;
 import hudson.util.TimeUnit2;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
@@ -37,12 +37,12 @@ import java.net.URL;
 import javax.jws.WebMethod;
 
 /**
- * Descriptor for {@link ConsoleNote}.
+ * DescriptorExt for {@link ConsoleNote}.
  *
  * @author Kohsuke Kawaguchi
  * @since 1.349
  */
-public abstract class ConsoleAnnotationDescriptor extends Descriptor<ConsoleNote<?>> implements ExtensionPoint {
+public abstract class ConsoleAnnotationDescriptor extends DescriptorExt<ConsoleNote<?>> implements ExtensionPoint {
     public ConsoleAnnotationDescriptor(Class<? extends ConsoleNote<?>> clazz) {
         super(clazz);
     }
@@ -89,6 +89,6 @@ public abstract class ConsoleAnnotationDescriptor extends Descriptor<ConsoleNote
      * Returns all the registered {@link ConsoleAnnotationDescriptor} descriptors.
      */
     public static DescriptorExtensionList<ConsoleNote<?>,ConsoleAnnotationDescriptor> all() {
-        return (DescriptorExtensionList)Hudson.getInstance().getDescriptorList(ConsoleNote.class);
+        return (DescriptorExtensionList)HudsonExt.getInstance().getDescriptorList(ConsoleNote.class);
     }
 }

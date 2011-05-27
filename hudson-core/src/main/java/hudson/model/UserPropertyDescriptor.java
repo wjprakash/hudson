@@ -24,11 +24,11 @@
 package hudson.model;
 
 /**
- * {@link Descriptor} for {@link UserProperty}.
+ * {@link DescriptorExt} for {@link UserProperty}.
  * 
  * @author Kohsuke Kawaguchi
  */
-public abstract class UserPropertyDescriptor extends Descriptor<UserProperty> {
+public abstract class UserPropertyDescriptor extends DescriptorExt<UserProperty> {
     protected UserPropertyDescriptor(Class<? extends UserProperty> clazz) {
         super(clazz);
     }

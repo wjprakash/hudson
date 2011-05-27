@@ -25,9 +25,9 @@ package hudson.node_monitors;
 
 import hudson.FunctionsExt.ThreadGroupMap;
 import hudson.model.ComputerExt;
-import hudson.model.Descriptor;
-import hudson.model.Hudson;
-import hudson.model.ComputerSet;
+import hudson.model.DescriptorExt;
+import hudson.model.HudsonExt;
+import hudson.model.ComputerSetExt;
 import hudson.model.AdministrativeMonitorExt;
 import hudson.triggers.Trigger;
 import hudson.triggers.SafeTimerTask;
@@ -50,7 +50,7 @@ import java.util.logging.Logger;
  *
  * @author Kohsuke Kawaguchi
  */
-public abstract class   AbstractNodeMonitorDescriptor<T> extends Descriptor<NodeMonitor> {
+public abstract class   AbstractNodeMonitorDescriptor<T> extends DescriptorExt<NodeMonitor> {
     protected AbstractNodeMonitorDescriptor() {
         this(HOUR);
     }
@@ -126,7 +126,7 @@ public abstract class   AbstractNodeMonitorDescriptor<T> extends Descriptor<Node
      * Is this monitor currently ignored?
      */
     public boolean isIgnored() {
-        NodeMonitor m = ComputerSet.getMonitors().get(this);
+        NodeMonitor m = ComputerSetExt.getMonitors().get(this);
         return m==null || m.isIgnored();
     }
 
@@ -193,7 +193,7 @@ public abstract class   AbstractNodeMonitorDescriptor<T> extends Descriptor<Node
             long startTime = System.currentTimeMillis();
             String oldName = getName();
 
-            for( ComputerExt c : Hudson.getInstance().getComputers() ) {
+            for( ComputerExt c : HudsonExt.getInstance().getComputers() ) {
                 try {
                     setName("Monitoring "+c.getDisplayName()+" for "+getDisplayName());
 

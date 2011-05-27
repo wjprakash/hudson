@@ -25,7 +25,7 @@ package hudson.lifecycle;
 
 import hudson.AbortException;
 import hudson.Extension;
-import hudson.model.Hudson;
+import hudson.model.HudsonExt;
 import hudson.model.ManagementLink;
 import hudson.util.StreamTaskListener;
 import hudson.util.jna.NativeAccessException;
@@ -76,7 +76,7 @@ public class WindowsInstallerLink extends WindowsInstallerLinkExt{
         }
         
         
-        Hudson.getInstance().checkPermission(Hudson.ADMINISTER);
+        HudsonExt.getInstance().checkPermission(HudsonExt.ADMINISTER);
 
         File dir = new File(_dir).getAbsoluteFile();
         dir.mkdirs();
@@ -128,16 +128,16 @@ public class WindowsInstallerLink extends WindowsInstallerLinkExt{
 
     public void doRestart(StaplerRequest req, StaplerResponse rsp) throws IOException, ServletException {
         if(installationDir==null) {
-            // if the user reloads the page after Hudson has restarted,
-            // it comes back here. In such a case, don't let this restart Hudson.
+            // if the user reloads the page after HudsonExt has restarted,
+            // it comes back here. In such a case, don't let this restart HudsonExt.
             // so just send them back to the top page
             rsp.sendRedirect(req.getContextPath()+"/");
             return;
         }
-        Hudson.getInstance().checkPermission(Hudson.ADMINISTER);
+        HudsonExt.getInstance().checkPermission(HudsonExt.ADMINISTER);
 
         rsp.forward(this,"_restart",req);
-        final File oldRoot = Hudson.getInstance().getRootDir();
+        final File oldRoot = HudsonExt.getInstance().getRootDir();
 
         // initiate an orderly shutdown after we finished serving this request
         new Thread("terminator") {
@@ -201,7 +201,7 @@ public class WindowsInstallerLink extends WindowsInstallerLinkExt{
     protected final void sendError(String message, StaplerRequest req, StaplerResponse rsp) throws ServletException, IOException {
         req.setAttribute("message",message);
         req.setAttribute("pre",true);
-        rsp.forward(Hudson.getInstance(),"error",req);
+        rsp.forward(HudsonExt.getInstance(),"error",req);
     }
     
     @Extension

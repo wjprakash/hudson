@@ -27,16 +27,16 @@ import hudson.Util;
 import hudson.util.DescribableList;
 import hudson.model.AbstractBuildExt;
 import hudson.model.CauseExt;
-import hudson.model.CauseAction;
+import hudson.model.CauseActionExt;
 import hudson.model.DependencyGraph;
-import hudson.model.Descriptor;
-import hudson.model.Hudson;
-import hudson.model.Item;
+import hudson.model.DescriptorExt;
+import hudson.model.HudsonExt;
+import hudson.model.ItemExt;
 import hudson.model.ItemGroup;
-import hudson.model.JDK;
-import hudson.model.Label;
+import hudson.model.JDKExt;
+import hudson.model.LabelExt;
 import hudson.model.ParametersAction;
-import hudson.model.Project;
+import hudson.model.ProjectExt;
 import hudson.model.SCMedItem;
 import hudson.model.Queue.NonBlockingTask;
 import hudson.model.CauseExt.LegacyCodeCause;
@@ -55,7 +55,7 @@ import java.util.Map;
  *
  * @author Kohsuke Kawaguchi
  */
-public class MatrixConfiguration extends Project<MatrixConfiguration,MatrixRunExt> implements SCMedItem, NonBlockingTask {
+public class MatrixConfiguration extends ProjectExt<MatrixConfiguration,MatrixRunExt> implements SCMedItem, NonBlockingTask {
     /**
      * The actual value combination.
      */
@@ -72,7 +72,7 @@ public class MatrixConfiguration extends Project<MatrixConfiguration,MatrixRunEx
     }
 
     @Override
-    public void onLoad(ItemGroup<? extends Item> parent, String name) throws IOException {
+    public void onLoad(ItemGroup<? extends ItemExt> parent, String name) throws IOException {
         // directory name is not a name for us --- it's taken from the combination name
         super.onLoad(parent, combination.toString());
     }
@@ -192,10 +192,10 @@ public class MatrixConfiguration extends Project<MatrixConfiguration,MatrixRunEx
     }
 
     @Override
-    public Label getAssignedLabel() {
+    public LabelExt getAssignedLabel() {
         // combine all the label axes by &&.
         String expr = Util.join(combination.values(getParent().getAxes().subList(LabelAxis.class)), "&&");
-        return Hudson.getInstance().getLabel(Util.fixEmpty(expr));
+        return HudsonExt.getInstance().getLabel(Util.fixEmpty(expr));
     }
 
     @Override
@@ -204,8 +204,8 @@ public class MatrixConfiguration extends Project<MatrixConfiguration,MatrixRunEx
     }
 
     @Override
-    public JDK getJDK() {
-        return Hudson.getInstance().getJDK(combination.get("jdk"));
+    public JDKExt getJDK() {
+        return HudsonExt.getInstance().getJDK(combination.get("jdk"));
     }
 
 //
@@ -217,32 +217,32 @@ public class MatrixConfiguration extends Project<MatrixConfiguration,MatrixRunEx
     }
 
     @Override
-    public Map<Descriptor<Publisher>, Publisher> getPublishers() {
+    public Map<DescriptorExt<Publisher>, Publisher> getPublishers() {
         return getParent().getPublishers();
     }
 
     @Override
-    public DescribableList<Builder, Descriptor<Builder>> getBuildersList() {
+    public DescribableList<Builder, DescriptorExt<Builder>> getBuildersList() {
         return getParent().getBuildersList();
     }
 
     @Override
-    public DescribableList<Publisher, Descriptor<Publisher>> getPublishersList() {
+    public DescribableList<Publisher, DescriptorExt<Publisher>> getPublishersList() {
         return getParent().getPublishersList();
     }
 
     @Override
-    public Map<Descriptor<BuildWrapper>, BuildWrapper> getBuildWrappers() {
+    public Map<DescriptorExt<BuildWrapper>, BuildWrapper> getBuildWrappers() {
         return getParent().getBuildWrappers();
     }
 
     @Override
-    public DescribableList<BuildWrapper, Descriptor<BuildWrapper>> getBuildWrappersList() {
+    public DescribableList<BuildWrapper, DescriptorExt<BuildWrapper>> getBuildWrappersList() {
         return getParent().getBuildWrappersList();
     }
 
     @Override
-    public Publisher getPublisher(Descriptor<Publisher> descriptor) {
+    public Publisher getPublisher(DescriptorExt<Publisher> descriptor) {
         return getParent().getPublisher(descriptor);
     }
 
@@ -263,13 +263,13 @@ public class MatrixConfiguration extends Project<MatrixConfiguration,MatrixRunEx
     }
 
     /**
-     * JDK cannot be set on {@link MatrixConfiguration} because
+     * JDKExt cannot be set on {@link MatrixConfiguration} because
      * it's controlled by {@link MatrixProjectExt}.
      * @deprecated
      *      Not supported.
      */
     @Override
-    public void setJDK(JDK jdk) throws IOException {
+    public void setJDK(JDKExt jdk) throws IOException {
         throw new UnsupportedOperationException();
     }
 
@@ -298,7 +298,7 @@ public class MatrixConfiguration extends Project<MatrixConfiguration,MatrixRunEx
      * See http://cygwin.com/ml/cygwin/2005-04/msg00395.html and
      * http://www.nabble.com/Windows-Filename-too-long-errors-t3161089.html for
      * the background of this issue. Setting this flag to true would
-     * cause Hudson to use cryptic but short path name, giving more room for
+     * cause HudsonExt to use cryptic but short path name, giving more room for
      * jobs to use longer path names.
      */
     public static boolean useShortWorkspaceName = Boolean.getBoolean(MatrixConfiguration.class.getName()+".useShortWorkspaceName");
@@ -317,6 +317,6 @@ public class MatrixConfiguration extends Project<MatrixConfiguration,MatrixRunEx
      *      Can be null.
      */
     public boolean scheduleBuild(ParametersAction parameters, CauseExt c) {
-        return Hudson.getInstance().getQueue().schedule(this, getQuietPeriod(), parameters, new CauseAction(c))!=null;
+        return HudsonExt.getInstance().getQueue().schedule(this, getQuietPeriod(), parameters, new CauseActionExt(c))!=null;
     }
 }

@@ -24,8 +24,8 @@
 package hudson.tasks;
 
 import hudson.model.AbstractProjectExt;
-import hudson.model.Descriptor;
-import hudson.model.Hudson;
+import hudson.model.DescriptorExt;
+import hudson.model.HudsonExt;
 import hudson.model.AbstractProjectExt.AbstractProjectDescriptorExt;
 import hudson.Extension;
 import hudson.util.DescriptorList;
@@ -44,7 +44,7 @@ public class BuildWrappers {
      *      as of 1.281. Use {@link Extension} for registration, and use {@link BuildWrapper#all()}
      *      for listing them.
      */
-    public static final List<Descriptor<BuildWrapper>> WRAPPERS = new DescriptorList<BuildWrapper>(BuildWrapper.class);
+    public static final List<DescriptorExt<BuildWrapper>> WRAPPERS = new DescriptorList<BuildWrapper>(BuildWrapper.class);
 
     /**
      * List up all {@link BuildWrapperDescriptor}s that are applicable for the given project.
@@ -53,11 +53,11 @@ public class BuildWrappers {
      *      The signature doesn't use {@link BuildWrapperDescriptor} to maintain compatibility
      *      with {@link BuildWrapper} implementations before 1.150.
      */
-    public static List<Descriptor<BuildWrapper>> getFor(AbstractProjectExt<?, ?> project) {
-        List<Descriptor<BuildWrapper>> result = new ArrayList<Descriptor<BuildWrapper>>();
-        Descriptor pd = Hudson.getInstance().getDescriptor((Class)project.getClass());
+    public static List<DescriptorExt<BuildWrapper>> getFor(AbstractProjectExt<?, ?> project) {
+        List<DescriptorExt<BuildWrapper>> result = new ArrayList<DescriptorExt<BuildWrapper>>();
+        DescriptorExt pd = HudsonExt.getInstance().getDescriptor((Class)project.getClass());
 
-        for (Descriptor<BuildWrapper> w : BuildWrapper.all()) {
+        for (DescriptorExt<BuildWrapper> w : BuildWrapper.all()) {
             if (pd instanceof AbstractProjectDescriptorExt && !((AbstractProjectDescriptorExt)pd).isApplicable(w))
                 continue;
             if (w instanceof BuildWrapperDescriptor) {

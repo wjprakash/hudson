@@ -47,8 +47,8 @@ import java.util.List;
  * but it's not clear to me if the loss of autonomy is worth it.
  *
  * @author Kohsuke Kawaguchi
- * @see Label#loadStatistics
- * @see Hudson#overallLoad
+ * @see LabelExt#loadStatistics
+ * @see HudsonExt#overallLoad
  */
 @ExportedBean
 public abstract class LoadStatistics {
@@ -136,11 +136,11 @@ public abstract class LoadStatistics {
         }
 
         protected void doRun() {
-            Hudson h = Hudson.getInstance();
+            HudsonExt h = HudsonExt.getInstance();
             List<hudson.model.Queue.BuildableItem> bis = h.getQueue().getBuildableItems();
 
             // update statistics on slaves
-            for( Label l : h.getLabels() ) {
+            for( LabelExt l : h.getLabels() ) {
                 l.loadStatistics.totalExecutors.update(l.getTotalExecutors());
                 l.loadStatistics.busyExecutors .update(l.getBusyExecutors());
 
@@ -153,7 +153,7 @@ public abstract class LoadStatistics {
             }
 
             // update statistics of the entire system
-            ComputerSet cs = new ComputerSet();
+            ComputerSetExt cs = new ComputerSetExt();
             h.overallLoad.totalExecutors.update(cs.getTotalExecutors());
             h.overallLoad.busyExecutors .update(cs.getBusyExecutors());
             int q=0;

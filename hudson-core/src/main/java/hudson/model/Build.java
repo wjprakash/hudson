@@ -40,7 +40,7 @@ import java.util.logging.Logger;
 import static hudson.model.Result.FAILURE;
 
 /**
- * A build of a {@link Project}.
+ * A build of a {@link ProjectExt}.
  *
  * <h2>Steps of a build</h2>
  * <p>
@@ -77,7 +77,7 @@ import static hudson.model.Result.FAILURE;
  *
  * @author Kohsuke Kawaguchi
  */
-public abstract class Build <P extends Project<P,B>,B extends Build<P,B>>
+public abstract class Build <P extends ProjectExt<P,B>,B extends Build<P,B>>
     extends AbstractBuildExt<P,B> {
 
     /**

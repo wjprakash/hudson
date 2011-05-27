@@ -26,8 +26,8 @@ package hudson.security.captcha;
 import hudson.DescriptorExtensionListExt;
 import hudson.ExtensionPoint;
 import hudson.model.AbstractDescribableImpl;
-import hudson.model.Descriptor;
-import hudson.model.Hudson;
+import hudson.model.DescriptorExt;
+import hudson.model.HudsonExt;
 import java.io.IOException;
 import java.io.OutputStream;
 
@@ -49,8 +49,8 @@ public abstract class CaptchaSupport extends AbstractDescribableImpl<CaptchaSupp
     /**
      * Returns all the registered {@link CaptchaSupport} descriptors.
      */
-    public static DescriptorExtensionListExt<CaptchaSupport, Descriptor<CaptchaSupport>> all() {
-        return Hudson.getInstance().<CaptchaSupport, Descriptor<CaptchaSupport>>getDescriptorList(CaptchaSupport.class);
+    public static DescriptorExtensionListExt<CaptchaSupport, DescriptorExt<CaptchaSupport>> all() {
+        return HudsonExt.getInstance().<CaptchaSupport, DescriptorExt<CaptchaSupport>>getDescriptorList(CaptchaSupport.class);
     }
     
     abstract public  boolean validateCaptcha(String id, String text); 

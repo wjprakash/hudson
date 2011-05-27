@@ -27,7 +27,7 @@ import hudson.Extension;
 import hudson.ExtensionList;
 import hudson.ExtensionListView;
 import hudson.ExtensionPoint;
-import hudson.model.Hudson;
+import hudson.model.HudsonExt;
 import hudson.model.User;
 
 import java.util.List;
@@ -36,8 +36,8 @@ import java.util.List;
  * Finds full name off the user when none is specified.
  *
  * <p>
- * This is an extension point of Hudson. Plugins tha contribute new implementation
- * of this class should use {@link Extension} to register the instance into Hudson, like this:
+ * This is an extension point of HudsonExt. Plugins tha contribute new implementation
+ * of this class should use {@link Extension} to register the instance into HudsonExt, like this:
  *
  * <pre>
  * &#64;Extension
@@ -83,7 +83,7 @@ public abstract class UserNameResolver implements ExtensionPoint {
      * Returns all the registered {@link UserNameResolver} descriptors.
      */
     public static ExtensionList<UserNameResolver> all() {
-        return Hudson.getInstance().getExtensionList(UserNameResolver.class);
+        return HudsonExt.getInstance().getExtensionList(UserNameResolver.class);
     }
 
     /**

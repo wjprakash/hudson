@@ -27,8 +27,8 @@ import hudson.ExtensionPoint;
 import hudson.DescriptorExtensionListExt;
 import hudson.Extension;
 import hudson.model.AbstractDescribableImpl;
-import hudson.model.Descriptor;
-import hudson.model.Hudson;
+import hudson.model.DescriptorExt;
+import hudson.model.HudsonExt;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -37,8 +37,8 @@ import java.net.MalformedURLException;
 import org.kohsuke.stapler.export.ExportedBean;
 
 /**
- * Connects Hudson to repository browsers like ViewCVS or FishEye,
- * so that Hudson can generate links to them. 
+ * Connects HudsonExt to repository browsers like ViewCVS or FishEye,
+ * so that HudsonExt can generate links to them. 
  *
  * <p>
  * {@link RepositoryBrowser} instance is normally created as
@@ -49,7 +49,7 @@ import org.kohsuke.stapler.export.ExportedBean;
  * {@link RepositoryBrowser} is persisted with {@link SCM}.
  *
  * <p>
- * To have Hudson recognize {@link RepositoryBrowser}, put {@link Extension} on your {@link Descriptor}.
+ * To have HudsonExt recognize {@link RepositoryBrowser}, put {@link Extension} on your {@link DescriptorExt}.
  *
  * @author Kohsuke Kawaguchi
  * @since 1.89
@@ -98,8 +98,8 @@ public abstract class RepositoryBrowser<E extends ChangeLogSet.Entry> extends Ab
     /**
      * Returns all the registered {@link RepositoryBrowser} descriptors.
      */
-    public static DescriptorExtensionListExt<RepositoryBrowser<?>,Descriptor<RepositoryBrowser<?>>> all() {
-        return (DescriptorExtensionListExt)Hudson.getInstance().getDescriptorList(RepositoryBrowser.class);
+    public static DescriptorExtensionListExt<RepositoryBrowser<?>,DescriptorExt<RepositoryBrowser<?>>> all() {
+        return (DescriptorExtensionListExt)HudsonExt.getInstance().getDescriptorList(RepositoryBrowser.class);
     }
 
     private static final long serialVersionUID = 1L;

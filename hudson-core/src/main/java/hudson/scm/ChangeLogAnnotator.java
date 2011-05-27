@@ -31,7 +31,7 @@ import hudson.ExtensionList;
 import hudson.util.CopyOnWriteList;
 import hudson.scm.ChangeLogSet.Entry;
 import hudson.model.AbstractBuildExt;
-import hudson.model.Hudson;
+import hudson.model.HudsonExt;
 
 import java.util.logging.Logger;
 
@@ -39,7 +39,7 @@ import java.util.logging.Logger;
  * Performs mark up on changelog messages to be displayed.
  *
  * <p>
- * SCM changelog messages are usually plain text, but when we display that in Hudson,
+ * SCM changelog messages are usually plain text, but when we display that in HudsonExt,
  * it is often nice to be able to put mark up on the text (for example to link to
  * external issue tracking system.)
  *
@@ -52,7 +52,7 @@ import java.util.logging.Logger;
  */
 public abstract class ChangeLogAnnotator implements ExtensionPoint {
     /**
-     * Called by Hudson to allow markups to be added to the changelog text.
+     * Called by HudsonExt to allow markups to be added to the changelog text.
      *
      * <p>
      * This method is invoked each time a page is rendered, so implementations
@@ -79,7 +79,7 @@ public abstract class ChangeLogAnnotator implements ExtensionPoint {
     public abstract void annotate(AbstractBuildExt<?,?> build, Entry change, MarkupText text );
 
     /**
-     * Registers this annotator, so that Hudson starts using this object
+     * Registers this annotator, so that HudsonExt starts using this object
      * for adding markup.
      *
      * @deprecated as of 1.286
@@ -90,7 +90,7 @@ public abstract class ChangeLogAnnotator implements ExtensionPoint {
     }
 
     /**
-     * Unregisters this annotator, so that Hudson stops using this object.
+     * Unregisters this annotator, so that HudsonExt stops using this object.
      */
     public final boolean unregister() {
         return all().remove(this);
@@ -108,6 +108,6 @@ public abstract class ChangeLogAnnotator implements ExtensionPoint {
      * Returns all the registered {@link ChangeLogAnnotator} descriptors.
      */
     public static ExtensionList<ChangeLogAnnotator> all() {
-        return Hudson.getInstance().getExtensionList(ChangeLogAnnotator.class);
+        return HudsonExt.getInstance().getExtensionList(ChangeLogAnnotator.class);
     }
 }

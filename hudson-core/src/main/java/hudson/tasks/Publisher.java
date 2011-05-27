@@ -30,9 +30,9 @@ import hudson.model.Action;
 import hudson.model.Build;
 import hudson.model.BuildListener;
 import hudson.model.Describable;
-import hudson.model.Project;
-import hudson.model.Descriptor;
-import hudson.model.Hudson;
+import hudson.model.ProjectExt;
+import hudson.model.DescriptorExt;
+import hudson.model.HudsonExt;
 
 import java.util.List;
 import java.util.ArrayList;
@@ -71,7 +71,7 @@ public abstract class Publisher extends BuildStepCompatibilityLayer implements B
     }
 
     //
-// these two methods need to remain to keep binary compatibility with plugins built with Hudson < 1.150
+// these two methods need to remain to keep binary compatibility with plugins built with HudsonExt < 1.150
 //
     /**
      * Default implementation that does nothing.
@@ -87,7 +87,7 @@ public abstract class Publisher extends BuildStepCompatibilityLayer implements B
      * @deprecated since 1.150
      */
     @Deprecated @Override
-    public Action getProjectAction(Project project) {
+    public Action getProjectAction(ProjectExt project) {
         return null;
     }
 
@@ -119,29 +119,29 @@ public abstract class Publisher extends BuildStepCompatibilityLayer implements B
         return false;
     }
 
-    public Descriptor<Publisher> getDescriptor() {
-        return Hudson.getInstance().getDescriptorOrDie(getClass());
+    public DescriptorExt<Publisher> getDescriptor() {
+        return HudsonExt.getInstance().getDescriptorOrDie(getClass());
     }
 
     /**
      * {@link Publisher} has a special sort semantics that requires a subtype.
      *
-     * @see DescriptorExtensionListExt#createDescriptorList(Hudson, Class) 
+     * @see DescriptorExtensionListExt#createDescriptorList(HudsonExt, Class) 
      */
-    public static final class DescriptorExtensionListImpl extends DescriptorExtensionListExt<Publisher,Descriptor<Publisher>>
-            implements Comparator<ExtensionComponent<Descriptor<Publisher>>> {
-        public DescriptorExtensionListImpl(Hudson hudson) {
+    public static final class DescriptorExtensionListImpl extends DescriptorExtensionListExt<Publisher,DescriptorExt<Publisher>>
+            implements Comparator<ExtensionComponent<DescriptorExt<Publisher>>> {
+        public DescriptorExtensionListImpl(HudsonExt hudson) {
             super(hudson,Publisher.class);
         }
 
         @Override
-        protected List<ExtensionComponent<Descriptor<Publisher>>> sort(List<ExtensionComponent<Descriptor<Publisher>>> r) {
-            List<ExtensionComponent<Descriptor<Publisher>>> copy = new ArrayList<ExtensionComponent<Descriptor<Publisher>>>(r);
+        protected List<ExtensionComponent<DescriptorExt<Publisher>>> sort(List<ExtensionComponent<DescriptorExt<Publisher>>> r) {
+            List<ExtensionComponent<DescriptorExt<Publisher>>> copy = new ArrayList<ExtensionComponent<DescriptorExt<Publisher>>>(r);
             Collections.sort(copy,this);
             return copy;
         }
 
-        public int compare(ExtensionComponent<Descriptor<Publisher>> lhs, ExtensionComponent<Descriptor<Publisher>> rhs) {
+        public int compare(ExtensionComponent<DescriptorExt<Publisher>> lhs, ExtensionComponent<DescriptorExt<Publisher>> rhs) {
             int r = classify(lhs.getInstance())-classify(rhs.getInstance());
             if (r!=0)   return r;
             return lhs.compareTo(rhs);
@@ -151,7 +151,7 @@ public abstract class Publisher extends BuildStepCompatibilityLayer implements B
          * If recorder, return 0, if unknown return 1, if notifier returns 2.
          * This is used as a sort key.
          */
-        private int classify(Descriptor<Publisher> d) {
+        private int classify(DescriptorExt<Publisher> d) {
             if(d.isSubTypeOf(Recorder.class))    return 0;
             if(d.isSubTypeOf(Notifier.class))    return 2;
 
@@ -168,7 +168,7 @@ public abstract class Publisher extends BuildStepCompatibilityLayer implements B
      * Returns all the registered {@link Publisher} descriptors.
      */
     // for backward compatibility, the signature is not BuildStepDescriptor
-    public static DescriptorExtensionListExt<Publisher,Descriptor<Publisher>> all() {
-        return Hudson.getInstance().<Publisher,Descriptor<Publisher>>getDescriptorList(Publisher.class);
+    public static DescriptorExtensionListExt<Publisher,DescriptorExt<Publisher>> all() {
+        return HudsonExt.getInstance().<Publisher,DescriptorExt<Publisher>>getDescriptorList(Publisher.class);
     }
 }

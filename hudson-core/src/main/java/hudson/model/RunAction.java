@@ -24,7 +24,7 @@
 package hudson.model;
 
 /**
- * Optional interface for {@link Action}s that add themselves to {@link Run}.
+ * Optional interface for {@link Action}s that add themselves to {@link RunExt}.
  *
  * @author Kohsuke Kawaguchi
  */
@@ -35,10 +35,10 @@ public interface RunAction extends Action {
     void onLoad();
 
     /**
-     * Called when the action is aded to the {@link Run} object.
+     * Called when the action is aded to the {@link RunExt} object.
      * @since 1.376
      */
-    void onAttached(Run r);
+    void onAttached(RunExt r);
 
     /**
      * Called after the build is finished.

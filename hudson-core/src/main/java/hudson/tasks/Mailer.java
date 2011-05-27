@@ -37,7 +37,7 @@ import hudson.model.AbstractProjectExt;
 import hudson.model.BuildListener;
 import hudson.model.User;
 import hudson.model.UserPropertyDescriptor;
-import hudson.model.Hudson;
+import hudson.model.HudsonExt;
 import hudson.util.FormValidation;
 import hudson.util.Secret;
 import hudson.util.XStream2;
@@ -150,7 +150,7 @@ public class Mailer extends Notifier {
     public static DescriptorImpl DESCRIPTOR;
 
     public static DescriptorImpl descriptor() {
-        return Hudson.getInstance().getDescriptorByType(Mailer.DescriptorImpl.class);
+        return HudsonExt.getInstance().getDescriptorByType(Mailer.DescriptorImpl.class);
     }
 
     @Extension
@@ -162,7 +162,7 @@ public class Mailer extends Notifier {
         private String defaultSuffix;
 
         /**
-         * Hudson's own URL, to put into the e-mail.
+         * HudsonExt's own URL, to put into the e-mail.
          */
         private String hudsonUrl;
 
@@ -174,7 +174,7 @@ public class Mailer extends Notifier {
         private Secret smtpAuthPassword;
 
         /**
-         * The e-mail address that Hudson puts to "From:" field in outgoing e-mails.
+         * The e-mail address that HudsonExt puts to "From:" field in outgoing e-mails.
          * Null if not configured.
          */
         private String adminAddress;
@@ -393,7 +393,7 @@ public class Mailer extends Notifier {
             m.dontNotifyEveryUnstableBuild = req.getParameter("mailer_notifyEveryUnstableBuild")==null;
 
             if(hudsonUrl==null) {
-                // if Hudson URL is not configured yet, infer some default
+                // if HudsonExt URL is not configured yet, infer some default
                 hudsonUrl = FunctionsExt.inferHudsonURL(req);
                 save();
             }

@@ -23,7 +23,7 @@
  */
 package hudson;
 
-import hudson.model.Hudson;
+import hudson.model.HudsonExt;
 import hudson.model.Saveable;
 import hudson.model.listeners.SaveableListener;
 import hudson.util.IOException2;
@@ -55,7 +55,7 @@ import org.apache.commons.codec.binary.Base64;
  * <p> Proxy Authorization is done via "Proxy-Authorization" HTTP header 
  * See http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html section 14.34</a>).
  * 
- * @see Hudson#proxy
+ * @see HudsonExt#proxy
  */
 public final class ProxyConfiguration implements Saveable {
     public final String name;
@@ -116,7 +116,7 @@ public final class ProxyConfiguration implements Saveable {
     }
 
     public static XmlFile getXmlFile() {
-        return new XmlFile(XSTREAM, new File(Hudson.getInstance().getRootDir(), "proxy.xml"));
+        return new XmlFile(XSTREAM, new File(HudsonExt.getInstance().getRootDir(), "proxy.xml"));
     }
 
     public static ProxyConfiguration load() throws IOException {
@@ -131,7 +131,7 @@ public final class ProxyConfiguration implements Saveable {
      * This method should be used wherever {@link URL#openConnection()} to internet URLs is invoked directly.
      */
     public static URLConnection open(URL url) throws IOException {
-        Hudson hudson = Hudson.getInstance(); // this code might run on slaves
+        HudsonExt hudson = HudsonExt.getInstance(); // this code might run on slaves
         ProxyConfiguration proxyConfig = hudson != null ? hudson.proxy : null;
          
         

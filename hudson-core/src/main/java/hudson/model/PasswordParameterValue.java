@@ -33,7 +33,7 @@ import java.util.Locale;
 /**
  * @author Kohsuke Kawaguchi
  */
-public class PasswordParameterValue extends ParameterValue {
+public class PasswordParameterValue extends ParameterValueExt {
 
     private final Secret value;
 

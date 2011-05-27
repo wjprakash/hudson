@@ -24,7 +24,7 @@
 package hudson.diagnosis;
 
 import hudson.model.AdministrativeMonitorExt;
-import hudson.model.Hudson;
+import hudson.model.HudsonExt;
 import hudson.model.AbstractModelObjectExt;
 import hudson.Extension;
 import hudson.ExtensionPoint;
@@ -92,7 +92,7 @@ public  class HudsonHomeDiskUsageMonitorExt extends AdministrativeMonitorExt {
          *
          * <p>
          * This ID is used to remember persisted setting for this monitor,
-         * so the ID should remain consistent beyond the Hudson JVM lifespan.
+         * so the ID should remain consistent beyond the HudsonExt JVM lifespan.
          */
         public final String id;
 
@@ -115,7 +115,7 @@ public  class HudsonHomeDiskUsageMonitorExt extends AdministrativeMonitorExt {
          * All registered {@link Solution}s.
          */
         public static ExtensionList<Solution> all() {
-            return Hudson.getInstance().getExtensionList(Solution.class);
+            return HudsonExt.getInstance().getExtensionList(Solution.class);
         }
     }
 }

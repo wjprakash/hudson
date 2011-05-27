@@ -74,15 +74,15 @@ import java.net.NetworkInterface;
 import java.net.Inet4Address;
 
 /**
- * Represents the running state of a remote computer that holds {@link Executor}s.
+ * Represents the running state of a remote computer that holds {@link ExecutorExt}s.
  *
  * <p>
- * {@link Executor}s on one {@link ComputerExt} are transparently interchangeable
+ * {@link ExecutorExt}s on one {@link ComputerExt} are transparently interchangeable
  * (that is the definition of {@link ComputerExt}.)
  *
  * <p>
  * This object is related to {@link Node} but they have some significant difference.
- * {@link ComputerExt} primarily works as a holder of {@link Executor}s, so
+ * {@link ComputerExt} primarily works as a holder of {@link ExecutorExt}s, so
  * if a {@link Node} is configured (probably temporarily) with 0 executors,
  * you won't have a {@link ComputerExt} object for it.
  *
@@ -99,7 +99,7 @@ import java.net.Inet4Address;
  */
 public /*transient*/ abstract class ComputerExt extends ActionableExt implements AccessControlled, ExecutorListener {
 
-    private final CopyOnWriteArrayList<Executor> executors = new CopyOnWriteArrayList<Executor>();
+    private final CopyOnWriteArrayList<ExecutorExt> executors = new CopyOnWriteArrayList<ExecutorExt>();
     // TODO: 
     private final CopyOnWriteArrayList<OneOffExecutor> oneOffExecutors = new CopyOnWriteArrayList<OneOffExecutor>();
 
@@ -113,7 +113,7 @@ public /*transient*/ abstract class ComputerExt extends ActionableExt implements
     private long connectTime = 0;
 
     /**
-     * True if Hudson shouldn't start new builds on this node.
+     * True if HudsonExt shouldn't start new builds on this node.
      */
     protected boolean temporarilyOffline;
 
@@ -140,7 +140,7 @@ public /*transient*/ abstract class ComputerExt extends ActionableExt implements
      * This is where the log from the remote agent goes.
      */
     protected File getLogFile() {
-        return new File(Hudson.getInstance().getRootDir(),"slave-"+nodeName+".log");
+        return new File(HudsonExt.getInstance().getRootDir(),"slave-"+nodeName+".log");
     }
 
     /**
@@ -159,7 +159,7 @@ public /*transient*/ abstract class ComputerExt extends ActionableExt implements
 
 
     public ACL getACL() {
-        return Hudson.getInstance().getAuthorizationStrategy().getACL(this);
+        return HudsonExt.getInstance().getAuthorizationStrategy().getACL(this);
     }
 
     public void checkPermission(Permission permission) {
@@ -261,7 +261,7 @@ public /*transient*/ abstract class ComputerExt extends ActionableExt implements
      */
     @CLIMethod(name="connect-node")
     public void cliConnect(@Option(name="-f",usage="Cancel any currently pending connect operation and retry from scratch") boolean force) throws ExecutionException, InterruptedException {
-        checkPermission(Hudson.ADMINISTER);
+        checkPermission(HudsonExt.ADMINISTER);
         connect(force).get();
     }
 
@@ -317,7 +317,7 @@ public /*transient*/ abstract class ComputerExt extends ActionableExt implements
      */
     @CLIMethod(name="disconnect-node")
     public void cliDisconnect(@Option(name="-m",usage="Record the note about why you are disconnecting this node") String cause) throws ExecutionException, InterruptedException {
-        checkPermission(Hudson.ADMINISTER);
+        checkPermission(HudsonExt.ADMINISTER);
         disconnect(new ByCLI(cause)).get();
     }
 
@@ -326,18 +326,18 @@ public /*transient*/ abstract class ComputerExt extends ActionableExt implements
      */
     @CLIMethod(name="offline-node")
     public void cliOffline(@Option(name="-m",usage="Record the note about why you are disconnecting this node") String cause) throws ExecutionException, InterruptedException {
-        checkPermission(Hudson.ADMINISTER);
+        checkPermission(HudsonExt.ADMINISTER);
         setTemporarilyOffline(true,new ByCLI(cause));
     }
 
     @CLIMethod(name="online-node")
     public void cliOnline() throws ExecutionException, InterruptedException {
-        checkPermission(Hudson.ADMINISTER);
+        checkPermission(HudsonExt.ADMINISTER);
         setTemporarilyOffline(false,null);
     }
 
     /**
-     * Number of {@link Executor}s that are configured for this computer.
+     * Number of {@link ExecutorExt}s that are configured for this computer.
      *
      * <p>
      * When this value is decreased, it is temporarily possible
@@ -364,8 +364,8 @@ public /*transient*/ abstract class ComputerExt extends ActionableExt implements
      */
     public Node getNode() {
         if(nodeName==null)
-            return Hudson.getInstance();
-        return Hudson.getInstance().getNode(nodeName);
+            return HudsonExt.getInstance();
+        return HudsonExt.getInstance().getNode(nodeName);
     }
 
     public LoadStatistics getLoadStatistics() {
@@ -379,21 +379,21 @@ public /*transient*/ abstract class ComputerExt extends ActionableExt implements
     /**
      * {@inheritDoc}
      */
-    public void taskAccepted(Executor executor, Queue.Task task) {
+    public void taskAccepted(ExecutorExt executor, Queue.Task task) {
         // dummy implementation
     }
 
     /**
      * {@inheritDoc}
      */
-    public void taskCompleted(Executor executor, Queue.Task task, long durationMS) {
+    public void taskCompleted(ExecutorExt executor, Queue.Task task, long durationMS) {
         // dummy implementation
     }
 
     /**
      * {@inheritDoc}
      */
-    public void taskCompletedWithProblems(Executor executor, Queue.Task task, long durationMS, Throwable problems) {
+    public void taskCompletedWithProblems(ExecutorExt executor, Queue.Task task, long durationMS, Throwable problems) {
         // dummy implementation
     }
 
@@ -430,7 +430,7 @@ public /*transient*/ abstract class ComputerExt extends ActionableExt implements
     }
 
     /**
-     * Returns true if this computer can be launched by Hudson proactively and automatically.
+     * Returns true if this computer can be launched by HudsonExt proactively and automatically.
      *
      * <p>
      * For example, JNLP slaves return {@code false} from this, because the launch process
@@ -476,7 +476,7 @@ public /*transient*/ abstract class ComputerExt extends ActionableExt implements
     public void setTemporarilyOffline(boolean temporarilyOffline, OfflineCause cause) {
         offlineCause = temporarilyOffline ? cause : null;
         this.temporarilyOffline = temporarilyOffline;
-        Hudson.getInstance().getQueue().scheduleMaintenance();
+        HudsonExt.getInstance().getQueue().scheduleMaintenance();
     }
 
     public String getIcon() {
@@ -513,7 +513,7 @@ public /*transient*/ abstract class ComputerExt extends ActionableExt implements
     }
 
     public RunList getBuilds() {
-    	return new RunList(Hudson.getInstance().getAllItems(Job.class)).node(getNode());
+    	return new RunList(HudsonExt.getInstance().getAllItems(JobExt.class)).node(getNode());
     }
 
     /**
@@ -531,7 +531,7 @@ public /*transient*/ abstract class ComputerExt extends ActionableExt implements
     }
 
     /**
-     * Called by {@link Hudson#updateComputerList()} to notify {@link ComputerExt} that it will be discarded.
+     * Called by {@link HudsonExt#updateComputerList()} to notify {@link ComputerExt} that it will be discarded.
      */
     protected void kill() {
         setNumExecutors(0);
@@ -545,13 +545,13 @@ public /*transient*/ abstract class ComputerExt extends ActionableExt implements
 
         if(diff<0) {
             // send signal to all idle executors to potentially kill them off
-            for( Executor e : executors )
+            for( ExecutorExt e : executors )
                 if(e.isIdle())
                     e.interrupt();
         } else {
             // if the number is increased, add new ones
             while(executors.size()<numExecutors) {
-                Executor e = new Executor(this, executors.size());
+                ExecutorExt e = new ExecutorExt(this, executors.size());
                 e.start();
                 executors.add(e);
             }
@@ -559,11 +559,11 @@ public /*transient*/ abstract class ComputerExt extends ActionableExt implements
     }
 
     /**
-     * Returns the number of idle {@link Executor}s that can start working immediately.
+     * Returns the number of idle {@link ExecutorExt}s that can start working immediately.
      */
     public int countIdle() {
         int n = 0;
-        for (Executor e : executors) {
+        for (ExecutorExt e : executors) {
             if(e.isIdle())
                 n++;
         }
@@ -571,7 +571,7 @@ public /*transient*/ abstract class ComputerExt extends ActionableExt implements
     }
 
     /**
-     * Returns the number of {@link Executor}s that are doing some work right now.
+     * Returns the number of {@link ExecutorExt}s that are doing some work right now.
      */
     public final int countBusy() {
         return countExecutors()-countIdle();
@@ -588,10 +588,10 @@ public /*transient*/ abstract class ComputerExt extends ActionableExt implements
     }
 
     /**
-     * Gets the read-only snapshot view of all {@link Executor}s.
+     * Gets the read-only snapshot view of all {@link ExecutorExt}s.
      */
-    public List<Executor> getExecutors() {
-        return new ArrayList<Executor>(executors);
+    public List<ExecutorExt> getExecutors() {
+        return new ArrayList<ExecutorExt>(executors);
     }
 
     /**
@@ -607,7 +607,7 @@ public /*transient*/ abstract class ComputerExt extends ActionableExt implements
     public boolean isIdle() {
         if (!oneOffExecutors.isEmpty())
             return false;
-        for (Executor e : executors)
+        for (ExecutorExt e : executors)
             if(!e.isIdle())
                 return false;
         return true;
@@ -626,10 +626,10 @@ public /*transient*/ abstract class ComputerExt extends ActionableExt implements
      */
     public final long getIdleStartMilliseconds() {
         long firstIdle = Long.MIN_VALUE;
-        for (Executor e : oneOffExecutors) {
+        for (ExecutorExt e : oneOffExecutors) {
             firstIdle = Math.max(firstIdle, e.getIdleStartMilliseconds());
         }
-        for (Executor e : executors) {
+        for (ExecutorExt e : executors) {
             firstIdle = Math.max(firstIdle, e.getIdleStartMilliseconds());
         }
         return firstIdle;
@@ -640,19 +640,19 @@ public /*transient*/ abstract class ComputerExt extends ActionableExt implements
      */
     public final long getDemandStartMilliseconds() {
         long firstDemand = Long.MAX_VALUE;
-        for (Queue.BuildableItem item : Hudson.getInstance().getQueue().getBuildableItems(this)) {
+        for (Queue.BuildableItem item : HudsonExt.getInstance().getQueue().getBuildableItems(this)) {
             firstDemand = Math.min(item.buildableStartMilliseconds, firstDemand);
         }
         return firstDemand;
     }
 
     /**
-     * Called by {@link Executor} to kill excessive executors from this computer.
+     * Called by {@link ExecutorExt} to kill excessive executors from this computer.
      */
-    /*package*/ synchronized void removeExecutor(Executor e) {
+    /*package*/ synchronized void removeExecutor(ExecutorExt e) {
         executors.remove(e);
         if(!isAlive())
-            Hudson.getInstance().removeComputer(this);
+            HudsonExt.getInstance().removeComputer(this);
     }
 
     /**
@@ -662,17 +662,17 @@ public /*transient*/ abstract class ComputerExt extends ActionableExt implements
      * the administrator yanks it out, so that we can see why it died.
      */
     private boolean isAlive() {
-        for (Executor e : executors)
+        for (ExecutorExt e : executors)
             if (e.isAlive())
                 return true;
         return false;
     }
 
     /**
-     * Interrupt all {@link Executor}s.
+     * Interrupt all {@link ExecutorExt}s.
      */
     public void interrupt() {
-        for (Executor e : executors) {
+        for (ExecutorExt e : executors) {
             e.interrupt();
         }
     }
@@ -867,9 +867,9 @@ public /*transient*/ abstract class ComputerExt extends ActionableExt implements
      * {@link Publisher}, {@link BuildWrapper}, etc.
      */
     public static ComputerExt currentComputer() {
-        Executor e = Executor.currentExecutor();
+        ExecutorExt e = ExecutorExt.currentExecutor();
         // If no executor then must be on master node
-        return e != null ? e.getOwner() : Hudson.getInstance().toComputer();
+        return e != null ? e.getOwner() : HudsonExt.getInstance().toComputer();
     }
 
     /**

@@ -29,12 +29,12 @@ import hudson.ExtensionListView;
 import hudson.Extension;
 import hudson.ExtensionList;
 import hudson.XmlFile;
-import hudson.model.Hudson;
+import hudson.model.HudsonExt;
 import hudson.model.Saveable;
 import hudson.util.CopyOnWriteList;
 
 /**
- * Receives notifications about save actions on {@link Saveable} objects in Hudson.
+ * Receives notifications about save actions on {@link Saveable} objects in HudsonExt.
  *
  * <p>
  * This is an abstract class so that methods added in the future won't break existing listeners.
@@ -85,6 +85,6 @@ public abstract class SaveableListener implements ExtensionPoint {
      * Returns all the registered {@link SaveableListener} descriptors.
      */
     public static ExtensionList<SaveableListener> all() {
-        return Hudson.getInstance().getExtensionList(SaveableListener.class);
+        return HudsonExt.getInstance().getExtensionList(SaveableListener.class);
     }
 }

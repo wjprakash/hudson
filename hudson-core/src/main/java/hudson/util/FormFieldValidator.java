@@ -30,8 +30,8 @@ import hudson.ProxyConfiguration;
 import hudson.Util;
 import hudson.tasks.JavadocArchiver;
 import hudson.model.AbstractProjectExt;
-import hudson.model.Hudson;
-import hudson.model.Item;
+import hudson.model.HudsonExt;
+import hudson.model.ItemExt;
 import hudson.security.Permission;
 import hudson.security.AccessControlled;
 
@@ -63,7 +63,7 @@ import org.kohsuke.stapler.Stapler;
  *      Use {@link FormValidation} as a return value in your check method.
  */
 public abstract class FormFieldValidator {
-    public static final Permission CHECK = Hudson.ADMINISTER;
+    public static final Permission CHECK = HudsonExt.ADMINISTER;
 
     protected final StaplerRequest request;
     protected final StaplerResponse response;
@@ -85,7 +85,7 @@ public abstract class FormFieldValidator {
      *      information or run a process that may have side-effect.
      */
     protected FormFieldValidator(StaplerRequest request, StaplerResponse response, boolean adminOnly) {
-        this(request, response, adminOnly?Hudson.getInstance():null, adminOnly?CHECK:null);
+        this(request, response, adminOnly?HudsonExt.getInstance():null, adminOnly?CHECK:null);
     }
 
     /**
@@ -94,7 +94,7 @@ public abstract class FormFieldValidator {
      *      from your "doCheck..." method parameter
      */
     protected FormFieldValidator(StaplerRequest request, StaplerResponse response, Permission permission) {
-        this(request,response,Hudson.getInstance(),permission);
+        this(request,response,HudsonExt.getInstance(),permission);
     }
 
     /**
@@ -132,8 +132,8 @@ public abstract class FormFieldValidator {
                 subject.checkPermission(permission);
             } catch (AccessDeniedException e) {
                 // if the user has hudson-wisde admin permission, all checks are allowed
-                // this is to protect Hudson administrator from broken ACL/SecurityRealm implementation/configuration.
-                if(!Hudson.getInstance().hasPermission(Hudson.ADMINISTER))
+                // this is to protect HudsonExt administrator from broken ACL/SecurityRealm implementation/configuration.
+                if(!HudsonExt.getInstance().hasPermission(HudsonExt.ADMINISTER))
                     throw e;
             }
 
@@ -229,7 +229,7 @@ public abstract class FormFieldValidator {
             response.setContentType("text/html;charset=UTF-8");
             // 1x16 spacer needed for IE since it doesn't support min-height
             response.getWriter().print("<div class="+ cssClass +"><img src='"+
-                    request.getContextPath()+Hudson.RESOURCE_PATH+"/images/none.gif' height=16 width=1>"+
+                    request.getContextPath()+HudsonExt.RESOURCE_PATH+"/images/none.gif' height=16 width=1>"+
                     message+"</div>");
         }
     }
@@ -309,7 +309,7 @@ public abstract class FormFieldValidator {
     }
 
     /**
-     * Checks if the given value is an URL to some Hudson's top page.
+     * Checks if the given value is an URL to some HudsonExt's top page.
      * @since 1.192
      */
     public static class HudsonURL extends URLCheck {
@@ -358,7 +358,7 @@ public abstract class FormFieldValidator {
 
         public WorkspaceFileMask(StaplerRequest request, StaplerResponse response, boolean errorIfNotExist) {
             // Require CONFIGURE permission on the job
-            super(request, response, request.findAncestorObject(AbstractProjectExt.class), Item.CONFIGURE);
+            super(request, response, request.findAncestorObject(AbstractProjectExt.class), ItemExt.CONFIGURE);
             this.errorIfNotExist = errorIfNotExist;
         }
 
@@ -424,7 +424,7 @@ public abstract class FormFieldValidator {
 
         public WorkspaceFilePath(StaplerRequest request, StaplerResponse response, boolean errorIfNotExist, boolean expectingFile) {
             // Require CONFIGURE permission on this job
-            super(request, response, request.findAncestorObject(AbstractProjectExt.class), Item.CONFIGURE);
+            super(request, response, request.findAncestorObject(AbstractProjectExt.class), ItemExt.CONFIGURE);
             this.errorIfNotExist = errorIfNotExist;
             this.expectingFile = expectingFile;
         }

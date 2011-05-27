@@ -65,7 +65,7 @@ import static javax.servlet.http.HttpServletResponse.SC_UNAUTHORIZED;
  *
  * <p>
  * Implements {@link AccessControlled} to satisfy view rendering, but in reality the access control
- * is done against the {@link Hudson} object.
+ * is done against the {@link HudsonExt} object.
  *
  * @author Kohsuke Kawaguchi
  */
@@ -98,7 +98,7 @@ public class HudsonPrivateSecurityRealm extends AbstractPasswordBasedSecurityRea
         setCaptchaSupport(captchaSupport);
 
         if(!allowsSignup && !hasSomeUser()) {
-            // if Hudson is newly set up with the security realm and there's no user account created yet,
+            // if HudsonExt is newly set up with the security realm and there's no user account created yet,
             // insert a filter that asks the user to create one
             try {
                 PluginServletFilter.addFilter(CREATE_FIRST_USER_FILTER);
@@ -123,7 +123,7 @@ public class HudsonPrivateSecurityRealm extends AbstractPasswordBasedSecurityRea
     }
     
     /**
-     * Computes if this Hudson has some user accounts configured.
+     * Computes if this HudsonExt has some user accounts configured.
      *
      * <p>
      * This is used to check for the initial
@@ -234,7 +234,7 @@ public class HudsonPrivateSecurityRealm extends AbstractPasswordBasedSecurityRea
      * this is someone creating another user.
      */
     public void doCreateAccountByAdmin(StaplerRequest req, StaplerResponse rsp) throws IOException, ServletException {
-        checkPermission(Hudson.ADMINISTER);
+        checkPermission(HudsonExt.ADMINISTER);
         if(createAccount(req, rsp, false, "addUser.jelly")!=null) {
             rsp.sendRedirect(".");  // send the user back to the listing page
         }
@@ -262,10 +262,10 @@ public class HudsonPrivateSecurityRealm extends AbstractPasswordBasedSecurityRea
      * Try to make this user a super-user
      */
     private void tryToMakeAdmin(User u) {
-        AuthorizationStrategy as = Hudson.getInstance().getAuthorizationStrategy();
+        AuthorizationStrategy as = HudsonExt.getInstance().getAuthorizationStrategy();
         if (as instanceof GlobalMatrixAuthorizationStrategy) {
             GlobalMatrixAuthorizationStrategy ma = (GlobalMatrixAuthorizationStrategy) as;
-            ma.add(Hudson.ADMINISTER,u.getId());
+            ma.add(HudsonExt.ADMINISTER,u.getId());
         }
     }
 
@@ -334,15 +334,15 @@ public class HudsonPrivateSecurityRealm extends AbstractPasswordBasedSecurityRea
     }
 
     public ACL getACL() {
-        return Hudson.getInstance().getACL();
+        return HudsonExt.getInstance().getACL();
     }
 
     public void checkPermission(Permission permission) {
-        Hudson.getInstance().checkPermission(permission);
+        HudsonExt.getInstance().checkPermission(permission);
     }
 
     public boolean hasPermission(Permission permission) {
-        return Hudson.getInstance().hasPermission(permission);
+        return HudsonExt.getInstance().hasPermission(permission);
     }
 
 
@@ -511,7 +511,7 @@ public class HudsonPrivateSecurityRealm extends AbstractPasswordBasedSecurityRea
 
             @Override
             public boolean isEnabled() {
-                return Hudson.getInstance().getSecurityRealm() instanceof HudsonPrivateSecurityRealm;
+                return HudsonExt.getInstance().getSecurityRealm() instanceof HudsonPrivateSecurityRealm;
             }
 
             public UserProperty newInstance(User user) {
@@ -527,7 +527,7 @@ public class HudsonPrivateSecurityRealm extends AbstractPasswordBasedSecurityRea
     @Extension
     public static final class ManageUserLinks extends ManagementLink {
         public String getIconFileName() {
-            if(Hudson.getInstance().getSecurityRealm() instanceof HudsonPrivateSecurityRealm)
+            if(HudsonExt.getInstance().getSecurityRealm() instanceof HudsonPrivateSecurityRealm)
                 return "user.gif";
             else
                 return null;    // not applicable now
@@ -598,7 +598,7 @@ public class HudsonPrivateSecurityRealm extends AbstractPasswordBasedSecurityRea
     };
 
     @Extension
-    public static final class DescriptorImpl extends Descriptor<SecurityRealm> {
+    public static final class DescriptorImpl extends DescriptorExt<SecurityRealm> {
         public String getDisplayName() {
             return Messages.HudsonPrivateSecurityRealm_DisplayName();
         }
@@ -629,7 +629,7 @@ public class HudsonPrivateSecurityRealm extends AbstractPasswordBasedSecurityRea
 
         private boolean needsToCreateFirstUser() {
             return !hasSomeUser()
-                && Hudson.getInstance().getSecurityRealm() instanceof HudsonPrivateSecurityRealm;
+                && HudsonExt.getInstance().getSecurityRealm() instanceof HudsonPrivateSecurityRealm;
         }
 
         public void destroy() {

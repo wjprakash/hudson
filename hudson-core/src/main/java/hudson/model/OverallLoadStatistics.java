@@ -39,7 +39,7 @@ import org.kohsuke.stapler.export.Exported;
  * tracks the queue length including tasks that are assigned to a specific node.
  *
  * @author Kohsuke Kawaguchi
- * @see Hudson#overallLoad
+ * @see HudsonExt#overallLoad
  */
 public class OverallLoadStatistics extends LoadStatistics {
     /**
@@ -55,17 +55,17 @@ public class OverallLoadStatistics extends LoadStatistics {
 
     @Override
     public int computeIdleExecutors() {
-        return new ComputerSet().getIdleExecutors();
+        return new ComputerSetExt().getIdleExecutors();
     }
 
     @Override
     public int computeTotalExecutors() {
-        return new ComputerSet().getTotalExecutors();
+        return new ComputerSetExt().getTotalExecutors();
     }
 
     @Override
     public int computeQueueLength() {
-        return Hudson.getInstance().getQueue().countBuildableItemsFor(null);
+        return HudsonExt.getInstance().getQueue().countBuildableItemsFor(null);
     }
 
     /**

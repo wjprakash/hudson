@@ -37,7 +37,7 @@ import hudson.model.BuildListener;
 import hudson.model.ComputerExt;
 import hudson.model.EnvironmentSpecific;
 import hudson.model.Node;
-import hudson.model.Hudson;
+import hudson.model.HudsonExt;
 import hudson.model.TaskListener;
 import hudson.remoting.Callable;
 import hudson.remoting.VirtualChannel;
@@ -309,7 +309,7 @@ public class Maven extends Builder {
 
     /**
      * @deprecated as of 1.286
-     *      Use {@link Hudson#getDescriptorByType(Class)} to obtain the current instance.
+     *      Use {@link HudsonExt#getDescriptorByType(Class)} to obtain the current instance.
      *      For compatibility, this field retains the last created {@link DescriptorImpl}.
      *      TODO: fix sonar plugin that depends on this. That's the only plugin that depends on this field.
      */
@@ -524,12 +524,12 @@ public class Maven extends Builder {
 
             @Override
             public MavenInstallation[] getInstallations() {
-                return Hudson.getInstance().getDescriptorByType(Maven.DescriptorImpl.class).getInstallations();
+                return HudsonExt.getInstance().getDescriptorByType(Maven.DescriptorImpl.class).getInstallations();
             }
 
             @Override
             public void setInstallations(MavenInstallation... installations) {
-                Hudson.getInstance().getDescriptorByType(Maven.DescriptorImpl.class).setInstallations(installations);
+                HudsonExt.getInstance().getDescriptorByType(Maven.DescriptorImpl.class).setInstallations(installations);
             }
 
             /**
@@ -537,7 +537,7 @@ public class Maven extends Builder {
              */
             public FormValidation doCheckMavenHome(@QueryParameter File value) {
                 // this can be used to check the existence of a file on the server, so needs to be protected
-                if(!Hudson.getInstance().hasPermission(Hudson.ADMINISTER))
+                if(!HudsonExt.getInstance().hasPermission(HudsonExt.ADMINISTER))
                     return FormValidation.ok();
 
                 if(value.getPath().equals(""))

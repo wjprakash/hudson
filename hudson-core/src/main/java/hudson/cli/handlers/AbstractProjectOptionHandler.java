@@ -24,7 +24,7 @@
 package hudson.cli.handlers;
 
 import hudson.model.AbstractProjectExt;
-import hudson.model.Hudson;
+import hudson.model.HudsonExt;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.OptionDef;
@@ -46,7 +46,7 @@ public class AbstractProjectOptionHandler extends OptionHandler<AbstractProjectE
 
     @Override
     public int parseArguments(Parameters params) throws CmdLineException {
-        Hudson h = Hudson.getInstance();
+        HudsonExt h = HudsonExt.getInstance();
         String src = params.getParameter(0);
 
         AbstractProjectExt s = h.getItemByFullName(src,AbstractProjectExt.class);

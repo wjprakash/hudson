@@ -26,13 +26,13 @@ package hudson.util.graph;
 import hudson.DescriptorExtensionListExt;
 import hudson.ExtensionPoint;
 import hudson.model.AbstractDescribableImpl;
-import hudson.model.Descriptor;
-import hudson.model.Hudson;
+import hudson.model.DescriptorExt;
+import hudson.model.HudsonExt;
 import java.awt.image.BufferedImage;
 import java.util.List;
 
 /**
- * Extension point for adding Graph Support to Hudson
+ * Extension point for adding Graph Support to HudsonExt
  *
  * <p>
  * This object can have an optional <tt>config.jelly</tt> to configure the Graph Support
@@ -48,8 +48,8 @@ public abstract class GraphSupport extends AbstractDescribableImpl<GraphSupport>
     /**
      * Returns all the registered {@link GraphSupport} descriptors.
      */
-    public static DescriptorExtensionListExt<GraphSupport, Descriptor<GraphSupport>> all() {
-        return Hudson.getInstance().<GraphSupport, Descriptor<GraphSupport>>getDescriptorList(GraphSupport.class);
+    public static DescriptorExtensionListExt<GraphSupport, DescriptorExt<GraphSupport>> all() {
+        return HudsonExt.getInstance().<GraphSupport, DescriptorExt<GraphSupport>>getDescriptorList(GraphSupport.class);
     }
 
     abstract public void setChartType(int chartType);

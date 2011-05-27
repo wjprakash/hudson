@@ -35,7 +35,7 @@ import hudson.Launcher;
 import hudson.Util;
 import hudson.diagnosis.OldDataMonitorExt;
 import hudson.model.CauseExt.LegacyCodeCause;
-import hudson.model.Fingerprint.RangeSet;
+import hudson.model.FingerprintExt.RangeSet;
 import hudson.model.Queue.Executable;
 import hudson.model.Queue.Task;
 import hudson.model.queue.SubTask;
@@ -86,14 +86,14 @@ import java.util.logging.Logger;
 import static hudson.scm.PollingResult.*;
 
 /**
- * Base implementation of {@link Job}s that build software.
+ * Base implementation of {@link JobExt}s that build software.
  *
  * For now this is primarily the common part of {@link Project} and MavenModule.
  *
  * @author Kohsuke Kawaguchi
  * @see AbstractBuildExt
  */
-public abstract class AbstractProjectExt<P extends AbstractProjectExt<P,R>,R extends AbstractBuildExt<P,R>> extends Job<P,R> implements BuildableItem {
+public abstract class AbstractProjectExt<P extends AbstractProjectExt<P,R>,R extends AbstractBuildExt<P,R>> extends JobExt<P,R> implements BuildableItem {
 
     /**
      * {@link SCM} associated with the project.
@@ -139,7 +139,7 @@ public abstract class AbstractProjectExt<P extends AbstractProjectExt<P,R>,R ext
      *
      * <p>
      * This somewhat ugly flag combination is so that we can migrate
-     * existing Hudson installations nicely.
+     * existing HudsonExt installations nicely.
      */
     protected volatile boolean canRoam;
 
@@ -161,14 +161,14 @@ public abstract class AbstractProjectExt<P extends AbstractProjectExt<P,R>,R ext
     protected volatile boolean blockBuildWhenUpstreamBuilding = false;
 
     /**
-     * Identifies {@link JDK} to be used.
+     * Identifies {@link JDKExt} to be used.
      * Null if no explicit configuration is required.
      *
      * <p>
-     * Can't store {@link JDK} directly because {@link Hudson} and {@link Project}
+     * Can't store {@link JDKExt} directly because {@link HudsonExt} and {@link Project}
      * are saved independently.
      *
-     * @see Hudson#getJDK(String)
+     * @see HudsonExt#getJDK(String)
      */
     protected volatile String jdk;
 
@@ -204,8 +204,8 @@ public abstract class AbstractProjectExt<P extends AbstractProjectExt<P,R>,R ext
     protected AbstractProjectExt(ItemGroup parent, String name) {
         super(parent,name);
 
-        if(!Hudson.getInstance().getNodes().isEmpty()) {
-            // if a new job is configured with Hudson that already has slave nodes
+        if(!HudsonExt.getInstance().getNodes().isEmpty()) {
+            // if a new job is configured with HudsonExt that already has slave nodes
             // make it roamable by default
             canRoam = true;
         }
@@ -219,7 +219,7 @@ public abstract class AbstractProjectExt<P extends AbstractProjectExt<P,R>,R ext
     }
 
     @Override
-    public void onLoad(ItemGroup<? extends Item> parent, String name) throws IOException {
+    public void onLoad(ItemGroup<? extends ItemExt> parent, String name) throws IOException {
         super.onLoad(parent, name);
 
         this.builds = new RunMap<R>();
@@ -265,7 +265,7 @@ public abstract class AbstractProjectExt<P extends AbstractProjectExt<P,R>,R ext
      * @since 1.319
      */
     public boolean isConcurrentBuild() {
-        return Hudson.CONCURRENT_BUILD && concurrentBuild;
+        return HudsonExt.CONCURRENT_BUILD && concurrentBuild;
     }
 
     public void setConcurrentBuild(boolean b) throws IOException {
@@ -281,13 +281,13 @@ public abstract class AbstractProjectExt<P extends AbstractProjectExt<P,R>,R ext
      * If this project is configured to be always built on this node,
      * return that {@link Node}. Otherwise null.
      */
-    public Label getAssignedLabel() {
+    public LabelExt getAssignedLabel() {
         if(canRoam)
             return null;
 
         if(assignedNode==null)
-            return Hudson.getInstance().getSelfLabel();
-        return Hudson.getInstance().getLabel(assignedNode);
+            return HudsonExt.getInstance().getSelfLabel();
+        return HudsonExt.getInstance().getLabel(assignedNode);
     }
 
     /**
@@ -307,20 +307,20 @@ public abstract class AbstractProjectExt<P extends AbstractProjectExt<P,R>,R ext
     /**
      * Sets the assigned label.
      */
-    public void setAssignedLabel(Label l) throws IOException {
+    public void setAssignedLabel(LabelExt l) throws IOException {
         if(l==null) {
             canRoam = true;
             assignedNode = null;
         } else {
             canRoam = false;
-            if(l==Hudson.getInstance().getSelfLabel())  assignedNode = null;
+            if(l==HudsonExt.getInstance().getSelfLabel())  assignedNode = null;
             else                                        assignedNode = l.getExpression();
         }
         save();
     }
 
     /**
-     * Assigns this job to the given node. A convenience method over {@link #setAssignedLabel(Label)}.
+     * Assigns this job to the given node. A convenience method over {@link #setAssignedLabel(LabelExt)}.
      */
     public void setAssignedNode(Node l) throws IOException {
         setAssignedLabel(l.getSelfLabel());
@@ -341,7 +341,7 @@ public abstract class AbstractProjectExt<P extends AbstractProjectExt<P,R>,R ext
      * @return the root project value.
      */
     public AbstractProjectExt getRootProject() {
-        if (this.getParent() instanceof Hudson) {
+        if (this.getParent() instanceof HudsonExt) {
             return this;
         } else {
             return ((AbstractProjectExt) this.getParent()).getRootProject();
@@ -356,7 +356,7 @@ public abstract class AbstractProjectExt<P extends AbstractProjectExt<P,R>,R ext
      * @deprecated as of 1.319
      *      To support concurrent builds of the same project, this method is moved to {@link AbstractBuildExt}.
      *      For backward compatibility, this method returns the right {@link AbstractBuildExt#getWorkspace()} if called
-     *      from {@link Executor}, and otherwise the workspace of the last build.
+     *      from {@link ExecutorExt}, and otherwise the workspace of the last build.
      *
      *      <p>
      *      If you are calling this method during a build from an executor, switch it to {@link AbstractBuildExt#getWorkspace()}.
@@ -376,7 +376,7 @@ public abstract class AbstractProjectExt<P extends AbstractProjectExt<P,R>,R ext
      * @return An AbstractBuildExt for deprecated methods to use.
      */
     private AbstractBuildExt getBuildForDeprecatedMethods() {
-        Executor e = Executor.currentExecutor();
+        ExecutorExt e = ExecutorExt.currentExecutor();
         if(e!=null) {
             Executable exe = e.getCurrentExecutable();
             if (exe instanceof AbstractBuildExt) {
@@ -451,11 +451,11 @@ public abstract class AbstractProjectExt<P extends AbstractProjectExt<P,R>,R ext
     }
 
     public int getQuietPeriod() {
-        return quietPeriod!=null ? quietPeriod : Hudson.getInstance().getQuietPeriod();
+        return quietPeriod!=null ? quietPeriod : HudsonExt.getInstance().getQuietPeriod();
     }
     
     public int getScmCheckoutRetryCount() {
-        return scmCheckoutRetryCount !=null ? scmCheckoutRetryCount : Hudson.getInstance().getScmCheckoutRetryCount();
+        return scmCheckoutRetryCount !=null ? scmCheckoutRetryCount : HudsonExt.getInstance().getScmCheckoutRetryCount();
     }
 
     // ugly name because of EL
@@ -517,7 +517,7 @@ public abstract class AbstractProjectExt<P extends AbstractProjectExt<P,R>,R ext
         if(disabled==b)     return; // noop
         this.disabled = b;
         if(b)
-            Hudson.getInstance().getQueue().cancel(this);
+            HudsonExt.getInstance().getQueue().cancel(this);
         save();
     }
 
@@ -551,7 +551,7 @@ public abstract class AbstractProjectExt<P extends AbstractProjectExt<P,R>,R ext
     protected List<Action> createTransientActions() {
         Vector<Action> ta = new Vector<Action>();
 
-        for (JobProperty<? super P> p : properties)
+        for (JobPropertyExt<? super P> p : properties)
             ta.addAll(p.getJobActions((P)this));
 
         for (TransientProjectActionFactory tpaf : TransientProjectActionFactory.all())
@@ -566,10 +566,10 @@ public abstract class AbstractProjectExt<P extends AbstractProjectExt<P,R>,R ext
      * This method couldn't be called <tt>getPublishers()</tt> because existing methods
      * in sub-classes return different inconsistent types.
      */
-    public abstract DescribableList<Publisher,Descriptor<Publisher>> getPublishersList();
+    public abstract DescribableList<Publisher,DescriptorExt<Publisher>> getPublishersList();
 
     @Override
-    public void addProperty(JobProperty<? super P> jobProp) throws IOException {
+    public void addProperty(JobPropertyExt<? super P> jobProp) throws IOException {
         super.addProperty(jobProp);
         updateTransientActions();
     }
@@ -661,18 +661,18 @@ public abstract class AbstractProjectExt<P extends AbstractProjectExt<P,R>,R ext
         }
 
         if (c != null) {
-            queueActions.add(new CauseAction(c));
+            queueActions.add(new CauseActionExt(c));
         }
 
-        WaitingItem i = Hudson.getInstance().getQueue().schedule(this, quietPeriod, queueActions);
+        WaitingItem i = HudsonExt.getInstance().getQueue().schedule(this, quietPeriod, queueActions);
         if(i!=null)
             return (Future)i.getFuture();
         return null;
     }
 
-    private List<ParameterValue> getDefaultParametersValues() {
+    private List<ParameterValueExt> getDefaultParametersValues() {
         ParametersDefinitionProperty paramDefProp = getProperty(ParametersDefinitionProperty.class);
-        ArrayList<ParameterValue> defValues = new ArrayList<ParameterValue>();
+        ArrayList<ParameterValueExt> defValues = new ArrayList<ParameterValueExt>();
         
         /*
          * This check is made ONLY if someone will call this method even if isParametrized() is false.
@@ -681,9 +681,9 @@ public abstract class AbstractProjectExt<P extends AbstractProjectExt<P,R>,R ext
             return defValues;
         
         /* Scan for all parameter with an associated default values */
-        for(ParameterDefinition paramDefinition : paramDefProp.getParameterDefinitions())
+        for(ParameterDefinitionExt paramDefinition : paramDefProp.getParameterDefinitions())
         {
-           ParameterValue defaultValue  = paramDefinition.getDefaultParameterValue();
+           ParameterValueExt defaultValue  = paramDefinition.getDefaultParameterValue();
             
             if(defaultValue != null)
                 defValues.add(defaultValue);           
@@ -728,25 +728,25 @@ public abstract class AbstractProjectExt<P extends AbstractProjectExt<P,R>,R ext
      */
     @Override
     public boolean isInQueue() {
-        return Hudson.getInstance().getQueue().contains(this);
+        return HudsonExt.getInstance().getQueue().contains(this);
     }
 
     @Override
     public Queue.Item getQueueItem() {
-        return Hudson.getInstance().getQueue().getItem(this);
+        return HudsonExt.getInstance().getQueue().getItem(this);
     }
 
     /**
-     * Gets the JDK that this project is configured with, or null.
+     * Gets the JDKExt that this project is configured with, or null.
      */
-    public JDK getJDK() {
-        return Hudson.getInstance().getJDK(jdk);
+    public JDKExt getJDK() {
+        return HudsonExt.getInstance().getJDK(jdk);
     }
 
     /**
-     * Overwrites the JDK setting.
+     * Overwrites the JDKExt setting.
      */
-    public void setJDK(JDK jdk) throws IOException {
+    public void setJDK(JDKExt jdk) throws IOException {
         this.jdk = jdk.getName();
         save();
     }
@@ -899,7 +899,7 @@ public abstract class AbstractProjectExt<P extends AbstractProjectExt<P,R>,R ext
 
         @Override
         public String getShortDescription() {
-            Executor e = build.getExecutor();
+            ExecutorExt e = build.getExecutor();
             String eta = "";
             if (e != null)
                 eta = Messages.AbstractProject_ETA(e.getEstimatedRemainingTime());
@@ -963,7 +963,7 @@ public abstract class AbstractProjectExt<P extends AbstractProjectExt<P,R>,R ext
      * the given project (provided that all builds went smoothly.)
      */
     protected AbstractProjectExt getBuildingDownstream() {
-    	DependencyGraph graph = Hudson.getInstance().getDependencyGraph();
+    	DependencyGraph graph = HudsonExt.getInstance().getDependencyGraph();
         Set<AbstractProjectExt> tups = graph.getTransitiveDownstream(this);
         tups.add(this);
         for (AbstractProjectExt tup : tups) {
@@ -981,7 +981,7 @@ public abstract class AbstractProjectExt<P extends AbstractProjectExt<P,R>,R ext
      * the given project (provided that all builds went smoothly.)
      */
     protected AbstractProjectExt getBuildingUpstream() {
-    	DependencyGraph graph = Hudson.getInstance().getDependencyGraph();
+    	DependencyGraph graph = HudsonExt.getInstance().getDependencyGraph();
         Set<AbstractProjectExt> tups = graph.getTransitiveUpstream(this);
         tups.add(this);
         for (AbstractProjectExt tup : tups) {
@@ -996,7 +996,7 @@ public abstract class AbstractProjectExt<P extends AbstractProjectExt<P,R>,R ext
         r.add(this);
         for (SubTaskContributor euc : SubTaskContributor.all())
             r.addAll(euc.forProject(this));
-        for (JobProperty<? super P> p : properties)
+        for (JobPropertyExt<? super P> p : properties)
             r.addAll(p.getSubTasks());
         return r;
     }
@@ -1138,7 +1138,7 @@ public abstract class AbstractProjectExt<P extends AbstractProjectExt<P,R>,R ext
                 if (r==success) break;  // searched far enough
             }
             // NOTE-NO-BASELINE:
-            // if we don't have baseline yet, it means the data is built by old Hudson that doesn't set the baseline
+            // if we don't have baseline yet, it means the data is built by old HudsonExt that doesn't set the baseline
             // as action, so we need to compute it. This happens later.
         }
 
@@ -1149,7 +1149,7 @@ public abstract class AbstractProjectExt<P extends AbstractProjectExt<P,R>,R ext
 
                 if (ws==null || !ws.exists()) {
                     // workspace offline. build now, or nothing will ever be built
-                    Label label = getAssignedLabel();
+                    LabelExt label = getAssignedLabel();
                     if (label != null && label.isSelfLabel()) {
                         // if the build is fixed on a node, then attempting a build will do us
                         // no good. We should just wait for the slave to come back.
@@ -1169,7 +1169,7 @@ public abstract class AbstractProjectExt<P extends AbstractProjectExt<P,R>,R ext
                 } else {
                     WorkspaceList l = lb.getBuiltOn().toComputer().getWorkspaceList();
                     // if doing non-concurrent build, acquire a workspace in a way that causes builds to block for this workspace.
-                    // this prevents multiple workspaces of the same job --- the behavior of Hudson < 1.319.
+                    // this prevents multiple workspaces of the same job --- the behavior of HudsonExt < 1.319.
                     //
                     // OTOH, if a concurrent build is chosen, the user is willing to create a multiple workspace,
                     // so better throughput is achieved over time (modulo the initial cost of creating that many workspaces)
@@ -1260,7 +1260,7 @@ public abstract class AbstractProjectExt<P extends AbstractProjectExt<P,R>,R ext
     }
 
     protected final synchronized <T extends Describable<T>>
-    void removeFromList(Descriptor<T> item, List<T> collection) throws IOException {
+    void removeFromList(DescriptorExt<T> item, List<T> collection) throws IOException {
         for( int i=0; i< collection.size(); i++ ) {
             if(collection.get(i).getDescriptor()==item) {
                 // found it
@@ -1273,7 +1273,7 @@ public abstract class AbstractProjectExt<P extends AbstractProjectExt<P,R>,R ext
     }
 
     public synchronized Map<TriggerDescriptor,Trigger> getTriggers() {
-        return (Map)Descriptor.toMap(triggers);
+        return (Map)DescriptorExt.toMap(triggers);
     }
 
     /**
@@ -1293,7 +1293,7 @@ public abstract class AbstractProjectExt<P extends AbstractProjectExt<P,R>,R ext
 //
 //
     /**
-     * True if the builds of this project produces {@link Fingerprint} records.
+     * True if the builds of this project produces {@link FingerprintExt} records.
      */
     public abstract boolean isFingerprintConfigured();
 
@@ -1302,11 +1302,11 @@ public abstract class AbstractProjectExt<P extends AbstractProjectExt<P,R>,R ext
      * when a build of this project is completed.
      */
     public  List<AbstractProjectExt> getDownstreamProjects() {
-        return Hudson.getInstance().getDependencyGraph().getDownstream(this);
+        return HudsonExt.getInstance().getDependencyGraph().getDownstream(this);
     }
 
     public  List<AbstractProjectExt> getUpstreamProjects() {
-        return Hudson.getInstance().getDependencyGraph().getUpstream(this);
+        return HudsonExt.getInstance().getDependencyGraph().getUpstream(this);
     }
 
     /**
@@ -1332,7 +1332,7 @@ public abstract class AbstractProjectExt<P extends AbstractProjectExt<P,R>,R ext
      * @since 1.138
      */
     public final Set<AbstractProjectExt> getTransitiveUpstreamProjects() {
-        return Hudson.getInstance().getDependencyGraph().getTransitiveUpstream(this);
+        return HudsonExt.getInstance().getDependencyGraph().getTransitiveUpstream(this);
     }
 
     /**
@@ -1341,7 +1341,7 @@ public abstract class AbstractProjectExt<P extends AbstractProjectExt<P,R>,R ext
      * @since 1.138
      */
     public final Set<AbstractProjectExt> getTransitiveDownstreamProjects() {
-        return Hudson.getInstance().getDependencyGraph().getTransitiveDownstream(this);
+        return HudsonExt.getInstance().getDependencyGraph().getTransitiveDownstream(this);
     }
 
     /**
@@ -1391,7 +1391,7 @@ public abstract class AbstractProjectExt<P extends AbstractProjectExt<P,R>,R ext
     @Override
     protected SearchIndexBuilder makeSearchIndex() {
         SearchIndexBuilder sib = super.makeSearchIndex();
-        if(isBuildable() && hasPermission(Hudson.ADMINISTER))
+        if(isBuildable() && hasPermission(HudsonExt.ADMINISTER))
             sib.add("build","build");
         return sib;
     }
@@ -1429,16 +1429,16 @@ public abstract class AbstractProjectExt<P extends AbstractProjectExt<P,R>,R ext
      */
     public static abstract class AbstractProjectDescriptorExt extends TopLevelItemDescriptor {
         /**
-         * {@link AbstractProjectExt} subtypes can override this method to veto some {@link Descriptor}s
+         * {@link AbstractProjectExt} subtypes can override this method to veto some {@link DescriptorExt}s
          * from showing up on their configuration screen. This is often useful when you are building
          * a workflow/company specific project type, where you want to limit the number of choices
          * given to the users.
          *
          * <p>
-         * Some {@link Descriptor}s define their own schemes for controlling applicability
+         * Some {@link DescriptorExt}s define their own schemes for controlling applicability
          * (such as {@link BuildStepDescriptor#isApplicable(Class)}),
          * This method works like AND in conjunction with them;
-         * Both this method and that method need to return true in order for a given {@link Descriptor}
+         * Both this method and that method need to return true in order for a given {@link DescriptorExt}
          * to show up for the given {@link Project}.
          *
          * <p>
@@ -1446,10 +1446,10 @@ public abstract class AbstractProjectExt<P extends AbstractProjectExt<P,R>,R ext
          *
          * @see BuildStepDescriptor#isApplicable(Class) 
          * @see BuildWrapperDescriptor#isApplicable(AbstractProjectExt) 
-         * @see TriggerDescriptor#isApplicable(Item)
+         * @see TriggerDescriptor#isApplicable(ItemExt)
          */
         @Override
-        public boolean isApplicable(Descriptor descriptor) {
+        public boolean isApplicable(DescriptorExt descriptor) {
             return true;
         }
 
@@ -1501,13 +1501,13 @@ public abstract class AbstractProjectExt<P extends AbstractProjectExt<P,R>,R ext
      * Finds a {@link AbstractProjectExt} that has the name closest to the given name.
      */
     public static AbstractProjectExt findNearest(String name) {
-        List<AbstractProjectExt> projects = Hudson.getInstance().getItems(AbstractProjectExt.class);
+        List<AbstractProjectExt> projects = HudsonExt.getInstance().getItems(AbstractProjectExt.class);
         String[] names = new String[projects.size()];
         for( int i=0; i<projects.size(); i++ )
             names[i] = projects.get(i).getName();
 
         String nearest = EditDistance.findNearest(name, names);
-        return (AbstractProjectExt)Hudson.getInstance().getItem(nearest);
+        return (AbstractProjectExt)HudsonExt.getInstance().getItem(nearest);
     }
 
     private static final Comparator<Integer> REVERSE_INTEGER_COMPARATOR = new Comparator<Integer>() {

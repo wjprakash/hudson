@@ -24,7 +24,7 @@
 package hudson.slaves;
 
 import hudson.FunctionsExt;
-import hudson.model.Descriptor;
+import hudson.model.DescriptorExt;
 import hudson.model.TaskListener;
 
 import java.io.IOException;
@@ -66,14 +66,14 @@ public abstract class DelegatingComputerLauncher extends ComputerLauncher {
         getLauncher().beforeDisconnect(computer, listener);
     }
 
-    public static abstract class DescriptorImpl extends Descriptor<ComputerLauncher> {
+    public static abstract class DescriptorImpl extends DescriptorExt<ComputerLauncher> {
         /**
          * Returns the applicable nested computer launcher types.
          * The default implementation avoids all delegating descriptors, as that creates infinite recursion.
          */
-        public List<Descriptor<ComputerLauncher>> getApplicableDescriptors() {
-            List<Descriptor<ComputerLauncher>> r = new ArrayList<Descriptor<ComputerLauncher>>();
-            for (Descriptor<ComputerLauncher> d : FunctionsExt.getComputerLauncherDescriptors()) {
+        public List<DescriptorExt<ComputerLauncher>> getApplicableDescriptors() {
+            List<DescriptorExt<ComputerLauncher>> r = new ArrayList<DescriptorExt<ComputerLauncher>>();
+            for (DescriptorExt<ComputerLauncher> d : FunctionsExt.getComputerLauncherDescriptors()) {
                 if (DelegatingComputerLauncher.class.isInstance(d))  continue;
                 r.add(d);
             }

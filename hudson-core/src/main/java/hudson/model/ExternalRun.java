@@ -39,22 +39,22 @@ import java.io.Reader;
 import static javax.xml.stream.XMLStreamConstants.*;
 
 /**
- * {@link Run} for {@link ExternalJob}.
+ * {@link RunExt} for {@link ExternalJobExt}.
  * 
  * @author Kohsuke Kawaguchi
  */
-public class ExternalRun extends Run<ExternalJob,ExternalRun> {
+public class ExternalRun extends RunExt<ExternalJobExt,ExternalRun> {
     /**
      * Loads a run from a log file.
      */
-    ExternalRun(ExternalJob owner, File runDir) throws IOException {
+    ExternalRun(ExternalJobExt owner, File runDir) throws IOException {
         super(owner,runDir);
     }
 
     /**
      * Creates a new run.
      */
-    ExternalRun(ExternalJob project) throws IOException {
+    ExternalRun(ExternalJobExt project) throws IOException {
         super(project);
     }
 

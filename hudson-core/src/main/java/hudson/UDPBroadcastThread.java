@@ -23,7 +23,7 @@
  */
 package hudson;
 
-import hudson.model.Hudson;
+import hudson.model.HudsonExt;
 import hudson.util.OneShotEvent;
 
 import java.io.IOException;
@@ -38,21 +38,21 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Monitors a UDP multicast broadcast and respond with the location of the Hudson service.
+ * Monitors a UDP multicast broadcast and respond with the location of the HudsonExt service.
  *
  * <p>
- * Useful for auto-discovery of Hudson in the network.
+ * Useful for auto-discovery of HudsonExt in the network.
  *
  * @author Kohsuke Kawaguchi
  */
 public class UDPBroadcastThread extends Thread {
-    private final Hudson hudson;
+    private final HudsonExt hudson;
 
     public final OneShotEvent ready = new OneShotEvent();
     private MulticastSocket mcs;
     private boolean shutdown;
 
-    public UDPBroadcastThread(Hudson hudson) throws IOException {
+    public UDPBroadcastThread(HudsonExt hudson) throws IOException {
         super("Hudson UDP "+PORT+" monitoring thread");
         this.hudson = hudson;
         mcs = new MulticastSocket(PORT);
@@ -75,7 +75,7 @@ public class UDPBroadcastThread extends Thread {
                 TcpSlaveAgentListener tal = hudson.getTcpSlaveAgentListener();
 
                 StringBuilder rsp = new StringBuilder("<hudson>");
-                tag(rsp,"version",Hudson.VERSION);
+                tag(rsp,"version",HudsonExt.VERSION);
                 tag(rsp,"url",hudson.getRootUrl());
                 tag(rsp,"slave-port",tal==null?null:tal.getPort());
 

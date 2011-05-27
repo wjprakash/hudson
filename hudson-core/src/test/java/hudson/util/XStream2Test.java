@@ -26,7 +26,7 @@ package hudson.util;
 import com.google.common.collect.ImmutableMap;
 import junit.framework.TestCase;
 import hudson.model.Result;
-import hudson.model.Run;
+import hudson.model.RunExt;
 
 import java.util.Map;
 
@@ -43,7 +43,7 @@ public class XStream2Test extends TestCase {
     public void testMarshalValue() {
         Foo f = new Foo();
         f.r1 = f.r2 = Result.FAILURE;
-        String xml = Run.XSTREAM.toXML(f);
+        String xml = RunExt.XSTREAM.toXML(f);
         // we should find two "FAILURE"s as they should be written out twice
         assertEquals(xml, 3, xml.split("FAILURE").length);
     }
@@ -168,6 +168,6 @@ public class XStream2Test extends TestCase {
     // @Bug(8006) -- Previously a null entry in an array caused NPE
     public void testEmptyStack() {
         assertEquals("<object-array><null/><null/></object-array>",
-                     Run.XSTREAM.toXML(new Object[2]).replaceAll("[ \n\r\t]+", ""));
+                     RunExt.XSTREAM.toXML(new Object[2]).replaceAll("[ \n\r\t]+", ""));
     }
 }

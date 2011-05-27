@@ -42,7 +42,7 @@ public class BooleanParameterDefinition extends BooleanParameterDefinitionExt {
 
 
     @Override
-    public ParameterValue createValue(StaplerRequest req, JSONObject jo) {
+    public ParameterValueExt createValue(StaplerRequest req, JSONObject jo) {
         BooleanParameterValue value = req.bindJSON(BooleanParameterValue.class, jo);
         value.setDescription(getDescription());
         return value;

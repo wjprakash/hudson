@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Hides {@link Descriptor}s from users.
+ * Hides {@link DescriptorExt}s from users.
  *
  * @author Kohsuke Kawaguchi
  * @since 1.393
@@ -20,24 +20,24 @@ public abstract class DescriptorVisibilityFilter implements ExtensionPoint {
      *
      * @param context
      *      The object that indicates where the visibility of a descriptor is evaluated.
-     *      For example, if Hudson is deciding whether a {@link FreeStyleProject} should gets a
+     *      For example, if HudsonExt is deciding whether a {@link FreeStyleProject} should gets a
      *      {@link SCMDescriptor}, the context object will be the {@link FreeStyleProject}.
      *      The caller can pass in null if there's no context.
      * @param descriptor
-     *      Descriptor whose visibility is evaluated. Never null.
+     *      DescriptorExt whose visibility is evaluated. Never null.
      *
      * @return
      *      true to allow the descriptor to be visible. false to hide it.
      *      If any of the installed {@link DescriptorVisibilityFilter} returns false,
      *      the descriptor is not shown.
      */
-    public abstract boolean filter(Object context, Descriptor descriptor);
+    public abstract boolean filter(Object context, DescriptorExt descriptor);
 
     public static ExtensionList<DescriptorVisibilityFilter> all() {
-        return Hudson.getInstance().getExtensionList(DescriptorVisibilityFilter.class);
+        return HudsonExt.getInstance().getExtensionList(DescriptorVisibilityFilter.class);
     }
 
-    public static <T extends Descriptor> List<T> apply(Object context, Iterable<T> source) {
+    public static <T extends DescriptorExt> List<T> apply(Object context, Iterable<T> source) {
         ExtensionList<DescriptorVisibilityFilter> filters = all();
         List<T> r = new ArrayList<T>();
         

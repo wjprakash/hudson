@@ -24,7 +24,7 @@
 package hudson.cli;
 
 import hudson.Extension;
-import hudson.model.Hudson;
+import hudson.model.HudsonExt;
 
 /**
  * Shows the version.
@@ -39,8 +39,8 @@ public class VersionCommand extends CLICommand {
     }
 
     protected int run() {
-        // CLICommand.main checks Hudson.READ permission.. no other check needed.
-        stdout.println(Hudson.VERSION);
+        // CLICommand.main checks HudsonExt.READ permission.. no other check needed.
+        stdout.println(HudsonExt.VERSION);
         return 0;
     }
 }

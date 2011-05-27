@@ -25,7 +25,7 @@ package hudson.cli;
 
 import hudson.Extension;
 import hudson.model.AbstractBuildExt;
-import hudson.model.Run;
+import hudson.model.RunExt;
 
 import java.io.IOException;
 import java.io.PrintStream;
@@ -52,7 +52,7 @@ public class DeleteBuildsCommand extends AbstractBuildRangeCommand {
 
     @Override
     protected int act(List<AbstractBuildExt<?, ?>> builds) throws IOException {
-        job.checkPermission(Run.DELETE);
+        job.checkPermission(RunExt.DELETE);
 
         for (AbstractBuildExt build : builds)
             build.delete();

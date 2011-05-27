@@ -26,13 +26,13 @@ package hudson.util.jna;
 import hudson.DescriptorExtensionListExt;
 import hudson.ExtensionPoint;
 import hudson.model.AbstractDescribableImpl;
-import hudson.model.Descriptor;
-import hudson.model.Hudson;
+import hudson.model.DescriptorExt;
+import hudson.model.HudsonExt;
 import java.io.File;
 import java.util.List;
 
 /**
- * Extension point for adding Native Windows Support to Hudson
+ * Extension point for adding Native Windows Support to HudsonExt
  *
  * <p>
  * This object can have an optional <tt>config.jelly</tt> to configure the Native Access Support
@@ -48,8 +48,8 @@ public abstract class NativeWindowsSupport extends AbstractDescribableImpl<Nativ
     /**
      * Returns all the registered {@link NativeAccessSupport} descriptors.
      */
-    public static DescriptorExtensionListExt<NativeWindowsSupport, Descriptor<NativeWindowsSupport>> all() {
-        return Hudson.getInstance().<NativeWindowsSupport, Descriptor<NativeWindowsSupport>>getDescriptorList(NativeWindowsSupport.class);
+    public static DescriptorExtensionListExt<NativeWindowsSupport, DescriptorExt<NativeWindowsSupport>> all() {
+        return HudsonExt.getInstance().<NativeWindowsSupport, DescriptorExt<NativeWindowsSupport>>getDescriptorList(NativeWindowsSupport.class);
     }
 
     @Override

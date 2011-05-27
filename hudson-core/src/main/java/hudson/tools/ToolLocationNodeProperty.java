@@ -26,8 +26,8 @@ package hudson.tools;
 
 import hudson.DescriptorExtensionListExt;
 import hudson.Extension;
-import hudson.model.Descriptor;
-import hudson.model.Hudson;
+import hudson.model.DescriptorExt;
+import hudson.model.HudsonExt;
 import hudson.model.Node;
 import hudson.model.TaskListener;
 import hudson.slaves.NodeProperty;
@@ -121,7 +121,7 @@ public class ToolLocationNodeProperty extends NodeProperty<Node> {
 
         @Override
         public boolean isApplicable(Class<? extends Node> nodeType) {
-            return nodeType != Hudson.class;
+            return nodeType != HudsonExt.class;
         }
     }
 
@@ -154,7 +154,7 @@ public class ToolLocationNodeProperty extends NodeProperty<Node> {
         }
 
         public ToolDescriptor getType() {
-            if (descriptor == null) descriptor = (ToolDescriptor) Descriptor.find(type); 
+            if (descriptor == null) descriptor = (ToolDescriptor) DescriptorExt.find(type); 
             return descriptor;
         }
 

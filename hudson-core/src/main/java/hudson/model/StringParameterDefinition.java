@@ -31,7 +31,7 @@ import org.kohsuke.stapler.StaplerRequest;
 /**
  * Parameter whose value is a string value.
  */
-public class StringParameterDefinition extends SimpleParameterDefinition {
+public class StringParameterDefinition extends SimpleParameterDefinitionExt {
 
     private String defaultValue;
 
@@ -60,7 +60,7 @@ public class StringParameterDefinition extends SimpleParameterDefinition {
     }
 
     @Extension
-    public static class DescriptorImpl extends ParameterDescriptor {
+    public static class DescriptorImpl extends ParameterDescriptorExt {
         @Override
         public String getDisplayName() {
             return Messages.StringParameterDefinition_DisplayName();
@@ -73,13 +73,13 @@ public class StringParameterDefinition extends SimpleParameterDefinition {
     }
 
     @Override
-    public ParameterValue createValue(StaplerRequest req, JSONObject jo) {
+    public ParameterValueExt createValue(StaplerRequest req, JSONObject jo) {
         StringParameterValue value = req.bindJSON(StringParameterValue.class, jo);
         value.setDescription(getDescription());
         return value;
     }
 
-    public ParameterValue createValue(String value) {
+    public ParameterValueExt createValue(String value) {
         return new StringParameterValue(getName(), value, getDescription());
     }
 }

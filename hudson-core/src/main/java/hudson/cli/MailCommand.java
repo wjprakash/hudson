@@ -25,17 +25,17 @@ package hudson.cli;
 
 import hudson.tasks.Mailer;
 import hudson.Extension;
-import hudson.model.Hudson;
-import hudson.model.Item;
+import hudson.model.HudsonExt;
+import hudson.model.ItemExt;
 
 import javax.mail.internet.MimeMessage;
 import javax.mail.Transport;
 
 /**
- * Sends e-mail through Hudson.
+ * Sends e-mail through HudsonExt.
  *
  * <p>
- * Various platforms have different commands to do this, so on heterogenous platform, doing this via Hudson is easier.
+ * Various platforms have different commands to do this, so on heterogenous platform, doing this via HudsonExt is easier.
  *
  * @author Kohsuke Kawaguchi
  */
@@ -46,7 +46,7 @@ public class MailCommand extends CLICommand {
     }
 
     protected int run() throws Exception {
-        Hudson.getInstance().checkPermission(Item.CONFIGURE);
+        HudsonExt.getInstance().checkPermission(ItemExt.CONFIGURE);
         Transport.send(new MimeMessage(Mailer.descriptor().createSession(),stdin));
         return 0;
     }

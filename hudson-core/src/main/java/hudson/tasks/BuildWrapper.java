@@ -28,7 +28,7 @@ import hudson.Launcher;
 import hudson.DescriptorExtensionListExt;
 import hudson.LauncherDecorator;
 import hudson.model.*;
-import hudson.model.Run.RunnerAbortedException;
+import hudson.model.RunExt.RunnerAbortedException;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -83,7 +83,7 @@ public abstract class BuildWrapper extends AbstractDescribableImpl<BuildWrapper>
          *      true if the build can continue, false if there was an error
          *      and the build needs to be aborted.
          * @throws IOException
-         *      terminates the build abnormally. Hudson will handle the exception
+         *      terminates the build abnormally. HudsonExt will handle the exception
          *      and reports a nice error message.
          * @since 1.150
          */
@@ -120,7 +120,7 @@ public abstract class BuildWrapper extends AbstractDescribableImpl<BuildWrapper>
      *      non-null if the build can continue, null if there was an error
      *      and the build needs to be aborted.
      * @throws IOException
-     *      terminates the build abnormally. Hudson will handle the exception
+     *      terminates the build abnormally. HudsonExt will handle the exception
      *      and reports a nice error message.
      * @since 1.150
      */
@@ -268,8 +268,8 @@ public abstract class BuildWrapper extends AbstractDescribableImpl<BuildWrapper>
      * Returns all the registered {@link BuildWrapper} descriptors.
      */
     // for compatibility we can't use BuildWrapperDescriptor
-    public static DescriptorExtensionListExt<BuildWrapper,Descriptor<BuildWrapper>> all() {
+    public static DescriptorExtensionListExt<BuildWrapper,DescriptorExt<BuildWrapper>> all() {
         // use getDescriptorList and not getExtensionList to pick up legacy instances
-        return Hudson.getInstance().<BuildWrapper,Descriptor<BuildWrapper>>getDescriptorList(BuildWrapper.class);
+        return HudsonExt.getInstance().<BuildWrapper,DescriptorExt<BuildWrapper>>getDescriptorList(BuildWrapper.class);
     }
 }

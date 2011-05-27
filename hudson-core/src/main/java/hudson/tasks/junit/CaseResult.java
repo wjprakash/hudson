@@ -25,7 +25,7 @@ package hudson.tasks.junit;
 
 import org.jvnet.localizer.Localizable;
 import hudson.model.AbstractBuildExt;
-import hudson.model.Run;
+import hudson.model.RunExt;
 import hudson.tasks.test.TestResult;
 import org.dom4j.Element;
 import org.kohsuke.stapler.export.Exported;
@@ -310,7 +310,7 @@ public final class CaseResult extends TestResult implements Comparable<CaseResul
         return failedSince;
     }
     
-    public Run<?,?> getFailedSinceRun() {
+    public RunExt<?,?> getFailedSinceRun() {
     	return getOwner().getParent().getBuildByNumber(getFailedSince());
     }
 

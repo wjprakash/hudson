@@ -105,7 +105,7 @@ import com.thoughtworks.xstream.converters.basic.AbstractSingleValueConverter;
  *
  * <p>
  * This class implements the core scheduling logic. {@link Task} represents the executable
- * task that are placed in the queue. While in the queue, it's wrapped into {@link Item}
+ * task that are placed in the queue. While in the queue, it's wrapped into {@link ItemExt}
  * so that we can keep track of additional data used for deciding what to exeucte when.
  *
  * <p>
@@ -130,7 +130,7 @@ public class Queue extends ResourceController implements Saveable {
      * Items that are waiting for its quiet period to pass.
      *
      * <p>
-     * This consists of {@link Item}s that cannot be run yet
+     * This consists of {@link ItemExt}s that cannot be run yet
      * because its time has not yet come.
      */
     private final Set<WaitingItem> waitingList = new TreeSet<WaitingItem>();
@@ -145,7 +145,7 @@ public class Queue extends ResourceController implements Saveable {
 
     /**
      * {@link Task}s that can be built immediately
-     * that are waiting for available {@link Executor}.
+     * that are waiting for available {@link ExecutorExt}.
      * This list is sorted in such a way that earlier items are built earlier.
      */
     private final ItemList<BuildableItem> buildables = new ItemList<BuildableItem>();
@@ -157,7 +157,7 @@ public class Queue extends ResourceController implements Saveable {
     private final ItemList<BuildableItem> pendings = new ItemList<BuildableItem>();
 
     /**
-     * Data structure created for each idle {@link Executor}.
+     * Data structure created for each idle {@link ExecutorExt}.
      * This is a job offer from the queue to an executor.
      *
      * <p>
@@ -166,7 +166,7 @@ public class Queue extends ResourceController implements Saveable {
      * and we'll eventually hand out an {@link #workUnit} to build.
      */
     public class JobOffer extends MappingWorksheet.ExecutorSlot {
-        public final Executor executor;
+        public final ExecutorExt executor;
 
         /**
          * Used to wake up an executor, when it has an offered
@@ -175,12 +175,12 @@ public class Queue extends ResourceController implements Saveable {
         private final OneShotEvent event = new OneShotEvent(Queue.this);
 
         /**
-         * The work unit that this {@link Executor} is going to handle.
+         * The work unit that this {@link ExecutorExt} is going to handle.
          * (Or null, in which case event is used to trigger a queue maintenance.)
          */
         private WorkUnit workUnit;
 
-        private JobOffer(Executor executor) {
+        private JobOffer(ExecutorExt executor) {
             this.executor = executor;
         }
 
@@ -192,12 +192,12 @@ public class Queue extends ResourceController implements Saveable {
         }
 
         @Override
-        public Executor getExecutor() {
+        public ExecutorExt getExecutor() {
             return executor;
         }
 
         /**
-         * Verifies that the {@link Executor} represented by this object is capable of executing the given task.
+         * Verifies that the {@link ExecutorExt} represented by this object is capable of executing the given task.
          */
         public boolean canTake(Task task) {
             Node node = getNode();
@@ -232,7 +232,7 @@ public class Queue extends ResourceController implements Saveable {
     /**
      * The executors that are currently waiting for a job to run.
      */
-    private final Map<Executor,JobOffer> parked = new HashMap<Executor,JobOffer>();
+    private final Map<ExecutorExt,JobOffer> parked = new HashMap<ExecutorExt,JobOffer>();
 
     private volatile transient LoadBalancer loadBalancer;
 
@@ -273,7 +273,7 @@ public class Queue extends ResourceController implements Saveable {
                 BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(queueFile)));
                 String line;
                 while ((line = in.readLine()) != null) {
-                    AbstractProjectExt j = Hudson.getInstance().getItemByFullName(line, AbstractProjectExt.class);
+                    AbstractProjectExt j = HudsonExt.getInstance().getItemByFullName(line, AbstractProjectExt.class);
                     if (j != null)
                         j.scheduleBuild();
                 }
@@ -351,7 +351,7 @@ public class Queue extends ResourceController implements Saveable {
      */
     @CLIMethod(name="clear-queue")
     public synchronized void clear() {
-        Hudson.getInstance().checkPermission(Hudson.ADMINISTER);
+        HudsonExt.getInstance().checkPermission(HudsonExt.ADMINISTER);
         for (WaitingItem i : waitingList)
             i.onCancelled();
         waitingList.clear();
@@ -361,11 +361,11 @@ public class Queue extends ResourceController implements Saveable {
     }
 
     private File getQueueFile() {
-        return new File(Hudson.getInstance().getRootDir(), "queue.txt");
+        return new File(HudsonExt.getInstance().getRootDir(), "queue.txt");
     }
 
     /*package*/ File getXMLQueueFile() {
-        return new File(Hudson.getInstance().getRootDir(), "queue.xml");
+        return new File(HudsonExt.getInstance().getRootDir(), "queue.xml");
     }
 
     /**
@@ -407,13 +407,13 @@ public class Queue extends ResourceController implements Saveable {
      * @param actions
      *      These actions can be used for associating information scoped to a particular build, to
      *      the task being queued. Upon the start of the build, these {@link Action}s will be automatically
-     *      added to the {@link Run} object, and hence avaialable to everyone.
+     *      added to the {@link RunExt} object, and hence avaialable to everyone.
      *      For the convenience of the caller, this list can contain null, and those will be silently ignored.
      * @since 1.311
      * @return
      *      null if this task is already in the queue and therefore the add operation was no-op.
      *      Otherwise indicates the {@link WaitingItem} object added, although the nature of the queue
-     *      is that such {@link Item} only captures the state of the item at a particular moment,
+     *      is that such {@link ItemExt} only captures the state of the item at a particular moment,
      *      and by the time you inspect the object, some of its information can be already stale.
      *
      *      That said, one can still look at {@link WaitingItem#future}, {@link WaitingItem#id}, etc.
@@ -440,7 +440,7 @@ public class Queue extends ResourceController implements Saveable {
      * @return
      *      null if this task is already in the queue and therefore the add operation was no-op.
      *      Otherwise indicates the {@link WaitingItem} object added, although the nature of the queue
-     *      is that such {@link Item} only captures the state of the item at a particular moment,
+     *      is that such {@link ItemExt} only captures the state of the item at a particular moment,
      *      and by the time you inspect the object, some of its information can be already stale.
      *
      *      That said, one can still look at {@link WaitingItem#future}, {@link WaitingItem#id}, etc.
@@ -646,7 +646,7 @@ public class Queue extends ResourceController implements Saveable {
     /**
      * How many {@link BuildableItem}s are assigned for the given label?
      */
-    public synchronized int countBuildableItemsFor(Label l) {
+    public synchronized int countBuildableItemsFor(LabelExt l) {
         int r = 0;
         for (BuildableItem bi : buildables.values())
             if(bi.task.getAssignedLabel()==l)
@@ -701,7 +701,7 @@ public class Queue extends ResourceController implements Saveable {
      * Left for backward compatibility.
      *
      * @see #getItem(Task)
-    public synchronized Item getItem(AbstractProjectExt p) {
+    public synchronized ItemExt getItem(AbstractProjectExt p) {
         return getItem((Task) p);
     }
      */
@@ -725,7 +725,7 @@ public class Queue extends ResourceController implements Saveable {
      * This method blocks until a next project becomes buildable.
      */
     public synchronized WorkUnit pop() throws InterruptedException {
-        final Executor exec = Executor.currentExecutor();
+        final ExecutorExt exec = ExecutorExt.currentExecutor();
 
         try {
             while (true) {
@@ -830,13 +830,13 @@ public class Queue extends ResourceController implements Saveable {
      * <p>
      * When conditions are changed, this method should be invoked.
      * <p>
-     * This wakes up one {@link Executor} so that it will maintain a queue.
+     * This wakes up one {@link ExecutorExt} so that it will maintain a queue.
      */
     public synchronized void scheduleMaintenance() {
         // this code assumes that after this method is called
         // no more executors will be offered job except by
         // the pop() code.
-        for (Entry<Executor, JobOffer> av : parked.entrySet()) {
+        for (Entry<ExecutorExt, JobOffer> av : parked.entrySet()) {
             if (av.getValue().workUnit == null) {
                 av.getValue().event.signal();
                 return;
@@ -913,18 +913,18 @@ public class Queue extends ResourceController implements Saveable {
     }
 
     private void makeBuildable(BuildableItem p) {
-        if(Hudson.FLYWEIGHT_SUPPORT && p.task instanceof FlyweightTask && !ifBlockedByHudsonShutdown(p.task)) {
+        if(HudsonExt.FLYWEIGHT_SUPPORT && p.task instanceof FlyweightTask && !ifBlockedByHudsonShutdown(p.task)) {
             ConsistentHash<Node> hash = new ConsistentHash<Node>(new Hash<Node>() {
                 public String hash(Node node) {
                     return node.getNodeName();
                 }
             });
-            Hudson h = Hudson.getInstance();
+            HudsonExt h = HudsonExt.getInstance();
             hash.add(h, h.getNumExecutors()*100);
             for (Node n : h.getNodes())
                 hash.add(n,n.getNumExecutors()*100);
 
-            Label lbl = p.task.getAssignedLabel();
+            LabelExt lbl = p.task.getAssignedLabel();
             for (Node n : hash.list(p.task.getFullDisplayName())) {
                 ComputerExt c = n.toComputer();
                 if (c==null || c.isOffline())    continue;
@@ -940,7 +940,7 @@ public class Queue extends ResourceController implements Saveable {
     }
 
     public static boolean ifBlockedByHudsonShutdown(Task task) {
-        return Hudson.getInstance().isQuietingDown() && !(task instanceof NonBlockingTask);
+        return HudsonExt.getInstance().isQuietingDown() && !(task instanceof NonBlockingTask);
     }
 
     public Api getApi() {
@@ -954,14 +954,14 @@ public class Queue extends ResourceController implements Saveable {
     public interface TransientTask extends Task {}
 
     /**
-     * Marks {@link Task}s that do not consume {@link Executor}.
+     * Marks {@link Task}s that do not consume {@link ExecutorExt}.
      * @see OneOffExecutor
      * @since 1.318
      */
     public interface FlyweightTask extends Task {}
 
     /**
-     * Marks {@link Task}s that are not affected by the {@linkplain Hudson#isQuietingDown()}  quieting down},
+     * Marks {@link Task}s that are not affected by the {@linkplain HudsonExt#isQuietingDown()}  quieting down},
      * because these tasks keep other tasks executing.
      *
      * @since 1.336 
@@ -977,7 +977,7 @@ public class Queue extends ResourceController implements Saveable {
      * queue backlog.
      *
      * <p>
-     * Pending {@link Task}s are persisted when Hudson shuts down, so
+     * Pending {@link Task}s are persisted when HudsonExt shuts down, so
      * it needs to be persistable via XStream. To create a non-persisted
      * transient Task, extend {@link TransientTask} marker interface.
      *
@@ -1030,7 +1030,7 @@ public class Queue extends ResourceController implements Saveable {
         String getName();
 
         /**
-         * @see hudson.model.Item#getFullDisplayName()
+         * @see hudson.model.ItemExt#getFullDisplayName()
          */
         String getFullDisplayName();
 
@@ -1053,7 +1053,7 @@ public class Queue extends ResourceController implements Saveable {
          *
          * <p>
          * When the user clicks an item in the queue, this is the page where the user is taken to.
-         * Hudson expects the current instance to be bound to the URL returned by this method.
+         * HudsonExt expects the current instance to be bound to the URL returned by this method.
          *
          * @return
          *      URL that ends with '/'.
@@ -1088,7 +1088,7 @@ public class Queue extends ResourceController implements Saveable {
     }
 
     /**
-     * Represents the real meat of the computation run by {@link Executor}.
+     * Represents the real meat of the computation run by {@link ExecutorExt}.
      *
      * <h2>Views</h2>
      * <p>
@@ -1108,7 +1108,7 @@ public class Queue extends ResourceController implements Saveable {
         SubTask getParent();
 
         /**
-         * Called by {@link Executor} to perform the task
+         * Called by {@link ExecutorExt} to perform the task
          */
         void run();
         
@@ -1131,13 +1131,13 @@ public class Queue extends ResourceController implements Saveable {
     }
 
     /**
-     * Item in a queue.
+     * ItemExt in a queue.
      */
     @ExportedBean(defaultVisibility = 999)
     public static abstract class Item extends ActionableExt {
         /**
          * VM-wide unique ID that tracks the {@link Task} as it moves through different stages
-         * in the queue (each represented by different subtypes of {@link Item}.
+         * in the queue (each represented by different subtypes of {@link ItemExt}.
          */
     	public final int id;
     	
@@ -1185,7 +1185,7 @@ public class Queue extends ResourceController implements Saveable {
          * @since 1.343
          */
         public final List<CauseExt> getCauses() {
-            CauseAction ca = getAction(CauseAction.class);
+            CauseActionExt ca = getAction(CauseActionExt.class);
             if (ca!=null)
                 return Collections.unmodifiableList(ca.getCauses());
             return Collections.emptyList();
@@ -1226,7 +1226,7 @@ public class Queue extends ResourceController implements Saveable {
         	for(Action action : getActions()) {
         		if(action instanceof ParametersAction) {
         			ParametersAction pa = (ParametersAction)action;
-        			for (ParameterValue p : pa.getParameters()) {
+        			for (ParameterValueExt p : pa.getParameters()) {
         				s.append('\n').append(p.getShortDescription());
         			}
         		}
@@ -1252,7 +1252,7 @@ public class Queue extends ResourceController implements Saveable {
          * Called from queue.jelly.
          */
         public HttpResponse doCancelQueue() throws IOException, ServletException {
-        	Hudson.getInstance().getQueue().cancel(this);
+        	HudsonExt.getInstance().getQueue().cancel(this);
             return HttpResponses.forwardToPreviousPage();
         }
 
@@ -1275,7 +1275,7 @@ public class Queue extends ResourceController implements Saveable {
     }
     
     /**
-     * An optional interface for actions on Queue.Item.
+     * An optional interface for actions on Queue.ItemExt.
      * Lets the action cooperate in queue management.
      * 
      * @since 1.300-ish.
@@ -1313,12 +1313,12 @@ public class Queue extends ResourceController implements Saveable {
     	 * @return
     	 */
     	public static ExtensionList<QueueDecisionHandler> all() {
-    		return Hudson.getInstance().getExtensionList(QueueDecisionHandler.class);
+    		return HudsonExt.getInstance().getExtensionList(QueueDecisionHandler.class);
     	}
     }
     
     /**
-     * {@link Item} in the {@link Queue#waitingList} stage.
+     * {@link ItemExt} in the {@link Queue#waitingList} stage.
      */
     public static final class WaitingItem extends Item implements Comparable<WaitingItem> {
     	private static final AtomicInteger COUNTER = new AtomicInteger(0);
@@ -1372,7 +1372,7 @@ public class Queue extends ResourceController implements Saveable {
     }
 
     /**
-     * {@link Item} in the {@link Queue#blockedProjects} stage.
+     * {@link ItemExt} in the {@link Queue#blockedProjects} stage.
      */
     public final class BlockedItem extends NotWaitingItem {
         public BlockedItem(WaitingItem wi) {
@@ -1395,7 +1395,7 @@ public class Queue extends ResourceController implements Saveable {
     }
 
     /**
-     * {@link Item} in the {@link Queue#buildables} stage.
+     * {@link ItemExt} in the {@link Queue#buildables} stage.
      */
     public final static class BuildableItem extends NotWaitingItem {
         public BuildableItem(WaitingItem wi) {
@@ -1407,11 +1407,11 @@ public class Queue extends ResourceController implements Saveable {
         }
 
         public CauseOfBlockage getCauseOfBlockage() {
-            Hudson hudson = Hudson.getInstance();
+            HudsonExt hudson = HudsonExt.getInstance();
             if(ifBlockedByHudsonShutdown(task))
                 return CauseOfBlockage.fromMessage(Messages._Queue_HudsonIsAboutToShutDown());
 
-            Label label = task.getAssignedLabel();
+            LabelExt label = task.getAssignedLabel();
             if (hudson.getNodes().isEmpty())
                 label = null;    // no master/slave. pointless to talk about nodes
 
@@ -1433,7 +1433,7 @@ public class Queue extends ResourceController implements Saveable {
 
         @Override
         public boolean isStuck() {
-            Label label = task.getAssignedLabel();
+            LabelExt label = task.getAssignedLabel();
             if(label!=null && label.isOffline())
                 // no executor online to process this job. definitely stuck.
                 return true;
@@ -1463,19 +1463,19 @@ public class Queue extends ResourceController implements Saveable {
 			@Override
 			@SuppressWarnings("unchecked")
 			public boolean canConvert(Class klazz) {
-				return hudson.model.Item.class.isAssignableFrom(klazz);
+				return hudson.model.ItemExt.class.isAssignableFrom(klazz);
 			}
 
 			@Override
 			public Object fromString(String string) {
-                Object item = Hudson.getInstance().getItemByFullName(string);
+                Object item = HudsonExt.getInstance().getItemByFullName(string);
                 if(item==null)  throw new NoSuchElementException("No such job exists: "+string);
                 return item;
 			}
 
 			@Override
 			public String toString(Object item) {
-				return ((hudson.model.Item) item).getFullName();
+				return ((hudson.model.ItemExt) item).getFullName();
 			}
         });
         XSTREAM.registerConverter(new AbstractSingleValueConverter() {
@@ -1483,7 +1483,7 @@ public class Queue extends ResourceController implements Saveable {
 			@SuppressWarnings("unchecked")
 			@Override
 			public boolean canConvert(Class klazz) {
-				return Run.class.isAssignableFrom(klazz);
+				return RunExt.class.isAssignableFrom(klazz);
 			}
 
 			@Override
@@ -1491,16 +1491,16 @@ public class Queue extends ResourceController implements Saveable {
 				String[] split = string.split("#");
 				String projectName = split[0];
 				int buildNumber = Integer.parseInt(split[1]);
-				Job<?,?> job = (Job<?,?>) Hudson.getInstance().getItemByFullName(projectName);
+				JobExt<?,?> job = (JobExt<?,?>) HudsonExt.getInstance().getItemByFullName(projectName);
                 if(job==null)  throw new NoSuchElementException("No such job exists: "+projectName);
-				Run<?,?> run = job.getBuildByNumber(buildNumber);
+				RunExt<?,?> run = job.getBuildByNumber(buildNumber);
                 if(run==null)  throw new NoSuchElementException("No such build: "+string);
 				return run;
 			}
 
 			@Override
 			public String toString(Object object) {
-				Run<?,?> run = (Run<?,?>) object;
+				RunExt<?,?> run = (RunExt<?,?>) object;
 				return run.getParent().getFullName() + "#" + run.getNumber();
 			}
         });
@@ -1530,7 +1530,7 @@ public class Queue extends ResourceController implements Saveable {
     }
     
     /**
-     * {@link ArrayList} of {@link Item} with more convenience methods.
+     * {@link ArrayList} of {@link ItemExt} with more convenience methods.
      */
     private static class ItemList<T extends Item> extends ArrayList<T> {
     	public T get(Task task) {
@@ -1578,7 +1578,7 @@ public class Queue extends ResourceController implements Saveable {
     	}
 
         /**
-         * Works like {@link #remove(Task)} but also marks the {@link Item} as cancelled.
+         * Works like {@link #remove(Task)} but also marks the {@link ItemExt} as cancelled.
          */
         public T cancel(Task p) {
             T x = remove(p);
@@ -1587,7 +1587,7 @@ public class Queue extends ResourceController implements Saveable {
         }
 
         /**
-         * Works like {@link #remove(Object)} but also marks the {@link Item} as cancelled.
+         * Works like {@link #remove(Object)} but also marks the {@link ItemExt} as cancelled.
          */
         public boolean cancel(Item t) {
             boolean r = remove(t);
@@ -1604,14 +1604,14 @@ public class Queue extends ResourceController implements Saveable {
 
     @CLIResolver
     public static Queue getInstance() {
-        return Hudson.getInstance().getQueue();
+        return HudsonExt.getInstance().getQueue();
     }
 
     /**
      * Restores the queue content during the start up.
      */
     @Initializer(after=JOB_LOADED)
-    public static void init(Hudson h) {
+    public static void init(HudsonExt h) {
         h.getQueue().load();
     }
 }

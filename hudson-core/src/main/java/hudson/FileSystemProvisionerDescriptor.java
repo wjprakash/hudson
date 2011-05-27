@@ -23,17 +23,17 @@
  */
 package hudson;
 
-import hudson.model.Descriptor;
+import hudson.model.DescriptorExt;
 import hudson.model.TaskListener;
 
 import java.io.IOException;
 
 /**
- * {@link Descriptor} for {@link FileSystemProvisioner}.
+ * {@link DescriptorExt} for {@link FileSystemProvisioner}.
  *
  * @author Kohsuke Kawaguchi
  */
-public abstract class FileSystemProvisionerDescriptor extends Descriptor<FileSystemProvisioner> implements ExtensionPoint {
+public abstract class FileSystemProvisionerDescriptor extends DescriptorExt<FileSystemProvisioner> implements ExtensionPoint {
     /**
      * Called to clean up a workspace that may potentially belong to this {@link FileSystemProvisioner}.
      *

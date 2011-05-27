@@ -26,7 +26,7 @@ package hudson.model;
 import hudson.model.Queue.Task;
 
 /**
- * {@link Item} that can be "built", for
+ * {@link ItemExt} that can be "built", for
  * whatever meaning of "build".
  *
  * <p>
@@ -34,7 +34,7 @@ import hudson.model.Queue.Task;
  *
  * @author Kohsuke Kawaguchi
  */
-public interface BuildableItem extends Item, Task {
+public interface BuildableItem extends ItemExt, Task {
 	/**
 	 * @deprecated
 	 *    Use {@link #scheduleBuild(CauseExt)}.  Since 1.283

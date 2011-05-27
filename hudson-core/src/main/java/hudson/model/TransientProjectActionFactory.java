@@ -38,7 +38,7 @@ import java.util.Collection;
  * but sometimes it's convenient to be able to add actions across all or many projects, without being invoked
  * through configuration. This extension point provides such a mechanism.
  *
- * Actions of {@link AbstractProjectExt}s are transient &mdash; they will not be persisted, and each time Hudson starts
+ * Actions of {@link AbstractProjectExt}s are transient &mdash; they will not be persisted, and each time HudsonExt starts
  * or the configuration of the job changes, they'll be recreated. Therefore, to maintain persistent data
  * per project, you'll need to do data serialization by yourself. Do so by storing a file
  * under {@link AbstractProjectExt#getRootDir()}.
@@ -65,6 +65,6 @@ public abstract class TransientProjectActionFactory implements ExtensionPoint {
      * Returns all the registered {@link TransientProjectActionFactory}s.
      */
     public static ExtensionList<TransientProjectActionFactory> all() {
-        return Hudson.getInstance().getExtensionList(TransientProjectActionFactory.class);
+        return HudsonExt.getInstance().getExtensionList(TransientProjectActionFactory.class);
     }
 }

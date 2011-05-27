@@ -61,7 +61,7 @@ import java.util.Stack;
  * there's a change (which is relatively rare), a new instance
  * will be created. This eliminates the need of synchronization.
  *
- * @see Hudson#getDependencyGraph() 
+ * @see HudsonExt#getDependencyGraph() 
  * @author Kohsuke Kawaguchi
  */
 public final class DependencyGraph implements Comparator<AbstractProjectExt> {
@@ -87,7 +87,7 @@ public final class DependencyGraph implements Comparator<AbstractProjectExt> {
             NotSerilizableSecurityContext system = new NotSerilizableSecurityContext();
             system.setAuthentication(ACL.SYSTEM);
             SecurityContextHolder.setContext(system);
-            for( AbstractProjectExt p : Hudson.getInstance().getAllItems(AbstractProjectExt.class) )
+            for( AbstractProjectExt p : HudsonExt.getInstance().getAllItems(AbstractProjectExt.class) )
                 p.buildDependencyGraph(this);
 
             forward = finalize(forward);

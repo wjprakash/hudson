@@ -25,7 +25,7 @@ package hudson.logging;
 
 import hudson.Util;
 import hudson.XmlFile;
-import hudson.model.Hudson;
+import hudson.model.HudsonExt;
 import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
@@ -70,7 +70,7 @@ public class LogRecorder extends LogRecorderExt {
         String newName = src.getString("name"), redirect = ".";
         XmlFile oldFile = null;
         if(!name.equals(newName)) {
-            Hudson.checkGoodName(newName);
+            HudsonExt.checkGoodName(newName);
             oldFile = getConfigFile();
             // rename
             getParent().logRecorders.remove(name);

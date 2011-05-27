@@ -28,7 +28,7 @@ import hudson.Util;
 import hudson.Extension;
 import hudson.os.SU;
 import hudson.model.AdministrativeMonitorExt;
-import hudson.model.Hudson;
+import hudson.model.HudsonExt;
 import hudson.model.TaskListener;
 import hudson.remoting.Callable;
 import hudson.util.ForkOutputStream;
@@ -104,7 +104,7 @@ public class ZFSInstaller extends AdministrativeMonitorExt implements Serializab
                 return false;       // no active ZFS pool
 
             // if we don't run on a ZFS file system, activate
-            NativeZfsFileSystem hudsonZfs = nativeUtils.getZfsByMountPoint(Hudson.getInstance().getRootDir());
+            NativeZfsFileSystem hudsonZfs = nativeUtils.getZfsByMountPoint(HudsonExt.getInstance().getRootDir());
             if(hudsonZfs!=null)
                 return false;       // already on ZFS
 
@@ -129,7 +129,7 @@ public class ZFSInstaller extends AdministrativeMonitorExt implements Serializab
      */
     public HttpResponse doAct(StaplerRequest req) throws ServletException, IOException {
         requirePOST();
-        Hudson.getInstance().checkPermission(Hudson.ADMINISTER);
+        HudsonExt.getInstance().checkPermission(HudsonExt.ADMINISTER);
 
         if(req.hasParameter("n")) {
             // we'll shut up
@@ -153,10 +153,10 @@ public class ZFSInstaller extends AdministrativeMonitorExt implements Serializab
      *      The ZFS dataset name to migrate the data to.
      */
     private String createZfsFileSystem(final TaskListener listener, String rootUsername, String rootPassword) throws IOException, InterruptedException {
-        // capture the UID that Hudson runs under
+        // capture the UID that HudsonExt runs under
         // so that we can allow this user to do everything on this new partition
         
-        final File home = Hudson.getInstance().getRootDir();
+        final File home = HudsonExt.getInstance().getRootDir();
 
         // this is the actual creation of the file system.
         // return true indicating a success
@@ -194,7 +194,7 @@ public class ZFSInstaller extends AdministrativeMonitorExt implements Serializab
                     }
                     hudson.unmount();
 
-                    hudson.setProperty("hudson:managed-by", "hudson"); // mark this file system as "managed by Hudson"
+                    hudson.setProperty("hudson:managed-by", "hudson"); // mark this file system as "managed by HudsonExt"
 
                     hudson.allow(userName);
                     return hudson.getName();
@@ -214,8 +214,8 @@ public class ZFSInstaller extends AdministrativeMonitorExt implements Serializab
      */
     public void doStart(StaplerRequest req, StaplerResponse rsp, @QueryParameter String username, @QueryParameter String password) throws ServletException, IOException {
         requirePOST(); 
-        Hudson hudson = Hudson.getInstance();
-        hudson.checkPermission(Hudson.ADMINISTER);
+        HudsonExt hudson = HudsonExt.getInstance();
+        hudson.checkPermission(HudsonExt.ADMINISTER);
 
         final String datasetName;
         ByteArrayOutputStream log = new ByteArrayOutputStream();
@@ -279,7 +279,7 @@ public class ZFSInstaller extends AdministrativeMonitorExt implements Serializab
                     return new MigrationCompleteNotice();
                 }
             } catch (Exception e) {
-                // if we let any exception from here, it will prevent Hudson from starting.
+                // if we let any exception from here, it will prevent HudsonExt from starting.
                 e.printStackTrace(listener.error("Migration failed"));
             }
             // migration failed
@@ -312,7 +312,7 @@ public class ZFSInstaller extends AdministrativeMonitorExt implements Serializab
             
             PrintStream out = listener.getLogger();
 
-            File home = Hudson.getInstance().getRootDir();
+            File home = HudsonExt.getInstance().getRootDir();
             // do the migration
             NativeZfsFileSystem existing = nativeUtils.getZfsByMountPoint(home);
             if(existing!=null) {
@@ -326,7 +326,7 @@ public class ZFSInstaller extends AdministrativeMonitorExt implements Serializab
             out.println("Opening "+target);
             NativeZfsFileSystem hudson = nativeUtils.openZfs(target);
             hudson.setMountPoint(tmpDir);
-            hudson.setProperty("hudson:managed-by","hudson"); // mark this file system as "managed by Hudson"
+            hudson.setProperty("hudson:managed-by","hudson"); // mark this file system as "managed by HudsonExt"
             hudson.mount();
 
             // copy all the files

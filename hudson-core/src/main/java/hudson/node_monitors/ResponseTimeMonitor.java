@@ -25,7 +25,7 @@ package hudson.node_monitors;
 
 import hudson.Util;
 import hudson.Extension;
-import hudson.model.Descriptor.FormException;
+import hudson.model.DescriptorExt.FormException;
 import hudson.slaves.OfflineCause;
 import hudson.model.ComputerExt;
 import hudson.remoting.Callable;

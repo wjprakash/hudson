@@ -25,8 +25,8 @@ package hudson.slaves;
 
 import hudson.model.LoadStatistics;
 import hudson.model.Node;
-import hudson.model.Hudson;
-import hudson.model.Label;
+import hudson.model.HudsonExt;
+import hudson.model.LabelExt;
 import hudson.model.PeriodicWork;
 import static hudson.model.LoadStatistics.DECAY;
 import hudson.Extension;
@@ -79,10 +79,10 @@ public class NodeProvisioner {
 
     /**
      * For which label are we working?
-     * Null if this {@link NodeProvisioner} is working for the entire Hudson,
+     * Null if this {@link NodeProvisioner} is working for the entire HudsonExt,
      * for jobs that are unassigned to any particular node.
      */
-    private final Label label;
+    private final LabelExt label;
 
     private List<PlannedNode> pendingLaunches = new ArrayList<PlannedNode>();
 
@@ -96,7 +96,7 @@ public class NodeProvisioner {
     private final MultiStageTimeSeries plannedCapacitiesEMA =
             new MultiStageTimeSeries(Messages._NodeProvisioner_EmptyString(),Color.WHITE,0,DECAY);
 
-    public NodeProvisioner(Label label, LoadStatistics loadStatistics) {
+    public NodeProvisioner(LabelExt label, LoadStatistics loadStatistics) {
         this.label = label;
         this.stat = loadStatistics;
     }
@@ -106,7 +106,7 @@ public class NodeProvisioner {
      * Launches additional nodes if necessary.
      */
     private void update() {
-        Hudson hudson = Hudson.getInstance();
+        HudsonExt hudson = HudsonExt.getInstance();
 
         // clean up the cancelled launch activity, then count the # of executors that we are about to bring up.
         float plannedCapacity = 0;
@@ -156,7 +156,7 @@ public class NodeProvisioner {
             us avoid over-reacting to stats.
 
             If we only use the snapshot value or EMA value, tests confirmed that the gap creates phantom
-            excessive loads and Hudson ends up firing excessive capacities. In a static system, over the time
+            excessive loads and HudsonExt ends up firing excessive capacities. In a static system, over the time
             EMA and the snapshot value becomes the same, so this makes sure that in a long run this conservative
             estimate won't create a starvation.
          */
@@ -207,8 +207,8 @@ public class NodeProvisioner {
      * in the (0,1) range.)
      *
      * <p>
-     * M effectively controls how long Hudson waits until allocating a new node, in the face of workload.
-     * This delay is justified for absorbing temporary ups and downs, and can be interpreted as Hudson
+     * M effectively controls how long HudsonExt waits until allocating a new node, in the face of workload.
+     * This delay is justified for absorbing temporary ups and downs, and can be interpreted as HudsonExt
      * holding off provisioning in the hope that one of the existing nodes will become available.
      *
      * <p>
@@ -265,9 +265,9 @@ public class NodeProvisioner {
 
         @Override
         protected void doRun() {
-            Hudson h = Hudson.getInstance();
+            HudsonExt h = HudsonExt.getInstance();
             h.overallNodeProvisioner.update();
-            for( Label l : h.getLabels() )
+            for( LabelExt l : h.getLabels() )
                 l.nodeProvisioner.update();
         }
     }

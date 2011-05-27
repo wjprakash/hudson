@@ -26,7 +26,7 @@ package hudson.tools;
 import hudson.DescriptorExtensionListExt;
 import hudson.ExtensionPoint;
 import hudson.model.Describable;
-import hudson.model.Hudson;
+import hudson.model.HudsonExt;
 
 /**
  * Extensible property of {@link ToolInstallation}.
@@ -56,7 +56,7 @@ public abstract class ToolProperty<T extends ToolInstallation> implements Descri
     }
 
     public ToolPropertyDescriptor getDescriptor() {
-        return (ToolPropertyDescriptor) Hudson.getInstance().getDescriptorOrDie(getClass());
+        return (ToolPropertyDescriptor) HudsonExt.getInstance().getDescriptorOrDie(getClass());
     }
 
     /**
@@ -70,6 +70,6 @@ public abstract class ToolProperty<T extends ToolInstallation> implements Descri
      * @see ToolDescriptor#getPropertyDescriptors() 
      */
     public static DescriptorExtensionListExt<ToolProperty<?>,ToolPropertyDescriptor> all() {
-        return (DescriptorExtensionListExt)Hudson.getInstance().getDescriptorList(ToolProperty.class);
+        return (DescriptorExtensionListExt)HudsonExt.getInstance().getDescriptorList(ToolProperty.class);
     }
 }

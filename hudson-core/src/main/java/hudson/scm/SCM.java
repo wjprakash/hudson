@@ -39,8 +39,8 @@ import hudson.model.Describable;
 import hudson.model.TaskListener;
 import hudson.model.Node;
 import hudson.model.WorkspaceCleanupThread;
-import hudson.model.Hudson;
-import hudson.model.Descriptor;
+import hudson.model.HudsonExt;
+import hudson.model.DescriptorExt;
 import hudson.model.Api;
 import hudson.model.Action;
 import hudson.model.AbstractProjectExt.AbstractProjectDescriptorExt;
@@ -147,7 +147,7 @@ public abstract class SCM implements Describable<SCM>, ExtensionPoint {
      * Returns true if this SCM requires a checked out workspace for doing polling.
      *
      * <p>
-     * This flag affects the behavior of Hudson when a job lost its workspace
+     * This flag affects the behavior of HudsonExt when a job lost its workspace
      * (typically due to a slave outage.) If this method returns false and
      * polling is configured, then that would immediately trigger a new build.
      *
@@ -173,17 +173,17 @@ public abstract class SCM implements Describable<SCM>, ExtensionPoint {
      * Called before a workspace is deleted on the given node, to provide SCM an opportunity to perform clean up.
      *
      * <p>
-     * Hudson periodically scans through all the slaves and removes old workspaces that are deemed unnecesasry.
+     * HudsonExt periodically scans through all the slaves and removes old workspaces that are deemed unnecesasry.
      * This behavior is implemented in {@link WorkspaceCleanupThread}, and it is necessary to control the
      * disk consumption on slaves. If we don't do this, in a long run, all the slaves will have workspaces
-     * for all the projects, which will be prohibitive in big Hudson.
+     * for all the projects, which will be prohibitive in big HudsonExt.
      *
      * <p>
      * However, some SCM implementations require that the server be made aware of deletion of the local workspace,
      * and this method provides an opportunity for SCMs to perform such a clean-up act.
      *
      * <p>
-     * This call back is invoked after Hudson determines that a workspace is unnecessary, but before the actual
+     * This call back is invoked after HudsonExt determines that a workspace is unnecessary, but before the actual
      * recursive directory deletion happens.
      *
      * <p>
@@ -203,7 +203,7 @@ public abstract class SCM implements Describable<SCM>, ExtensionPoint {
      *      The node that hosts the workspace. SCM can use this information to determine the course of action.
      *
      * @return
-     *      true if {@link SCM} is OK to let Hudson proceed with deleting the workspace.
+     *      true if {@link SCM} is OK to let HudsonExt proceed with deleting the workspace.
      *      False to veto the workspace deletion.
      * 
      * @since 1.246
@@ -279,7 +279,7 @@ public abstract class SCM implements Describable<SCM>, ExtensionPoint {
      *
      * @param build
      *      The calculated {@link SCMRevisionState} is for the files checked out in this build. Never null.
-     *      If {@link #requiresWorkspaceForPolling()} returns true, Hudson makes sure that the workspace of this
+     *      If {@link #requiresWorkspaceForPolling()} returns true, HudsonExt makes sure that the workspace of this
      *      build is available and accessible by the callee.
      * @param launcher
      *      Abstraction of the machine where the polling will take place. If SCM declares
@@ -316,7 +316,7 @@ public abstract class SCM implements Describable<SCM>, ExtensionPoint {
      *
      * <p>
      * Multiple invocations of this method may happen over time to make sure that the remote repository
-     * is "quiet" before Hudson schedules a new build.
+     * is "quiet" before HudsonExt schedules a new build.
      *
      * @param project
      *      The project to check for updates
@@ -453,7 +453,7 @@ public abstract class SCM implements Describable<SCM>, ExtensionPoint {
      *
      * <p>
      * Collaboration between {@link Builder} and {@link SCM} allows
-     * Hudson to find build.xml wihout asking the user to enter "xyz" again.
+     * HudsonExt to find build.xml wihout asking the user to enter "xyz" again.
      *
      * <p>
      * This method is for this purpose. It takes the workspace
@@ -556,7 +556,7 @@ public abstract class SCM implements Describable<SCM>, ExtensionPoint {
     public abstract ChangeLogParser createChangeLogParser();
 
     public SCMDescriptor<?> getDescriptor() {
-        return (SCMDescriptor)Hudson.getInstance().getDescriptorOrDie(getClass());
+        return (SCMDescriptor)HudsonExt.getInstance().getDescriptorOrDie(getClass());
     }
 
 //
@@ -592,7 +592,7 @@ public abstract class SCM implements Describable<SCM>, ExtensionPoint {
      * Returns all the registered {@link SCMDescriptor}s.
      */
     public static DescriptorExtensionListExt<SCM,SCMDescriptor<?>> all() {
-        return Hudson.getInstance().<SCM,SCMDescriptor<?>>getDescriptorList(SCM.class);
+        return HudsonExt.getInstance().<SCM,SCMDescriptor<?>>getDescriptorList(SCM.class);
     }
 
     /**
@@ -601,7 +601,7 @@ public abstract class SCM implements Describable<SCM>, ExtensionPoint {
     public static List<SCMDescriptor<?>> _for(final AbstractProjectExt project) {
         if(project==null)   return all();
         
-        final Descriptor pd = Hudson.getInstance().getDescriptor((Class) project.getClass());
+        final DescriptorExt pd = HudsonExt.getInstance().getDescriptor((Class) project.getClass());
         List<SCMDescriptor<?>> r = new ArrayList<SCMDescriptor<?>>();
         for (SCMDescriptor<?> scmDescriptor : all()) {
             if(!scmDescriptor.isApplicable(project))    continue;

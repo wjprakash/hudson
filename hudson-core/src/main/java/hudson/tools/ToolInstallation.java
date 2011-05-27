@@ -50,12 +50,12 @@ import com.thoughtworks.xstream.converters.UnmarshallingContext;
  * this class, but choosing this class as a base class has several benefits:
  *
  * <ul>
- * <li>Hudson allows admins to specify different locations for tools on some slaves.
+ * <li>HudsonExt allows admins to specify different locations for tools on some slaves.
  *     For example, JDK on the master might be on /usr/local/java but on a Windows slave
  *     it could be at c:\Program Files\Java
- * <li>Hudson can verify the existence of tools and provide warnings and diagnostics for
+ * <li>HudsonExt can verify the existence of tools and provide warnings and diagnostics for
  *     admins. (TBD)
- * <li>Hudson can perform automatic installations for users. (TBD)
+ * <li>HudsonExt can perform automatic installations for users. (TBD)
  * </ul>
  *
  * <p>
@@ -180,7 +180,7 @@ public abstract class ToolInstallation extends AbstractDescribableImpl<ToolInsta
      */
     public static DescriptorExtensionListExt<ToolInstallation,ToolDescriptor<?>> all() {
         // use getDescriptorList and not getExtensionList to pick up legacy instances
-        return Hudson.getInstance().<ToolInstallation,ToolDescriptor<?>>getDescriptorList(ToolInstallation.class);
+        return HudsonExt.getInstance().<ToolInstallation,ToolDescriptor<?>>getDescriptorList(ToolInstallation.class);
     }
 
     private static final long serialVersionUID = 1L;

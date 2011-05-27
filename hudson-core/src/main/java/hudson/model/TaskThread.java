@@ -51,7 +51,7 @@ public abstract class TaskThread extends Thread {
      * @deprecated as of Hudson 1.350
      *      Use {@link #log}. It's the same object, in a better type.
      */
-    private final LargeText text;
+    private final LargeTextExt text;
 
     /**
      * Represents the output from this task thread.

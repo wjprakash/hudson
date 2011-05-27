@@ -28,21 +28,21 @@ import java.util.Collection;
 import java.io.File;
 
 /**
- * Represents a grouping inherent to a kind of {@link Item}s.
+ * Represents a grouping inherent to a kind of {@link ItemExt}s.
  *
  * @author Kohsuke Kawaguchi
  * @see ItemGroupMixIn
  */
-public interface ItemGroup<T extends Item> extends PersistenceRoot, ModelObject {
+public interface ItemGroup<T extends ItemExt> extends PersistenceRoot, ModelObject {
     /**
      * Gets the full name of this {@link ItemGroup}.
      *
-     * @see Item#getFullName() 
+     * @see ItemExt#getFullName() 
      */
     String getFullName();
 
     /**
-     * @see Item#getFullDisplayName() 
+     * @see ItemExt#getFullDisplayName() 
      */
     String getFullDisplayName();
 
@@ -58,28 +58,28 @@ public interface ItemGroup<T extends Item> extends PersistenceRoot, ModelObject 
     String getUrl();
 
     /**
-     * Gets the URL token that prefixes the URLs for child {@link Item}s.
+     * Gets the URL token that prefixes the URLs for child {@link ItemExt}s.
      * Like "job", "item", etc.
      */
     String getUrlChildPrefix();
 
     /**
-     * Gets the {@link Item} inside this group that has a given name.
+     * Gets the {@link ItemExt} inside this group that has a given name.
      */
     T getItem(String name);
 
     /**
-     * Assigns the {@link Item#getRootDir() root directory} for children.
+     * Assigns the {@link ItemExt#getRootDir() root directory} for children.
      */
     File getRootDirFor(T child);
 
     /**
-     * Internal method. Called by {@link Item}s when they are renamed by users.
+     * Internal method. Called by {@link ItemExt}s when they are renamed by users.
      */
     void onRenamed(T item, String oldName, String newName) throws IOException;
 
     /**
-     * Internal method. Called by {@link Item}s when they are deleted by users.
+     * Internal method. Called by {@link ItemExt}s when they are deleted by users.
      */
     void onDeleted(T item) throws IOException;
 }

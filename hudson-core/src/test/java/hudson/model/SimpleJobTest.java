@@ -8,7 +8,7 @@ import junit.framework.Assert;
 import junit.framework.TestCase;
 
 /**
- * Unit test for {@link Job}.
+ * Unit test for {@link JobExt}.
  */
 public class SimpleJobTest extends TestCase {
 
@@ -16,7 +16,7 @@ public class SimpleJobTest extends TestCase {
         
         final SortedMap<Integer, TestBuild> runs = new TreeMap<Integer, TestBuild>();
         
-        Job project = createMockProject(runs);
+        JobExt project = createMockProject(runs);
         
         TestBuild previousPreviousBuild = new TestBuild(project, Result.SUCCESS, 20, null);
         runs.put(3, previousPreviousBuild);
@@ -37,7 +37,7 @@ public class SimpleJobTest extends TestCase {
         
         final SortedMap<Integer, TestBuild> runs = new TreeMap<Integer, TestBuild>();
         
-        Job project = createMockProject(runs);
+        JobExt project = createMockProject(runs);
         
         TestBuild lastBuild = new TestBuild(project, Result.SUCCESS, 42, null);
         runs.put(1, lastBuild);
@@ -49,7 +49,7 @@ public class SimpleJobTest extends TestCase {
         
         final SortedMap<Integer, TestBuild> runs = new TreeMap<Integer, TestBuild>();
         
-        Job project = createMockProject(runs);
+        JobExt project = createMockProject(runs);
         
         TestBuild lastBuild = new TestBuild(project, Result.FAILURE, 42, null);
         runs.put(1, lastBuild);
@@ -61,7 +61,7 @@ public class SimpleJobTest extends TestCase {
         
         final SortedMap<Integer, TestBuild> runs = new TreeMap<Integer, TestBuild>();
         
-        Job project = createMockProject(runs);
+        JobExt project = createMockProject(runs);
         
         Assert.assertEquals(-1, project.getEstimatedDuration());
     }
@@ -70,7 +70,7 @@ public class SimpleJobTest extends TestCase {
         
         final SortedMap<Integer, TestBuild> runs = new TreeMap<Integer, TestBuild>();
         
-        Job project = createMockProject(runs);
+        JobExt project = createMockProject(runs);
         
         TestBuild prev4Build = new TestBuild(project, Result.SUCCESS, 1, null);
         runs.put(5, prev4Build);
@@ -92,8 +92,8 @@ public class SimpleJobTest extends TestCase {
         Assert.assertEquals(project.getEstimatedDuration(), 1);
     }
 
-    private Job createMockProject(final SortedMap<Integer, TestBuild> runs) {
-        Job project = new Job(null, "name") {
+    private JobExt createMockProject(final SortedMap<Integer, TestBuild> runs) {
+        JobExt project = new JobExt(null, "name") {
 
             int i = 1;
             
@@ -103,7 +103,7 @@ public class SimpleJobTest extends TestCase {
             }
             
             @Override
-            public SortedMap<Integer, ? extends Run> _getRuns() {
+            public SortedMap<Integer, ? extends RunExt> _getRuns() {
                 return runs;
             }
 
@@ -113,16 +113,16 @@ public class SimpleJobTest extends TestCase {
             }
 
             @Override
-            protected void removeRun(Run run) {
+            protected void removeRun(RunExt run) {
             }
             
         };
         return project;
     }
     
-    private static class TestBuild extends Run {
+    private static class TestBuild extends RunExt {
         
-        public TestBuild(Job project, Result result, long duration, TestBuild previousBuild) throws IOException {
+        public TestBuild(JobExt project, Result result, long duration, TestBuild previousBuild) throws IOException {
             super(project);
             this.result = result;
             this.duration = duration;
@@ -130,7 +130,7 @@ public class SimpleJobTest extends TestCase {
         }
         
         @Override
-        public int compareTo(Run o) {
+        public int compareTo(RunExt o) {
             return 0;
         }
         

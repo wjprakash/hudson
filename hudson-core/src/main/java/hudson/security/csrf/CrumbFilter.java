@@ -5,7 +5,7 @@
  */
 package hudson.security.csrf;
 
-import hudson.model.Hudson;
+import hudson.model.HudsonExt;
 
 import java.io.IOException;
 import java.util.Enumeration;
@@ -30,11 +30,11 @@ public class CrumbFilter implements Filter {
     /**
      * Because servlet containers generally don't specify the ordering of the initialization
      * (and different implementations indeed do this differently --- See HUDSON-3878),
-     * we cannot use Hudson to the CrumbIssuer into CrumbFilter eagerly.
+     * we cannot use HudsonExt to the CrumbIssuer into CrumbFilter eagerly.
      */
     public CrumbIssuer getCrumbIssuer() {
-        Hudson h = Hudson.getInstance();
-        if(h==null)     return null;    // before Hudson is initialized?
+        HudsonExt h = HudsonExt.getInstance();
+        if(h==null)     return null;    // before HudsonExt is initialized?
         return h.getCrumbIssuer();
     }
 

@@ -82,7 +82,7 @@ public class JavadocArchiver extends Recorder {
     /**
      * Gets the directory where the Javadoc is stored for the given build.
      */
-    private static File getJavadocDir(Run run) {
+    private static File getJavadocDir(RunExt run) {
         return new File(run.getRootDir(),"javadoc");
     }
 
@@ -151,7 +151,7 @@ public class JavadocArchiver extends Recorder {
          * Serves javadoc.
          */
         public void doDynamic(StaplerRequest req, StaplerResponse rsp) throws IOException, ServletException {
-            new DirectoryBrowserSupport(this, new FilePathExt(dir()), getTitle(), "help.gif", false).generateResponse(req,rsp,this);
+            new DirectoryBrowserSupportExt(this, new FilePathExt(dir()), getTitle(), "help.gif", false).generateResponse(req,rsp,this);
         }
 
         protected abstract String getTitle();
@@ -172,7 +172,7 @@ public class JavadocArchiver extends Recorder {
             if (project instanceof AbstractProjectExt) {
                 AbstractProjectExt abstractProject = (AbstractProjectExt) project;
 
-                Run run = abstractProject.getLastSuccessfulBuild();
+                RunExt run = abstractProject.getLastSuccessfulBuild();
                 if (run != null) {
                     File javadocDir = getJavadocDir(run);
 

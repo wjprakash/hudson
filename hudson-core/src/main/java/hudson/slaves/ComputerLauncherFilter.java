@@ -23,7 +23,7 @@
  */
 package hudson.slaves;
 
-import hudson.model.Descriptor;
+import hudson.model.DescriptorExt;
 import hudson.model.TaskListener;
 
 import java.io.IOException;
@@ -73,7 +73,7 @@ public abstract class ComputerLauncherFilter extends ComputerLauncher {
     }
 
     @Override
-    public Descriptor<ComputerLauncher> getDescriptor() {
+    public DescriptorExt<ComputerLauncher> getDescriptor() {
         throw new UnsupportedOperationException();
     }
 }

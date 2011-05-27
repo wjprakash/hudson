@@ -24,7 +24,7 @@
 package hudson.diagnosis;
 
 import hudson.Extension;
-import hudson.model.Hudson;
+import hudson.model.HudsonExt;
 import hudson.model.PeriodicWork;
 import org.jvnet.animal_sniffer.IgnoreJRERequirement;
 
@@ -45,8 +45,8 @@ public class HudsonHomeDiskUsageChecker extends PeriodicWork {
     @IgnoreJRERequirement
     protected void doRun() {
         try {
-            long free = Hudson.getInstance().getRootDir().getUsableSpace();
-            long total = Hudson.getInstance().getRootDir().getTotalSpace();
+            long free = HudsonExt.getInstance().getRootDir().getUsableSpace();
+            long total = HudsonExt.getInstance().getRootDir().getTotalSpace();
             if(free<=0 || total<=0) {
                 // information unavailable. pointless to try.
                 LOGGER.info("HUDSON_HOME disk usage information isn't available. aborting to monitor");
@@ -58,7 +58,7 @@ public class HudsonHomeDiskUsageChecker extends PeriodicWork {
 
 
             // if it's more than 90% full and less than the minimum, activate
-            // it's AND and not OR so that small Hudson home won't get a warning,
+            // it's AND and not OR so that small HudsonExt home won't get a warning,
             // and similarly, if you have a 1TB disk, you don't get a warning when you still have 100GB to go.
             HudsonHomeDiskUsageMonitorExt.get().activated = (total/free>10 && free< FREE_SPACE_THRESHOLD);
         } catch (LinkageError _) {

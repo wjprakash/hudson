@@ -23,9 +23,9 @@
  */
 package hudson.scm;
 
-import hudson.model.Descriptor;
-import hudson.model.Hudson;
-import hudson.model.Descriptor.FormException;
+import hudson.model.DescriptorExt;
+import hudson.model.HudsonExt;
+import hudson.model.DescriptorExt.FormException;
 import hudson.scm.browsers.*;
 import hudson.util.DescriptorList;
 import hudson.Extension;
@@ -49,14 +49,14 @@ public class RepositoryBrowsers {
      * @deprecated as of 1.286.
      *      Use {@link RepositoryBrowser#all()} for read access and {@link Extension} for registration.
      */
-    public static final List<Descriptor<RepositoryBrowser<?>>> LIST = new DescriptorList<RepositoryBrowser<?>>((Class)RepositoryBrowser.class);
+    public static final List<DescriptorExt<RepositoryBrowser<?>>> LIST = new DescriptorList<RepositoryBrowser<?>>((Class)RepositoryBrowser.class);
 
     /**
      * Only returns those {@link RepositoryBrowser} descriptors that extend from the given type.
      */
-    public static List<Descriptor<RepositoryBrowser<?>>> filter(Class<? extends RepositoryBrowser> t) {
-        List<Descriptor<RepositoryBrowser<?>>> r = new ArrayList<Descriptor<RepositoryBrowser<?>>>();
-        for (Descriptor<RepositoryBrowser<?>> d : RepositoryBrowser.all())
+    public static List<DescriptorExt<RepositoryBrowser<?>>> filter(Class<? extends RepositoryBrowser> t) {
+        List<DescriptorExt<RepositoryBrowser<?>>> r = new ArrayList<DescriptorExt<RepositoryBrowser<?>>>();
+        for (DescriptorExt<RepositoryBrowser<?>> d : RepositoryBrowser.all())
             if(d.isSubTypeOf(t))
                 r.add(d);
         return r;
@@ -70,7 +70,7 @@ public class RepositoryBrowsers {
      */
     public static <T extends RepositoryBrowser>
     T createInstance(Class<T> type, StaplerRequest req, String fieldName) throws FormException {
-        List<Descriptor<RepositoryBrowser<?>>> list = filter(type);
+        List<DescriptorExt<RepositoryBrowser<?>>> list = filter(type);
         String value = req.getParameter(fieldName);
         if(value==null || value.equals("auto"))
             return null;

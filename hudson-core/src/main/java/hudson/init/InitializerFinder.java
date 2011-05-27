@@ -43,7 +43,7 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import hudson.model.Hudson;
+import hudson.model.HudsonExt;
 
 import static java.util.logging.Level.WARNING;
 
@@ -120,8 +120,8 @@ public class InitializerFinder extends TaskBuilder {
      * Determines the parameter injection of the initialization method.
      */
     private Object lookUp(Class<?> type) {
-        if (type== Hudson.class)
-            return Hudson.getInstance();
+        if (type== HudsonExt.class)
+            return HudsonExt.getInstance();
         throw new IllegalArgumentException("Unable to inject "+type);
     }
 

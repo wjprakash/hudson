@@ -25,7 +25,7 @@ package hudson.tools;
 
 import hudson.Extension;
 import hudson.util.DescribableList;
-import hudson.model.Descriptor;
+import hudson.model.DescriptorExt;
 import hudson.model.Saveable;
 import org.kohsuke.stapler.DataBoundConstructor;
 
@@ -40,8 +40,8 @@ import java.io.IOException;
  */
 public class InstallSourceProperty extends ToolProperty<ToolInstallation> {
     // TODO: get the proper Saveable
-    public final DescribableList<ToolInstaller, Descriptor<ToolInstaller>> installers =
-            new DescribableList<ToolInstaller, Descriptor<ToolInstaller>>(Saveable.NOOP);
+    public final DescribableList<ToolInstaller, DescriptorExt<ToolInstaller>> installers =
+            new DescribableList<ToolInstaller, DescriptorExt<ToolInstaller>>(Saveable.NOOP);
 
     @DataBoundConstructor
     public InstallSourceProperty(List<? extends ToolInstaller> installers) throws IOException {

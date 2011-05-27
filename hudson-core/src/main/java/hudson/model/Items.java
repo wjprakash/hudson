@@ -44,7 +44,7 @@ import java.util.List;
 import java.util.StringTokenizer;
 
 /**
- * Convenience methods related to {@link Item}.
+ * Convenience methods related to {@link ItemExt}.
  * 
  * @author Kohsuke Kawaguchi
  */
@@ -61,19 +61,19 @@ public class Items {
      * Returns all the registered {@link TopLevelItemDescriptor}s.
      */
     public static DescriptorExtensionListExt<TopLevelItem,TopLevelItemDescriptor> all() {
-        return Hudson.getInstance().<TopLevelItem,TopLevelItemDescriptor>getDescriptorList(TopLevelItem.class);
+        return HudsonExt.getInstance().<TopLevelItem,TopLevelItemDescriptor>getDescriptorList(TopLevelItem.class);
     }
 
     public static TopLevelItemDescriptor getDescriptor(String fqcn) {
-        return Descriptor.find(all(),fqcn);
+        return DescriptorExt.find(all(),fqcn);
     }
 
     /**
      * Converts a list of items into a comma-separated list of full names.
      */
-    public static String toNameList(Collection<? extends Item> items) {
+    public static String toNameList(Collection<? extends ItemExt> items) {
         StringBuilder buf = new StringBuilder();
-        for (Item item : items) {
+        for (ItemExt item : items) {
             if(buf.length()>0)
                 buf.append(", ");
             buf.append(item.getFullName());
@@ -84,8 +84,8 @@ public class Items {
     /**
      * Does the opposite of {@link #toNameList(Collection)}.
      */
-    public static <T extends Item> List<T> fromNameList(String list, Class<T> type) {
-        Hudson hudson = Hudson.getInstance();
+    public static <T extends ItemExt> List<T> fromNameList(String list, Class<T> type) {
+        HudsonExt hudson = HudsonExt.getInstance();
 
         List<T> r = new ArrayList<T>();
         StringTokenizer tokens = new StringTokenizer(list,",");
@@ -99,13 +99,13 @@ public class Items {
     }
 
     /**
-     * Loads a {@link Item} from a config file.
+     * Loads a {@link ItemExt} from a config file.
      *
      * @param dir
      *      The directory that contains the config file, not the config file itself.
      */
-    public static Item load(ItemGroup parent, File dir) throws IOException {
-        Item item = (Item)getConfigFile(dir).read();
+    public static ItemExt load(ItemGroup parent, File dir) throws IOException {
+        ItemExt item = (ItemExt)getConfigFile(dir).read();
         item.onLoad(parent,dir.getName());
         return item;
     }
@@ -120,7 +120,7 @@ public class Items {
     /**
      * The file we save our configuration.
      */
-    public static XmlFile getConfigFile(Item item) {
+    public static XmlFile getConfigFile(ItemExt item) {
         return getConfigFile(item.getRootDir());
     }
 
@@ -133,7 +133,7 @@ public class Items {
     public static final XStream XSTREAM = new XStream2();
 
     static {
-        XSTREAM.alias("project",FreeStyleProject.class);
+        XSTREAM.alias("project",FreeStyleProjectExt.class);
         XSTREAM.alias("matrix-project",MatrixProjectExt.class);
         XSTREAM.alias("axis", AxisExt.class);
         XSTREAM.alias("matrix-config",MatrixConfiguration.class);

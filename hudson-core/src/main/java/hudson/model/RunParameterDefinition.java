@@ -33,7 +33,7 @@ import hudson.cli.CLICommand;
 
 import java.io.IOException;
 
-public class RunParameterDefinition extends SimpleParameterDefinition {
+public class RunParameterDefinition extends SimpleParameterDefinitionExt {
 
     private final String projectName;
 
@@ -48,12 +48,12 @@ public class RunParameterDefinition extends SimpleParameterDefinition {
         return projectName;
     }
 
-    public Job getProject() {
-        return (Job) Hudson.getInstance().getItem(projectName);
+    public JobExt getProject() {
+        return (JobExt) HudsonExt.getInstance().getItem(projectName);
     }
 
     @Extension
-    public static class DescriptorImpl extends ParameterDescriptor {
+    public static class DescriptorImpl extends ParameterDescriptorExt {
         @Override
         public String getDisplayName() {
             return Messages.RunParameterDefinition_DisplayName();
@@ -65,14 +65,14 @@ public class RunParameterDefinition extends SimpleParameterDefinition {
         }
 
         @Override
-        public ParameterDefinition newInstance(StaplerRequest req, JSONObject formData) throws FormException {
+        public ParameterDefinitionExt newInstance(StaplerRequest req, JSONObject formData) throws FormException {
             return req.bindJSON(RunParameterDefinition.class, formData);
         }
     }
 
     @Override
-    public ParameterValue getDefaultParameterValue() {
-        Run<?,?> lastBuild = getProject().getLastBuild();
+    public ParameterValueExt getDefaultParameterValue() {
+        RunExt<?,?> lastBuild = getProject().getLastBuild();
         if (lastBuild != null) {
         	return createValue(lastBuild.getExternalizableId());
         } else {
@@ -81,7 +81,7 @@ public class RunParameterDefinition extends SimpleParameterDefinition {
     }
 
     @Override
-    public ParameterValue createValue(StaplerRequest req, JSONObject jo) {
+    public ParameterValueExt createValue(StaplerRequest req, JSONObject jo) {
         RunParameterValue value = req.bindJSON(RunParameterValue.class, jo);
         value.setDescription(getDescription());
         return value;

@@ -23,15 +23,15 @@
  */
 package hudson.util.jna;
 
-import hudson.model.Descriptor;
+import hudson.model.DescriptorExt;
 
 /**
- * {@link Descriptor} for {@link NativeWindowsSupport}.
+ * {@link DescriptorExt} for {@link NativeWindowsSupport}.
  *
  * @author Winston Prakash
  * @since 2.0.1
  */
-public abstract class NativeWindowsSupportDescriptor extends Descriptor<NativeWindowsSupport> {
-    // so far nothing different from plain Descriptor
+public abstract class NativeWindowsSupportDescriptor extends DescriptorExt<NativeWindowsSupport> {
+    // so far nothing different from plain DescriptorExt
     // but it may prove useful for future expansion
 }

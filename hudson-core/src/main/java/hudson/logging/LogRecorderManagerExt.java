@@ -26,7 +26,7 @@ package hudson.logging;
 import hudson.init.Initializer;
 import static hudson.init.InitMilestone.PLUGINS_PREPARED;
 import hudson.model.AbstractModelObjectExt;
-import hudson.model.Hudson;
+import hudson.model.HudsonExt;
 import hudson.util.CopyOnWriteMap;
 import org.apache.commons.io.filefilter.WildcardFileFilter;
 
@@ -68,7 +68,7 @@ public class LogRecorderManagerExt extends AbstractModelObjectExt {
      */
     public void load() throws IOException {
         logRecorders.clear();
-        File dir = new File(Hudson.getInstance().getRootDir(), "log");
+        File dir = new File(HudsonExt.getInstance().getRootDir(), "log");
         File[] files = dir.listFiles((FileFilter)new WildcardFileFilter("*.xml"));
         if(files==null)     return;
         for (File child : files) {
@@ -81,7 +81,7 @@ public class LogRecorderManagerExt extends AbstractModelObjectExt {
     }
 
     @Initializer(before=PLUGINS_PREPARED)
-    public static void init(Hudson h) throws IOException {
+    public static void init(HudsonExt h) throws IOException {
         h.getLog().load();
     }
 }

@@ -114,7 +114,7 @@ public abstract class AbstractTestResultAction<T extends AbstractTestResultActio
         return "clipboard.gif";
     }
 
-    public HealthReport getBuildHealth() {
+    public HealthReportExt getBuildHealth() {
         final int totalCount = getTotalCount();
         final int failCount = getFailCount();
         int score = (totalCount == 0) ? 100 : (int) (100.0 * (1.0 - ((double)failCount) / totalCount));
@@ -124,7 +124,7 @@ public abstract class AbstractTestResultAction<T extends AbstractTestResultActio
         } else {
         	description = Messages._AbstractTestResultAction_TestsDescription(displayName, failCount, totalCount);
         }
-        return new HealthReport(score, description);
+        return new HealthReportExt(score, description);
     }
 
     /**

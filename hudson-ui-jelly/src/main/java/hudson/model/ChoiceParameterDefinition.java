@@ -34,7 +34,7 @@ public class ChoiceParameterDefinition extends ChoiceParameterDefinitionExt {
     }
 
     @Override
-    public ParameterValue createValue(StaplerRequest req, JSONObject jo) {
+    public ParameterValueExt createValue(StaplerRequest req, JSONObject jo) {
         StringParameterValue value = req.bindJSON(StringParameterValue.class, jo);
         value.setDescription(getDescription());
         return checkValue(value);

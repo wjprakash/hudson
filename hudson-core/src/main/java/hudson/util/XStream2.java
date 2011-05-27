@@ -41,8 +41,8 @@ import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
 import com.thoughtworks.xstream.mapper.CannotResolveClassException;
 import hudson.diagnosis.OldDataMonitorExt;
-import hudson.model.Hudson;
-import hudson.model.Label;
+import hudson.model.HudsonExt;
+import hudson.model.LabelExt;
 import hudson.model.Result;
 import hudson.model.Saveable;
 import hudson.util.xstream.ImmutableMapConverter;
@@ -72,7 +72,7 @@ public class XStream2 extends XStream {
     public Object unmarshal(HierarchicalStreamReader reader, Object root, DataHolder dataHolder) {
         // init() is too early to do this
         // defensive because some use of XStream happens before plugins are initialized.
-        Hudson h = Hudson.getInstance();
+        HudsonExt h = HudsonExt.getInstance();
         if(h!=null && h.pluginManager!=null && h.pluginManager.uberClassLoader!=null) {
             setClassLoader(h.pluginManager.uberClassLoader);
         }
@@ -101,7 +101,7 @@ public class XStream2 extends XStream {
         registerConverter(new ConcurrentHashMapConverter(getMapper(),getReflectionProvider()),10);
         registerConverter(new CopyOnWriteMap.Tree.ConverterImpl(getMapper()),10); // needs to override MapConverter
         registerConverter(new DescribableList.ConverterImpl(getMapper()),10); // explicitly added to handle subtypes
-        registerConverter(new Label.ConverterImpl(),10);
+        registerConverter(new LabelExt.ConverterImpl(),10);
 
         // this should come after all the XStream's default simpler converters,
         // but before reflection-based one kicks in.
@@ -125,8 +125,8 @@ public class XStream2 extends XStream {
     }
 
     /**
-     * Prior to Hudson 1.106, XStream 1.1.x was used which encoded "$" in class names
-     * as "-" instead of "_-" that is used now.  Up through Hudson 1.348 compatibility
+     * Prior to HudsonExt 1.106, XStream 1.1.x was used which encoded "$" in class names
+     * as "-" instead of "_-" that is used now.  Up through HudsonExt 1.348 compatibility
      * for old serialized data was maintained via {@code XStream11XmlFriendlyMapper}.
      * However, it was found (HUDSON-5768) that this caused fields with "__" to fail
      * deserialization due to double decoding.  Now this class is used for compatibility.

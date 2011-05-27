@@ -32,11 +32,11 @@ import hudson.model.AbstractProjectExt;
 import hudson.model.Action;
 import hudson.model.Build;
 import hudson.model.BuildListener;
-import hudson.model.Descriptor;
-import hudson.model.Project;
-import hudson.model.Hudson;
+import hudson.model.DescriptorExt;
+import hudson.model.ProjectExt;
+import hudson.model.HudsonExt;
 import hudson.model.CheckPoint;
-import hudson.model.Run;
+import hudson.model.RunExt;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -50,7 +50,7 @@ import java.util.WeakHashMap;
  *
  * <h2>Persistence</h2>
  * <p>
- * These objects are persisted as a part of {@link Project} by XStream.
+ * These objects are persisted as a part of {@link ProjectExt} by XStream.
  * The save operation happens without any notice, and the restore operation
  * happens without calling the constructor, just like Java serialization.
  *
@@ -109,10 +109,10 @@ public interface BuildStep {
 
     /**
      * Returns action objects if this {@link BuildStep} has actions
-     * to contribute to a {@link Project}.
+     * to contribute to a {@link ProjectExt}.
      *
      * <p>
-     * {@link Project} calls this method for every {@link BuildStep} that
+     * {@link ProjectExt} calls this method for every {@link BuildStep} that
      * it owns when the rendering is requested.
      *
      * <p>
@@ -122,7 +122,7 @@ public interface BuildStep {
      * block elements to render the details of the section.
      *
      * @param project
-     *      {@link Project} that owns this build step,
+     *      {@link ProjectExt} that owns this build step,
      *      since {@link BuildStep} object doesn't usually have this "parent" pointer.
      *
      * @return
@@ -135,13 +135,13 @@ public interface BuildStep {
      * Declares the scope of the synchronization monitor this {@link BuildStep} expects from outside.
      *
      * <p>
-     * This method is introduced for preserving compatibility with plugins written for earlier versions of Hudson,
+     * This method is introduced for preserving compatibility with plugins written for earlier versions of HudsonExt,
      * which never run multiple builds of the same job in parallel. Such plugins often assume that the outcome
      * of the previous build is completely available, which is no longer true when we do concurrent builds.
      *
      * <p>
      * To minimize the necessary code change for such plugins, {@link BuildStep} implementations can request
-     * Hudson to externally perform synchronization before executing them. This behavior is as follows:
+     * HudsonExt to externally perform synchronization before executing them. This behavior is as follows:
      *
      * <dl>
      * <dt>{@link BuildStepMonitor#BUILD}
@@ -164,17 +164,17 @@ public interface BuildStep {
      *
      * <h2>Migrating Older Implementation</h2>
      * <p>
-     * If you are migrating {@link BuildStep} implementations written for earlier versions of Hudson,
+     * If you are migrating {@link BuildStep} implementations written for earlier versions of HudsonExt,
      * here's what you can do:
      *
      * <ul>
      * <li>
-     * Just return {@link BuildStepMonitor#BUILD} to demand the backward compatible behavior from Hudson,
+     * Just return {@link BuildStepMonitor#BUILD} to demand the backward compatible behavior from HudsonExt,
      * and make no other changes to the code. This will prevent users from reaping the benefits of concurrent
      * builds, but at least your plugin will work correctly, and therefore this is a good easy first step.
      * <li>
      * If your build step doesn't use anything from a previous build (for example, if you don't even call
-     * {@link Run#getPreviousBuild()}), then you can return {@link BuildStepMonitor#NONE} without making further
+     * {@link RunExt#getPreviousBuild()}), then you can return {@link BuildStepMonitor#NONE} without making further
      * code changes and you are done with migration.
      * <li>
      * If your build step only depends on {@link Action}s that you added in the previous build by yourself,
@@ -188,7 +188,7 @@ public interface BuildStep {
      *
      * <h2>Note to caller</h2>
      * <p>
-     * For plugins written against earlier versions of Hudson, calling this method results in
+     * For plugins written against earlier versions of HudsonExt, calling this method results in
      * {@link AbstractMethodError}. 
      *
      * @since 1.319
@@ -204,7 +204,7 @@ public interface BuildStep {
      *      Use {@link Builder#all()} for read access, and use
      *      {@link Extension} for registration.
      */
-    public static final List<Descriptor<Builder>> BUILDERS = new DescriptorList<Builder>(Builder.class);
+    public static final List<DescriptorExt<Builder>> BUILDERS = new DescriptorList<Builder>(Builder.class);
 
     /**
      * List of all installed publishers.
@@ -213,8 +213,8 @@ public interface BuildStep {
      * some post-actions on build results, such as sending notifications, collecting
      * results, etc.
      *
-     * @see PublisherList#addNotifier(Descriptor)
-     * @see PublisherList#addRecorder(Descriptor)
+     * @see PublisherList#addNotifier(DescriptorExt)
+     * @see PublisherList#addRecorder(DescriptorExt)
      *
      * @deprecated as of 1.286.
      *      Use {@link Publisher#all()} for read access, and use
@@ -225,10 +225,10 @@ public interface BuildStep {
     /**
      * List of publisher descriptor.
      */
-    public static final class PublisherList extends AbstractList<Descriptor<Publisher>> {
+    public static final class PublisherList extends AbstractList<DescriptorExt<Publisher>> {
         /**
-         * {@link Descriptor}s are actually stored in here.
-         * Since {@link PublisherList} lives longer than {@link Hudson} we cannot directly use {@link ExtensionList}.
+         * {@link DescriptorExt}s are actually stored in here.
+         * Since {@link PublisherList} lives longer than {@link HudsonExt} we cannot directly use {@link ExtensionList}.
          */
         private final DescriptorList<Publisher> core = new DescriptorList<Publisher>(Publisher.class);
 
@@ -236,8 +236,8 @@ public interface BuildStep {
          * For descriptors that are manually registered, remember what kind it was since
          * older plugins don't extend from neither {@link Recorder} nor {@link Notifier}.
          */
-        /*package*/ static final WeakHashMap<Descriptor<Publisher>,Class<? extends Publisher>/*either Recorder.class or Notifier.class*/>
-                KIND = new WeakHashMap<Descriptor<Publisher>, Class<? extends Publisher>>();
+        /*package*/ static final WeakHashMap<DescriptorExt<Publisher>,Class<? extends Publisher>/*either Recorder.class or Notifier.class*/>
+                KIND = new WeakHashMap<DescriptorExt<Publisher>, Class<? extends Publisher>>();
 
         private PublisherList() {
         }
@@ -250,9 +250,9 @@ public interface BuildStep {
          * <p>
          * This method adds the descriptor after all the "recorders".
          *
-         * @see #addRecorder(Descriptor)
+         * @see #addRecorder(DescriptorExt)
          */
-        public void addNotifier( Descriptor<Publisher> d ) {
+        public void addNotifier( DescriptorExt<Publisher> d ) {
             KIND.put(d,Notifier.class);
             core.add(d);
         }
@@ -264,24 +264,24 @@ public interface BuildStep {
          * <p>
          * This method adds the descriptor before all the "notifiers".
          *
-         * @see #addNotifier(Descriptor) 
+         * @see #addNotifier(DescriptorExt) 
          */
-        public void addRecorder( Descriptor<Publisher> d ) {
+        public void addRecorder( DescriptorExt<Publisher> d ) {
             KIND.put(d,Recorder.class);
             core.add(d);
         }
 
         @Override
-        public boolean add(Descriptor<Publisher> d) {
+        public boolean add(DescriptorExt<Publisher> d) {
             return !contains(d) && core.add(d);
         }
 
         @Override
-        public void add(int index, Descriptor<Publisher> d) {
+        public void add(int index, DescriptorExt<Publisher> d) {
             if(!contains(d)) core.add(d);
         }
 
-        public Descriptor<Publisher> get(int index) {
+        public DescriptorExt<Publisher> get(int index) {
             return core.get(index);
         }
 
@@ -290,7 +290,7 @@ public interface BuildStep {
         }
 
         @Override
-        public Iterator<Descriptor<Publisher>> iterator() {
+        public Iterator<DescriptorExt<Publisher>> iterator() {
             return core.iterator();
         }
 

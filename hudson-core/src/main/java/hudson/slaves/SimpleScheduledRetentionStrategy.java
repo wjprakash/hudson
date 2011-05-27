@@ -27,7 +27,7 @@ import antlr.ANTLRException;
 import hudson.Extension;
 import static hudson.Util.fixNull;
 import hudson.model.ComputerExt;
-import hudson.model.Descriptor;
+import hudson.model.DescriptorExt;
 import hudson.scheduler.CronTabList;
 import hudson.util.FormValidation;
 import org.kohsuke.stapler.DataBoundConstructor;
@@ -222,7 +222,7 @@ public class SimpleScheduledRetentionStrategy extends RetentionStrategy<SlaveCom
     }
 
     @Extension
-    public static class DescriptorImpl extends Descriptor<RetentionStrategy<?>> {
+    public static class DescriptorImpl extends DescriptorExt<RetentionStrategy<?>> {
         public String getDisplayName() {
             return Messages.SimpleScheduledRetentionStrategy_displayName();
         }

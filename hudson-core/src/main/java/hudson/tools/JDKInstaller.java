@@ -29,14 +29,14 @@ import hudson.FilePathExt;
 import hudson.ProxyConfiguration;
 import hudson.Util;
 import hudson.Launcher;
-import hudson.model.Hudson;
+import hudson.model.HudsonExt;
 import hudson.util.FormValidation;
 import hudson.util.ArgumentListBuilder;
 import hudson.util.IOException2;
 import hudson.model.Node;
 import hudson.model.TaskListener;
-import hudson.model.DownloadService.Downloadable;
-import hudson.model.JDK;
+import hudson.model.DownloadServiceExt.DownloadableExt;
+import hudson.model.JDKExt;
 import static hudson.tools.JDKInstaller.Preference.*;
 import hudson.remoting.Callable;
 import org.kohsuke.stapler.DataBoundConstructor;
@@ -79,7 +79,7 @@ import net.sf.json.JSONObject;
  */
 public class JDKInstaller extends ToolInstaller {
     /**
-     * The release ID that Sun assigns to each JDK, such as "jdk-6u13-oth-JPR@CDS-CDS_Developer"
+     * The release ID that Sun assigns to each JDKExt, such as "jdk-6u13-oth-JPR@CDS-CDS_Developer"
      *
      * <p>
      * This ID can be seen in the "ProductRef" query parameter of the download page, like
@@ -138,7 +138,7 @@ public class JDKInstaller extends ToolInstaller {
     }
 
     /**
-     * Performs the JDK installation to a system, provided that the bundle was already downloaded.
+     * Performs the JDKExt installation to a system, provided that the bundle was already downloaded.
      *
      * @param launcher
      *      Used to launch processes on the system.
@@ -149,9 +149,9 @@ public class JDKInstaller extends ToolInstaller {
      * @param log
      *      Where the output from the installation will be written.
      * @param expectedLocation
-     *      Path to install JDK to. Must be absolute and in the native file system notation.
+     *      Path to install JDKExt to. Must be absolute and in the native file system notation.
      * @param jdkBundle
-     *      Path to the installed JDK bundle. (The bundle to download can be determined by {@link #locate(TaskListener, Platform, CPU)} call.)
+     *      Path to the installed JDKExt bundle. (The bundle to download can be determined by {@link #locate(TaskListener, Platform, CPU)} call.)
      */
     public void install(Launcher launcher, Platform p, FileSystem fs, TaskListener log, String expectedLocation, String jdkBundle) throws IOException, InterruptedException {
         PrintStream out = log.getLogger();
@@ -167,7 +167,7 @@ public class JDKInstaller extends ToolInstaller {
             if (exit != 0)
                 throw new AbortException(Messages.JDKInstaller_FailedToInstallJDK(exit));
 
-            // JDK creates its own sub-directory, so pull them up
+            // JDKExt creates its own sub-directory, so pull them up
             List<String> paths = fs.listSubDirectories(expectedLocation);
             for (Iterator<String> itr = paths.iterator(); itr.hasNext();) {
                 String s =  itr.next();
@@ -231,7 +231,7 @@ public class JDKInstaller extends ToolInstaller {
     }
 
     /**
-     * Abstraction of the file system to perform JDK installation.
+     * Abstraction of the file system to perform JDKExt installation.
      * Consider {@link FilePathFileSystem} as the canonical documentation of the contract.
      */
     public interface FileSystem {
@@ -281,10 +281,10 @@ public class JDKInstaller extends ToolInstaller {
     }
 
     /**
-     * This is where we locally cache this JDK.
+     * This is where we locally cache this JDKExt.
      */
     private File getLocalCacheFile(Platform platform, CPU cpu) {
-        return new File(Hudson.getInstance().getRootDir(),"cache/jdks/"+platform+"/"+cpu+"/"+id);
+        return new File(HudsonExt.getInstance().getRootDir(),"cache/jdks/"+platform+"/"+cpu+"/"+id);
     }
 
     /**
@@ -438,7 +438,7 @@ public class JDKInstaller extends ToolInstaller {
         LINUX("jdk.sh"), SOLARIS("jdk.sh"), WINDOWS("jdk.exe");
 
         /**
-         * Choose the file name suitable for the downloaded JDK bundle.
+         * Choose the file name suitable for the downloaded JDKExt bundle.
          */
         public final String bundleFileName;
 
@@ -562,7 +562,7 @@ public class JDKInstaller extends ToolInstaller {
 
         @Override
         public boolean isApplicable(Class<? extends ToolInstallation> toolType) {
-            return toolType==JDK.class;
+            return toolType==JDKExt.class;
         }
 
         public FormValidation doCheckId(@QueryParameter String value) {
@@ -592,10 +592,10 @@ public class JDKInstaller extends ToolInstaller {
     }
 
     /**
-     * JDK list.
+     * JDKExt list.
      */
     @Extension
-    public static final class JDKList extends Downloadable {
+    public static final class JDKList extends DownloadableExt {
         public JDKList() {
             super(JDKInstaller.class);
         }

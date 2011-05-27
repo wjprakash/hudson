@@ -23,7 +23,7 @@
  */
 package hudson.util;
 
-import hudson.model.Hudson;
+import hudson.model.HudsonExt;
 import hudson.triggers.SafeTimerTask;
 import hudson.triggers.Trigger;
 import org.apache.commons.io.FileUtils;
@@ -42,8 +42,8 @@ import java.lang.management.ManagementFactory;
 import java.lang.reflect.Method;
 
 /**
- * Makes sure that no other Hudson uses our <tt>HUDSON_HOME</tt> directory,
- * to forestall the problem of running multiple instances of Hudson that point to the same data directory.
+ * Makes sure that no other HudsonExt uses our <tt>HUDSON_HOME</tt> directory,
+ * to forestall the problem of running multiple instances of HudsonExt that point to the same data directory.
  *
  * <p>
  * This set up error occasionally happens especialy when the user is trying to reassign the context path of the app,
@@ -80,13 +80,13 @@ public class DoubleLaunchChecker {
     public final File home;
 
     /**
-     * ID string of the other Hudson that we are colliding with. 
+     * ID string of the other HudsonExt that we are colliding with. 
      * Can be null.
      */
     private String collidingId;
 
     public DoubleLaunchChecker() {
-        home = Hudson.getInstance().getRootDir();
+        home = HudsonExt.getInstance().getRootDir();
     }
 
     protected void execute() {
@@ -101,9 +101,9 @@ public class DoubleLaunchChecker {
             }
             // we noticed that someone else have updated this file.
             // switch GUI to display this error.
-            Hudson.getInstance().servletContext.setAttribute("app",this);
+            HudsonExt.getInstance().servletContext.setAttribute("app",this);
             LOGGER.severe("Collision detected. timestamp="+t+", expected="+lastWriteTime);
-            // we need to continue updating this file, so that the other Hudson would notice the problem, too.
+            // we need to continue updating this file, so that the other HudsonExt would notice the problem, too.
         }
 
         try {
@@ -118,10 +118,10 @@ public class DoubleLaunchChecker {
     }
 
     /**
-     * Figures out a string that identifies this instance of Hudson.
+     * Figures out a string that identifies this instance of HudsonExt.
      */
     public String getId() {
-        Hudson h = Hudson.getInstance();
+        HudsonExt h = HudsonExt.getInstance();
 
         // in servlet 2.5, we can get the context path
         String contextPath="";
@@ -143,7 +143,7 @@ public class DoubleLaunchChecker {
      * Schedules the next execution.
      */
     public void schedule() {
-        // randomize the scheduling so that multiple Hudson instances will write at the file at different time
+        // randomize the scheduling so that multiple HudsonExt instances will write at the file at different time
         long MINUTE = 1000*60;
         Trigger.timer.schedule(new SafeTimerTask() {
             protected void doRun() {
@@ -161,11 +161,11 @@ public class DoubleLaunchChecker {
     }
 
     /**
-     * Ignore the problem and go back to using Hudson.
+     * Ignore the problem and go back to using HudsonExt.
      */
     public void doIgnore(StaplerRequest req, StaplerResponse rsp) throws IOException {
         ignore = true;
-        Hudson.getInstance().servletContext.setAttribute("app",Hudson.getInstance());
+        HudsonExt.getInstance().servletContext.setAttribute("app",HudsonExt.getInstance());
         rsp.sendRedirect2(req.getContextPath()+'/');
     }
 

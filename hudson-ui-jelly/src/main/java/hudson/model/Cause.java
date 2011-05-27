@@ -48,7 +48,7 @@ import com.thoughtworks.xstream.converters.UnmarshallingContext;
  * </dl>
  *
  * @author Michael Donohue
- * @see Run#getCauses()
+ * @see RunExt#getCauses()
  * @see Queue.Item#getCauses()
  */
 @ExportedBean
@@ -70,7 +70,7 @@ public abstract class Cause extends CauseExt{
     public static class UpstreamCause extends CauseExt.UpstreamCause {
          
         
-        public UpstreamCause(Run<?, ?> up) {
+        public UpstreamCause(RunExt<?, ?> up) {
              super(up);
         }
 

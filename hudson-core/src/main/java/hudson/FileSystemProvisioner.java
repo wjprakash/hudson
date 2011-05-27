@@ -28,9 +28,9 @@ import hudson.model.AbstractBuildExt;
 import hudson.model.AbstractProjectExt;
 import hudson.model.ComputerExt;
 import hudson.model.Describable;
-import hudson.model.Job;
+import hudson.model.JobExt;
 import hudson.model.TaskListener;
-import hudson.model.Hudson;
+import hudson.model.HudsonExt;
 import hudson.model.listeners.RunListener;
 import hudson.scm.SCM;
 
@@ -49,7 +49,7 @@ import java.io.OutputStream;
  * <p>
  * STILL A WORK IN PROGRESS. SUBJECT TO CHANGE! DO NOT EXTEND.
  *
- * TODO: is this per {@link ComputerExt}? Per {@link Job}?
+ * TODO: is this per {@link ComputerExt}? Per {@link JobExt}?
  *   -> probably per slave.
  *
  * <h2>Design Problems</h2>
@@ -127,7 +127,7 @@ public abstract class FileSystemProvisioner implements ExtensionPoint, Describab
      *
      * TODO : the method needs to be able to see the snapshot would
      * be later needed. In fact, perhaps we should only call this method
-     * when Hudson knows that a snapshot is later needed?
+     * when HudsonExt knows that a snapshot is later needed?
      *
      * @param ws
      *      New workspace should be prepared in this location. This is the same value as
@@ -174,7 +174,7 @@ public abstract class FileSystemProvisioner implements ExtensionPoint, Describab
     public abstract WorkspaceSnapshot snapshot(AbstractBuildExt<?,?> build, FilePathExt ws, String glob, TaskListener listener) throws IOException, InterruptedException;
 
     public FileSystemProvisionerDescriptor getDescriptor() {
-        return (FileSystemProvisionerDescriptor) Hudson.getInstance().getDescriptorOrDie(getClass());
+        return (FileSystemProvisionerDescriptor) HudsonExt.getInstance().getDescriptorOrDie(getClass());
     }
 
     /**
@@ -186,12 +186,12 @@ public abstract class FileSystemProvisioner implements ExtensionPoint, Describab
      * Returns all the registered {@link FileSystemProvisioner} descriptors.
      */
     public static DescriptorExtensionListExt<FileSystemProvisioner,FileSystemProvisionerDescriptor> all() {
-        return Hudson.getInstance().<FileSystemProvisioner,FileSystemProvisionerDescriptor>getDescriptorList(FileSystemProvisioner.class);
+        return HudsonExt.getInstance().<FileSystemProvisioner,FileSystemProvisionerDescriptor>getDescriptorList(FileSystemProvisioner.class);
     }
 
     /**
      * Default implementation that doesn't rely on any file system specific capability,
-     * and thus can be used anywhere that Hudson runs.
+     * and thus can be used anywhere that HudsonExt runs.
      */
     public static final class Default extends FileSystemProvisioner {
         public void prepareWorkspace(AbstractBuildExt<?, ?> build, FilePathExt ws, TaskListener listener) throws IOException, InterruptedException {

@@ -26,7 +26,7 @@ package hudson.tasks.junit;
 import hudson.AbortException;
 import hudson.Util;
 import hudson.model.AbstractBuildExt;
-import hudson.model.Run;
+import hudson.model.RunExt;
 import hudson.tasks.test.MetaTabulatedResult;
 import hudson.tasks.test.TestObject;
 import hudson.tasks.test.AbstractTestResultAction;
@@ -347,7 +347,7 @@ public final class TestResult extends MetaTabulatedResult {
      * when this test started failing.
      */
     @Override
-    public Run<?, ?> getFailedSinceRun() {
+    public RunExt<?, ?> getFailedSinceRun() {
         throw new UnsupportedOperationException();  // TODO: implement!(FIXME: generated)
     }
 

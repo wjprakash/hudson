@@ -73,7 +73,7 @@ public abstract class TaskAction extends AbstractModelObjectExt implements Actio
      * @deprecated as of 1.350
      *      Use {@link #obtainLog()}, which returns the same object in a more type-safe signature.
      */
-    public LargeText getLog() {
+    public LargeTextExt getLog() {
         return obtainLog();
     }
 

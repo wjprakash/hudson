@@ -26,7 +26,7 @@ package hudson.lifecycle;
 import hudson.FilePathExt;
 import hudson.Launcher.LocalLauncher;
 import hudson.Util;
-import hudson.model.Hudson;
+import hudson.model.HudsonExt;
 import hudson.util.StreamTaskListener;
 import hudson.util.jna.NativeAccessException;
 import hudson.util.jna.NativeUtils;
@@ -42,7 +42,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * {@link Lifecycle} for Hudson installed as Windows service.
+ * {@link Lifecycle} for HudsonExt installed as Windows service.
  * 
  * @author Kohsuke Kawaguchi
  * @see WindowsInstallerLink
@@ -55,11 +55,11 @@ public class WindowsServiceLifecycle extends Lifecycle {
     /**
      * If <tt>hudson.exe</tt> is old compared to our copy,
      * schedule an overwrite (except that since it's currently running,
-     * we can only do it when Hudson restarts next time.)
+     * we can only do it when HudsonExt restarts next time.)
      */
     private void updateHudsonExeIfNeeded() {
         try {
-            File rootDir = Hudson.getInstance().getRootDir();
+            File rootDir = HudsonExt.getInstance().getRootDir();
 
             URL exe = getClass().getResource("/windows-service/hudson.exe");
             String ourCopy = Util.getDigestOf(exe.openStream());
@@ -102,7 +102,7 @@ public class WindowsServiceLifecycle extends Lifecycle {
         if (!by.equals(bak))
             FileUtils.copyFile(dest, bak);
 
-        File rootDir = Hudson.getInstance().getRootDir();
+        File rootDir = HudsonExt.getInstance().getRootDir();
         File copyFiles = new File(rootDir,"hudson.copies");
 
         FileWriter w = new FileWriter(copyFiles, true);

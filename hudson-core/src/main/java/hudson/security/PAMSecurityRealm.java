@@ -25,8 +25,8 @@ package hudson.security;
 
 import groovy.lang.Binding;
 import hudson.FunctionsExt;
-import hudson.model.Descriptor;
-import hudson.model.Hudson;
+import hudson.model.DescriptorExt;
+import hudson.model.HudsonExt;
 import hudson.Util;
 import hudson.Extension;
 import hudson.util.FormValidation;
@@ -109,7 +109,7 @@ public class PAMSecurityRealm extends SecurityRealm {
         binding.setVariable("instance", this);
 
         BeanBuilder builder = new BeanBuilder();
-        builder.parse(Hudson.getInstance().servletContext.getResourceAsStream("/WEB-INF/security/PAMSecurityRealm.groovy"), binding);
+        builder.parse(HudsonExt.getInstance().servletContext.getResourceAsStream("/WEB-INF/security/PAMSecurityRealm.groovy"), binding);
         WebApplicationContext context = builder.createApplicationContext();
         return new SecurityComponents(
                 findBean(AuthenticationManager.class, context),
@@ -152,7 +152,7 @@ public class PAMSecurityRealm extends SecurityRealm {
         };
     }
 
-    public static final class DescriptorImpl extends Descriptor<SecurityRealm> {
+    public static final class DescriptorImpl extends DescriptorExt<SecurityRealm> {
 
         public String getDisplayName() {
             return Messages.PAMSecurityRealm_DisplayName();

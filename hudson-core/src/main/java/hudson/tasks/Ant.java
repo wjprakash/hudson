@@ -35,7 +35,7 @@ import hudson.model.AbstractProjectExt;
 import hudson.model.BuildListener;
 import hudson.model.ComputerExt;
 import hudson.model.EnvironmentSpecific;
-import hudson.model.Hudson;
+import hudson.model.HudsonExt;
 import hudson.model.Node;
 import hudson.model.TaskListener;
 import hudson.remoting.Callable;
@@ -306,7 +306,7 @@ public class Ant extends Builder {
      */
     public static final class AntInstallation extends ToolInstallation implements
             EnvironmentSpecific<AntInstallation>, NodeSpecific<AntInstallation> {
-        // to remain backward compatible with earlier Hudson that stored this field here.
+        // to remain backward compatible with earlier HudsonExt that stored this field here.
         @Deprecated
         private transient String antHome;
 
@@ -391,12 +391,12 @@ public class Ant extends Builder {
             // for compatibility reasons, the persistence is done by Ant.DescriptorImpl  
             @Override
             public AntInstallation[] getInstallations() {
-                return Hudson.getInstance().getDescriptorByType(Ant.DescriptorImpl.class).getInstallations();
+                return HudsonExt.getInstance().getDescriptorByType(Ant.DescriptorImpl.class).getInstallations();
             }
 
             @Override
             public void setInstallations(AntInstallation... installations) {
-                Hudson.getInstance().getDescriptorByType(Ant.DescriptorImpl.class).setInstallations(installations);
+                HudsonExt.getInstance().getDescriptorByType(Ant.DescriptorImpl.class).setInstallations(installations);
             }
 
             @Override
@@ -409,7 +409,7 @@ public class Ant extends Builder {
              */
             public FormValidation doCheckHome(@QueryParameter File value) {
                 // this can be used to check the existence of a file on the server, so needs to be protected
-                if(!Hudson.getInstance().hasPermission(Hudson.ADMINISTER))
+                if(!HudsonExt.getInstance().hasPermission(HudsonExt.ADMINISTER))
                     return FormValidation.ok();
 
                 if(value.getPath().equals(""))

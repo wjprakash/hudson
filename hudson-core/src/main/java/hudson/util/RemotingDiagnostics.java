@@ -26,7 +26,7 @@ package hudson.util;
 import groovy.lang.GroovyShell;
 import hudson.FilePathExt;
 import hudson.FunctionsExt;
-import hudson.model.Hudson;
+import hudson.model.HudsonExt;
 import hudson.remoting.Callable;
 import hudson.remoting.DelegatingCallable;
 import hudson.remoting.VirtualChannel;
@@ -118,7 +118,7 @@ public final class RemotingDiagnostics {
         }
 
         public ClassLoader getClassLoader() {
-            return Hudson.getInstance().getPluginManager().uberClassLoader;
+            return HudsonExt.getInstance().getPluginManager().uberClassLoader;
         }
 
         public String call() throws RuntimeException {
@@ -185,7 +185,7 @@ public final class RemotingDiagnostics {
 
         @WebMethod(name="heapdump.hprof")
         public void doHeapDump(StaplerRequest req, StaplerResponse rsp) throws IOException, InterruptedException {
-            owner.checkPermission(Hudson.ADMINISTER);
+            owner.checkPermission(HudsonExt.ADMINISTER);
             rsp.setContentType("application/octet-stream");
 
             FilePathExt dump = obtain();

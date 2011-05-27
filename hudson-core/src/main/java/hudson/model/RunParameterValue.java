@@ -29,7 +29,7 @@ import hudson.EnvVars;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.export.Exported;
 
-public class RunParameterValue extends ParameterValue {
+public class RunParameterValue extends ParameterValueExt {
 
     private final String runId;
 
@@ -44,8 +44,8 @@ public class RunParameterValue extends ParameterValue {
         this.runId = runId;
     }
 
-    public Run getRun() {
-        return Run.fromExternalizableId(runId);
+    public RunExt getRun() {
+        return RunExt.fromExternalizableId(runId);
     }
 
     public String getRunId() {
@@ -68,7 +68,7 @@ public class RunParameterValue extends ParameterValue {
      */
     @Override
     public void buildEnvVars(AbstractBuildExt<?,?> build, EnvVars env) {
-        String value = Hudson.getInstance().getRootUrl() + getRun().getUrl();
+        String value = HudsonExt.getInstance().getRootUrl() + getRun().getUrl();
         env.put(name, value);
         env.put(name.toUpperCase(Locale.ENGLISH),value); // backward compatibility pre 1.345
 

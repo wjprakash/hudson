@@ -26,30 +26,30 @@ package hudson.model.listeners;
 import hudson.ExtensionPoint;
 import hudson.ExtensionList;
 import hudson.Extension;
-import hudson.model.Hudson;
-import hudson.model.Item;
+import hudson.model.HudsonExt;
+import hudson.model.ItemExt;
 
 /**
- * Receives notifications about CRUD operations of {@link Item}.
+ * Receives notifications about CRUD operations of {@link ItemExt}.
  *
  * @since 1.74
  * @author Kohsuke Kawaguchi
  */
 public class ItemListener implements ExtensionPoint {
     /**
-     * Called after a new job is created and added to {@link Hudson},
+     * Called after a new job is created and added to {@link HudsonExt},
      * before the initial configuration page is provided.
      * <p>
      * This is useful for changing the default initial configuration of newly created jobs.
      * For example, you can enable/add builders, etc.
      */
-    public void onCreated(Item item) {
+    public void onCreated(ItemExt item) {
     }
 
     /**
      * Called after a new job is created by copying from an existing job.
      *
-     * For backward compatibility, the default implementation of this method calls {@link #onCreated(Item)}.
+     * For backward compatibility, the default implementation of this method calls {@link #onCreated(ItemExt)}.
      * If you choose to handle this method, think about whether you want to call super.onCopied or not.
      *
      *
@@ -59,14 +59,14 @@ public class ItemListener implements ExtensionPoint {
      *      The newly created item. Never null.
      *
      * @since 1.325
-     *      Before this version, a copy triggered {@link #onCreated(Item)}.
+     *      Before this version, a copy triggered {@link #onCreated(ItemExt)}.
      */
-    public void onCopied(Item src, Item item) {
+    public void onCopied(ItemExt src, ItemExt item) {
         onCreated(item);
     }
 
     /**
-     * Called after all the jobs are loaded from disk into {@link Hudson}
+     * Called after all the jobs are loaded from disk into {@link HudsonExt}
      * object.
      */
     public void onLoaded() {
@@ -77,7 +77,7 @@ public class ItemListener implements ExtensionPoint {
      *
      * At this point the data files of the job is already gone.
      */
-    public void onDeleted(Item item) {
+    public void onDeleted(ItemExt item) {
     }
 
     /**
@@ -88,14 +88,14 @@ public class ItemListener implements ExtensionPoint {
      * @param oldName
      *      The old name of the job.
      * @param newName
-     *      The new name of the job. Same as {@link Item#getName()}.
+     *      The new name of the job. Same as {@link ItemExt#getName()}.
      * @since 1.146
      */
-    public void onRenamed(Item item, String oldName, String newName) {
+    public void onRenamed(ItemExt item, String oldName, String newName) {
     }
 
     /**
-     * Registers this instance to Hudson and start getting notifications.
+     * Registers this instance to HudsonExt and start getting notifications.
      *
      * @deprecated as of 1.286
      *      put {@link Extension} on your class to have it auto-registered.
@@ -108,15 +108,15 @@ public class ItemListener implements ExtensionPoint {
      * All the registered {@link ItemListener}s.
      */
     public static ExtensionList<ItemListener> all() {
-        return Hudson.getInstance().getExtensionList(ItemListener.class);
+        return HudsonExt.getInstance().getExtensionList(ItemListener.class);
     }
 
-    public static void fireOnCopied(Item src, Item result) {
+    public static void fireOnCopied(ItemExt src, ItemExt result) {
         for (ItemListener l : all())
             l.onCopied(src,result);
     }
 
-    public static void fireOnCreated(Item item) {
+    public static void fireOnCreated(ItemExt item) {
         for (ItemListener l : all())
             l.onCreated(item);
     }

@@ -45,13 +45,13 @@ public abstract class EnvironmentContributor implements ExtensionPoint {
      * Contributes environment variables used for a build.
      *
      * <p>
-     * This method can be called repeatedly for the same {@link Run}, thus
+     * This method can be called repeatedly for the same {@link RunExt}, thus
      * the computation of this method needs to be efficient. If you have a time-consuming
      * computation, one strategy is to take the hit once and then add the result as {@link InvisibleAction}
-     * to {@link Run}, then reuse those values later on.
+     * to {@link RunExt}, then reuse those values later on.
      *
      * <p>
-     * This method gets invoked concurrently for multiple {@link Run}s that are being built at the same time,
+     * This method gets invoked concurrently for multiple {@link RunExt}s that are being built at the same time,
      * so it must be concurrent-safe.
      *
      * @param r
@@ -62,12 +62,12 @@ public abstract class EnvironmentContributor implements ExtensionPoint {
      * @param listener
      *      Connected to the build console. Can be used to report errors. Never null.
      */
-    public abstract void buildEnvironmentFor(Run r, EnvVars envs, TaskListener listener) throws IOException, InterruptedException;
+    public abstract void buildEnvironmentFor(RunExt r, EnvVars envs, TaskListener listener) throws IOException, InterruptedException;
 
     /**
      * Returns all the registered {@link EnvironmentContributor}s.
      */
     public static ExtensionList<EnvironmentContributor> all() {
-        return Hudson.getInstance().getExtensionList(EnvironmentContributor.class);
+        return HudsonExt.getInstance().getExtensionList(EnvironmentContributor.class);
     }
 }

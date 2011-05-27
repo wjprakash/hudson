@@ -25,7 +25,7 @@ package hudson.slaves;
 
 
 import junit.framework.TestCase;
-import hudson.model.Hudson;
+import hudson.model.HudsonExt;
 import hudson.model.Node;
 import hudson.model.TaskListener;
 import hudson.model.ComputerExt;
@@ -96,7 +96,7 @@ public class NodeListTest extends TestCase {
             throw new UnsupportedOperationException();
         }
 
-        public NodeDescriptor getDescriptor() {
+        public NodeDescriptorExt getDescriptor() {
             throw new UnsupportedOperationException();
         }
 
@@ -118,7 +118,7 @@ public class NodeListTest extends TestCase {
 
         File tmp = File.createTempFile("test","test");
         try {
-            XmlFile x = new XmlFile(Hudson.XSTREAM, tmp);
+            XmlFile x = new XmlFile(HudsonExt.XSTREAM, tmp);
             x.write(nl);
 
             String xml = FileUtils.readFileToString(tmp);

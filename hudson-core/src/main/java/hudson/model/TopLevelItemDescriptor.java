@@ -27,11 +27,11 @@ import hudson.ExtensionList;
 import org.kohsuke.stapler.StaplerRequest;
 
 /**
- * {@link Descriptor} for {@link TopLevelItem}s.
+ * {@link DescriptorExt} for {@link TopLevelItem}s.
  *
  * @author Kohsuke Kawaguchi
  */
-public abstract class TopLevelItemDescriptor extends Descriptor<TopLevelItem> {
+public abstract class TopLevelItemDescriptor extends DescriptorExt<TopLevelItem> {
     protected TopLevelItemDescriptor(Class<? extends TopLevelItem> clazz) {
         super(clazz);
     }
@@ -56,7 +56,7 @@ public abstract class TopLevelItemDescriptor extends Descriptor<TopLevelItem> {
      *
      * @since 1.294
      */
-    public boolean isApplicable(Descriptor descriptor) {
+    public boolean isApplicable(DescriptorExt descriptor) {
         return true;
     }
 
@@ -87,7 +87,7 @@ public abstract class TopLevelItemDescriptor extends Descriptor<TopLevelItem> {
      *      Use {@link #newInstance(ItemGroup, String)}
      */
     public TopLevelItem newInstance(String name) {
-        return newInstance(Hudson.getInstance(), name);
+        return newInstance(HudsonExt.getInstance(), name);
     }
 
     /**

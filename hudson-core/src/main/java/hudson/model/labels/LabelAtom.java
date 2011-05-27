@@ -31,10 +31,10 @@ import hudson.BulkChange;
 import hudson.CopyOnWrite;
 import hudson.XmlFile;
 import hudson.model.Action;
-import hudson.model.Descriptor.FormException;
-import hudson.model.Failure;
-import hudson.model.Hudson;
-import hudson.model.Label;
+import hudson.model.DescriptorExt.FormException;
+import hudson.model.FailureExt;
+import hudson.model.HudsonExt;
+import hudson.model.LabelExt;
 import hudson.model.Messages;
 import hudson.model.Saveable;
 import hudson.model.listeners.SaveableListener;
@@ -61,7 +61,7 @@ import java.util.logging.Logger;
  * @author Kohsuke Kawaguchi
  * @since  1.372
  */
-public class LabelAtom extends Label implements Saveable {
+public class LabelAtom extends LabelExt implements Saveable {
     private DescribableList<LabelAtomProperty,LabelAtomPropertyDescriptor> properties =
             new DescribableList<LabelAtomProperty,LabelAtomPropertyDescriptor>(this);
 
@@ -105,7 +105,7 @@ public class LabelAtom extends Label implements Saveable {
             // if there's no property descriptor, there's nothing interesting to configure.
             ta.add(new Action() {
                 public String getIconFileName() {
-                    if (Hudson.getInstance().hasPermission(Hudson.ADMINISTER))
+                    if (HudsonExt.getInstance().hasPermission(HudsonExt.ADMINISTER))
                         return "setting.gif";
                     else
                         return null;
@@ -150,7 +150,7 @@ public class LabelAtom extends Label implements Saveable {
     }
 
     /*package*/ XmlFile getConfigFile() {
-        return new XmlFile(XSTREAM, new File(Hudson.getInstance().root, "labels/"+name+".xml"));
+        return new XmlFile(XSTREAM, new File(HudsonExt.getInstance().root, "labels/"+name+".xml"));
     }
 
     public void save() throws IOException {
@@ -188,9 +188,9 @@ public class LabelAtom extends Label implements Saveable {
      * Accepts the update to the node configuration.
      */
     public void doConfigSubmit( StaplerRequest req, StaplerResponse rsp ) throws IOException, ServletException, FormException {
-        final Hudson app = Hudson.getInstance();
+        final HudsonExt app = HudsonExt.getInstance();
 
-        app.checkPermission(Hudson.ADMINISTER);
+        app.checkPermission(HudsonExt.ADMINISTER);
 
         properties.rebuild(req, req.getSubmittedForm(), getApplicablePropertyDescriptors());
         updateTransientActions();
@@ -204,12 +204,12 @@ public class LabelAtom extends Label implements Saveable {
      * Obtains an atom by its {@linkplain #getName() name}.
      */
     public static LabelAtom get(String l) {
-        return Hudson.getInstance().getLabelAtom(l);
+        return HudsonExt.getInstance().getLabelAtom(l);
     }
 
     public static boolean needsEscape(String name) {
         try {
-            Hudson.checkGoodName(name);
+            HudsonExt.checkGoodName(name);
             // additional restricted chars
             for( int i=0; i<name.length(); i++ ) {
                 char ch = name.charAt(i);
@@ -217,7 +217,7 @@ public class LabelAtom extends Label implements Saveable {
                     return true;
             }
             return false;
-        } catch (Failure failure) {
+        } catch (FailureExt failure) {
             return true;
         }
     }
@@ -233,13 +233,13 @@ public class LabelAtom extends Label implements Saveable {
     private static final XStream2 XSTREAM = new XStream2();
 
     static {
-        // Don't want Label.ConverterImpl to be used:
+        // Don't want LabelExt.ConverterImpl to be used:
         XSTREAM.registerConverter(new LabelAtomConverter(), 100);
     }
 
     // class name is not ConverterImpl, to avoid getting picked up by AssociatedConverterImpl
     private static class LabelAtomConverter extends XStream2.PassthruConverter<LabelAtom> {
-        private Label.ConverterImpl leafLabelConverter = new Label.ConverterImpl();
+        private LabelExt.ConverterImpl leafLabelConverter = new LabelExt.ConverterImpl();
 
         private LabelAtomConverter() {
             super(XSTREAM);

@@ -23,8 +23,8 @@
  */
 package hudson.model.queue;
 
-import hudson.model.Executor;
-import hudson.model.Label;
+import hudson.model.ExecutorExt;
+import hudson.model.LabelExt;
 import hudson.model.Node;
 import hudson.model.Queue.Executable;
 import hudson.model.Queue.Task;
@@ -33,7 +33,7 @@ import hudson.model.ResourceActivity;
 import java.io.IOException;
 
 /**
- * A component of {@link Task} that represents a computation carried out by a single {@link Executor}.
+ * A component of {@link Task} that represents a computation carried out by a single {@link ExecutorExt}.
  *
  * A {@link Task} consists of a number of {@link SubTask}.
  *
@@ -47,10 +47,10 @@ import java.io.IOException;
 public interface SubTask extends ResourceActivity {
     /**
      * If this task needs to be run on a node with a particular label,
-     * return that {@link Label}. Otherwise null, indicating
+     * return that {@link LabelExt}. Otherwise null, indicating
      * it can run on anywhere.
      */
-    Label getAssignedLabel();
+    LabelExt getAssignedLabel();
 
     /**
      * If the previous execution of this task run on a certain node

@@ -23,8 +23,8 @@
  */
 package hudson.triggers;
 
-import hudson.model.Descriptor;
-import hudson.model.Item;
+import hudson.model.DescriptorExt;
+import hudson.model.ItemExt;
 import hudson.util.DescriptorList;
 import hudson.Extension;
 
@@ -45,7 +45,7 @@ public class Triggers {
      *      Use {@link Trigger#all()} for read access, and {@link Extension} for registration.
      */
     public static final List<TriggerDescriptor> TRIGGERS = (List)new DescriptorList<Trigger<?>>((Class)Trigger.class);
-//    Descriptor.toList(
+//    DescriptorExt.toList(
 //        SCMTrigger.DESCRIPTOR,
 //        TimerTrigger.DESCRIPTOR
 //    );
@@ -54,9 +54,9 @@ public class Triggers {
      * Returns a subset of {@link TriggerDescriptor}s that applys to the given item.
      *
      * @deprecated as of 1.286
-     *      Use {@link Trigger#for_(Item)}.
+     *      Use {@link Trigger#for_(ItemExt)}.
      */
-    public static List<TriggerDescriptor> getApplicableTriggers(Item i) {
+    public static List<TriggerDescriptor> getApplicableTriggers(ItemExt i) {
         return Trigger.for_(i);
     }
 }

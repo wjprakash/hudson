@@ -25,7 +25,7 @@ package hudson;
 
 import com.thoughtworks.xstream.converters.reflection.PureJavaReflectionProvider;
 import com.thoughtworks.xstream.core.JVM;
-import hudson.model.Hudson;
+import hudson.model.HudsonExt;
 import hudson.model.User;
 import hudson.triggers.SafeTimerTask;
 import hudson.triggers.Trigger;
@@ -65,7 +65,7 @@ import java.util.logging.Logger;
 import java.security.Security;
 
 /**
- * Entry point when Hudson is used as a webapp.
+ * Entry point when HudsonExt is used as a webapp.
  *
  * @author Kohsuke Kawaguchi
  */
@@ -74,7 +74,7 @@ public final class WebAppMain implements ServletContextListener {
     private static final String APP = "app";
 
     /**
-     * Creates the sole instance of {@link Hudson} and register it to the {@link ServletContext}.
+     * Creates the sole instance of {@link HudsonExt} and register it to the {@link ServletContext}.
      */
     public void contextInitialized(ServletContextEvent event) {
         try {
@@ -133,7 +133,7 @@ public final class WebAppMain implements ServletContextListener {
 //            //    - platform is unsupported
 //            //    - JNA is already loaded in another classloader
 //            // see http://wiki.hudson-ci.org/display/HUDSON/JNA+is+already+loaded
-//            // TODO: or shall we instead modify Hudson to work gracefully without JNA?
+//            // TODO: or shall we instead modify HudsonExt to work gracefully without JNA?
 //            try {
 //                /*
 //                    java.lang.UnsatisfiedLinkError: Native Library /builds/apps/glassfish/domains/hudson-domain/generated/jsp/j2ee-modules/hudson-1.309/loader/com/sun/jna/sunos-sparc/libjnidispatch.so already loaded in another classloader
@@ -217,7 +217,7 @@ public final class WebAppMain implements ServletContextListener {
                 @Override
                 public void run() {
                     try {
-                        context.setAttribute(APP,new Hudson(home,context));
+                        context.setAttribute(APP,new HudsonExt(home,context));
 
                         // trigger the loading of changelogs in the background,
                         // but give the system 10 seconds so that the first page
@@ -251,15 +251,15 @@ public final class WebAppMain implements ServletContextListener {
     }
 
 	/**
-     * Installs log handler to monitor all Hudson logs.
+     * Installs log handler to monitor all HudsonExt logs.
      */
     private void installLogger() {
-        Hudson.logRecords = handler.getView();
+        HudsonExt.logRecords = handler.getView();
         Logger.getLogger("hudson").addHandler(handler);
     }
 
     /**
-     * Determines the home directory for Hudson.
+     * Determines the home directory for HudsonExt.
      *
      * People makes configuration mistakes, so we are trying to be nice
      * with those by doing {@link String#trim()}.
@@ -296,7 +296,7 @@ public final class WebAppMain implements ServletContextListener {
         if(root!=null) {
             File ws = new File(root.trim());
             if(ws.exists())
-                // Hudson <1.42 used to prefer this before ~/.hudson, so
+                // HudsonExt <1.42 used to prefer this before ~/.hudson, so
                 // check the existence and if it's there, use it.
                 // otherwise if this is a new installation, prefer ~/.hudson
                 return ws;
@@ -307,7 +307,7 @@ public final class WebAppMain implements ServletContextListener {
     }
 
     public void contextDestroyed(ServletContextEvent event) {
-        Hudson instance = Hudson.getInstance();
+        HudsonExt instance = HudsonExt.getInstance();
         if(instance!=null)
             instance.cleanUp();
 

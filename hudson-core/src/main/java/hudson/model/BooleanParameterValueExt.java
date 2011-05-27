@@ -31,9 +31,9 @@ import java.util.Map;
 import hudson.util.VariableResolver;
 
 /**
- * {@link ParameterValue} created from {@link BooleanParameterDefinition}.
+ * {@link ParameterValueExt} created from {@link BooleanParameterDefinition}.
  */
-public class BooleanParameterValueExt extends ParameterValue {
+public class BooleanParameterValueExt extends ParameterValueExt {
      
     private final boolean value;
 

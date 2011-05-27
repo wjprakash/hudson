@@ -27,7 +27,7 @@ package hudson;
 
 import hudson.Launcher.LocalLauncher;
 import hudson.Launcher.RemoteLauncher;
-import hudson.model.Hudson;
+import hudson.model.HudsonExt;
 import hudson.model.TaskListener;
 import hudson.remoting.Callable;
 import hudson.remoting.Channel;
@@ -750,7 +750,7 @@ public class FilePathExt implements Serializable {
             }
         } else {
             // the file is on the local machine.
-            return callable.invoke(new File(remote), Hudson.MasterComputer.localChannel);
+            return callable.invoke(new File(remote), HudsonExt.MasterComputer.localChannel);
         }
     }
 
@@ -760,7 +760,7 @@ public class FilePathExt implements Serializable {
      */
     public <T> Future<T> actAsync(final FileCallable<T> callable) throws IOException, InterruptedException {
         try {
-            return (channel!=null ? channel : Hudson.MasterComputer.localChannel)
+            return (channel!=null ? channel : HudsonExt.MasterComputer.localChannel)
                 .callAsync(new FileCallableWrapper<T>(callable));
         } catch (IOException e) {
             // wrap it into a new IOException so that we get the caller's stack trace as well.
@@ -1748,7 +1748,7 @@ public class FilePathExt implements Serializable {
 
     public VirtualChannel getChannel() {
         if(channel!=null)   return channel;
-        else                return Hudson.MasterComputer.localChannel;
+        else                return HudsonExt.MasterComputer.localChannel;
     }
 
     /**

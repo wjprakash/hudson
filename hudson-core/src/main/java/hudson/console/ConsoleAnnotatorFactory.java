@@ -26,8 +26,8 @@ package hudson.console;
 import hudson.Extension;
 import hudson.ExtensionList;
 import hudson.ExtensionPoint;
-import hudson.model.Hudson;
-import hudson.model.Run;
+import hudson.model.HudsonExt;
+import hudson.model.RunExt;
 import hudson.util.TimeUnit2;
 import org.jvnet.tiger_types.Types;
 import org.kohsuke.stapler.StaplerRequest;
@@ -75,7 +75,7 @@ public abstract class ConsoleAnnotatorFactory<T> implements ExtensionPoint {
      * This method can be invoked concurrently by multiple threads.
      *
      * @param context
-     *      The model object that owns the console output, such as {@link Run}.
+     *      The model object that owns the console output, such as {@link RunExt}.
      *      This method is only called when the context object if assignable to
      *      {@linkplain #type() the advertised type}.
      * @return
@@ -127,6 +127,6 @@ public abstract class ConsoleAnnotatorFactory<T> implements ExtensionPoint {
      * All the registered instances.
      */
     public static ExtensionList<ConsoleAnnotatorFactory> all() {
-        return Hudson.getInstance().getExtensionList(ConsoleAnnotatorFactory.class);
+        return HudsonExt.getInstance().getExtensionList(ConsoleAnnotatorFactory.class);
     }
 }

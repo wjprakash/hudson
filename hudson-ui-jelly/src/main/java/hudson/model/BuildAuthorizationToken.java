@@ -59,7 +59,7 @@ public final class BuildAuthorizationToken extends BuildAuthorizationTokenExt{
     }
 
     public static void checkPermission(AbstractProjectExt project, BuildAuthorizationToken token, StaplerRequest req, StaplerResponse rsp) throws IOException {
-        if (!Hudson.getInstance().isUseSecurity())
+        if (!HudsonExt.getInstance().isUseSecurity())
             return;    // everyone is authorized
 
         if(token!=null && token.token != null) {

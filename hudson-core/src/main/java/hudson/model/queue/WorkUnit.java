@@ -23,14 +23,14 @@
  */
 package hudson.model.queue;
 
-import hudson.model.Executor;
+import hudson.model.ExecutorExt;
 import hudson.model.Queue;
 import hudson.model.Queue.Executable;
 import hudson.model.Queue.Task;
 import org.kohsuke.stapler.export.ExportedBean;
 
 /**
- * Represents a unit of hand-over to {@link Executor} from {@link Queue}.
+ * Represents a unit of hand-over to {@link ExecutorExt} from {@link Queue}.
  *
  * @author Kohsuke Kawaguchi
  * @since 1.377
@@ -47,7 +47,7 @@ public final class WorkUnit {
      */
     public final WorkUnitContext context;
 
-    private volatile Executor executor;
+    private volatile ExecutorExt executor;
 
     WorkUnit(WorkUnitContext context, SubTask work) {
         this.context = context;
@@ -55,16 +55,16 @@ public final class WorkUnit {
     }
 
     /**
-     * {@link Executor} running this work unit.
+     * {@link ExecutorExt} running this work unit.
      * <p>
-     * {@link Executor#getCurrentWorkUnit()} and {@link WorkUnit#getExecutor()}
+     * {@link ExecutorExt#getCurrentWorkUnit()} and {@link WorkUnit#getExecutor()}
      * form a bi-directional reachability between them.
      */
-    public Executor getExecutor() {
+    public ExecutorExt getExecutor() {
         return executor;
     }
 
-    public void setExecutor(Executor e) {
+    public void setExecutor(ExecutorExt e) {
         executor = e;
     }
 

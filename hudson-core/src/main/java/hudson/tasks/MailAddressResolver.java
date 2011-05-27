@@ -27,7 +27,7 @@ import hudson.Extension;
 import hudson.ExtensionList;
 import hudson.ExtensionListView;
 import hudson.ExtensionPoint;
-import hudson.model.Hudson;
+import hudson.model.HudsonExt;
 import hudson.model.User;
 import hudson.model.UserProperty;
 import hudson.scm.SCM;
@@ -41,7 +41,7 @@ import java.util.regex.Pattern;
  * Infers e-mail addresses for the user when none is specified.
  *
  * <p>
- * This is an extension point of Hudson. Plugins tha contribute new implementation
+ * This is an extension point of HudsonExt. Plugins tha contribute new implementation
  * of this class should put {@link Extension} on your implementation class, like this:
  *
  * <pre>
@@ -53,7 +53,7 @@ import java.util.regex.Pattern;
  *
  * <h2>Techniques</h2>
  * <p>
- * User identity in Hudson is global, and not specific to a particular job. As a result, mail address resolution
+ * User identity in HudsonExt is global, and not specific to a particular job. As a result, mail address resolution
  * only receives {@link User}, which by itself doesn't really have that much information in it.
  *
  * <p>
@@ -156,7 +156,7 @@ public abstract class MailAddressResolver implements ExtensionPoint {
      * Returns all the registered {@link MailAddressResolver} descriptors.
      */
     public static ExtensionList<MailAddressResolver> all() {
-        return Hudson.getInstance().getExtensionList(MailAddressResolver.class);
+        return HudsonExt.getInstance().getExtensionList(MailAddressResolver.class);
     }
 
     private static final Logger LOGGER = Logger.getLogger(MailAddressResolver.class.getName());

@@ -23,7 +23,7 @@
  */
 package hudson.security;
 
-import hudson.model.Hudson;
+import hudson.model.HudsonExt;
 import hudson.util.Scrambler;
 import org.acegisecurity.Authentication;
 import org.acegisecurity.GrantedAuthorityImpl;
@@ -48,7 +48,7 @@ import java.net.URLEncoder;
  * Implements the dual authentcation mechanism.
  *
  * <p>
- * Hudson supports both the HTTP basic authentication and the form-based authentication.
+ * HudsonExt supports both the HTTP basic authentication and the form-based authentication.
  * The former is for scripted clients, and the latter is for humans. Unfortunately,
  * becase the servlet spec does not allow us to programatically authenticate users,
  * we need to rely on some hack to make it work, and this is the class that implements
@@ -63,7 +63,7 @@ import java.net.URLEncoder;
  * This causes the container to perform authentication, but there's no way
  * to find out whether the user has been successfully authenticated or not.
  * So to find this out, we then redirect the user to
- * {@link Hudson#doSecured(StaplerRequest, StaplerResponse) <tt>/secured/...</tt> page}.
+ * {@link HudsonExt#doSecured(StaplerRequest, StaplerResponse) <tt>/secured/...</tt> page}.
  *
  * <p>
  * The handler of the above URL checks if the user is authenticated,
@@ -100,7 +100,7 @@ public class BasicAuthenticationFilter implements Filter {
 
         String path = req.getServletPath();
         if(authorization==null || req.getUserPrincipal() !=null || path.startsWith("/secured/")
-        || !Hudson.getInstance().isUseSecurity()) {
+        || !HudsonExt.getInstance().isUseSecurity()) {
             // normal requests, or security not enabled
             if(req.getUserPrincipal()!=null) {
                 // before we route this request, integrate the container authentication

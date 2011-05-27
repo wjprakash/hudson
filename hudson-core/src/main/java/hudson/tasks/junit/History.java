@@ -24,7 +24,7 @@
 package hudson.tasks.junit;
 
 import hudson.model.AbstractBuildExt;
-import hudson.model.Hudson;
+import hudson.model.HudsonExt;
 import hudson.tasks.test.TestObject;
 import hudson.tasks.test.TestResult;
 import hudson.util.ColorPalette;
@@ -160,7 +160,7 @@ public class History {
             AbstractBuildExt<?,?> build = o.getOwner();
             String buildLink = build.getUrl();
             String actionUrl = o.getTestResultAction().getUrlName();
-            this.url = Hudson.getInstance().getRootUrl() + buildLink + actionUrl + o.getUrl();             
+            this.url = HudsonExt.getInstance().getRootUrl() + buildLink + actionUrl + o.getUrl();             
         }
 
         public int compareTo(ChartLabel that) {

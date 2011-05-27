@@ -3,7 +3,7 @@ package hudson.security;
 import groovy.lang.Binding;
 import hudson.FilePathExt;
 import hudson.cli.CLICommand;
-import hudson.model.Hudson;
+import hudson.model.HudsonExt;
 import hudson.remoting.Callable;
 import hudson.tasks.MailAddressResolver;
 import hudson.util.spring.BeanBuilder;
@@ -44,7 +44,7 @@ public abstract class AbstractPasswordBasedSecurityRealm extends SecurityRealm i
         binding.setVariable("authenticator", new Authenticator());
 
         BeanBuilder builder = new BeanBuilder();
-        builder.parse(Hudson.getInstance().servletContext.getResourceAsStream("/WEB-INF/security/AbstractPasswordBasedSecurityRealm.groovy"),binding);
+        builder.parse(HudsonExt.getInstance().servletContext.getResourceAsStream("/WEB-INF/security/AbstractPasswordBasedSecurityRealm.groovy"),binding);
         WebApplicationContext context = builder.createApplicationContext();
         return new SecurityComponents(
                 findBean(AuthenticationManager.class, context),this);
@@ -64,7 +64,7 @@ public abstract class AbstractPasswordBasedSecurityRealm extends SecurityRealm i
 
             public Authentication authenticate() throws AuthenticationException, IOException, InterruptedException {
                 if (userName==null)
-                    return Hudson.ANONYMOUS;    // no authentication parameter. run as anonymous
+                    return HudsonExt.ANONYMOUS;    // no authentication parameter. run as anonymous
 
                 if (passwordFile!=null)
                     try {
@@ -92,7 +92,7 @@ public abstract class AbstractPasswordBasedSecurityRealm extends SecurityRealm i
      * If the user name and the password pair matches, retrieve the information about this user and
      * return it as a {@link UserDetails} object. {@link org.acegisecurity.userdetails.User} is a convenient
      * implementation to use, but if your backend offers additional data, you may want to use your own subtype
-     * so that the rest of Hudson can use those additional information (such as e-mail address --- see
+     * so that the rest of HudsonExt can use those additional information (such as e-mail address --- see
      * {@link MailAddressResolver}.)
      *
      * <p>

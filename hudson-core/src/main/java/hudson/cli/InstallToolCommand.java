@@ -26,13 +26,13 @@ package hudson.cli;
 import hudson.Extension;
 import hudson.AbortException;
 import hudson.EnvVars;
-import hudson.model.Hudson;
+import hudson.model.HudsonExt;
 import hudson.model.AbstractProjectExt;
-import hudson.model.Run;
-import hudson.model.Executor;
+import hudson.model.RunExt;
+import hudson.model.ExecutorExt;
 import hudson.model.Node;
 import hudson.model.EnvironmentSpecific;
-import hudson.model.Item;
+import hudson.model.ItemExt;
 import hudson.remoting.Callable;
 import hudson.slaves.NodeSpecific;
 import hudson.util.EditDistance;
@@ -64,8 +64,8 @@ public class InstallToolCommand extends CLICommand {
     }
 
     protected int run() throws Exception {
-        Hudson h = Hudson.getInstance();
-        h.checkPermission(Hudson.READ);
+        HudsonExt h = HudsonExt.getInstance();
+        h.checkPermission(HudsonExt.READ);
 
         // where is this build running?
         BuildIDs id = channel.call(new BuildIDs());
@@ -73,10 +73,10 @@ public class InstallToolCommand extends CLICommand {
         if (!id.isComplete())
             throw new AbortException("This command can be only invoked from a build executing inside Hudson");
 
-        AbstractProjectExt p = Hudson.getInstance().getItemByFullName(id.job, AbstractProjectExt.class);
+        AbstractProjectExt p = HudsonExt.getInstance().getItemByFullName(id.job, AbstractProjectExt.class);
         if (p==null)
             throw new AbortException("No such job found: "+id.job);
-        p.checkPermission(Item.CONFIGURE);
+        p.checkPermission(ItemExt.CONFIGURE);
 
         List<String> toolTypes = new ArrayList<String>();
         for (ToolDescriptor<?> d : ToolInstallation.all()) {
@@ -113,11 +113,11 @@ public class InstallToolCommand extends CLICommand {
      */
     private int install(ToolInstallation t, BuildIDs id, AbstractProjectExt p) throws IOException, InterruptedException {
 
-        Run b = p.getBuildByNumber(Integer.parseInt(id.number));
+        RunExt b = p.getBuildByNumber(Integer.parseInt(id.number));
         if (b==null)
             throw new AbortException("No such build: "+id.number);
 
-        Executor exec = b.getExecutor();
+        ExecutorExt exec = b.getExecutor();
         if (exec==null)
             throw new AbortException(b.getFullDisplayName()+" is not building");
 

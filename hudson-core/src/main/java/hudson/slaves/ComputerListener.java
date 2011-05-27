@@ -24,7 +24,7 @@
 package hudson.slaves;
 
 import hudson.model.ComputerExt;
-import hudson.model.Hudson;
+import hudson.model.HudsonExt;
 import hudson.model.TaskListener;
 import hudson.model.Node;
 import hudson.ExtensionPoint;
@@ -95,7 +95,7 @@ public abstract class ComputerListener implements ExtensionPoint {
      * as they get connected.
      *
      * <p>
-     * Starting Hudson 1.312, this method is also invoked for the master, not just for slaves.
+     * Starting HudsonExt 1.312, this method is also invoked for the master, not just for slaves.
      *
      * @param listener
      *      This is connected to the launch log of the computer.
@@ -153,6 +153,6 @@ public abstract class ComputerListener implements ExtensionPoint {
      * All the registered {@link ComputerListener}s.
      */
     public static ExtensionList<ComputerListener> all() {
-        return Hudson.getInstance().getExtensionList(ComputerListener.class);
+        return HudsonExt.getInstance().getExtensionList(ComputerListener.class);
     }
 }

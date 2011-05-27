@@ -3,7 +3,7 @@ package hudson.model.queue;
 import hudson.model.Queue.Task;
 import hudson.model.Node;
 import hudson.model.Messages;
-import hudson.model.Label;
+import hudson.model.LabelExt;
 import org.jvnet.localizer.Localizable;
 
 /**
@@ -52,9 +52,9 @@ public abstract class CauseOfBlockage {
      * Build is blocked because all the nodes that match a given label is offline.
      */
     public static final class BecauseLabelIsOffline extends CauseOfBlockage {
-        public final Label label;
+        public final LabelExt label;
 
-        public BecauseLabelIsOffline(Label l) {
+        public BecauseLabelIsOffline(LabelExt l) {
             this.label = l;
         }
 
@@ -82,9 +82,9 @@ public abstract class CauseOfBlockage {
      * Build is blocked because everyone that matches the specified label is fully busy
      */
     public static final class BecauseLabelIsBusy extends CauseOfBlockage {
-        public final Label label;
+        public final LabelExt label;
 
-        public BecauseLabelIsBusy(Label label) {
+        public BecauseLabelIsBusy(LabelExt label) {
             this.label = label;
         }
 

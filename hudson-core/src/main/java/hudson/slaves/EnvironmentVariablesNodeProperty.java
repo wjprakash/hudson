@@ -28,7 +28,7 @@ import hudson.Extension;
 import hudson.Launcher;
 import hudson.model.AbstractBuildExt;
 import hudson.model.BuildListener;
-import hudson.model.ComputerSet;
+import hudson.model.ComputerSetExt;
 import hudson.model.Environment;
 import hudson.model.Node;
 import org.kohsuke.stapler.DataBoundConstructor;
@@ -79,7 +79,7 @@ public class EnvironmentVariablesNodeProperty extends NodeProperty<Node> {
 
         public String getHelpPage() {
             // yes, I know this is a hack.
-            ComputerSet object = Stapler.getCurrentRequest().findAncestorObject(ComputerSet.class);
+            ComputerSetExt object = Stapler.getCurrentRequest().findAncestorObject(ComputerSetExt.class);
             if (object != null) {
                 // we're on a node configuration page, show show that help page
                 return "/help/system-config/nodeEnvironmentVariables.html";

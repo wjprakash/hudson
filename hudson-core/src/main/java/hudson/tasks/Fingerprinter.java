@@ -33,12 +33,12 @@ import hudson.model.AbstractBuildExt;
 import hudson.model.AbstractProjectExt;
 import hudson.model.Build;
 import hudson.model.BuildListener;
-import hudson.model.Fingerprint;
-import hudson.model.Fingerprint.BuildPtr;
+import hudson.model.FingerprintExt;
+import hudson.model.FingerprintExt.BuildPtr;
 import hudson.model.FingerprintMap;
-import hudson.model.Hudson;
+import hudson.model.HudsonExt;
 import hudson.model.Result;
-import hudson.model.Run;
+import hudson.model.RunExt;
 import hudson.model.RunAction;
 import hudson.remoting.VirtualChannel;
 import hudson.util.FormValidation;
@@ -147,8 +147,8 @@ public class Fingerprinter extends Recorder implements Serializable {
                 this.md5sum = md5sum;
             }
 
-            Fingerprint addRecord(AbstractBuildExt build) throws IOException {
-                FingerprintMap map = Hudson.getInstance().getFingerprintMap();
+            FingerprintExt addRecord(AbstractBuildExt build) throws IOException {
+                FingerprintMap map = HudsonExt.getInstance().getFingerprintMap();
                 return map.getOrCreate(produced?build:null, fileName, md5sum);
             }
 
@@ -193,7 +193,7 @@ public class Fingerprinter extends Recorder implements Serializable {
         });
 
         for (Record r : records) {
-            Fingerprint fp = r.addRecord(build);
+            FingerprintExt fp = r.addRecord(build);
             if(fp==null) {
                 listener.error(Messages.Fingerprinter_FailedFor(r.relativePath));
                 continue;
@@ -242,7 +242,7 @@ public class Fingerprinter extends Recorder implements Serializable {
          */
         private /*almost final*/ PackedMap<String,String> record;
 
-        private transient WeakReference<Map<String,Fingerprint>> ref;
+        private transient WeakReference<Map<String,FingerprintExt>> ref;
 
         public FingerprintAction(AbstractBuildExt build, Map<String, String> record) {
             this.build = build;
@@ -282,7 +282,7 @@ public class Fingerprinter extends Recorder implements Serializable {
         }
 
         public void onLoad() {
-            Run pb = build.getPreviousBuild();
+            RunExt pb = build.getPreviousBuild();
             if (pb!=null) {
                 FingerprintAction a = pb.getAction(FingerprintAction.class);
                 if (a!=null)
@@ -290,7 +290,7 @@ public class Fingerprinter extends Recorder implements Serializable {
             }
         }
 
-        public void onAttached(Run r) {
+        public void onAttached(RunExt r) {
         }
 
         public void onBuildComplete() {
@@ -323,19 +323,19 @@ public class Fingerprinter extends Recorder implements Serializable {
         /**
          * Map from file names of the fingerprinted file to its fingerprint record.
          */
-        public synchronized Map<String,Fingerprint> getFingerprints() {
+        public synchronized Map<String,FingerprintExt> getFingerprints() {
             if(ref!=null) {
-                Map<String,Fingerprint> m = ref.get();
+                Map<String,FingerprintExt> m = ref.get();
                 if(m!=null)
                     return m;
             }
 
-            Hudson h = Hudson.getInstance();
+            HudsonExt h = HudsonExt.getInstance();
 
-            Map<String,Fingerprint> m = new TreeMap<String,Fingerprint>();
+            Map<String,FingerprintExt> m = new TreeMap<String,FingerprintExt>();
             for (Entry<String, String> r : record.entrySet()) {
                 try {
-                    Fingerprint fp = h._getFingerprint(r.getValue());
+                    FingerprintExt fp = h._getFingerprint(r.getValue());
                     if(fp!=null)
                         m.put(r.getKey(), fp);
                 } catch (IOException e) {
@@ -344,7 +344,7 @@ public class Fingerprinter extends Recorder implements Serializable {
             }
 
             m = ImmutableMap.copyOf(m);
-            ref = new WeakReference<Map<String,Fingerprint>>(m);
+            ref = new WeakReference<Map<String,FingerprintExt>>(m);
             return m;
         }
 
@@ -355,9 +355,9 @@ public class Fingerprinter extends Recorder implements Serializable {
         public Map<AbstractProjectExt,Integer> getDependencies() {
             Map<AbstractProjectExt,Integer> r = new HashMap<AbstractProjectExt,Integer>();
 
-            for (Fingerprint fp : getFingerprints().values()) {
+            for (FingerprintExt fp : getFingerprints().values()) {
                 BuildPtr bp = fp.getOriginal();
-                if(bp==null)    continue;       // outside Hudson
+                if(bp==null)    continue;       // outside HudsonExt
                 if(bp.is(build))    continue;   // we are the owner
                 AbstractProjectExt job = bp.getJob();
                 if (job==null)  continue;   // no longer exists

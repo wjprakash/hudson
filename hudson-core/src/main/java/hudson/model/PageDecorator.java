@@ -32,15 +32,15 @@ import hudson.util.DescriptorList;
 import java.util.List;
 
 /**
- * Participates in the rendering of HTML pages for all pages of Hudson.
+ * Participates in the rendering of HTML pages for all pages of HudsonExt.
  *
  * <p>
- * This class provides a few hooks to augument the HTML generation process of Hudson, across
- * all the HTML pages that Hudson delivers.
+ * This class provides a few hooks to augument the HTML generation process of HudsonExt, across
+ * all the HTML pages that HudsonExt delivers.
  *
  * <p>
- * For example, if you'd like to add a Google Analytics stat to Hudson, then you need to inject
- * a small script fragment to all Hudson pages. This extension point provides a means to do that.
+ * For example, if you'd like to add a Google Analytics stat to HudsonExt, then you need to inject
+ * a small script fragment to all HudsonExt pages. This extension point provides a means to do that.
  *
  * <h2>Life-cycle</h2>
  * <p>
@@ -51,7 +51,7 @@ import java.util.List;
  * <h4>global.jelly</h4>
  * <p>
  * If this extension point needs to expose a global configuration, write this jelly page.
- * See {@link Descriptor} for more about this. Optional.
+ * See {@link DescriptorExt} for more about this. Optional.
  *
  * <h4>footer.jelly</h4>
  * <p>
@@ -66,7 +66,7 @@ import java.util.List;
  * @author Kohsuke Kawaguchi
  * @since 1.235
  */
-public abstract class PageDecorator extends Descriptor<PageDecorator> implements ExtensionPoint, Describable<PageDecorator> {
+public abstract class PageDecorator extends DescriptorExt<PageDecorator> implements ExtensionPoint, Describable<PageDecorator> {
     /**
      * @param yourClass
      *      pass-in "this.getClass()" (except that the constructor parameters cannot use 'this',
@@ -76,11 +76,11 @@ public abstract class PageDecorator extends Descriptor<PageDecorator> implements
         super(yourClass);
     }
 
-// this will never work because Descriptor and Describable are the same thing.
+// this will never work because DescriptorExt and Describable are the same thing.
 //    protected PageDecorator() {
 //    }
 
-    public final Descriptor<PageDecorator> getDescriptor() {
+    public final DescriptorExt<PageDecorator> getDescriptor() {
         return this;
     }
 
@@ -96,7 +96,7 @@ public abstract class PageDecorator extends Descriptor<PageDecorator> implements
      * Obtains the URL of this object, excluding the context path.
      *
      * <p>
-     * Every {@link PageDecorator} is bound to URL via {@link Hudson#getDescriptor()}.
+     * Every {@link PageDecorator} is bound to URL via {@link HudsonExt#getDescriptor()}.
      * This method returns such an URL.
      */
     public final String getUrl() {
@@ -114,6 +114,6 @@ public abstract class PageDecorator extends Descriptor<PageDecorator> implements
      * Returns all the registered {@link PageDecorator} descriptors.
      */
     public static ExtensionList<PageDecorator> all() {
-        return Hudson.getInstance().<PageDecorator,PageDecorator>getDescriptorList(PageDecorator.class);
+        return HudsonExt.getInstance().<PageDecorator,PageDecorator>getDescriptorList(PageDecorator.class);
     }
 }

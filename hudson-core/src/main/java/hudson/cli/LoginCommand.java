@@ -1,7 +1,7 @@
 package hudson.cli;
 
 import hudson.Extension;
-import hudson.model.Hudson;
+import hudson.model.HudsonExt;
 import org.acegisecurity.Authentication;
 import org.kohsuke.args4j.CmdLineException;
 
@@ -24,13 +24,13 @@ public class LoginCommand extends CLICommand {
      */
     @Override
     protected Authentication loadStoredAuthentication() throws InterruptedException {
-        return Hudson.ANONYMOUS;
+        return HudsonExt.ANONYMOUS;
     }
 
     @Override
     protected int run() throws Exception {
-        Authentication a = Hudson.getAuthentication();
-        if (a==Hudson.ANONYMOUS)
+        Authentication a = HudsonExt.getAuthentication();
+        if (a==HudsonExt.ANONYMOUS)
             throw new CmdLineException("No credentials specified."); // this causes CLI to show the command line options.
 
         ClientAuthenticationCache store = new ClientAuthenticationCache(channel);

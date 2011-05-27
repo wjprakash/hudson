@@ -3,8 +3,8 @@ package hudson.model.queue;
 import com.google.common.collect.Iterables;
 import hudson.Extension;
 import hudson.model.ComputerExt;
-import hudson.model.Executor;
-import hudson.model.Hudson;
+import hudson.model.ExecutorExt;
+import hudson.model.HudsonExt;
 import hudson.model.InvisibleAction;
 import hudson.model.Queue.BuildableItem;
 import hudson.model.queue.MappingWorksheet.ExecutorChunk;
@@ -33,7 +33,7 @@ public class BackFiller extends LoadPredictor {
         TimeRange timeRange = new TimeRange(start, end - start);
         List<FutureLoad> loads = new ArrayList<FutureLoad>();
 
-        for (BuildableItem bi : Hudson.getInstance().getQueue().getBuildableItems()) {
+        for (BuildableItem bi : HudsonExt.getInstance().getQueue().getBuildableItems()) {
             TentativePlan tp = bi.getAction(TentativePlan.class);
             if (tp==null) {// do this even for bi==plan.item ensures that we have FIFO semantics in tentative plans.
                 tp = makeTentativePlan(bi);
@@ -65,14 +65,14 @@ public class BackFiller extends LoadPredictor {
     }
 
     private static final class PseudoExecutorSlot extends ExecutorSlot {
-        private Executor executor;
+        private ExecutorExt executor;
 
-        private PseudoExecutorSlot(Executor executor) {
+        private PseudoExecutorSlot(ExecutorExt executor) {
             this.executor = executor;
         }
 
         @Override
-        public Executor getExecutor() {
+        public ExecutorExt getExecutor() {
             return executor;
         }
 
@@ -94,9 +94,9 @@ public class BackFiller extends LoadPredictor {
         try {
             // pretend for now that all executors are available and decide some assignment that's executable.
             List<PseudoExecutorSlot> slots = new ArrayList<PseudoExecutorSlot>();
-            for (ComputerExt c : Hudson.getInstance().getComputers()) {
+            for (ComputerExt c : HudsonExt.getInstance().getComputers()) {
                 if (c.isOffline())  continue;
-                for (Executor e : c.getExecutors()) {
+                for (ExecutorExt e : c.getExecutors()) {
                     slots.add(new PseudoExecutorSlot(e));
                 }
             }
@@ -104,7 +104,7 @@ public class BackFiller extends LoadPredictor {
             // also ignore all load predictions as we just want to figure out some executable assignment
             // and we are not trying to figure out if this task is executable right now.
             MappingWorksheet worksheet = new MappingWorksheet(bi, slots, Collections.<LoadPredictor>emptyList());
-            Mapping m = Hudson.getInstance().getQueue().getLoadBalancer().map(bi.task, worksheet);
+            Mapping m = HudsonExt.getInstance().getQueue().getLoadBalancer().map(bi.task, worksheet);
             if (m==null)    return null;
 
             // figure out how many executors we need on each computer?

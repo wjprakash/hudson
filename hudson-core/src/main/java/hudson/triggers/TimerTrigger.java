@@ -26,7 +26,7 @@ package hudson.triggers;
 import static hudson.Util.fixNull;
 import hudson.model.BuildableItem;
 import hudson.model.CauseExt;
-import hudson.model.Item;
+import hudson.model.ItemExt;
 import hudson.scheduler.CronTabList;
 import hudson.util.FormValidation;
 import hudson.Extension;
@@ -55,7 +55,7 @@ public class TimerTrigger extends Trigger<BuildableItem> {
 
     @Extension
     public static class DescriptorImpl extends TriggerDescriptor {
-        public boolean isApplicable(Item item) {
+        public boolean isApplicable(ItemExt item) {
             return item instanceof BuildableItem;
         }
 

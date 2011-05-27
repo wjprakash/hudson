@@ -25,8 +25,8 @@ package hudson.console;
 
 import hudson.MarkupText;
 import hudson.model.Describable;
-import hudson.model.Hudson;
-import hudson.model.Run;
+import hudson.model.HudsonExt;
+import hudson.model.RunExt;
 import hudson.remoting.ObjectInputStreamEx;
 import hudson.util.IOException2;
 import hudson.util.IOUtils;
@@ -60,7 +60,7 @@ import java.util.zip.GZIPOutputStream;
  * a machine readable information about a particular position of the console output.
  *
  * <p>
- * When Hudson is reading back a console output for display, a {@link ConsoleNote} is used
+ * When HudsonExt is reading back a console output for display, a {@link ConsoleNote} is used
  * to trigger {@link ConsoleAnnotator}, which in turn uses the information in the note to
  * generate markup. In this way, we can overlay richer information on top of the console output.
  *
@@ -94,8 +94,8 @@ import java.util.zip.GZIPOutputStream;
  * {@link ConsoleNote} always sticks to a particular point in the console output.
  *
  * <p>
- * This design allows descendant processes of Hudson to emit {@link ConsoleNote}s. For example, Ant forked
- * by a shell forked by Hudson can put an encoded note in its stdout, and Hudson will correctly understands that.
+ * This design allows descendant processes of HudsonExt to emit {@link ConsoleNote}s. For example, Ant forked
+ * by a shell forked by HudsonExt can put an encoded note in its stdout, and HudsonExt will correctly understands that.
  * The preamble and postamble includes a certain ANSI escape sequence designed in such a way to minimize garbage
  * if this output is observed by a human being directly.
  *
@@ -113,7 +113,7 @@ import java.util.zip.GZIPOutputStream;
  * code generation, and do the styling in CSS and perform the rest of the interesting work as a CSS behaviour/JavaScript.
  *
  * @param <T>
- *      Contextual model object that this console is associated with, such as {@link Run}.
+ *      Contextual model object that this console is associated with, such as {@link RunExt}.
  *
  * @author Kohsuke Kawaguchi
  * @see ConsoleAnnotationDescriptor
@@ -139,14 +139,14 @@ public abstract class ConsoleNote<T> implements Serializable, Describable<Consol
     public abstract ConsoleAnnotator annotate(T context, MarkupText text, int charPos);
 
     public ConsoleAnnotationDescriptor getDescriptor() {
-        return (ConsoleAnnotationDescriptor)Hudson.getInstance().getDescriptorOrDie(getClass());
+        return (ConsoleAnnotationDescriptor)HudsonExt.getInstance().getDescriptorOrDie(getClass());
     }
 
     /**
      * Prints this note into a stream.
      *
      * <p>
-     * The most typical use of this is {@code n.encodedTo(System.out)} where stdout is connected to Hudson.
+     * The most typical use of this is {@code n.encodedTo(System.out)} where stdout is connected to HudsonExt.
      * The encoded form doesn't include any new line character to work better in the line-oriented nature
      * of {@link ConsoleAnnotator}.
      */
@@ -220,7 +220,7 @@ public abstract class ConsoleNote<T> implements Serializable, Describable<Consol
                 return null;    // not a valid postamble
 
             ObjectInputStream ois = new ObjectInputStreamEx(
-                    new GZIPInputStream(new ByteArrayInputStream(buf)), Hudson.getInstance().pluginManager.uberClassLoader);
+                    new GZIPInputStream(new ByteArrayInputStream(buf)), HudsonExt.getInstance().pluginManager.uberClassLoader);
             return (ConsoleNote) ois.readObject();
         } catch (Error e) {
             // for example, bogus 'sz' can result in OutOfMemoryError.

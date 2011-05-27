@@ -31,9 +31,9 @@ import hudson.model.AbstractBuildExt;
 import hudson.model.AbstractProjectExt;
 import hudson.model.Action;
 import hudson.model.CauseExt;
-import hudson.model.Hudson;
-import hudson.model.Item;
-import hudson.model.Project;
+import hudson.model.HudsonExt;
+import hudson.model.ItemExt;
+import hudson.model.ProjectExt;
 import hudson.model.SCMedItem;
 import hudson.model.AdministrativeMonitorExt;
 import hudson.util.FlushProofOutputStream;
@@ -91,7 +91,7 @@ public class SCMTrigger extends Trigger<SCMedItem> {
      * @since 1.375
      */
     public void run(Action[] additionalActions) {
-        if(Hudson.getInstance().isQuietingDown())
+        if(HudsonExt.getInstance().isQuietingDown())
             return; // noop
 
         DescriptorImpl d = getDescriptor();
@@ -157,7 +157,7 @@ public class SCMTrigger extends Trigger<SCMedItem> {
             resizeThreadPool();
         }
 
-        public boolean isApplicable(Item item) {
+        public boolean isApplicable(ItemExt item) {
             return item instanceof SCMedItem;
         }
 
@@ -321,7 +321,7 @@ public class SCMTrigger extends Trigger<SCMedItem> {
     }
 
     /**
-     * Action object for {@link Project}. Used to display the last polling log.
+     * Action object for {@link ProjectExt}. Used to display the last polling log.
      */
     public final class SCMAction implements Action {
         public AbstractProjectExt<?,?> getOwner() {
@@ -387,7 +387,7 @@ public class SCMTrigger extends Trigger<SCMedItem> {
         }
 
         /**
-         * For which {@link Item} are we polling?
+         * For which {@link ItemExt} are we polling?
          */
         public SCMedItem getTarget() {
             return job;

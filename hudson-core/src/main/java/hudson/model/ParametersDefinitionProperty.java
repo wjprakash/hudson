@@ -52,16 +52,16 @@ import hudson.Extension;
  * a form to enter build parameters. 
  */
 @ExportedBean(defaultVisibility=2)
-public class ParametersDefinitionProperty extends JobProperty<AbstractProjectExt<?, ?>>
+public class ParametersDefinitionProperty extends JobPropertyExt<AbstractProjectExt<?, ?>>
         implements Action {
 
-    private final List<ParameterDefinition> parameterDefinitions;
+    private final List<ParameterDefinitionExt> parameterDefinitions;
 
-    public ParametersDefinitionProperty(List<ParameterDefinition> parameterDefinitions) {
+    public ParametersDefinitionProperty(List<ParameterDefinitionExt> parameterDefinitions) {
         this.parameterDefinitions = parameterDefinitions;
     }
 
-    public ParametersDefinitionProperty(ParameterDefinition... parameterDefinitions) {
+    public ParametersDefinitionProperty(ParameterDefinitionExt... parameterDefinitions) {
         this.parameterDefinitions = Arrays.asList(parameterDefinitions);
     }
     
@@ -70,7 +70,7 @@ public class ParametersDefinitionProperty extends JobProperty<AbstractProjectExt
     }
 
     @Exported
-    public List<ParameterDefinition> getParameterDefinitions() {
+    public List<ParameterDefinitionExt> getParameterDefinitions() {
         return parameterDefinitions;
     }
 
@@ -111,7 +111,7 @@ public class ParametersDefinitionProperty extends JobProperty<AbstractProjectExt
             return;
         }
 
-        List<ParameterValue> values = new ArrayList<ParameterValue>();
+        List<ParameterValueExt> values = new ArrayList<ParameterValueExt>();
         
         JSONObject formData = req.getSubmittedForm();
         JSONArray a = JSONArray.fromObject(formData.get("parameter"));
@@ -120,24 +120,24 @@ public class ParametersDefinitionProperty extends JobProperty<AbstractProjectExt
             JSONObject jo = (JSONObject) o;
             String name = jo.getString("name");
 
-            ParameterDefinition d = getParameterDefinition(name);
+            ParameterDefinitionExt d = getParameterDefinition(name);
             if(d==null)
                 throw new IllegalArgumentException("No such parameter definition: " + name);
-            ParameterValue parameterValue = d.createValue(req, jo);
+            ParameterValueExt parameterValue = d.createValue(req, jo);
             values.add(parameterValue);
         }
 
-    	Hudson.getInstance().getQueue().schedule(
-                owner, owner.getDelay(req), new ParametersAction(values), new CauseAction(new CauseExt.UserCause()));
+    	HudsonExt.getInstance().getQueue().schedule(
+                owner, owner.getDelay(req), new ParametersAction(values), new CauseActionExt(new CauseExt.UserCause()));
 
         // send the user back to the job top page.
         rsp.sendRedirect(".");
     }
 
     public void buildWithParameters(StaplerRequest req, StaplerResponse rsp) throws IOException, ServletException {
-        List<ParameterValue> values = new ArrayList<ParameterValue>();
-        for (ParameterDefinition d: parameterDefinitions) {
-        	ParameterValue value = d.createValue(req);
+        List<ParameterValueExt> values = new ArrayList<ParameterValueExt>();
+        for (ParameterDefinitionExt d: parameterDefinitions) {
+        	ParameterValueExt value = d.createValue(req);
         	if (value != null) {
         		values.add(value);
         	} else {
@@ -145,7 +145,7 @@ public class ParametersDefinitionProperty extends JobProperty<AbstractProjectExt
         	}
         }
 
-    	Hudson.getInstance().getQueue().schedule(
+    	HudsonExt.getInstance().getQueue().schedule(
                 owner, owner.getDelay(req), new ParametersAction(values), owner.getBuildCause(req));
 
         // send the user back to the job top page.
@@ -153,24 +153,24 @@ public class ParametersDefinitionProperty extends JobProperty<AbstractProjectExt
     }
 
     /**
-     * Gets the {@link ParameterDefinition} of the given name, if any.
+     * Gets the {@link ParameterDefinitionExt} of the given name, if any.
      */
-    public ParameterDefinition getParameterDefinition(String name) {
-        for (ParameterDefinition pd : parameterDefinitions)
+    public ParameterDefinitionExt getParameterDefinition(String name) {
+        for (ParameterDefinitionExt pd : parameterDefinitions)
             if (pd.getName().equals(name))
                 return pd;
         return null;
     }
 
     @Extension
-    public static class DescriptorImpl extends JobPropertyDescriptor {
+    public static class DescriptorImpl extends JobPropertyDescriptorExt {
         @Override
-        public boolean isApplicable(Class<? extends Job> jobType) {
+        public boolean isApplicable(Class<? extends JobExt> jobType) {
             return AbstractProjectExt.class.isAssignableFrom(jobType);
         }
 
         @Override
-        public JobProperty<?> newInstance(StaplerRequest req,
+        public JobPropertyExt<?> newInstance(StaplerRequest req,
                                           JSONObject formData) throws FormException {
             if (formData.isNullObject()) {
                 return null;
@@ -182,8 +182,8 @@ public class ParametersDefinitionProperty extends JobProperty<AbstractProjectExt
             	return null;
             }
             
-            List<ParameterDefinition> parameterDefinitions = Descriptor.newInstancesFromHeteroList(
-                    req, parameterized, "parameter", ParameterDefinition.all());
+            List<ParameterDefinitionExt> parameterDefinitions = DescriptorExt.newInstancesFromHeteroList(
+                    req, parameterized, "parameter", ParameterDefinitionExt.all());
             if(parameterDefinitions.isEmpty())
                 return null;
 

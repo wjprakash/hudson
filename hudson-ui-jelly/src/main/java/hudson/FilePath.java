@@ -24,7 +24,7 @@
 package hudson;
 
 import hudson.model.AbstractProjectExt;
-import hudson.model.Item;
+import hudson.model.ItemExt;
 import hudson.remoting.Channel;
 import hudson.remoting.VirtualChannel;
 import hudson.util.FormValidation;
@@ -93,7 +93,7 @@ public class FilePath extends FilePathExt {
      */
     public FormValidation validateFileMask(String value, boolean errorIfNotExist) throws IOException {
         AbstractProjectExt subject = Stapler.getCurrentRequest().findAncestorObject(AbstractProjectExt.class);
-        subject.checkPermission(Item.CONFIGURE);
+        subject.checkPermission(ItemExt.CONFIGURE);
 
         value = Util.fixEmpty(value);
         if (value == null) {
@@ -131,7 +131,7 @@ public class FilePath extends FilePathExt {
      */
     public FormValidation validateRelativePath(String value, boolean errorIfNotExist, boolean expectingFile) throws IOException {
         AbstractProjectExt subject = Stapler.getCurrentRequest().findAncestorObject(AbstractProjectExt.class);
-        subject.checkPermission(Item.CONFIGURE);
+        subject.checkPermission(ItemExt.CONFIGURE);
 
         value = Util.fixEmpty(value);
 

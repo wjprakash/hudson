@@ -37,7 +37,7 @@ public abstract class AdministrativeMonitor extends AdministrativeMonitorExt{
      * URL binding to disable this monitor.
      */
     public void doDisable(StaplerRequest req, StaplerResponse rsp) throws IOException {
-        Hudson.getInstance().checkPermission(Hudson.ADMINISTER);
+        HudsonExt.getInstance().checkPermission(HudsonExt.ADMINISTER);
         disable(true);
         rsp.sendRedirect2(req.getContextPath()+"/manage");
     }

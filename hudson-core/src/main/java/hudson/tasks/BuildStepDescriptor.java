@@ -24,16 +24,16 @@
 package hudson.tasks;
 
 import hudson.model.Describable;
-import hudson.model.Descriptor;
+import hudson.model.DescriptorExt;
 import hudson.model.AbstractProjectExt;
-import hudson.model.Hudson;
+import hudson.model.HudsonExt;
 import hudson.model.AbstractProjectExt.AbstractProjectDescriptorExt;
 
 import java.util.List;
 import java.util.ArrayList;
 
 /**
- * {@link Descriptor} for {@link Builder} and {@link Publisher}.
+ * {@link DescriptorExt} for {@link Builder} and {@link Publisher}.
  *
  * <p>
  * For compatibility reasons, plugins developed before 1.150 may not extend from this descriptor type.
@@ -41,7 +41,7 @@ import java.util.ArrayList;
  * @author Kohsuke Kawaguchi
  * @since 1.150
  */
-public abstract class BuildStepDescriptor<T extends BuildStep & Describable<T>> extends Descriptor<T> {
+public abstract class BuildStepDescriptor<T extends BuildStep & Describable<T>> extends DescriptorExt<T> {
     protected BuildStepDescriptor(Class<? extends T> clazz) {
         super(clazz);
     }
@@ -61,7 +61,7 @@ public abstract class BuildStepDescriptor<T extends BuildStep & Describable<T>> 
      *
      * @return
      *      true to allow user to configure this post-promotion task for the given project.
-     * @see AbstractProjectDescriptorExt#isApplicable(Descriptor) 
+     * @see AbstractProjectDescriptorExt#isApplicable(DescriptorExt) 
      */
     public abstract boolean isApplicable(Class<? extends AbstractProjectExt> jobType);
 
@@ -70,12 +70,12 @@ public abstract class BuildStepDescriptor<T extends BuildStep & Describable<T>> 
      * Filters a descriptor for {@link BuildStep}s by using {@link BuildStepDescriptor#isApplicable(Class)}.
      */
     public static <T extends BuildStep&Describable<T>>
-    List<Descriptor<T>> filter(List<Descriptor<T>> base, Class<? extends AbstractProjectExt> type) {
+    List<DescriptorExt<T>> filter(List<DescriptorExt<T>> base, Class<? extends AbstractProjectExt> type) {
         // descriptor of the project
-        Descriptor pd = Hudson.getInstance().getDescriptor((Class) type);
+        DescriptorExt pd = HudsonExt.getInstance().getDescriptor((Class) type);
 
-        List<Descriptor<T>> r = new ArrayList<Descriptor<T>>(base.size());
-        for (Descriptor<T> d : base) {
+        List<DescriptorExt<T>> r = new ArrayList<DescriptorExt<T>>(base.size());
+        for (DescriptorExt<T> d : base) {
             if (pd instanceof AbstractProjectDescriptorExt && !((AbstractProjectDescriptorExt)pd).isApplicable(d))
                 continue;
 

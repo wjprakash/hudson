@@ -27,7 +27,7 @@ import hudson.DescriptorExtensionListExt;
 import hudson.ExtensionPoint;
 import hudson.Util;
 import hudson.model.AbstractDescribableImpl;
-import hudson.model.Hudson;
+import hudson.model.HudsonExt;
 import hudson.util.QuotedStringTokenizer;
 import org.kohsuke.stapler.DataBoundConstructor;
 
@@ -187,7 +187,7 @@ public class AxisExt extends AbstractDescribableImpl<AxisExt> implements Compara
      * Returns all the registered {@link AxisDescriptor}s.
      */
     public static DescriptorExtensionListExt<AxisExt,AxisDescriptor> all() {
-        return Hudson.getInstance().<AxisExt,AxisDescriptor>getDescriptorList(AxisExt.class);
+        return HudsonExt.getInstance().<AxisExt,AxisDescriptor>getDescriptorList(AxisExt.class);
     }
 
     /**

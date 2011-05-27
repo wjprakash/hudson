@@ -27,7 +27,7 @@ package hudson.model;
 import hudson.Util;
 import hudson.cli.declarative.CLIMethod;
 import hudson.console.AnnotatedLargeText;
-import hudson.model.Descriptor.FormException;
+import hudson.model.DescriptorExt.FormException;
 import hudson.remoting.Channel;
 import hudson.remoting.VirtualChannel;
 import hudson.security.Permission;
@@ -55,15 +55,15 @@ import java.util.logging.Logger;
 import java.nio.charset.Charset;
 
 /**
- * Represents the running state of a remote computer that holds {@link Executor}s.
+ * Represents the running state of a remote computer that holds {@link ExecutorExt}s.
  *
  * <p>
- * {@link Executor}s on one {@link ComputerExt} are transparently interchangeable
+ * {@link ExecutorExt}s on one {@link ComputerExt} are transparently interchangeable
  * (that is the definition of {@link ComputerExt}.)
  *
  * <p>
  * This object is related to {@link Node} but they have some significant difference.
- * {@link ComputerExt} primarily works as a holder of {@link Executor}s, so
+ * {@link ComputerExt} primarily works as a holder of {@link ExecutorExt}s, so
  * if a {@link Node} is configured (probably temporarily) with 0 executors,
  * you won't have a {@link ComputerExt} object for it.
  *
@@ -109,7 +109,7 @@ public  abstract class Computer extends ComputerExt {
     
 
     /**
-     * Number of {@link Executor}s that are configured for this computer.
+     * Number of {@link ExecutorExt}s that are configured for this computer.
      *
      * <p>
      * When this value is decreased, it is temporarily possible
@@ -156,7 +156,7 @@ public  abstract class Computer extends ComputerExt {
     }
 
     /**
-     * Returns true if this computer can be launched by Hudson proactively and automatically.
+     * Returns true if this computer can be launched by HudsonExt proactively and automatically.
      *
      * <p>
      * For example, JNLP slaves return {@code false} from this, because the launch process
@@ -199,10 +199,10 @@ public  abstract class Computer extends ComputerExt {
 
       
     /**
-     * Gets the read-only snapshot view of all {@link Executor}s.
+     * Gets the read-only snapshot view of all {@link ExecutorExt}s.
      */
     @Exported
-    public List<Executor> getExecutors() {
+    public List<ExecutorExt> getExecutors() {
         return super.getExecutors();
     }
 
@@ -245,16 +245,16 @@ public  abstract class Computer extends ComputerExt {
     }
     private void rss(StaplerRequest req, StaplerResponse rsp, String suffix, RunList runs) throws IOException, ServletException {
         RSS.forwardToRss(getDisplayName()+ suffix, getUrl(),
-            runs.newBuilds(), Run.FEED_ADAPTER, req, rsp );
+            runs.newBuilds(), RunExt.FEED_ADAPTER, req, rsp );
     }
 
     public HttpResponse doToggleOffline(@QueryParameter String offlineMessage) throws IOException, ServletException {
-        checkPermission(Hudson.ADMINISTER);
+        checkPermission(HudsonExt.ADMINISTER);
         if(!temporarilyOffline) {
             offlineMessage = Util.fixEmptyAndTrim(offlineMessage);
             setTemporarilyOffline(!temporarilyOffline,
                     OfflineCause.create(hudson.slaves.Messages._SlaveComputer_DisconnectedBy(
-                        Hudson.getAuthentication().getName(),
+                        HudsonExt.getAuthentication().getName(),
                         offlineMessage!=null ? " : " + offlineMessage : "")));
         } else {
             setTemporarilyOffline(!temporarilyOffline,null);
@@ -271,7 +271,7 @@ public  abstract class Computer extends ComputerExt {
      */
     public void doDumpExportTable( StaplerRequest req, StaplerResponse rsp ) throws IOException, ServletException, InterruptedException {
         // this is a debug probe and may expose sensitive information
-        checkPermission(Hudson.ADMINISTER);
+        checkPermission(HudsonExt.ADMINISTER);
 
         rsp.setContentType("text/plain");
         PrintWriter w = new PrintWriter(rsp.getCompressedWriter(req));
@@ -291,14 +291,14 @@ public  abstract class Computer extends ComputerExt {
 
     /**
      * For system diagnostics.
-     * Run arbitrary Groovy script.
+     * RunExt arbitrary Groovy script.
      */
     public void doScript(StaplerRequest req, StaplerResponse rsp) throws IOException, ServletException {
         _doScript(req, rsp, "_script.jelly");
     }
 
     /**
-     * Run arbitrary Groovy script and return result as plain text.
+     * RunExt arbitrary Groovy script and return result as plain text.
      */
     public void doScriptText(StaplerRequest req, StaplerResponse rsp) throws IOException, ServletException {
         _doScript(req, rsp, "_scriptText.jelly");
@@ -307,7 +307,7 @@ public  abstract class Computer extends ComputerExt {
     protected void _doScript( StaplerRequest req, StaplerResponse rsp, String view) throws IOException, ServletException {
         // ability to run arbitrary script is dangerous,
         // so tie it to the admin access
-        checkPermission(Hudson.ADMINISTER);
+        checkPermission(HudsonExt.ADMINISTER);
 
         String text = req.getParameter("script");
         if(text!=null) {
@@ -328,7 +328,7 @@ public  abstract class Computer extends ComputerExt {
     public void doConfigSubmit( StaplerRequest req, StaplerResponse rsp ) throws IOException, ServletException, FormException {
         checkPermission(CONFIGURE);
         
-        final Hudson app = Hudson.getInstance();
+        final HudsonExt app = HudsonExt.getInstance();
 
         Node result = getNode().getDescriptor().newInstance(req, req.getSubmittedForm());
 
@@ -355,7 +355,7 @@ public  abstract class Computer extends ComputerExt {
     @CLIMethod(name="delete-node")
     public HttpResponse doDoDelete() throws IOException {
         checkPermission(DELETE);
-        Hudson.getInstance().removeNode(getNode());
+        HudsonExt.getInstance().removeNode(getNode());
         return new HttpRedirect("..");
     }
 

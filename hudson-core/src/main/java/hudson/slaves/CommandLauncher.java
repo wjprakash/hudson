@@ -26,8 +26,8 @@ package hudson.slaves;
 import hudson.EnvVars;
 import hudson.Util;
 import hudson.Extension;
-import hudson.model.Descriptor;
-import hudson.model.Hudson;
+import hudson.model.DescriptorExt;
+import hudson.model.HudsonExt;
 import hudson.model.TaskListener;
 import hudson.remoting.Channel;
 import hudson.util.StreamCopyThread;
@@ -99,7 +99,7 @@ public class CommandLauncher extends ComputerLauncher {
             pb.environment().putAll(cookie);
 
             {// system defined variables
-                String rootUrl = Hudson.getInstance().getRootUrl();
+                String rootUrl = HudsonExt.getInstance().getRootUrl();
                 if (rootUrl!=null) {
                     pb.environment().put("HUDSON_URL", rootUrl);
                     pb.environment().put("SLAVEJAR_URL", rootUrl+"/jnlpJars/slave.jar");
@@ -169,7 +169,7 @@ public class CommandLauncher extends ComputerLauncher {
     private static final Logger LOGGER = Logger.getLogger(CommandLauncher.class.getName());
 
     @Extension
-    public static class DescriptorImpl extends Descriptor<ComputerLauncher> {
+    public static class DescriptorImpl extends DescriptorExt<ComputerLauncher> {
         public String getDisplayName() {
             return Messages.CommandLauncher_displayName();
         }

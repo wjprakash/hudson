@@ -23,8 +23,8 @@
  */
 package hudson;
 
-import hudson.model.Failure;
-import hudson.model.Hudson;
+import hudson.model.FailureExt;
+import hudson.model.HudsonExt;
 import hudson.model.UpdateCenter;
 import hudson.model.UpdateSite;
 import hudson.util.PersistedList;
@@ -53,10 +53,10 @@ public abstract class PluginManager extends PluginManagerExt{
          super(context, rootDir);
     }
     public HttpResponse doUpdateSources(StaplerRequest req) throws IOException {
-        Hudson.getInstance().checkPermission(Hudson.ADMINISTER);
+        HudsonExt.getInstance().checkPermission(HudsonExt.ADMINISTER);
 
         if (req.hasParameter("remove")) {
-            UpdateCenter uc = Hudson.getInstance().getUpdateCenter();
+            UpdateCenter uc = HudsonExt.getInstance().getUpdateCenter();
             BulkChange bc = new BulkChange(uc);
             try {
                 for (String id : req.getParameterValues("sources"))
@@ -82,9 +82,9 @@ public abstract class PluginManager extends PluginManagerExt{
                 n = n.substring(7);
                 if (n.indexOf(".") > 0) {
                     String[] pluginInfo = n.split("\\.");
-                    UpdateSite.Plugin p = Hudson.getInstance().getUpdateCenter().getById(pluginInfo[1]).getPlugin(pluginInfo[0]);
+                    UpdateSite.Plugin p = HudsonExt.getInstance().getUpdateCenter().getById(pluginInfo[1]).getPlugin(pluginInfo[0]);
                     if(p==null)
-                        throw new Failure("No such plugin: "+n);
+                        throw new FailureExt("No such plugin: "+n);
                     p.deploy();
                 }
             }
@@ -97,8 +97,8 @@ public abstract class PluginManager extends PluginManagerExt{
      * Bare-minimum configuration mechanism to change the update center.
      */
     public HttpResponse doSiteConfigure(@QueryParameter String site) throws IOException {
-        Hudson hudson = Hudson.getInstance();
-        hudson.checkPermission(Hudson.ADMINISTER);
+        HudsonExt hudson = HudsonExt.getInstance();
+        hudson.checkPermission(HudsonExt.ADMINISTER);
         UpdateCenter uc = hudson.getUpdateCenter();
         PersistedList<UpdateSite> sites = uc.getSites();
         for (UpdateSite s : sites) {
@@ -118,8 +118,8 @@ public abstract class PluginManager extends PluginManagerExt{
             @QueryParameter("proxy.userName") String userName,
             @QueryParameter("proxy.password") String password,
             @QueryParameter("proxy.authNeeded") String authNeeded) throws IOException {
-        Hudson hudson = Hudson.getInstance();
-        hudson.checkPermission(Hudson.ADMINISTER);
+        HudsonExt hudson = HudsonExt.getInstance();
+        hudson.checkPermission(HudsonExt.ADMINISTER);
         
         server = Util.fixEmptyAndTrim(server);
 
@@ -152,7 +152,7 @@ public abstract class PluginManager extends PluginManagerExt{
      */
     public HttpResponse doUploadPlugin(StaplerRequest req) throws IOException, ServletException {
         try {
-            Hudson.getInstance().checkPermission(Hudson.ADMINISTER);
+            HudsonExt.getInstance().checkPermission(HudsonExt.ADMINISTER);
 
             ServletFileUpload upload = new ServletFileUpload(new DiskFileItemFactory());
 
@@ -162,7 +162,7 @@ public abstract class PluginManager extends PluginManagerExt{
             if("".equals(fileName))
                 return new HttpRedirect("advanced");
             if(!fileName.endsWith(".hpi"))
-                throw new Failure(hudson.model.Messages.Hudson_NotAPlugin(fileName));
+                throw new FailureExt(hudson.model.Messages.Hudson_NotAPlugin(fileName));
             fileItem.write(new File(rootDir, fileName));
             fileItem.delete();
 

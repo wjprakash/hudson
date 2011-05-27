@@ -25,7 +25,7 @@ package hudson.cli;
 
 import hudson.Extension;
 import hudson.FilePathExt;
-import hudson.model.Hudson;
+import hudson.model.HudsonExt;
 import hudson.model.UpdateSite;
 import hudson.model.UpdateSite.Data;
 import hudson.util.EditDistance;
@@ -65,8 +65,8 @@ public class InstallPluginCommand extends CLICommand {
     public boolean restart;
 
     protected int run() throws Exception {
-        Hudson h = Hudson.getInstance();
-        h.checkPermission(Hudson.ADMINISTER);
+        HudsonExt h = HudsonExt.getInstance();
+        h.checkPermission(HudsonExt.ADMINISTER);
 
         for (String source : sources) {
             // is this a file?
@@ -133,6 +133,6 @@ public class InstallPluginCommand extends CLICommand {
     }
 
     private FilePathExt getTargetFile() {
-        return new FilePathExt(new File(Hudson.getInstance().getPluginManager().rootDir,name+".hpi"));
+        return new FilePathExt(new File(HudsonExt.getInstance().getPluginManager().rootDir,name+".hpi"));
     }
 }

@@ -24,7 +24,7 @@
 package hudson.cli.declarative;
 
 import hudson.cli.CLICommand;
-import hudson.model.Hudson;
+import hudson.model.HudsonExt;
 import org.jvnet.hudson.annotation_indexer.Indexed;
 import org.kohsuke.args4j.CmdLineException;
 
@@ -39,16 +39,16 @@ import java.lang.annotation.Target;
  * to an instance whose {@link CLIMethod} is invoked for the final processing.
  *
  * <p>
- * Hudson uses the return type of the resolver method
+ * HudsonExt uses the return type of the resolver method
  * to pick the resolver method to use, of all the resolver methods it discovers. That is,
- * if Hudson is looking to find an instance of type <tt>T</tt> for the current command, it first
+ * if HudsonExt is looking to find an instance of type <tt>T</tt> for the current command, it first
  * looks for the resolver method whose return type is <tt>T</tt>, then it checks for the base type of <tt>T</tt>,
  * and so on.
  *
  * <p>
  * If the chosen resolver method is an instance method on type <tt>S</tt>, the "parent resolver" is then
  * located to resolve an instance of type 'S'. This process repeats until a static resolver method is discovered
- * (since most of Hudson's model objects are anchored to the root {@link Hudson} object, normally that would become
+ * (since most of HudsonExt's model objects are anchored to the root {@link HudsonExt} object, normally that would become
  * the top-most resolver method.)
  *
  * <p>

@@ -25,12 +25,12 @@ package hudson.security;
 
 import hudson.diagnosis.OldDataMonitorExt;
 import hudson.model.AbstractProjectExt;
-import hudson.model.Item;
-import hudson.model.Job;
-import hudson.model.JobProperty;
-import hudson.model.JobPropertyDescriptor;
-import hudson.model.Hudson;
-import hudson.model.Run;
+import hudson.model.ItemExt;
+import hudson.model.JobExt;
+import hudson.model.JobPropertyExt;
+import hudson.model.JobPropertyDescriptorExt;
+import hudson.model.HudsonExt;
+import hudson.model.RunExt;
 import hudson.Extension;
 import hudson.util.FormValidation;
 import hudson.util.RobustReflectionConverter;
@@ -63,12 +63,12 @@ import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
 import javax.servlet.ServletException;
 
 /**
- * {@link JobProperty} to associate ACL for each project.
+ * {@link JobPropertyExt} to associate ACL for each project.
  *
  * <p>
  * Once created (and initialized), this object becomes immutable.
  */
-public class AuthorizationMatrixProperty extends JobProperty<Job<?, ?>> {
+public class AuthorizationMatrixProperty extends JobPropertyExt<JobExt<?, ?>> {
 
 	private transient SidACL acl = new AclImpl();
 
@@ -135,9 +135,9 @@ public class AuthorizationMatrixProperty extends JobProperty<Job<?, ?>> {
 	}
 
     @Extension
-    public static class DescriptorImpl extends JobPropertyDescriptor {
+    public static class DescriptorImpl extends JobPropertyDescriptorExt {
 		@Override
-		public JobProperty<?> newInstance(StaplerRequest req, JSONObject formData) throws FormException {
+		public JobPropertyExt<?> newInstance(StaplerRequest req, JSONObject formData) throws FormException {
             formData = formData.getJSONObject("useProjectSecurity");
             if (formData.isNullObject())
                 return null;
@@ -159,9 +159,9 @@ public class AuthorizationMatrixProperty extends JobProperty<Job<?, ?>> {
 		}
 
 		@Override
-		public boolean isApplicable(Class<? extends Job> jobType) {
+		public boolean isApplicable(Class<? extends JobExt> jobType) {
             // only applicable when ProjectMatrixAuthorizationStrategy is in charge
-            return Hudson.getInstance().getAuthorizationStrategy() instanceof ProjectMatrixAuthorizationStrategy;
+            return HudsonExt.getInstance().getAuthorizationStrategy() instanceof ProjectMatrixAuthorizationStrategy;
 		}
 
 		@Override
@@ -170,14 +170,14 @@ public class AuthorizationMatrixProperty extends JobProperty<Job<?, ?>> {
 		}
 
 		public List<PermissionGroup> getAllGroups() {
-			return Arrays.asList(PermissionGroup.get(Item.class),PermissionGroup.get(Run.class));
+			return Arrays.asList(PermissionGroup.get(ItemExt.class),PermissionGroup.get(RunExt.class));
 		}
 
         public boolean showPermission(Permission p) {
-            return p.getEnabled() && p!=Item.CREATE;
+            return p.getEnabled() && p!=ItemExt.CREATE;
         }
 
-        public FormValidation doCheckName(@AncestorInPath Job project, @QueryParameter String value) throws IOException, ServletException {
+        public FormValidation doCheckName(@AncestorInPath JobExt project, @QueryParameter String value) throws IOException, ServletException {
             return GlobalMatrixAuthorizationStrategy.DESCRIPTOR.doCheckName(value, project, AbstractProjectExt.CONFIGURE);
         }
     }

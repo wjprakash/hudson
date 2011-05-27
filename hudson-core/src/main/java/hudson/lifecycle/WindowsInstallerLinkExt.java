@@ -25,7 +25,7 @@ package hudson.lifecycle;
 
 import hudson.FunctionsExt;
 import hudson.model.ManagementLink;
-import hudson.model.Hudson;
+import hudson.model.HudsonExt;
 import hudson.Extension;
 
 
@@ -97,11 +97,11 @@ public class WindowsInstallerLinkExt extends ManagementLink {
         if(war!=null && new File(war).exists()) {
             WindowsInstallerLinkExt link = new WindowsInstallerLinkExt(new File(war));
 
-            // in certain situations where we know the user is just trying Hudson (like when Hudson is launched
+            // in certain situations where we know the user is just trying HudsonExt (like when HudsonExt is launched
             // from JNLP from https://hudson.java.net/), also put this link on the navigation bar to increase
             // visibility
             if(System.getProperty(WindowsInstallerLinkExt.class.getName()+".prominent")!=null)
-                Hudson.getInstance().getActions().add(link);
+                HudsonExt.getInstance().getActions().add(link);
 
             return link;
         }

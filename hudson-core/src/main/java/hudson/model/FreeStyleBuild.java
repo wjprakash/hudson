@@ -32,12 +32,12 @@ import java.io.File;
 /**
  * @author Kohsuke Kawaguchi
  */
-public class FreeStyleBuild extends Build<FreeStyleProject,FreeStyleBuild> {
-    public FreeStyleBuild(FreeStyleProject project) throws IOException {
+public class FreeStyleBuild extends Build<FreeStyleProjectExt,FreeStyleBuild> {
+    public FreeStyleBuild(FreeStyleProjectExt project) throws IOException {
         super(project);
     }
 
-    public FreeStyleBuild(FreeStyleProject project, File buildDir) throws IOException {
+    public FreeStyleBuild(FreeStyleProjectExt project, File buildDir) throws IOException {
         super(project, buildDir);
     }
 
@@ -46,7 +46,7 @@ public class FreeStyleBuild extends Build<FreeStyleProject,FreeStyleBuild> {
         run(new RunnerImpl());
     }
 
-    protected class RunnerImpl extends Build<FreeStyleProject,FreeStyleBuild>.RunnerImpl {
+    protected class RunnerImpl extends Build<FreeStyleProjectExt,FreeStyleBuild>.RunnerImpl {
         @Override
         protected Lease decideWorkspace(Node n, WorkspaceList wsl) throws IOException, InterruptedException {
             String customWorkspace = getProject().getCustomWorkspace();

@@ -26,10 +26,10 @@ package hudson.tasks;
 import hudson.model.Build;
 import hudson.model.BuildListener;
 import hudson.model.Action;
-import hudson.model.Project;
+import hudson.model.ProjectExt;
 import hudson.model.AbstractBuildExt;
 import hudson.model.AbstractProjectExt;
-import hudson.model.Run;
+import hudson.model.RunExt;
 import hudson.model.CheckPoint;
 import hudson.Launcher;
 
@@ -64,8 +64,8 @@ public abstract class BuildStepCompatibilityLayer implements BuildStep {
     }
 
     public Action getProjectAction(AbstractProjectExt<?, ?> project) {
-        if (project instanceof Project)
-            return getProjectAction((Project) project);
+        if (project instanceof ProjectExt)
+            return getProjectAction((ProjectExt) project);
         else
             return null;
     }
@@ -101,7 +101,7 @@ public abstract class BuildStepCompatibilityLayer implements BuildStep {
      * @deprecated
      *      Use {@link #getProjectAction(AbstractProjectExt)} instead.
      */
-    public Action getProjectAction(Project<?,?> project) {
+    public Action getProjectAction(ProjectExt<?,?> project) {
         return null;
     }
 }

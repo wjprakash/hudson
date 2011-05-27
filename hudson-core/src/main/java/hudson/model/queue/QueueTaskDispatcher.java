@@ -27,7 +27,7 @@ package hudson.model.queue;
 import hudson.Extension;
 import hudson.ExtensionList;
 import hudson.ExtensionPoint;
-import hudson.model.Hudson;
+import hudson.model.HudsonExt;
 import hudson.model.Node;
 import hudson.model.Queue;
 import hudson.model.Queue.Task;
@@ -66,6 +66,6 @@ public abstract class QueueTaskDispatcher implements ExtensionPoint {
      * All registered {@link QueueTaskDispatcher}s.
      */
     public static ExtensionList<QueueTaskDispatcher> all() {
-        return Hudson.getInstance().getExtensionList(QueueTaskDispatcher.class);
+        return HudsonExt.getInstance().getExtensionList(QueueTaskDispatcher.class);
     }
 }

@@ -24,13 +24,13 @@
 package hudson.scm;
 
 import hudson.model.AbstractProjectExt;
-import hudson.model.Hudson;
+import hudson.model.HudsonExt;
 
 /**
  * Maintains the automatically inferred {@link RepositoryBrowser} instance.
  *
  * <p>
- * To reduce the user's work, Hudson tries to infer applicable {@link RepositoryBrowser}
+ * To reduce the user's work, HudsonExt tries to infer applicable {@link RepositoryBrowser}
  * from configurations of other jobs. But this needs caution &mdash; for example,
  * such inferred {@link RepositoryBrowser} must be recalculated whenever
  * a job configuration changes somewhere.
@@ -64,7 +64,7 @@ final class AutoBrowserHolder {
      *      null if no applicable configuration was found.
      */
     private RepositoryBrowser infer() {
-        for( AbstractProjectExt p : Hudson.getInstance().getAllItems(AbstractProjectExt.class) ) {
+        for( AbstractProjectExt p : HudsonExt.getInstance().getAllItems(AbstractProjectExt.class) ) {
             SCM scm = p.getScm();
             if (scm!=null && scm.getClass()==owner.getClass() && scm.getBrowser()!=null &&
                     ((SCMDescriptor)scm.getDescriptor()).isBrowserReusable(scm,owner)) {

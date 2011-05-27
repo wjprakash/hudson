@@ -46,7 +46,7 @@ import com.thoughtworks.xstream.converters.UnmarshallingContext;
  * </dl>
  *
  * @author Michael Donohue
- * @see Run#getCauses()
+ * @see RunExt#getCauses()
  * @see Queue.Item#getCauses()
  */
 public abstract class CauseExt {
@@ -109,10 +109,10 @@ public abstract class CauseExt {
          */
         // for backward bytecode compatibility
         public UpstreamCause(AbstractBuildExt<?,?> up) {
-            this((Run<?,?>)up);
+            this((RunExt<?,?>)up);
         }
         
-        public UpstreamCause(Run<?, ?> up) {
+        public UpstreamCause(RunExt<?, ?> up) {
             upstreamBuild = up.getNumber();
             upstreamProject = up.getParent().getFullName();
             upstreamUrl = up.getParent().getUrl();
@@ -122,14 +122,14 @@ public abstract class CauseExt {
         /**
          * Returns true if this cause points to a build in the specified job.
          */
-        public boolean pointsTo(Job<?,?> j) {
+        public boolean pointsTo(JobExt<?,?> j) {
             return j.getFullName().equals(upstreamProject);
         }
 
         /**
          * Returns true if this cause points to the specified build.
          */
-        public boolean pointsTo(Run<?,?> r) {
+        public boolean pointsTo(RunExt<?,?> r) {
             return r.getNumber()==upstreamBuild && pointsTo(r.getParent());
         }
 
@@ -178,7 +178,7 @@ public abstract class CauseExt {
     public static class UserCause extends CauseExt {
         private String authenticationName;
         public UserCause() {
-            this.authenticationName = Hudson.getAuthentication().getName();
+            this.authenticationName = HudsonExt.getAuthentication().getName();
         }
 
         public String getUserName() {

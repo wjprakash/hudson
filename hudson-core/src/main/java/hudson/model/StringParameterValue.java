@@ -33,9 +33,9 @@ import java.util.Map;
 import hudson.util.VariableResolver;
 
 /**
- * {@link ParameterValue} created from {@link StringParameterDefinition}.
+ * {@link ParameterValueExt} created from {@link StringParameterDefinition}.
  */
-public class StringParameterValue extends ParameterValue {
+public class StringParameterValue extends ParameterValueExt {
     @Exported(visibility=4)
     public final String value;
 

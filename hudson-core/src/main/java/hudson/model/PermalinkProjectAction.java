@@ -28,7 +28,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Optional interface for {@link Action}s that are attached
- * to {@link AbstractProject} (through {@link JobProperty#getJobActions(Job)}),
+ * to {@link AbstractProject} (through {@link JobProperty#getJobActions(JobExt)}),
  * which allows plugins to define additional permalinks in the project.
  *
  * <p>
@@ -83,7 +83,7 @@ public interface PermalinkProjectAction extends Action {
          * @return null
          *      if the target of the permalink doesn't exist.
          */
-        public abstract Run<?,?> resolve(Job<?,?> job);
+        public abstract RunExt<?,?> resolve(JobExt<?,?> job);
 
         /**
          * List of {@link Permalink}s that are built into Hudson.
@@ -100,7 +100,7 @@ public interface PermalinkProjectAction extends Action {
                     return "lastBuild";
                 }
 
-                public Run<?,?> resolve(Job<?,?> job) {
+                public RunExt<?,?> resolve(JobExt<?,?> job) {
                     return job.getLastBuild();
                 }
             });
@@ -114,7 +114,7 @@ public interface PermalinkProjectAction extends Action {
                     return "lastStableBuild";
                 }
 
-                public Run<?,?> resolve(Job<?,?> job) {
+                public RunExt<?,?> resolve(JobExt<?,?> job) {
                     return job.getLastStableBuild();
                 }
             });
@@ -128,7 +128,7 @@ public interface PermalinkProjectAction extends Action {
                     return "lastSuccessfulBuild";
                 }
 
-                public Run<?,?> resolve(Job<?,?> job) {
+                public RunExt<?,?> resolve(JobExt<?,?> job) {
                     return job.getLastSuccessfulBuild();
                 }
             });
@@ -142,7 +142,7 @@ public interface PermalinkProjectAction extends Action {
                     return "lastFailedBuild";
                 }
 
-                public Run<?,?> resolve(Job<?,?> job) {
+                public RunExt<?,?> resolve(JobExt<?,?> job) {
                     return job.getLastFailedBuild();
                 }
             });
@@ -156,7 +156,7 @@ public interface PermalinkProjectAction extends Action {
                     return "lastUnstableBuild";
                 }
 
-                public Run<?,?> resolve(Job<?,?> job) {
+                public RunExt<?,?> resolve(JobExt<?,?> job) {
                     return job.getLastUnstableBuild();
                 }
             });
@@ -170,7 +170,7 @@ public interface PermalinkProjectAction extends Action {
                     return "lastUnsuccessfulBuild";
                 }
 
-                public Run<?,?> resolve(Job<?,?> job) {
+                public RunExt<?,?> resolve(JobExt<?,?> job) {
                     return job.getLastUnsuccessfulBuild();
                 }
             });

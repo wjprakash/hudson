@@ -1,7 +1,7 @@
 package hudson.cli.handlers;
 
 import hudson.model.AbstractProjectExt;
-import hudson.model.Hudson;
+import hudson.model.HudsonExt;
 import hudson.model.TopLevelItem;
 import org.kohsuke.MetaInfServices;
 import org.kohsuke.args4j.CmdLineException;
@@ -24,7 +24,7 @@ public class TopLevelItemOptionHandler extends OptionHandler<TopLevelItem> {
 
     @Override
     public int parseArguments(Parameters params) throws CmdLineException {
-        Hudson h = Hudson.getInstance();
+        HudsonExt h = HudsonExt.getInstance();
         String src = params.getParameter(0);
 
         TopLevelItem s = h.getItem(src);

@@ -64,7 +64,7 @@ public abstract class RetentionStrategy<T extends ComputerExt> extends AbstractD
     }
 
     /**
-     * Called when a new {@link ComputerExt} object is introduced (such as when Hudson started, or when
+     * Called when a new {@link ComputerExt} object is introduced (such as when HudsonExt started, or when
      * a new slave is added.)
      *
      * <p>
@@ -80,8 +80,8 @@ public abstract class RetentionStrategy<T extends ComputerExt> extends AbstractD
     /**
      * Returns all the registered {@link RetentionStrategy} descriptors.
      */
-    public static DescriptorExtensionListExt<RetentionStrategy<?>,Descriptor<RetentionStrategy<?>>> all() {
-        return (DescriptorExtensionListExt)Hudson.getInstance().getDescriptorList(RetentionStrategy.class);
+    public static DescriptorExtensionListExt<RetentionStrategy<?>,DescriptorExt<RetentionStrategy<?>>> all() {
+        return (DescriptorExtensionListExt)HudsonExt.getInstance().getDescriptorList(RetentionStrategy.class);
     }
 
     /**
@@ -105,13 +105,13 @@ public abstract class RetentionStrategy<T extends ComputerExt> extends AbstractD
         }
 
         @Override
-        public Descriptor<RetentionStrategy<?>> getDescriptor() {
+        public DescriptorExt<RetentionStrategy<?>> getDescriptor() {
             return DESCRIPTOR;
         }
 
         private final DescriptorImpl DESCRIPTOR = new DescriptorImpl();
 
-        class DescriptorImpl extends Descriptor<RetentionStrategy<?>> {
+        class DescriptorImpl extends DescriptorExt<RetentionStrategy<?>> {
             public String getDisplayName() {
                 return "";
             }
@@ -141,7 +141,7 @@ public abstract class RetentionStrategy<T extends ComputerExt> extends AbstractD
         }
 
         @Extension(ordinal=100)
-        public static class DescriptorImpl extends Descriptor<RetentionStrategy<?>> {
+        public static class DescriptorImpl extends DescriptorExt<RetentionStrategy<?>> {
             public String getDisplayName() {
                 return Messages.RetentionStrategy_Always_displayName();
             }
@@ -211,7 +211,7 @@ public abstract class RetentionStrategy<T extends ComputerExt> extends AbstractD
         }
 
         @Extension
-        public static class DescriptorImpl extends Descriptor<RetentionStrategy<?>> {
+        public static class DescriptorImpl extends DescriptorExt<RetentionStrategy<?>> {
             public String getDisplayName() {
                 return Messages.RetentionStrategy_Demand_displayName();
             }

@@ -1,7 +1,7 @@
 package hudson.tools;
 
 import hudson.FilePathExt;
-import hudson.model.DownloadService.Downloadable;
+import hudson.model.DownloadServiceExt.DownloadableExt;
 import hudson.model.Node;
 import hudson.model.TaskListener;
 import net.sf.json.JSONObject;
@@ -120,11 +120,11 @@ public abstract class DownloadFromUrlInstaller extends ToolInstaller {
         
         @SuppressWarnings("deprecation") // intentionally adding dynamic item here
         protected DescriptorImpl() {
-            Downloadable.all().add(createDownloadable());
+            DownloadableExt.all().add(createDownloadable());
         }
 
-        protected Downloadable createDownloadable() {
-            return new Downloadable(getId());
+        protected DownloadableExt createDownloadable() {
+            return new DownloadableExt(getId());
         }
 
         /**
@@ -146,7 +146,7 @@ public abstract class DownloadFromUrlInstaller extends ToolInstaller {
          * @return never null.
          */
         public List<? extends Installable> getInstallables() throws IOException {
-            JSONObject d = Downloadable.get(getId()).getData();
+            JSONObject d = DownloadableExt.get(getId()).getData();
             if(d==null)     return Collections.emptyList();
             return Arrays.asList(((InstallableList)JSONObject.toBean(d,InstallableList.class)).list);
         }
@@ -161,7 +161,7 @@ public abstract class DownloadFromUrlInstaller extends ToolInstaller {
     }
 
     /**
-     * Downloadable and installable tool.
+     * DownloadableExt and installable tool.
      */
     public static class Installable {
         /**

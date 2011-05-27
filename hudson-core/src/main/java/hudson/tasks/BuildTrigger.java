@@ -34,13 +34,13 @@ import hudson.model.BuildListener;
 import hudson.model.DependecyDeclarer;
 import hudson.model.DependencyGraph;
 import hudson.model.DependencyGraph.Dependency;
-import hudson.model.Hudson;
-import hudson.model.Item;
+import hudson.model.HudsonExt;
+import hudson.model.ItemExt;
 import hudson.model.Items;
-import hudson.model.Job;
-import hudson.model.Project;
+import hudson.model.JobExt;
+import hudson.model.ProjectExt;
 import hudson.model.Result;
-import hudson.model.Run;
+import hudson.model.RunExt;
 import hudson.model.CauseExt.UpstreamCause;
 import hudson.model.TaskListener;
 import hudson.model.listeners.ItemListener;
@@ -162,8 +162,8 @@ public class BuildTrigger extends Recorder implements DependecyDeclarer {
      */
     public static boolean execute(AbstractBuildExt build, BuildListener listener) {
         PrintStream logger = listener.getLogger();
-        // Check all downstream Project of the project, not just those defined by BuildTrigger
-        final DependencyGraph graph = Hudson.getInstance().getDependencyGraph();
+        // Check all downstream ProjectExt of the project, not just those defined by BuildTrigger
+        final DependencyGraph graph = HudsonExt.getInstance().getDependencyGraph();
         List<Dependency> downstreamProjects = new ArrayList<Dependency>(
                 graph.getDownstreamDependencies(build.getProject()));
         // Sort topologically
@@ -185,7 +185,7 @@ public class BuildTrigger extends Recorder implements DependecyDeclarer {
                 // this is not completely accurate, as a new build might be triggered
                 // between these calls
                 String name = p.getName()+" #"+p.getNextBuildNumber();
-                if(p.scheduleBuild(p.getQuietPeriod(), new UpstreamCause((Run)build),
+                if(p.scheduleBuild(p.getQuietPeriod(), new UpstreamCause((RunExt)build),
                                    buildActions.toArray(new Action[buildActions.size()]))) {
                     logger.println(Messages.BuildTrigger_Triggering(name));
                 } else {
@@ -225,7 +225,7 @@ public class BuildTrigger extends Recorder implements DependecyDeclarer {
 
         boolean changed = false;
 
-        // we need to do this per string, since old Project object is already gone.
+        // we need to do this per string, since old ProjectExt object is already gone.
         String[] projects = childProjects.split(",");
         for( int i=0; i<projects.length; i++ ) {
             if(projects[i].trim().equals(oldName)) {
@@ -288,12 +288,12 @@ public class BuildTrigger extends Recorder implements DependecyDeclarer {
          */
         public FormValidation doCheck(@AncestorInPath AccessControlled subject, @QueryParameter String value ) {
             // Require CONFIGURE permission on this project
-            if(!subject.hasPermission(Item.CONFIGURE))      return FormValidation.ok();
+            if(!subject.hasPermission(ItemExt.CONFIGURE))      return FormValidation.ok();
 
             StringTokenizer tokens = new StringTokenizer(Util.fixNull(value),",");
             while(tokens.hasMoreTokens()) {
                 String projectName = tokens.nextToken().trim();
-                Item item = Hudson.getInstance().getItemByFullName(projectName,Item.class);
+                ItemExt item = HudsonExt.getInstance().getItemByFullName(projectName,ItemExt.class);
                 if(item==null)
                     return FormValidation.error(Messages.BuildTrigger_NoSuchProject(projectName,AbstractProjectExt.findNearest(projectName).getName()));
                 if(!(item instanceof AbstractProjectExt))
@@ -306,10 +306,10 @@ public class BuildTrigger extends Recorder implements DependecyDeclarer {
         @Extension
         public static class ItemListenerImpl extends ItemListener {
             @Override
-            public void onRenamed(Item item, String oldName, String newName) {
+            public void onRenamed(ItemExt item, String oldName, String newName) {
                 // update BuildTrigger of other projects that point to this object.
                 // can't we generalize this?
-                for( Project<?,?> p : Hudson.getInstance().getProjects() ) {
+                for( ProjectExt<?,?> p : HudsonExt.getInstance().getProjects() ) {
                     BuildTrigger t = p.getPublishersList().get(BuildTrigger.class);
                     if(t!=null) {
                         if(t.onJobRenamed(oldName,newName)) {

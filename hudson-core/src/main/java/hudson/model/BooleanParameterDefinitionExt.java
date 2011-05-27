@@ -31,7 +31,7 @@ import net.sf.json.JSONObject;
  *
  * @author huybrechts
  */
-public class BooleanParameterDefinitionExt extends SimpleParameterDefinition {
+public class BooleanParameterDefinitionExt extends SimpleParameterDefinitionExt {
     private final boolean defaultValue;
 
     public BooleanParameterDefinitionExt(String name, boolean defaultValue, String description) {
@@ -44,7 +44,7 @@ public class BooleanParameterDefinitionExt extends SimpleParameterDefinition {
     }
 
 
-    public ParameterValue createValue(String value) {
+    public ParameterValueExt createValue(String value) {
         return new BooleanParameterValueExt(getName(),Boolean.valueOf(value),getDescription());
     }
 
@@ -55,7 +55,7 @@ public class BooleanParameterDefinitionExt extends SimpleParameterDefinition {
 
 
     @Extension
-    public static class DescriptorImpl extends ParameterDescriptor {
+    public static class DescriptorImpl extends ParameterDescriptorExt {
         @Override
         public String getDisplayName() {
             return Messages.BooleanParameterDefinition_DisplayName();

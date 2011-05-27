@@ -31,28 +31,28 @@ import java.io.IOException;
 import java.util.LinkedHashSet;
 import java.util.SortedMap;
 
-import hudson.model.Descriptor.FormException;
+import hudson.model.DescriptorExt.FormException;
 
 /**
- * {@link Job} that monitors activities that happen outside Hudson,
+ * {@link JobExt} that monitors activities that happen outside HudsonExt,
  * which requires occasional batch reload activity to obtain the up-to-date information.
  *
  * <p>
- * This can be used as a base class to derive custom {@link Job} type.
+ * This can be used as a base class to derive custom {@link JobExt} type.
  *
  * @author Kohsuke Kawaguchi
  */
-public abstract class ViewJob<JobT extends ViewJob<JobT,RunT>, RunT extends Run<JobT,RunT>>
-    extends Job<JobT,RunT> {
+public abstract class ViewJob<JobT extends ViewJob<JobT,RunT>, RunT extends RunExt<JobT,RunT>>
+    extends JobExt<JobT,RunT> {
 
     /**
-     * We occasionally update the list of {@link Run}s from a file system.
+     * We occasionally update the list of {@link RunExt}s from a file system.
      * The next scheduled update time.
      */
     private transient long nextUpdate = 0;
 
     /**
-     * All {@link Run}s. Copy-on-write semantics.
+     * All {@link RunExt}s. Copy-on-write semantics.
      */
     protected transient /*almost final*/ RunMap<RunT> runs = new RunMap<RunT>();
 
@@ -79,7 +79,7 @@ public abstract class ViewJob<JobT extends ViewJob<JobT,RunT>, RunT extends Run<
     /**
      * @deprecated as of 1.390
      */
-    protected ViewJob(Hudson parent, String name) {
+    protected ViewJob(HudsonExt parent, String name) {
         super(parent,name);
     }
 
@@ -92,7 +92,7 @@ public abstract class ViewJob<JobT extends ViewJob<JobT,RunT>, RunT extends Run<
     }
 
     @Override
-    public void onLoad(ItemGroup<? extends Item> parent, String name) throws IOException {
+    public void onLoad(ItemGroup<? extends ItemExt> parent, String name) throws IOException {
         super.onLoad(parent, name);
         notLoaded = true;
     }
@@ -139,10 +139,10 @@ public abstract class ViewJob<JobT extends ViewJob<JobT,RunT>, RunT extends Run<
     }
 
     /**
-     * Reloads the list of {@link Run}s. This operation can take a long time.
+     * Reloads the list of {@link RunExt}s. This operation can take a long time.
      *
      * <p>
-     * The loaded {@link Run}s should be set to {@link #runs}.
+     * The loaded {@link RunExt}s should be set to {@link #runs}.
      */
     protected abstract void reload();
 
@@ -155,7 +155,7 @@ public abstract class ViewJob<JobT extends ViewJob<JobT,RunT>, RunT extends Run<
 
 
     /**
-     * Thread that reloads the {@link Run}s.
+     * Thread that reloads the {@link RunExt}s.
      */
     private static final class ReloadThread extends Thread {
         private ReloadThread() {
@@ -177,7 +177,7 @@ public abstract class ViewJob<JobT extends ViewJob<JobT,RunT>, RunT extends Run<
         }
 
         private boolean terminating() {
-            return Hudson.getInstance().isTerminating();
+            return HudsonExt.getInstance().isTerminating();
         }
 
         @Override
@@ -199,7 +199,7 @@ public abstract class ViewJob<JobT extends ViewJob<JobT,RunT>, RunT extends Run<
     // private static final Logger logger = Logger.getLogger(ViewJob.class.getName());
 
     /**
-     * In the very old version of Hudson, an external job submission was just creating files on the file system,
+     * In the very old version of HudsonExt, an external job submission was just creating files on the file system,
      * so we needed to periodically reload the jobs from a file system to pick up new records.
      *
      * <p>

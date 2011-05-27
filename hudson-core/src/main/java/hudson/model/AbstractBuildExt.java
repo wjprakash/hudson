@@ -34,8 +34,8 @@ import hudson.slaves.WorkspaceList;
 import hudson.slaves.NodeProperty;
 import hudson.slaves.WorkspaceList.Lease;
 import hudson.matrix.MatrixConfiguration;
-import hudson.model.Fingerprint.BuildPtr;
-import hudson.model.Fingerprint.RangeSet;
+import hudson.model.FingerprintExt.BuildPtr;
+import hudson.model.FingerprintExt.RangeSet;
 import hudson.model.listeners.SCMListener;
 import hudson.scm.ChangeLogParser;
 import hudson.scm.ChangeLogSet;
@@ -75,14 +75,14 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Base implementation of {@link Run}s that build software.
+ * Base implementation of {@link RunExt}s that build software.
  *
  * For now this is primarily the common part of {@link Build} and MavenBuild.
  *
  * @author Kohsuke Kawaguchi
  * @see AbstractProjectExt
  */
-public abstract class AbstractBuildExt<P extends AbstractProjectExt<P,R>,R extends AbstractBuildExt<P,R>> extends Run<P,R> implements Queue.Executable {
+public abstract class AbstractBuildExt<P extends AbstractProjectExt<P,R>,R extends AbstractBuildExt<P,R>> extends RunExt<P,R> implements Queue.Executable {
 
     /**
      * Set if we want the blame information to flow from upstream to downstream build.
@@ -102,7 +102,7 @@ public abstract class AbstractBuildExt<P extends AbstractProjectExt<P,R>,R exten
     private String workspace;
 
     /**
-     * Version of Hudson that built this.
+     * Version of HudsonExt that built this.
      */
     private String hudsonVersion;
 
@@ -162,9 +162,9 @@ public abstract class AbstractBuildExt<P extends AbstractProjectExt<P,R>,R exten
      */
     public Node getBuiltOn() {
         if (builtOn==null || builtOn.equals(""))
-            return Hudson.getInstance();
+            return HudsonExt.getInstance();
         else
-            return Hudson.getInstance().getNode(builtOn);
+            return HudsonExt.getInstance().getNode(builtOn);
     }
 
     /**
@@ -249,7 +249,7 @@ public abstract class AbstractBuildExt<P extends AbstractProjectExt<P,R>,R exten
                 if (pr!=null && pr.isWorseThan(Result.UNSTABLE)) {
                     // we are still building, so this is just the current latest information,
                     // but we seems to be failing so far, so inherit culprits from the previous build.
-                    // isBuilding() check is to avoid recursion when loading data from old Hudson, which doesn't record
+                    // isBuilding() check is to avoid recursion when loading data from old HudsonExt, which doesn't record
                     // this information
                     r.addAll(p.getCulprits());
                 }
@@ -302,7 +302,7 @@ public abstract class AbstractBuildExt<P extends AbstractProjectExt<P,R>,R exten
     }
 
     /**
-     * Gets the version of Hudson that was used to build this job.
+     * Gets the version of HudsonExt that was used to build this job.
      *
      * @since 1.246
      */
@@ -358,7 +358,7 @@ public abstract class AbstractBuildExt<P extends AbstractProjectExt<P,R>,R exten
          * Returns the current {@link Node} on which we are buildling.
          */
         protected final Node getCurrentNode() {
-            return Executor.currentExecutor().getOwner().getNode();
+            return ExecutorExt.currentExecutor().getOwner().getNode();
         }
 
         /**
@@ -378,12 +378,12 @@ public abstract class AbstractBuildExt<P extends AbstractProjectExt<P,R>,R exten
             Node node = getCurrentNode();
             assert builtOn==null;
             builtOn = node.getNodeName();
-            hudsonVersion = Hudson.VERSION;
+            hudsonVersion = HudsonExt.VERSION;
             this.listener = listener;
 
             launcher = createLauncher(listener);
-            if (!Hudson.getInstance().getNodes().isEmpty())
-                listener.getLogger().println(node instanceof Hudson ? Messages.AbstractBuild_BuildingOnMaster() : Messages.AbstractBuild_BuildingRemotely(builtOn));
+            if (!HudsonExt.getInstance().getNodes().isEmpty())
+                listener.getLogger().println(node instanceof HudsonExt ? Messages.AbstractBuild_BuildingOnMaster() : Messages.AbstractBuild_BuildingRemotely(builtOn));
 
             final Lease lease = decideWorkspace(node,ComputerExt.currentComputer().getWorkspaceList());
 
@@ -456,7 +456,7 @@ public abstract class AbstractBuildExt<P extends AbstractProjectExt<P,R>,R exten
 
             buildEnvironments = new ArrayList<Environment>();
 
-            for (NodeProperty nodeProperty: Hudson.getInstance().getGlobalNodeProperties()) {
+            for (NodeProperty nodeProperty: HudsonExt.getInstance().getGlobalNodeProperties()) {
                 Environment environment = nodeProperty.setUp(AbstractBuildExt.this, l, listener);
                 if (environment != null) {
                     buildEnvironments.add(environment);
@@ -489,7 +489,7 @@ public abstract class AbstractBuildExt<P extends AbstractProjectExt<P,R>,R exten
                             AbstractBuildExt.this.scm = scm.createChangeLogParser();
                             AbstractBuildExt.this.changeSet = AbstractBuildExt.this.calcChangeSet();
 
-                            for (SCMListener l : Hudson.getInstance().getSCMListeners())
+                            for (SCMListener l : HudsonExt.getInstance().getSCMListeners())
                                 l.onChangeLogParsed(AbstractBuildExt.this,listener,changeSet);
                             return;
                         }
@@ -634,7 +634,7 @@ public abstract class AbstractBuildExt<P extends AbstractProjectExt<P,R>,R exten
         if (scm==null) {
             // for historical reason, null means CVS.
             try {
-                Class<?> c = Hudson.getInstance().getPluginManager().uberClassLoader.loadClass("hudson.scm.CVSChangeLogParser");
+                Class<?> c = HudsonExt.getInstance().getPluginManager().uberClassLoader.loadClass("hudson.scm.CVSChangeLogParser");
                 scm = (ChangeLogParser)c.newInstance();
             } catch (ClassNotFoundException e) {
                 // if CVS isn't available, fall back to something non-null.
@@ -692,10 +692,10 @@ public abstract class AbstractBuildExt<P extends AbstractProjectExt<P,R>,R exten
             env.put("WORKSPACE", ws.getRemote());
         // servlet container may have set CLASSPATH in its launch script,
         // so don't let that inherit to the new child process.
-        // see http://www.nabble.com/Run-Job-with-JDK-1.4.2-tf4468601.html
+        // see http://www.nabble.com/Run-Job-with-JDKExt-1.4.2-tf4468601.html
         env.put("CLASSPATH","");
 
-        JDK jdk = project.getJDK();
+        JDKExt jdk = project.getJDK();
         if (jdk != null) {
             ComputerExt computer = ComputerExt.currentComputer();
             if (computer != null) { // just in case were not in a build
@@ -734,7 +734,7 @@ public abstract class AbstractBuildExt<P extends AbstractProjectExt<P,R>,R exten
 
         ParametersAction parameters = getAction(ParametersAction.class);
         if (parameters != null) {
-            for (ParameterValue p : parameters) {
+            for (ParameterValueExt p : parameters) {
                 if (p.isSensitive()) {
                     s.add(p.getName());
                 }
@@ -772,7 +772,7 @@ public abstract class AbstractBuildExt<P extends AbstractProjectExt<P,R>,R exten
         ParametersAction parameters = getAction(ParametersAction.class);
         if (parameters!=null) {
             // this is a rather round about way of doing this...
-            for (ParameterValue p : parameters) {
+            for (ParameterValueExt p : parameters) {
                 String v = p.createVariableResolver(this).resolve(p.getName());
                 if (v!=null) r.put(p.getName(),v);
             }
@@ -802,7 +802,7 @@ public abstract class AbstractBuildExt<P extends AbstractProjectExt<P,R>,R exten
     }
 
     /**
-     * Invoked by {@link Executor} to performs a build.
+     * Invoked by {@link ExecutorExt} to performs a build.
      */
     public abstract void run();
 
@@ -855,7 +855,7 @@ public abstract class AbstractBuildExt<P extends AbstractProjectExt<P,R>,R exten
         if (f==null)     return rs;
 
         // look for fingerprints that point to this build as the source, and merge them all
-        for (Fingerprint e : f.getFingerprints().values()) {
+        for (FingerprintExt e : f.getFingerprints().values()) {
 
             if (upstreamCulprits) {
                 // With upstreamCulprits, we allow downstream relationships
@@ -906,11 +906,11 @@ public abstract class AbstractBuildExt<P extends AbstractProjectExt<P,R>,R exten
         int n = -1;
 
         // look for fingerprints that point to the given project as the source, and merge them all
-        for (Fingerprint e : f.getFingerprints().values()) {
+        for (FingerprintExt e : f.getFingerprints().values()) {
             if (upstreamCulprits) {
                 // With upstreamCulprits, we allow upstream relationships
                 // from intermediate jobs
-                Fingerprint.RangeSet rangeset = e.getRangeSet(that);
+                FingerprintExt.RangeSet rangeset = e.getRangeSet(that);
                 if (!rangeset.isEmpty()) {
                     n = Math.max(n, rangeset.listNumbersReverse().iterator().next());
                 }

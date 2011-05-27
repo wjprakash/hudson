@@ -23,7 +23,7 @@
  */
 package hudson.slaves;
 
-import hudson.model.Descriptor;
+import hudson.model.DescriptorExt;
 import hudson.model.TaskListener;
 import hudson.Util;
 import hudson.Extension;
@@ -76,7 +76,7 @@ public class JNLPLauncher extends ComputerLauncher {
     }
 
     @Extension
-    public static final Descriptor<ComputerLauncher> DESCRIPTOR = new Descriptor<ComputerLauncher>() {
+    public static final DescriptorExt<ComputerLauncher> DESCRIPTOR = new DescriptorExt<ComputerLauncher>() {
         public String getDisplayName() {
             return Messages.JNLPLauncher_displayName();
         }

@@ -34,7 +34,7 @@ import java.util.Random;
 import java.util.Timer;
 
 /**
- * Extension point to perform a periodic task in Hudson (through {@link Timer}.)
+ * Extension point to perform a periodic task in HudsonExt (through {@link Timer}.)
  *
  * <p>
  * This extension point is useful if your plugin needs to perform some work in the background periodically
@@ -58,7 +58,7 @@ public abstract class PeriodicWork extends SafeTimerTask implements ExtensionPoi
      * Gets the number of milliseconds between successive executions.
      *
      * <p>
-     * Hudson calls this method once to set up a recurring timer, instead of
+     * HudsonExt calls this method once to set up a recurring timer, instead of
      * calling this each time after the previous execution completed. So this class cannot be
      * used to implement a non-regular recurring timer.
      *
@@ -81,7 +81,7 @@ public abstract class PeriodicWork extends SafeTimerTask implements ExtensionPoi
      * Returns all the registered {@link PeriodicWork}s.
      */
     public static ExtensionList<PeriodicWork> all() {
-        return Hudson.getInstance().getExtensionList(PeriodicWork.class);
+        return HudsonExt.getInstance().getExtensionList(PeriodicWork.class);
     }
 
     // time constants

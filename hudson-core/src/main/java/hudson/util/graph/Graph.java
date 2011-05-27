@@ -23,7 +23,7 @@
  */
 package hudson.util.graph;
 
-import hudson.model.Descriptor.FormException;
+import hudson.model.DescriptorExt.FormException;
 import hudson.util.ColorPalette;
 import java.awt.Font;
 import java.awt.Graphics2D;

@@ -23,7 +23,7 @@
  */
 package hudson.util;
 
-import hudson.model.Fingerprint;
+import hudson.model.FingerprintExt;
 import hudson.model.FingerprintMap;
 
 import java.io.IOException;
@@ -36,11 +36,11 @@ import java.util.concurrent.atomic.AtomicInteger;
  * Convenient base class for implementing data storage.
  *
  * <p>
- * One typical pattern of data storage in Hudson is the one that {@link Fingerprint}
+ * One typical pattern of data storage in Hudson is the one that {@link FingerprintExt}
  * uses, where each data is keyed by an unique key (MD5 sum), and that key is used
  * to determine the file system location of the data.
  *
- * On memory, each data is represented by one object ({@link Fingerprint}), and
+ * On memory, each data is represented by one object ({@link FingerprintExt}), and
  * write access to the same data is coordinated by using synchronization.
  *
  * <p>
@@ -65,7 +65,7 @@ public abstract class KeyedDataStorage<T,P> {
 
     /**
      * Used in {@link KeyedDataStorage#core} to indicate that the loading of a fingerprint
-     * is in progress, so that we can avoid creating two {@link Fingerprint}s for the same hash code,
+     * is in progress, so that we can avoid creating two {@link FingerprintExt}s for the same hash code,
      * but do so without having a single lock.
      */
     private static class Loading<T> {

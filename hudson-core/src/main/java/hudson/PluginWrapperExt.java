@@ -25,7 +25,7 @@
 package hudson;
 
 import hudson.PluginManagerExt.PluginInstanceStore;
-import hudson.model.Hudson;
+import hudson.model.HudsonExt;
 import hudson.model.UpdateCenter;
 import hudson.model.UpdateSite;
 import hudson.util.VersionNumber;
@@ -48,8 +48,8 @@ import java.util.Enumeration;
 import java.util.jar.JarFile;
 
 /**
- * Represents a Hudson plug-in and associated control information
- * for Hudson to control {@link PluginExt}.
+ * Represents a HudsonExt plug-in and associated control information
+ * for HudsonExt to control {@link PluginExt}.
  *
  * <p>
  * A plug-in is packaged into a jar file whose extension is <tt>".hpi"</tt>,
@@ -58,9 +58,9 @@ import java.util.jar.JarFile;
  * <p>
  * At the runtime, a plugin has two distinct state axis.
  * <ol>
- *  <li>Enabled/Disabled. If enabled, Hudson is going to use it
- *      next time Hudson runs. Otherwise the next run will ignore it.
- *  <li>Activated/Deactivated. If activated, that means Hudson is using
+ *  <li>Enabled/Disabled. If enabled, HudsonExt is going to use it
+ *      next time HudsonExt runs. Otherwise the next run will ignore it.
+ *  <li>Activated/Deactivated. If activated, that means HudsonExt is using
  *      the plugin in this session. Otherwise it's not.
  * </ol>
  * <p>
@@ -102,7 +102,7 @@ public class PluginWrapperExt implements Comparable<PluginWrapperExt> {
 
     /**
      * Used to control the unpacking of the bundled plugin.
-     * If a pin file exists, Hudson assumes that the user wants to pin down a particular version
+     * If a pin file exists, HudsonExt assumes that the user wants to pin down a particular version
      * of a plugin, and will not try to overwrite it. Otherwise, it'll be overwritten
      * by a bundled copy, to ensure consistency across upgrade/downgrade.
      * @since 1.325
@@ -111,7 +111,7 @@ public class PluginWrapperExt implements Comparable<PluginWrapperExt> {
 
     /**
      * Short name of the plugin. The artifact Id of the plugin.
-     * This is also used in the URL within Hudson, so it needs
+     * This is also used in the URL within HudsonExt, so it needs
      * to remain stable even when the *.hpi file name is changed
      * (like Maven does.)
      */
@@ -253,7 +253,7 @@ public class PluginWrapperExt implements Comparable<PluginWrapperExt> {
      * Gets the instance of {@link PluginExt} contributed by this plugin.
      */
     public PluginExt getPlugin() {
-        return Hudson.lookup(PluginInstanceStore.class).store.get(this);
+        return HudsonExt.lookup(PluginInstanceStore.class).store.get(this);
     }
 
     /**
@@ -347,7 +347,7 @@ public class PluginWrapperExt implements Comparable<PluginWrapperExt> {
     }
 
     /**
-     * Enables this plugin next time Hudson runs.
+     * Enables this plugin next time HudsonExt runs.
      */
     public void enable() throws IOException {
         if(!disableFile.delete())
@@ -355,7 +355,7 @@ public class PluginWrapperExt implements Comparable<PluginWrapperExt> {
     }
 
     /**
-     * Disables this plugin next time Hudson runs.
+     * Disables this plugin next time HudsonExt runs.
      */
     public void disable() throws IOException {
         // creates an empty file
@@ -376,7 +376,7 @@ public class PluginWrapperExt implements Comparable<PluginWrapperExt> {
 
     /**
      * If true, the plugin is going to be activated next time
-     * Hudson runs.
+     * HudsonExt runs.
      */
     public boolean isEnabled() {
         return !disableFile.exists();
@@ -387,7 +387,7 @@ public class PluginWrapperExt implements Comparable<PluginWrapperExt> {
     }
 
     public void setPlugin(PluginExt plugin) {
-        Hudson.lookup(PluginInstanceStore.class).store.put(this,plugin);
+        HudsonExt.lookup(PluginInstanceStore.class).store.put(this,plugin);
         plugin.wrapper = this;
     }
 
@@ -428,7 +428,7 @@ public class PluginWrapperExt implements Comparable<PluginWrapperExt> {
      *      the user may have installed a plugin locally developed.
      */
     public UpdateSite.Plugin getUpdateInfo() {
-        UpdateCenter uc = Hudson.getInstance().getUpdateCenter();
+        UpdateCenter uc = HudsonExt.getInstance().getUpdateCenter();
         UpdateSite.Plugin p = uc.getPlugin(getShortName());
         if(p!=null && p.isNewerThan(getVersion())) return p;
         return null;
@@ -438,7 +438,7 @@ public class PluginWrapperExt implements Comparable<PluginWrapperExt> {
      * returns the {@link UpdateSite.PluginExt} object, or null.
      */
     public UpdateSite.Plugin getInfo() {
-        UpdateCenter uc = Hudson.getInstance().getUpdateCenter();
+        UpdateCenter uc = HudsonExt.getInstance().getUpdateCenter();
         return uc.getPlugin(getShortName());
     }
 
@@ -475,7 +475,7 @@ public class PluginWrapperExt implements Comparable<PluginWrapperExt> {
      * Where is the backup file?
      */
     public File getBackupFile() {
-        return new File(Hudson.getInstance().getRootDir(),"plugins/"+getShortName() + ".bak");
+        return new File(HudsonExt.getInstance().getRootDir(),"plugins/"+getShortName() + ".bak");
     }
 
     /**

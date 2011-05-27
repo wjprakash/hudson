@@ -31,14 +31,14 @@ import hudson.model.AbstractProjectExt;
 import hudson.model.Action;
 import hudson.model.BuildableItemWithBuildWrappers;
 import hudson.model.DependencyGraph;
-import hudson.model.Descriptor;
-import hudson.model.Hudson;
-import hudson.model.Item;
+import hudson.model.DescriptorExt;
+import hudson.model.HudsonExt;
+import hudson.model.ItemExt;
 import hudson.model.ItemGroup;
 import hudson.model.Items;
-import hudson.model.JDK;
-import hudson.model.Job;
-import hudson.model.Label;
+import hudson.model.JDKExt;
+import hudson.model.JobExt;
+import hudson.model.LabelExt;
 import hudson.model.Node;
 import hudson.model.Queue.FlyweightTask;
 import hudson.model.ResourceController;
@@ -72,7 +72,7 @@ import java.util.logging.Logger;
 
 
 /**
- * {@link Job} that allows you to run multiple different configurations
+ * {@link JobExt} that allows you to run multiple different configurations
  * from a single setting.
  *
  * @author Kohsuke Kawaguchi
@@ -94,20 +94,20 @@ public class MatrixProjectExt extends AbstractProjectExt<MatrixProjectExt,Matrix
     /**
      * List of active {@link Builder}s configured for this project.
      */
-    protected DescribableList<Builder,Descriptor<Builder>> builders =
-            new DescribableList<Builder,Descriptor<Builder>>(this);
+    protected DescribableList<Builder,DescriptorExt<Builder>> builders =
+            new DescribableList<Builder,DescriptorExt<Builder>>(this);
 
     /**
      * List of active {@link Publisher}s configured for this project.
      */
-    protected DescribableList<Publisher,Descriptor<Publisher>> publishers =
-            new DescribableList<Publisher,Descriptor<Publisher>>(this);
+    protected DescribableList<Publisher,DescriptorExt<Publisher>> publishers =
+            new DescribableList<Publisher,DescriptorExt<Publisher>>(this);
 
     /**
      * List of active {@link BuildWrapper}s configured for this project.
      */
-    protected DescribableList<BuildWrapper,Descriptor<BuildWrapper>> buildWrappers =
-            new DescribableList<BuildWrapper,Descriptor<BuildWrapper>>(this);
+    protected DescribableList<BuildWrapper,DescriptorExt<BuildWrapper>> buildWrappers =
+            new DescribableList<BuildWrapper,DescriptorExt<BuildWrapper>>(this);
 
     /**
      * All {@link MatrixConfiguration}s, keyed by their {@link MatrixConfiguration#getName() names}.
@@ -139,7 +139,7 @@ public class MatrixProjectExt extends AbstractProjectExt<MatrixProjectExt,Matrix
     protected String customWorkspace;
     
     public MatrixProjectExt(String name) {
-        this(Hudson.getInstance(), name);
+        this(HudsonExt.getInstance(), name);
     }
 
     public MatrixProjectExt(ItemGroup parent, String name) {
@@ -224,7 +224,7 @@ public class MatrixProjectExt extends AbstractProjectExt<MatrixProjectExt,Matrix
     }
     
     /**
-     * User-specified workspace directory, or null if it's up to Hudson.
+     * User-specified workspace directory, or null if it's up to HudsonExt.
      *
      * <p>
      * Normally a matrix project uses the workspace location assigned by its parent container,
@@ -280,7 +280,7 @@ public class MatrixProjectExt extends AbstractProjectExt<MatrixProjectExt,Matrix
     }
 
     @Override
-    public void onLoad(ItemGroup<? extends Item> parent, String name) throws IOException {
+    public void onLoad(ItemGroup<? extends ItemExt> parent, String name) throws IOException {
         super.onLoad(parent,name);
         Collections.sort(axes); // perhaps the file was edited on disk and the sort order might have been broken
         builders.setOwner(this);
@@ -429,8 +429,8 @@ public class MatrixProjectExt extends AbstractProjectExt<MatrixProjectExt,Matrix
     }
 
     @Override
-    public Collection<? extends Job> getAllJobs() {
-        Set<Job> jobs = new HashSet<Job>(getItems());
+    public Collection<? extends JobExt> getAllJobs() {
+        Set<JobExt> jobs = new HashSet<JobExt>(getItems());
         jobs.add(this);
         return jobs;
     }
@@ -471,20 +471,20 @@ public class MatrixProjectExt extends AbstractProjectExt<MatrixProjectExt,Matrix
      * @see #getJDKs()
      */
     @Override @Deprecated
-    public JDK getJDK() {
+    public JDKExt getJDK() {
         return super.getJDK();
     }
 
     /**
-     * Gets the {@link JDK}s where the builds will be run.
+     * Gets the {@link JDKExt}s where the builds will be run.
      * @return never null but can be empty
      */
-    public Set<JDK> getJDKs() {
+    public Set<JDKExt> getJDKs() {
         AxisExt a = axes.find("jdk");
         if(a==null)  return Collections.emptySet();
-        Set<JDK> r = new HashSet<JDK>();
+        Set<JDKExt> r = new HashSet<JDKExt>();
         for (String j : a) {
-            JDK jdk = Hudson.getInstance().getJDK(j);
+            JDKExt jdk = HudsonExt.getInstance().getJDK(j);
             if(jdk!=null)
                 r.add(jdk);
         }
@@ -492,13 +492,13 @@ public class MatrixProjectExt extends AbstractProjectExt<MatrixProjectExt,Matrix
     }
 
     /**
-     * Gets the {@link Label}s where the builds will be run.
+     * Gets the {@link LabelExt}s where the builds will be run.
      * @return never null
      */
-    public Set<Label> getLabels() {
-        Set<Label> r = new HashSet<Label>();
+    public Set<LabelExt> getLabels() {
+        Set<LabelExt> r = new HashSet<LabelExt>();
         for (Combination c : axes.subList(LabelAxis.class).list())
-            r.add(Hudson.getInstance().getLabel(Util.join(c.values(),"&&")));
+            r.add(HudsonExt.getInstance().getLabel(Util.join(c.values(),"&&")));
         return r;
     }
 
@@ -506,27 +506,27 @@ public class MatrixProjectExt extends AbstractProjectExt<MatrixProjectExt,Matrix
         return builders.toList();
     }
 
-    public DescribableList<Builder,Descriptor<Builder>> getBuildersList() {
+    public DescribableList<Builder,DescriptorExt<Builder>> getBuildersList() {
         return builders;
     }
 
-    public Map<Descriptor<Publisher>,Publisher> getPublishers() {
+    public Map<DescriptorExt<Publisher>,Publisher> getPublishers() {
         return publishers.toMap();
     }
 
-    public DescribableList<Publisher,Descriptor<Publisher>> getPublishersList() {
+    public DescribableList<Publisher,DescriptorExt<Publisher>> getPublishersList() {
         return publishers;
     }
 
-    public DescribableList<BuildWrapper, Descriptor<BuildWrapper>> getBuildWrappersList() {
+    public DescribableList<BuildWrapper, DescriptorExt<BuildWrapper>> getBuildWrappersList() {
         return buildWrappers;
     }
 
-    public Map<Descriptor<BuildWrapper>,BuildWrapper> getBuildWrappers() {
+    public Map<DescriptorExt<BuildWrapper>,BuildWrapper> getBuildWrappers() {
         return buildWrappers.toMap();
     }
 
-    public Publisher getPublisher(Descriptor<Publisher> descriptor) {
+    public Publisher getPublisher(DescriptorExt<Publisher> descriptor) {
         for (Publisher p : publishers) {
             if(p.getDescriptor()==descriptor)
                 return p;

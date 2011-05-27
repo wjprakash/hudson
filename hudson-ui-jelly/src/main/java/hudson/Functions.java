@@ -27,11 +27,11 @@ package hudson;
 import hudson.console.ConsoleAnnotatorFactory;
 import hudson.console.ConsoleAnnotationDescriptor;
 import hudson.model.Action;
-import hudson.model.Descriptor;
-import hudson.model.Hudson;
-import hudson.model.Item;
+import hudson.model.DescriptorExt;
+import hudson.model.HudsonExt;
+import hudson.model.ItemExt;
 import hudson.model.ItemGroup;
-import hudson.model.Run;
+import hudson.model.RunExt;
 import hudson.model.TopLevelItem;
 import hudson.model.View;
 import hudson.search.SearchableModelObject;
@@ -63,7 +63,7 @@ import org.kohsuke.stapler.StaplerResponse;
  *
  * <p>
  * An instance of this class is created for each request and made accessible
- * from view pages via the variable 'h' (h stands for Hudson.)
+ * from view pages via the variable 'h' (h stands for HudsonExt.)
  *
  * @author Kohsuke Kawaguchi
  */
@@ -74,10 +74,10 @@ public class Functions extends FunctionsExt {
     public static RunUrl decompose(StaplerRequest req) {
         List<Ancestor> ancestors = req.getAncestors();
 
-        // find the first and last Run instances
+        // find the first and last RunExt instances
         Ancestor f = null, l = null;
         for (Ancestor anc : ancestors) {
-            if (anc.getObject() instanceof Run) {
+            if (anc.getObject() instanceof RunExt) {
                 if (f == null) {
                     f = anc;
                 }
@@ -85,7 +85,7 @@ public class Functions extends FunctionsExt {
             }
         }
         if (l == null) {
-            return null;    // there was no Run object
+            return null;    // there was no RunExt object
         }
         String head = f.getPrev().getUrl() + '/';
         String base = l.getUrl();
@@ -106,7 +106,7 @@ public class Functions extends FunctionsExt {
         // Remove that many from request URL, ignoring extra slashes
         String rest = reqUri.replaceFirst("(?:/+[^/]*){" + slashCount + "}", "");
 
-        return new RunUrl((Run) f.getObject(), head, base, rest);
+        return new RunUrl((RunExt) f.getObject(), head, base, rest);
     }
 
     /**
@@ -172,7 +172,7 @@ public class Functions extends FunctionsExt {
                     return;
                 }
             }
-            checkPermission(Hudson.getInstance(), permission);
+            checkPermission(HudsonExt.getInstance(), permission);
         }
     }
 
@@ -194,14 +194,14 @@ public class Functions extends FunctionsExt {
                     return ((AccessControlled) o).hasPermission(permission);
                 }
             }
-            return Hudson.getInstance().hasPermission(permission);
+            return HudsonExt.getInstance().hasPermission(permission);
         }
     }
 
     public static void adminCheck(StaplerRequest req, StaplerResponse rsp, Object required, Permission permission) throws IOException, ServletException {
         // this is legacy --- all views should be eventually converted to
         // the permission based model.
-        if (required != null && !Hudson.adminCheck(req, rsp)) {
+        if (required != null && !HudsonExt.adminCheck(req, rsp)) {
             // check failed. commit the FORBIDDEN response, then abort.
             rsp.setStatus(HttpServletResponse.SC_FORBIDDEN);
             rsp.getOutputStream().close();
@@ -218,7 +218,7 @@ public class Functions extends FunctionsExt {
      * Infers the hudson installation URL from the given request.
      */
     public static String inferHudsonURL(StaplerRequest req) {
-        String rootUrl = Hudson.getInstance().getRootUrl();
+        String rootUrl = HudsonExt.getInstance().getRootUrl();
         if (rootUrl != null) // prefer the one explicitly configured, to work with load-balancer, frontend, etc.
         {
             return rootUrl;
@@ -240,13 +240,13 @@ public class Functions extends FunctionsExt {
      *      If null, returns true. This defaulting is convenient in making the use of this method terse.
      */
     public static boolean hasPermission(Permission permission) throws IOException, ServletException {
-        return hasPermission(Hudson.getInstance(), permission);
+        return hasPermission(HudsonExt.getInstance(), permission);
     }
 
     /**
      * Computes the relative path from the current page to the given item.
      */
-    public static String getRelativeLinkTo(Item p) {
+    public static String getRelativeLinkTo(ItemExt p) {
         Map<Object, String> ancestors = new HashMap<Object, String>();
         View view = null;
 
@@ -263,19 +263,19 @@ public class Functions extends FunctionsExt {
             return path;
         }
 
-        Item i = p;
+        ItemExt i = p;
         String url = "";
         while (true) {
             ItemGroup ig = i.getParent();
             url = i.getShortUrl() + url;
 
-            if (ig == Hudson.getInstance()) {
+            if (ig == HudsonExt.getInstance()) {
                 assert i instanceof TopLevelItem;
                 if (view != null && view.contains((TopLevelItem) i)) {
                     // if p and the current page belongs to the same view, then return a relative path
                     return ancestors.get(view) + '/' + url;
                 } else {
-                    // otherwise return a path from the root Hudson
+                    // otherwise return a path from the root HudsonExt
                     return request.getContextPath() + '/' + p.getUrl();
                 }
             }
@@ -285,8 +285,8 @@ public class Functions extends FunctionsExt {
                 return path + '/' + url;
             }
 
-            assert ig instanceof Item; // if not, ig must have been the Hudson instance
-            i = (Item) ig;
+            assert ig instanceof ItemExt; // if not, ig must have been the HudsonExt instance
+            i = (ItemExt) ig;
         }
     }
 
@@ -296,12 +296,12 @@ public class Functions extends FunctionsExt {
         if (it instanceof Class) {
             clazz = (Class) it;
         }
-        if (it instanceof Descriptor) {
-            clazz = ((Descriptor) it).clazz;
+        if (it instanceof DescriptorExt) {
+            clazz = ((DescriptorExt) it).clazz;
         }
 
         StringBuilder buf = new StringBuilder(Stapler.getCurrentRequest().getContextPath());
-        buf.append(Hudson.VIEW_RESOURCE_PATH).append('/');
+        buf.append(HudsonExt.VIEW_RESOURCE_PATH).append('/');
         buf.append(clazz.getName().replace('.', '/').replace('$', '/'));
         buf.append('/').append(path);
 
@@ -336,15 +336,15 @@ public class Functions extends FunctionsExt {
     }
 
     /**
-     * Obtains the host name of the Hudson server that clients can use to talk back to.
+     * Obtains the host name of the HudsonExt server that clients can use to talk back to.
      * <p>
      * This is primarily used in <tt>slave-agent.jnlp.jelly</tt> to specify the destination
      * that the slaves talk to.
      */
     public String getServerName() {
         // Try to infer this from the configured root URL.
-        // This makes it work correctly when Hudson runs behind a reverse proxy.
-        String url = Hudson.getInstance().getRootUrl();
+        // This makes it work correctly when HudsonExt runs behind a reverse proxy.
+        String url = HudsonExt.getInstance().getRootUrl();
         try {
             if (url != null) {
                 String host = new URL(url).getHost();
@@ -381,7 +381,7 @@ public class Functions extends FunctionsExt {
     }
 
     public static String getCrumb(StaplerRequest req) {
-        Hudson h = Hudson.getInstance();
+        HudsonExt h = HudsonExt.getInstance();
         CrumbIssuer issuer = h != null ? h.getCrumbIssuer() : null;
         return issuer != null ? issuer.getCrumb(req) : "";
     }

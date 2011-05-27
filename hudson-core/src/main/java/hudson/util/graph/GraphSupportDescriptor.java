@@ -23,15 +23,15 @@
  */
 package hudson.util.graph;
 
-import hudson.model.Descriptor;
+import hudson.model.DescriptorExt;
 
 /**
- * {@link Descriptor} for {@link GraphSupport}.
+ * {@link DescriptorExt} for {@link GraphSupport}.
  *
  * @author Winston Prakash
  * @since 2.0.1
  */
-public abstract class GraphSupportDescriptor extends Descriptor<GraphSupport> {
-    // so far nothing different from plain Descriptor
+public abstract class GraphSupportDescriptor extends DescriptorExt<GraphSupport> {
+    // so far nothing different from plain DescriptorExt
     // but it may prove useful for future expansion
 }

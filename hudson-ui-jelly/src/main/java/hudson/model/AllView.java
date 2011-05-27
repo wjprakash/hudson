@@ -30,6 +30,7 @@ import org.kohsuke.stapler.StaplerResponse;
 
 import javax.servlet.ServletException;
 import java.io.IOException;
+import java.util.Collection;
 
 import hudson.model.Descriptor.FormException;
 import hudson.Extension;
@@ -40,22 +41,41 @@ import hudson.Extension;
  * @author Kohsuke Kawaguchi
  * @since 1.269
  */
-public class AllView extends AllViewExt {
-    
+public class AllView extends View {
     @DataBoundConstructor
     public AllView(String name) {
         super(name);
     }
 
     public AllView(String name, ViewGroup owner) {
-        super(name, owner);
+        this(name);
+        this.owner = owner;
     }
     
+    @Override
+    public String getDescription() {
+        return Hudson.getInstance().getDescription();
+    }
+
+    @Override
+    public boolean isEditable() {
+        return false;
+    }
+
+    @Override
+    public boolean contains(TopLevelItem item) {
+        return true;
+    }
 
     @Override
     public Item doCreateItem(StaplerRequest req, StaplerResponse rsp)
             throws IOException, ServletException {
         return Hudson.getInstance().doCreateItem(req, rsp);
+    }
+
+    @Override
+    public Collection<TopLevelItem> getItems() {
+        return Hudson.getInstance().getItems();
     }
 
     @Override
@@ -67,18 +87,32 @@ public class AllView extends AllViewExt {
     }
 
     @Override
+    public String getPostConstructLandingPage() {
+        return ""; // there's no configuration page
+    }
+
+    @Override
+    public void onJobRenamed(Item item, String oldName, String newName) {
+        // noop
+    }
+
+    @Override
     protected void submit(StaplerRequest req) throws IOException, ServletException, FormException {
         // noop
     }
 
     @Extension
-    public static final class DescriptorImpl extends AllViewExt.DescriptorImpl { 
+    public static final class DescriptorImpl extends ViewDescriptor {
         @Override
         public boolean isInstantiable() {
             for (View v : Stapler.getCurrentRequest().findAncestorObject(ViewGroup.class).getViews())
                 if(v instanceof AllViewExt)
                     return false;
             return true;
+        }
+
+        public String getDisplayName() {
+            return Messages.Hudson_ViewName();
         }
     }
 }

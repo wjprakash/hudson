@@ -32,7 +32,7 @@ import hudson.model.AbstractProjectExt;
 import hudson.model.TaskListener;
 import hudson.model.AbstractBuildExt;
 import hudson.model.BuildListener;
-import hudson.model.Hudson;
+import hudson.model.HudsonExt;
 import hudson.model.Result;
 import hudson.model.PermalinkProjectAction.Permalink;
 import hudson.Launcher;
@@ -91,7 +91,7 @@ public class WorkspaceSnapshotSCMExt extends SCM {
      * @return never null.
      */
     public Snapshot resolve() throws ResolvedFailedException {
-        Hudson h = Hudson.getInstance();
+        HudsonExt h = HudsonExt.getInstance();
         AbstractProjectExt<?,?> job = h.getItemByFullName(jobName, AbstractProjectExt.class);
         if(job==null) {
             if(h.getItemByFullName(jobName)==null) {

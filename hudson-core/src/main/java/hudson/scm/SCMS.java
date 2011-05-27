@@ -23,10 +23,10 @@
  */
 package hudson.scm;
 
-import hudson.model.Descriptor;
-import hudson.model.Hudson;
+import hudson.model.DescriptorExt;
+import hudson.model.HudsonExt;
 import hudson.model.AbstractProjectExt;
-import hudson.model.Descriptor.FormException;
+import hudson.model.DescriptorExt.FormException;
 import hudson.util.DescriptorList;
 import hudson.DescriptorExtensionListExt;
 import hudson.Extension;

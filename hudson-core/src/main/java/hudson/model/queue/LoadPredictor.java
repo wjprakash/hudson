@@ -27,8 +27,8 @@ import hudson.Extension;
 import hudson.ExtensionList;
 import hudson.ExtensionPoint;
 import hudson.model.ComputerExt;
-import hudson.model.Executor;
-import hudson.model.Hudson;
+import hudson.model.ExecutorExt;
+import hudson.model.HudsonExt;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -38,7 +38,7 @@ import java.util.List;
  * Predicts future load to the system, to assist the scheduling decisions
  *
  * <p>
- * When Hudson makes a scheduling decision, Hudson considers predicted future load
+ * When HudsonExt makes a scheduling decision, HudsonExt considers predicted future load
  * &mdash; e.g., "We do currently have one available executor, but we know we need this for something else in 30 minutes,
  * so we can't currently schedule a build that takes 1 hour."
  *
@@ -81,7 +81,7 @@ public abstract class LoadPredictor implements ExtensionPoint {
      * All the registered instances.
      */
     public static ExtensionList<LoadPredictor> all() {
-        return Hudson.getInstance().getExtensionList(LoadPredictor.class);
+        return HudsonExt.getInstance().getExtensionList(LoadPredictor.class);
     }
 
     /**
@@ -93,7 +93,7 @@ public abstract class LoadPredictor implements ExtensionPoint {
         public Iterable<FutureLoad> predict(MappingWorksheet plan, final ComputerExt computer, long start, long eternity) {
             long now = System.currentTimeMillis();
             List<FutureLoad> fl = new ArrayList<FutureLoad>();
-            for (Executor e : computer.getExecutors()) {
+            for (ExecutorExt e : computer.getExecutors()) {
                 if (e.isIdle())     continue;
 
                 long eta = e.getEstimatedRemainingTimeMillis();

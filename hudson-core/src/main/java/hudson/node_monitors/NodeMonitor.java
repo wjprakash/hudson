@@ -28,11 +28,11 @@ import hudson.DescriptorExtensionListExt;
 import hudson.Extension;
 import hudson.tasks.Publisher;
 import hudson.model.ComputerExt;
-import hudson.model.ComputerSet;
+import hudson.model.ComputerSetExt;
 import hudson.model.Describable;
 import hudson.model.Node;
-import hudson.model.Hudson;
-import hudson.model.Descriptor;
+import hudson.model.HudsonExt;
+import hudson.model.DescriptorExt;
 import hudson.util.DescriptorList;
 
 import java.util.List;
@@ -47,7 +47,7 @@ import org.kohsuke.stapler.export.ExportedBean;
  * <dl>
  * <dt>column.jelly</dt>
  * <dd>
- * Invoked from {@link ComputerSet} <tt>index.jelly</tt> to render a column.
+ * Invoked from {@link ComputerSetExt} <tt>index.jelly</tt> to render a column.
  * The {@link NodeMonitor} instance is accessible through the "from" variable.
  * Also see {@link #getColumnCaption()}.
  *
@@ -69,7 +69,7 @@ public abstract class NodeMonitor implements ExtensionPoint, Describable<NodeMon
     private volatile boolean ignored;
 
     /**
-     * Returns the name of the column to be added to {@link ComputerSet} index.jelly.
+     * Returns the name of the column to be added to {@link ComputerSetExt} index.jelly.
      *
      * @return
      *      null to not render a column. The convention is to use capitalization like "Foo Bar Zot".
@@ -80,7 +80,7 @@ public abstract class NodeMonitor implements ExtensionPoint, Describable<NodeMon
     }
 
     public AbstractNodeMonitorDescriptor<?> getDescriptor() {
-        return (AbstractNodeMonitorDescriptor<?>)Hudson.getInstance().getDescriptorOrDie(getClass());
+        return (AbstractNodeMonitorDescriptor<?>)HudsonExt.getInstance().getDescriptorOrDie(getClass());
     }
 
     public Object data(ComputerExt c) {
@@ -106,7 +106,7 @@ public abstract class NodeMonitor implements ExtensionPoint, Describable<NodeMon
      * @since 1.187
      */
     public static List<NodeMonitor> getAll() {
-        return ComputerSet.getMonitors().toList();
+        return ComputerSetExt.getMonitors().toList();
     }
 
     /**
@@ -140,7 +140,7 @@ public abstract class NodeMonitor implements ExtensionPoint, Describable<NodeMon
     /**
      * Returns all the registered {@link NodeMonitor} descriptors.
      */
-    public static DescriptorExtensionListExt<NodeMonitor,Descriptor<NodeMonitor>> all() {
-        return Hudson.getInstance().<NodeMonitor,Descriptor<NodeMonitor>>getDescriptorList(NodeMonitor.class);
+    public static DescriptorExtensionListExt<NodeMonitor,DescriptorExt<NodeMonitor>> all() {
+        return HudsonExt.getInstance().<NodeMonitor,DescriptorExt<NodeMonitor>>getDescriptorList(NodeMonitor.class);
     }
 }

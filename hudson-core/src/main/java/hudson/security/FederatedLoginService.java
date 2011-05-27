@@ -25,7 +25,7 @@ package hudson.security;
 
 import hudson.ExtensionList;
 import hudson.ExtensionPoint;
-import hudson.model.Hudson;
+import hudson.model.HudsonExt;
 import hudson.model.User;
 import hudson.model.UserProperty;
 import org.acegisecurity.context.SecurityContextHolder;
@@ -83,7 +83,7 @@ import java.io.IOException;
  *
  * <h2>URL Binding</h2>
  * <p>
- * Each {@link FederatedLoginService} is exposed to the URL space via {@link Hudson#getFederatedLoginService(String)}.
+ * Each {@link FederatedLoginService} is exposed to the URL space via {@link HudsonExt#getFederatedLoginService(String)}.
  * So for example if your {@linkplain #getUrlName() url name} is "openid", this object gets
  * "/federatedLoginService/openid" as the URL.
  *
@@ -177,7 +177,7 @@ public abstract class FederatedLoginService implements ExtensionPoint {
             User u = locateUser();
             if (u!=null) {
                 // login as this user
-                UserDetails d = Hudson.getInstance().getSecurityRealm().loadUserByUsername(u.getId());
+                UserDetails d = HudsonExt.getInstance().getSecurityRealm().loadUserByUsername(u.getId());
 
                 UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(d,"",d.getAuthorities());
                 token.setDetails(d);
@@ -195,7 +195,7 @@ public abstract class FederatedLoginService implements ExtensionPoint {
          *
          * <p>
          * This method will record the identifier in {@link FederatedLoginServiceUserProperty} so that
-         * in the future the user can login to Hudson with the identifier.
+         * in the future the user can login to HudsonExt with the identifier.
          */
         public void addToCurrentUser() throws IOException {
             User u = User.current();
@@ -234,7 +234,7 @@ public abstract class FederatedLoginService implements ExtensionPoint {
         }
 
         public void generateResponse(StaplerRequest req, StaplerResponse rsp, Object node) throws IOException, ServletException {
-            SecurityRealm sr = Hudson.getInstance().getSecurityRealm();
+            SecurityRealm sr = HudsonExt.getInstance().getSecurityRealm();
             if (sr.allowsSignup()) {
                 try {
                     sr.commenceSignup(identity).generateResponse(req,rsp,node);
@@ -251,6 +251,6 @@ public abstract class FederatedLoginService implements ExtensionPoint {
     }
 
     public static ExtensionList<FederatedLoginService> all() {
-        return Hudson.getInstance().getExtensionList(FederatedLoginService.class);
+        return HudsonExt.getInstance().getExtensionList(FederatedLoginService.class);
     }
 }

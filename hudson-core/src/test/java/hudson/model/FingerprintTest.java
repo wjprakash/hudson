@@ -24,7 +24,7 @@
 package hudson.model;
 
 import junit.framework.TestCase;
-import hudson.model.Fingerprint.RangeSet;
+import hudson.model.FingerprintExt.RangeSet;
 
 /**
  * @author Kohsuke Kawaguchi

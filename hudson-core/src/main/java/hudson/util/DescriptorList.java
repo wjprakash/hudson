@@ -26,9 +26,9 @@ package hudson.util;
 import hudson.Extension;
 import hudson.ExtensionList;
 import hudson.model.Describable;
-import hudson.model.Descriptor;
-import hudson.model.Descriptor.FormException;
-import hudson.model.Hudson;
+import hudson.model.DescriptorExt;
+import hudson.model.DescriptorExt.FormException;
+import hudson.model.HudsonExt;
 import net.sf.json.JSONObject;
 import org.kohsuke.stapler.Stapler;
 
@@ -38,10 +38,10 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
- * List of {@link Descriptor}s.
+ * List of {@link DescriptorExt}s.
  *
  * <p>
- * Before Hudson 1.286, this class stored {@link Descriptor}s directly, but since 1.286,
+ * Before HudsonExt 1.286, this class stored {@link DescriptorExt}s directly, but since 1.286,
  * this class works in two modes that are rather different.
  *
  * <p>
@@ -51,8 +51,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * In this mode, {@link #legacy} is non-null but {@link #type} is null.
  *
  * <p>
- * The other mode is the new mode, where the {@link Descriptor}s are actually stored in {@link ExtensionList}
- * (see {@link Hudson#getDescriptorList(Class)}) and this class acts as a view to it. This enables
+ * The other mode is the new mode, where the {@link DescriptorExt}s are actually stored in {@link ExtensionList}
+ * (see {@link HudsonExt#getDescriptorList(Class)}) and this class acts as a view to it. This enables
  * bi-directional interoperability &mdash; both descriptors registred automatically and descriptors registered
  * manually are visible from both {@link DescriptorList} and {@link ExtensionList}. In this mode,
  * {@link #legacy} is null but {@link #type} is non-null.
@@ -65,11 +65,11 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * @author Kohsuke Kawaguchi
  * @since 1.161
  */
-public final class DescriptorList<T extends Describable<T>> extends AbstractList<Descriptor<T>> {
+public final class DescriptorList<T extends Describable<T>> extends AbstractList<DescriptorExt<T>> {
 
     private final Class<T> type;
 
-    private final CopyOnWriteArrayList<Descriptor<T>> legacy;
+    private final CopyOnWriteArrayList<DescriptorExt<T>> legacy;
 
     /**
      * This will create a legacy {@link DescriptorList} that is disconnected from
@@ -78,9 +78,9 @@ public final class DescriptorList<T extends Describable<T>> extends AbstractList
      * @deprecated
      *      As of 1.286. Use {@link #DescriptorList(Class)} instead.
      */
-    public DescriptorList(Descriptor<T>... descriptors) {
+    public DescriptorList(DescriptorExt<T>... descriptors) {
         this.type = null;
-        this.legacy = new CopyOnWriteArrayList<Descriptor<T>>(descriptors);
+        this.legacy = new CopyOnWriteArrayList<DescriptorExt<T>>(descriptors);
     }
 
     /**
@@ -92,7 +92,7 @@ public final class DescriptorList<T extends Describable<T>> extends AbstractList
     }
 
     @Override
-    public Descriptor<T> get(int index) {
+    public DescriptorExt<T> get(int index) {
         return store().get(index);
     }
 
@@ -102,7 +102,7 @@ public final class DescriptorList<T extends Describable<T>> extends AbstractList
     }
 
     @Override
-    public Iterator<Descriptor<T>> iterator() {
+    public Iterator<DescriptorExt<T>> iterator() {
         return store().iterator();
     }
 
@@ -114,7 +114,7 @@ public final class DescriptorList<T extends Describable<T>> extends AbstractList
      *      instead of registering a descriptor manually.
      */
     @Override
-    public boolean add(Descriptor<T> d) {
+    public boolean add(DescriptorExt<T> d) {
         return store().add(d);
     }
 
@@ -126,7 +126,7 @@ public final class DescriptorList<T extends Describable<T>> extends AbstractList
      *      instead of registering a descriptor manually.
      */
     @Override
-    public void add(int index, Descriptor<T> element) {
+    public void add(int index, DescriptorExt<T> element) {
         add(element); // order is ignored
     }
 
@@ -138,11 +138,11 @@ public final class DescriptorList<T extends Describable<T>> extends AbstractList
     /**
      * Gets the actual data store. This is the key to control the dual-mode nature of {@link DescriptorList}
      */
-    private List<Descriptor<T>> store() {
+    private List<DescriptorExt<T>> store() {
         if(type==null)
             return legacy;
         else
-            return Hudson.getInstance().<T,Descriptor<T>>getDescriptorList(type);
+            return HudsonExt.getInstance().<T,DescriptorExt<T>>getDescriptorList(type);
     }
 
     /**
@@ -162,12 +162,12 @@ public final class DescriptorList<T extends Describable<T>> extends AbstractList
     }
 
     /**
-     * Finds a descriptor by their {@link Descriptor#getId()}.
+     * Finds a descriptor by their {@link DescriptorExt#getId()}.
      *
      * If none is found, null is returned.
      */
-    public Descriptor<T> findByName(String id) {
-        for (Descriptor<T> d : this)
+    public DescriptorExt<T> findByName(String id) {
+        for (DescriptorExt<T> d : this)
             if(d.getId().equals(id))
                 return d;
         return null;
@@ -197,7 +197,7 @@ public final class DescriptorList<T extends Describable<T>> extends AbstractList
     /**
      * Finds the descriptor that has the matching fully-qualified class name.
      */
-    public Descriptor<T> find(String fqcn) {
-        return Descriptor.find(this,fqcn);
+    public DescriptorExt<T> find(String fqcn) {
+        return DescriptorExt.find(this,fqcn);
     }
 }

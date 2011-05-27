@@ -23,7 +23,7 @@
  */
 package hudson;
 
-import hudson.model.Hudson;
+import hudson.model.HudsonExt;
 
 import java.io.File;
 import java.io.IOException;
@@ -70,9 +70,9 @@ public interface PluginStrategy extends ExtensionPoint {
 	 * Find components of the given type using the assigned strategy.
 	 *
 	 * @param type The component type
-	 * @param hudson The Hudson scope
+	 * @param hudson The HudsonExt scope
 	 * @return Sequence of components
 	 * @since 1.397
 	 */
-	public abstract <T> List<ExtensionComponent<T>> findComponents(Class<T> type, Hudson hudson);
+	public abstract <T> List<ExtensionComponent<T>> findComponents(Class<T> type, HudsonExt hudson);
 }

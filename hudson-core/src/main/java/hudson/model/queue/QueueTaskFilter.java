@@ -24,7 +24,7 @@
 
 package hudson.model.queue;
 
-import hudson.model.Label;
+import hudson.model.LabelExt;
 import hudson.model.Node;
 import hudson.model.Queue;
 import hudson.model.Queue.Executable;
@@ -47,7 +47,7 @@ public abstract class QueueTaskFilter implements Queue.Task {
         this.base = base;
     }
 
-    public Label getAssignedLabel() {
+    public LabelExt getAssignedLabel() {
         return base.getAssignedLabel();
     }
 

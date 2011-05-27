@@ -24,7 +24,7 @@
 package hudson.matrix;
 
 import hudson.Extension;
-import hudson.model.Hudson;
+import hudson.model.HudsonExt;
 import org.kohsuke.stapler.DataBoundConstructor;
 
 import java.util.List;
@@ -57,7 +57,7 @@ public class LabelAxis extends AxisExt {
          */
         @Override
         public boolean isInstantiable() {
-            Hudson h = Hudson.getInstance();
+            HudsonExt h = HudsonExt.getInstance();
             return !h.getNodes().isEmpty() || !h.clouds.isEmpty();
         }
     }

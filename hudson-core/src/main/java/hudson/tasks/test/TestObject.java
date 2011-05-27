@@ -120,7 +120,7 @@ public abstract class TestObject extends hudson.tasks.junit.TestObject {
      * relative path from the server root will be returned.
      *
      * @return A relative path to this object, potentially from the top of the
-     * Hudson object model
+     * HudsonExt object model
      */
     public String getRelativePathFrom(TestObject it) {
 
@@ -168,17 +168,17 @@ public abstract class TestObject extends hudson.tasks.junit.TestObject {
             buf.insert(0,'/');
             buf.insert(0,myBuild.getUrl());
 
-            // If we're inside a stapler request, just delegate to Hudson.FunctionsExt to get the relative path!
+            // If we're inside a stapler request, just delegate to HudsonExt.FunctionsExt to get the relative path!
             StaplerRequest req = Stapler.getCurrentRequest();
-            if (req!=null && myBuild instanceof Item) {
+            if (req!=null && myBuild instanceof ItemExt) {
                 buf.insert(0, '/');
-                // Ugly but I don't see how else to convince the compiler that myBuild is an Item
-                Item myBuildAsItem = (Item) myBuild;
+                // Ugly but I don't see how else to convince the compiler that myBuild is an ItemExt
+                ItemExt myBuildAsItem = (ItemExt) myBuild;
                 buf.insert(0, FunctionsExt.getRelativeLinkTo(myBuildAsItem));
             } else {
                 // We're not in a stapler request. Okay, give up.
                 LOGGER.info("trying to get relative path, but it is not my ancestor, and we're not in a stapler request. Trying absolute hudson url...");
-                String hudsonRootUrl = Hudson.getInstance().getRootUrl();
+                String hudsonRootUrl = HudsonExt.getInstance().getRootUrl();
                 if (hudsonRootUrl==null||hudsonRootUrl.length()==0) {
                     LOGGER.warning("Can't find anything like a decent hudson url. Punting, returning empty string."); 
                     return "";
@@ -403,7 +403,7 @@ public abstract class TestObject extends hudson.tasks.junit.TestObject {
         if (getOwner() == null) {
             LOGGER.severe("getOwner() is null, can't save description.");
         } else {
-            getOwner().checkPermission(Run.UPDATE);
+            getOwner().checkPermission(RunExt.UPDATE);
             setDescription(description);
             getOwner().save();
         }

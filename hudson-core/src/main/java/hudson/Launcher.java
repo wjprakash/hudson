@@ -26,7 +26,7 @@ package hudson;
 import hudson.Proc.LocalProc;
 import hudson.Proc.RemoteProc;
 import hudson.model.ComputerExt;
-import hudson.model.Hudson;
+import hudson.model.HudsonExt;
 import hudson.model.TaskListener;
 import hudson.model.Node;
 import hudson.remoting.Callable;
@@ -118,7 +118,7 @@ public abstract class Launcher {
      * return it.
      *
      * <p>
-     * Because of the way internal Hudson abstractions are set up (that is, {@link Launcher} only
+     * Because of the way internal HudsonExt abstractions are set up (that is, {@link Launcher} only
      * needs a {@link VirtualChannel} to do its job and isn't really required that the channel
      * comes from an existing {@link ComputerExt}), this method may not always the right {@link ComputerExt} instance.
      *
@@ -130,7 +130,7 @@ public abstract class Launcher {
      *      {@link ComputerExt#currentComputer()}  
      */
     public ComputerExt getComputer() {
-        for( ComputerExt c : Hudson.getInstance().getComputers() )
+        for( ComputerExt c : HudsonExt.getInstance().getComputers() )
             if(c.getChannel()==channel)
                 return c;
         return null;
@@ -618,7 +618,7 @@ public abstract class Launcher {
      */
     public static class LocalLauncher extends Launcher {
         public LocalLauncher(TaskListener listener) {
-            this(listener,Hudson.MasterComputer.localChannel);
+            this(listener,HudsonExt.MasterComputer.localChannel);
         }
 
         public LocalLauncher(TaskListener listener, VirtualChannel channel) {

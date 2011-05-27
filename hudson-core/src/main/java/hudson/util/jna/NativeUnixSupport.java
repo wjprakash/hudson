@@ -26,14 +26,14 @@ package hudson.util.jna;
 import hudson.DescriptorExtensionListExt;
 import hudson.ExtensionPoint;
 import hudson.model.AbstractDescribableImpl;
-import hudson.model.Descriptor;
-import hudson.model.Hudson;
+import hudson.model.DescriptorExt;
+import hudson.model.HudsonExt;
 import java.io.File;
 import java.util.Map;
 import java.util.Set;
 
 /**
- * Extension point for adding Native Unix Support to Hudson
+ * Extension point for adding Native Unix Support to HudsonExt
  *
  * <p>
  * This object can have an optional <tt>config.jelly</tt> to configure the Native Access Support
@@ -49,8 +49,8 @@ public abstract class NativeUnixSupport extends AbstractDescribableImpl<NativeUn
     /**
      * Returns all the registered {@link NativeAccessSupport} descriptors.
      */
-    public static DescriptorExtensionListExt<NativeUnixSupport, Descriptor<NativeUnixSupport>> all() {
-        return Hudson.getInstance().<NativeUnixSupport, Descriptor<NativeUnixSupport>>getDescriptorList(NativeUnixSupport.class);
+    public static DescriptorExtensionListExt<NativeUnixSupport, DescriptorExt<NativeUnixSupport>> all() {
+        return HudsonExt.getInstance().<NativeUnixSupport, DescriptorExt<NativeUnixSupport>>getDescriptorList(NativeUnixSupport.class);
     }
 
     @Override

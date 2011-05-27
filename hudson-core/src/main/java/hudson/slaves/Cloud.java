@@ -28,11 +28,11 @@ import hudson.Extension;
 import hudson.DescriptorExtensionListExt;
 import hudson.slaves.NodeProvisioner.PlannedNode;
 import hudson.model.Describable;
-import hudson.model.Hudson;
+import hudson.model.HudsonExt;
 import hudson.model.Node;
 import hudson.model.AbstractModelObjectExt;
-import hudson.model.Label;
-import hudson.model.Descriptor;
+import hudson.model.LabelExt;
+import hudson.model.DescriptorExt;
 import hudson.security.ACL;
 import hudson.security.AccessControlled;
 import hudson.security.Permission;
@@ -41,7 +41,7 @@ import hudson.util.DescriptorList;
 import java.util.Collection;
 
 /**
- * Creates {@link Node}s to dynamically expand/shrink the slaves attached to Hudson.
+ * Creates {@link Node}s to dynamically expand/shrink the slaves attached to HudsonExt.
  *
  * <p>
  * Put another way, this class encapsulates different communication protocols
@@ -54,7 +54,7 @@ import java.util.Collection;
 public abstract class Cloud extends AbstractModelObjectExt implements ExtensionPoint, Describable<Cloud>, AccessControlled {
 
     /**
-     * Uniquely identifies this {@link Cloud} instance among other instances in {@link Hudson#clouds}.
+     * Uniquely identifies this {@link Cloud} instance among other instances in {@link HudsonExt#clouds}.
      */
     public final String name;
 
@@ -71,7 +71,7 @@ public abstract class Cloud extends AbstractModelObjectExt implements ExtensionP
     }
 
     public ACL getACL() {
-        return Hudson.getInstance().getAuthorizationStrategy().getACL(this);
+        return HudsonExt.getInstance().getAuthorizationStrategy().getACL(this);
     }
 
     public final void checkPermission(Permission permission) {
@@ -97,9 +97,9 @@ public abstract class Cloud extends AbstractModelObjectExt implements ExtensionP
      * @param label
      *      The label that indicates what kind of nodes are needed now.
      *      Newly launched node needs to have this label.
-     *      Only those {@link Label}s that this instance returned true
-     *      from the {@link #canProvision(Label)} method will be passed here.
-     *      This parameter is null if Hudson needs to provision a new {@link Node}
+     *      Only those {@link LabelExt}s that this instance returned true
+     *      from the {@link #canProvision(LabelExt)} method will be passed here.
+     *      This parameter is null if HudsonExt needs to provision a new {@link Node}
      *      for jobs that don't have any tie to any label.
      * @param excessWorkload
      *      Number of total executors needed to meet the current demand.
@@ -111,18 +111,18 @@ public abstract class Cloud extends AbstractModelObjectExt implements ExtensionP
      *      {@link PlannedNode}s that represent asynchronous {@link Node}
      *      provisioning operations. Can be empty but must not be null.
      *      {@link NodeProvisioner} will be responsible for adding the resulting {@link Node}
-     *      into Hudson via {@link Hudson#addNode(Node)}, so a {@link Cloud} implementation
+     *      into HudsonExt via {@link HudsonExt#addNode(Node)}, so a {@link Cloud} implementation
      *      just needs to create a new node object.
      */
-    public abstract Collection<PlannedNode> provision(Label label, int excessWorkload);
+    public abstract Collection<PlannedNode> provision(LabelExt label, int excessWorkload);
 
     /**
      * Returns true if this cloud is capable of provisioning new nodes for the given label.
      */
-    public abstract boolean canProvision(Label label);
+    public abstract boolean canProvision(LabelExt label);
 
-    public Descriptor<Cloud> getDescriptor() {
-        return Hudson.getInstance().getDescriptorOrDie(getClass());
+    public DescriptorExt<Cloud> getDescriptor() {
+        return HudsonExt.getInstance().getDescriptorOrDie(getClass());
     }
 
     /**
@@ -136,8 +136,8 @@ public abstract class Cloud extends AbstractModelObjectExt implements ExtensionP
     /**
      * Returns all the registered {@link Cloud} descriptors.
      */
-    public static DescriptorExtensionListExt<Cloud,Descriptor<Cloud>> all() {
-        return Hudson.getInstance().<Cloud,Descriptor<Cloud>>getDescriptorList(Cloud.class);
+    public static DescriptorExtensionListExt<Cloud,DescriptorExt<Cloud>> all() {
+        return HudsonExt.getInstance().<Cloud,DescriptorExt<Cloud>>getDescriptorList(Cloud.class);
     }
 
     /**
@@ -145,5 +145,5 @@ public abstract class Cloud extends AbstractModelObjectExt implements ExtensionP
      *
      * This includes provisioning a new node, as well as removing it.
      */
-    public static final Permission PROVISION = Hudson.ADMINISTER;
+    public static final Permission PROVISION = HudsonExt.ADMINISTER;
 }

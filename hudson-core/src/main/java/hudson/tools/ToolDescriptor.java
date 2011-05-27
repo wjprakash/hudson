@@ -24,7 +24,7 @@
 
 package hudson.tools;
 
-import hudson.model.Descriptor;
+import hudson.model.DescriptorExt;
 import hudson.util.DescribableList;
 
 import java.util.Collections;
@@ -35,12 +35,12 @@ import net.sf.json.JSONObject;
 import org.kohsuke.stapler.StaplerRequest;
 
 /**
- * {@link Descriptor} for {@link ToolInstallation}.
+ * {@link DescriptorExt} for {@link ToolInstallation}.
  *
  * @author huybrechts
  * @since 1.286
  */
-public abstract class ToolDescriptor<T extends ToolInstallation> extends Descriptor<ToolInstallation> {
+public abstract class ToolDescriptor<T extends ToolInstallation> extends DescriptorExt<ToolInstallation> {
 
     private T[] installations;
 

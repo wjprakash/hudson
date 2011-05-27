@@ -2,7 +2,7 @@ package hudson.cli;
 
 import hudson.Extension;
 import hudson.model.AbstractProjectExt;
-import hudson.model.Run;
+import hudson.model.RunExt;
 import hudson.remoting.Callable;
 
 import java.io.IOException;
@@ -29,8 +29,8 @@ public class SetBuildDescriptionCommand extends CLICommand implements Serializab
     public String description;
 
     protected int run() throws Exception {
-    	Run run = job.getBuildByNumber(number);
-        run.checkPermission(Run.UPDATE);
+    	RunExt run = job.getBuildByNumber(number);
+        run.checkPermission(RunExt.UPDATE);
 
         if ("=".equals(description)) {
         	description = channel.call(new Callable<String,IOException>() {

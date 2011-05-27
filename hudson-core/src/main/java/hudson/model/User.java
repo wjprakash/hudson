@@ -31,7 +31,7 @@ import hudson.FunctionsExt;
 import hudson.Util;
 import hudson.XmlFile;
 import hudson.BulkChange;
-import hudson.model.Descriptor.FormException;
+import hudson.model.DescriptorExt.FormException;
 import hudson.model.listeners.SaveableListener;
 import hudson.security.ACL;
 import hudson.security.AccessControlled;
@@ -69,9 +69,9 @@ import java.util.logging.Logger;
  * Represents a user.
  *
  * <p>
- * In Hudson, {@link User} objects are created in on-demand basis;
+ * In HudsonExt, {@link User} objects are created in on-demand basis;
  * for example, when a build is performed, its change log is computed
- * and as a result commits from users who Hudson has never seen may be discovered.
+ * and as a result commits from users who HudsonExt has never seen may be discovered.
  * When this happens, new {@link User} object is created.
  *
  * <p>
@@ -167,7 +167,7 @@ public class User extends AbstractModelObjectExt implements AccessControlled, Sa
      */
     @Exported(visibility=999)
     public String getAbsoluteUrl() {
-        return Hudson.getInstance().getRootUrl()+getUrl();
+        return HudsonExt.getInstance().getRootUrl()+getUrl();
     }
 
     /**
@@ -198,8 +198,8 @@ public class User extends AbstractModelObjectExt implements AccessControlled, Sa
     /**
      * Gets the user properties configured for this user.
      */
-    public Map<Descriptor<UserProperty>,UserProperty> getProperties() {
-        return Descriptor.toMap(properties);
+    public Map<DescriptorExt<UserProperty>,UserProperty> getProperties() {
+        return DescriptorExt.toMap(properties);
     }
 
     /**
@@ -239,7 +239,7 @@ public class User extends AbstractModelObjectExt implements AccessControlled, Sa
      * Accepts the new description.
      */
     public synchronized void doSubmitDescription( StaplerRequest req, StaplerResponse rsp ) throws IOException, ServletException {
-        checkPermission(Hudson.ADMINISTER);
+        checkPermission(HudsonExt.ADMINISTER);
 
         description = req.getParameter("description");
         save();
@@ -297,7 +297,7 @@ public class User extends AbstractModelObjectExt implements AccessControlled, Sa
      * @since 1.172
      */
     public static User current() {
-        Authentication a = Hudson.getAuthentication();
+        Authentication a = HudsonExt.getAuthentication();
         if(a instanceof AnonymousAuthenticationToken)
             return null;
         return get(a.getName());
@@ -363,7 +363,7 @@ public class User extends AbstractModelObjectExt implements AccessControlled, Sa
     @WithBridgeMethods(List.class)
     public RunList getBuilds() {
         List<AbstractBuildExt> r = new ArrayList<AbstractBuildExt>();
-        for (AbstractProjectExt<?,?> p : Hudson.getInstance().getAllItems(AbstractProjectExt.class))
+        for (AbstractProjectExt<?,?> p : HudsonExt.getInstance().getAllItems(AbstractProjectExt.class))
             for (AbstractBuildExt<?,?> b : p.getBuilds())
                 if(b.hasParticipant(this))
                     r.add(b);
@@ -376,7 +376,7 @@ public class User extends AbstractModelObjectExt implements AccessControlled, Sa
      */
     public Set<AbstractProjectExt<?,?>> getProjects() {
         Set<AbstractProjectExt<?,?>> r = new HashSet<AbstractProjectExt<?,?>>();
-        for (AbstractProjectExt<?,?> p : Hudson.getInstance().getAllItems(AbstractProjectExt.class))
+        for (AbstractProjectExt<?,?> p : HudsonExt.getInstance().getAllItems(AbstractProjectExt.class))
             if(p.hasParticipant(this))
                 r.add(p);
         return r;
@@ -394,10 +394,10 @@ public class User extends AbstractModelObjectExt implements AccessControlled, Sa
     }
 
     /**
-     * Gets the directory where Hudson stores user information.
+     * Gets the directory where HudsonExt stores user information.
      */
     private static File getRootDir() {
-        return new File(Hudson.getInstance().getRootDir(), "users");
+        return new File(HudsonExt.getInstance().getRootDir(), "users");
     }
 
     /**
@@ -410,7 +410,7 @@ public class User extends AbstractModelObjectExt implements AccessControlled, Sa
     }
 
     /**
-     * Deletes the data directory and removes this user from Hudson.
+     * Deletes the data directory and removes this user from HudsonExt.
      *
      * @throws IOException
      *      if we fail to delete.
@@ -433,7 +433,7 @@ public class User extends AbstractModelObjectExt implements AccessControlled, Sa
      * Accepts submission from the configuration page.
      */
     public void doConfigSubmit( StaplerRequest req, StaplerResponse rsp ) throws IOException, ServletException, FormException {
-        checkPermission(Hudson.ADMINISTER);
+        checkPermission(HudsonExt.ADMINISTER);
 
         fullName = req.getParameter("fullName");
         description = req.getParameter("description");
@@ -465,12 +465,12 @@ public class User extends AbstractModelObjectExt implements AccessControlled, Sa
     }
 
     /**
-     * Deletes this user from Hudson.
+     * Deletes this user from HudsonExt.
      */
     public void doDoDelete(StaplerRequest req, StaplerResponse rsp) throws IOException, ServletException {
         requirePOST();
-        checkPermission(Hudson.ADMINISTER);
-        if (id.equals(Hudson.getAuthentication().getName())) {
+        checkPermission(HudsonExt.ADMINISTER);
+        if (id.equals(HudsonExt.getAuthentication().getName())) {
             rsp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Cannot delete self");
             return;
         }
@@ -481,18 +481,18 @@ public class User extends AbstractModelObjectExt implements AccessControlled, Sa
     }
 
     public void doRssAll(StaplerRequest req, StaplerResponse rsp) throws IOException, ServletException {
-        rss(req, rsp, " all builds", RunList.fromRuns(getBuilds()), Run.FEED_ADAPTER);
+        rss(req, rsp, " all builds", RunList.fromRuns(getBuilds()), RunExt.FEED_ADAPTER);
     }
 
     public void doRssFailed(StaplerRequest req, StaplerResponse rsp) throws IOException, ServletException {
-        rss(req, rsp, " regression builds", RunList.fromRuns(getBuilds()).regressionOnly(), Run.FEED_ADAPTER);
+        rss(req, rsp, " regression builds", RunList.fromRuns(getBuilds()).regressionOnly(), RunExt.FEED_ADAPTER);
     }
 
     public void doRssLatest(StaplerRequest req, StaplerResponse rsp) throws IOException, ServletException {
-        final List<Run> lastBuilds = new ArrayList<Run>();
-        for (final TopLevelItem item : Hudson.getInstance().getItems()) {
-            if (!(item instanceof Job)) continue;
-            for (Run r = ((Job) item).getLastBuild(); r != null; r = r.getPreviousBuild()) {
+        final List<RunExt> lastBuilds = new ArrayList<RunExt>();
+        for (final TopLevelItem item : HudsonExt.getInstance().getItems()) {
+            if (!(item instanceof JobExt)) continue;
+            for (RunExt r = ((JobExt) item).getLastBuild(); r != null; r = r.getPreviousBuild()) {
                 if (!(r instanceof AbstractBuildExt)) continue;
                 final AbstractBuildExt b = (AbstractBuildExt) r;
                 if (b.hasParticipant(this)) {
@@ -501,7 +501,7 @@ public class User extends AbstractModelObjectExt implements AccessControlled, Sa
                 }
             }
         }
-        rss(req, rsp, " latest build", RunList.fromRuns(lastBuilds), Run.FEED_ADAPTER_LATEST);
+        rss(req, rsp, " latest build", RunList.fromRuns(lastBuilds), RunExt.FEED_ADAPTER_LATEST);
     }
 
     private void rss(StaplerRequest req, StaplerResponse rsp, String suffix, RunList runs, FeedAdapter adapter)
@@ -527,7 +527,7 @@ public class User extends AbstractModelObjectExt implements AccessControlled, Sa
     }
 
     public ACL getACL() {
-        final ACL base = Hudson.getInstance().getAuthorizationStrategy().getACL(this);
+        final ACL base = HudsonExt.getInstance().getAuthorizationStrategy().getACL(this);
         // always allow a non-anonymous user full control of himself.
         return new ACL() {
             public boolean hasPermission(Authentication a, Permission permission) {
@@ -549,7 +549,7 @@ public class User extends AbstractModelObjectExt implements AccessControlled, Sa
      * With ADMINISTER permission, can delete users with persisted data but can't delete self.
      */
     public boolean canDelete() {
-        return hasPermission(Hudson.ADMINISTER) && !id.equals(Hudson.getAuthentication().getName())
+        return hasPermission(HudsonExt.ADMINISTER) && !id.equals(HudsonExt.getAuthentication().getName())
                 && new File(getRootDir(), id).exists();
     }
 

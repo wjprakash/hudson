@@ -23,11 +23,11 @@
  */
 package hudson.lifecycle;
 
-import hudson.model.Hudson;
+import hudson.model.HudsonExt;
 import java.io.IOException;
 
 /**
- * {@link Lifecycle} for Hudson installed as SMF service.
+ * {@link Lifecycle} for HudsonExt installed as SMF service.
  *
  * @author Kohsuke Kawaguchi
  */
@@ -37,7 +37,7 @@ public class SolarisSMFLifecycle extends Lifecycle {
      */
     @Override
     public void restart() throws IOException, InterruptedException {
-        Hudson h = Hudson.getInstance();
+        HudsonExt h = HudsonExt.getInstance();
         if (h != null)
             h.cleanUp();
         System.exit(0);

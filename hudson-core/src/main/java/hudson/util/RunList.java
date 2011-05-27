@@ -24,11 +24,11 @@
 package hudson.util;
 
 import hudson.model.AbstractBuildExt;
-import hudson.model.Item;
-import hudson.model.Job;
+import hudson.model.ItemExt;
+import hudson.model.JobExt;
 import hudson.model.Node;
 import hudson.model.Result;
-import hudson.model.Run;
+import hudson.model.RunExt;
 import hudson.model.View;
 
 import java.util.AbstractList;
@@ -42,17 +42,17 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * {@link List} of {@link Run}s, sorted in the descending date order.
+ * {@link List} of {@link RunExt}s, sorted in the descending date order.
  *
  * TODO: this should be immutable
  *
  * @author Kohsuke Kawaguchi
  */
-public class RunList<R extends Run> extends ArrayList<R> {
+public class RunList<R extends RunExt> extends ArrayList<R> {
     public RunList() {
     }
 
-    public RunList(Job j) {
+    public RunList(JobExt j) {
         addAll(j.getBuilds());
     }
 
@@ -65,23 +65,23 @@ public class RunList<R extends Run> extends ArrayList<R> {
     }
 
     public RunList(View view) {// this is a type unsafe operation
-        for (Item item : view.getItems())
-            for (Job<?,?> j : item.getAllJobs())
+        for (ItemExt item : view.getItems())
+            for (JobExt<?,?> j : item.getAllJobs())
                 addAll((Collection<R>)j.getBuilds());
-        Collections.sort(this,Run.ORDER_BY_DATE);
+        Collections.sort(this,RunExt.ORDER_BY_DATE);
     }
 
-    public RunList(Collection<? extends Job> jobs) {
-        for (Job j : jobs)
+    public RunList(Collection<? extends JobExt> jobs) {
+        for (JobExt j : jobs)
             addAll(j.getBuilds());
-        Collections.sort(this,Run.ORDER_BY_DATE);
+        Collections.sort(this,RunExt.ORDER_BY_DATE);
     }
 
     private RunList(Collection<? extends R> c, boolean hack) {
         super(c);
     }
 
-    public static <R extends Run>
+    public static <R extends RunExt>
     RunList<R> fromRuns(Collection<? extends R> runs) {
         return new RunList<R>(runs,false);
     }
@@ -91,7 +91,7 @@ public class RunList<R extends Run> extends ArrayList<R> {
      */
     public RunList<R> failureOnly() {
         for (Iterator<R> itr = iterator(); itr.hasNext();) {
-            Run r = itr.next();
+            RunExt r = itr.next();
             if(r.getResult()==Result.SUCCESS)
                 itr.remove();
         }
@@ -103,7 +103,7 @@ public class RunList<R extends Run> extends ArrayList<R> {
      */
     public RunList<R> node(Node node) {
         for (Iterator<R> itr = iterator(); itr.hasNext();) {
-            Run r = itr.next();
+            RunExt r = itr.next();
             if (!(r instanceof AbstractBuildExt) || ((AbstractBuildExt)r).getBuiltOn()!=node) {
                 itr.remove();
             }
@@ -116,7 +116,7 @@ public class RunList<R extends Run> extends ArrayList<R> {
      */
     public RunList<R> regressionOnly() {
         for (Iterator<R> itr = iterator(); itr.hasNext();) {
-            Run r = itr.next();
+            RunExt r = itr.next();
             if(!r.getBuildStatusSummary().isWorse)
                 itr.remove();
         }

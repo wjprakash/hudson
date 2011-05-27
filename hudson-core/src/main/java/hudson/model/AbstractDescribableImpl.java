@@ -29,7 +29,7 @@ package hudson.model;
  * @author Kohsuke Kawaguchi
  */
 public abstract class AbstractDescribableImpl<T extends AbstractDescribableImpl<T>> implements Describable<T> {
-    public Descriptor<T> getDescriptor() {
-        return Hudson.getInstance().getDescriptorOrDie(getClass());
+    public DescriptorExt<T> getDescriptor() {
+        return HudsonExt.getInstance().getDescriptorOrDie(getClass());
     }
 }

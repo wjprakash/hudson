@@ -33,7 +33,7 @@ import java.security.Principal;
 import java.util.List;
 import java.util.ArrayList;
 
-import hudson.model.Hudson;
+import hudson.model.HudsonExt;
 
 /**
  * {@link Authentication} implementation for {@link Principal}
@@ -41,7 +41,7 @@ import hudson.model.Hudson;
  *
  * <p>
  * This is used to plug the container authentication to Acegi,
- * for backward compatibility with Hudson &lt; 1.160.
+ * for backward compatibility with HudsonExt &lt; 1.160.
  *
  * @author Kohsuke Kawaguchi
  */
@@ -62,7 +62,7 @@ public final class ContainerAuthentication implements Authentication {
         // Servlet API doesn't provide a way to list up all roles the current user
         // has, so we need to ask AuthorizationStrategy what roles it is going to check against.
         List<GrantedAuthority> l = new ArrayList<GrantedAuthority>();
-        for( String g : Hudson.getInstance().getAuthorizationStrategy().getGroups()) {
+        for( String g : HudsonExt.getInstance().getAuthorizationStrategy().getGroups()) {
             if(request.isUserInRole(g))
                 l.add(new GrantedAuthorityImpl(g));
         }

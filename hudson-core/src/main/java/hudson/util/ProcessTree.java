@@ -25,7 +25,7 @@ package hudson.util;
 
 import hudson.EnvVars;
 import hudson.Util;
-import hudson.model.Hudson;
+import hudson.model.HudsonExt;
 import hudson.remoting.Callable;
 import hudson.remoting.Channel;
 import hudson.remoting.VirtualChannel;
@@ -72,7 +72,7 @@ import java.util.logging.Logger;
  *
  * <p>
  * A {@link ProcessTree} is really conceptually a map from process ID to a {@link OSProcess} object.
- * When Hudson runs on platforms that support process introspection, this allows you to introspect
+ * When HudsonExt runs on platforms that support process introspection, this allows you to introspect
  * and do some useful things on processes. On other platforms, the implementation falls back to
  * "do nothing" behavior.
  *
@@ -244,7 +244,7 @@ public abstract class ProcessTree implements Iterable<OSProcess>, IProcessTree, 
         public abstract EnvVars getEnvironmentVariables();
 
         /**
-         * Given the environment variable of a process and the "model environment variable" that Hudson
+         * Given the environment variable of a process and the "model environment variable" that HudsonExt
          * used for launching the build, returns true if there's a match (which means the process should
          * be considered a descendant of a build.)
          */
@@ -267,7 +267,7 @@ public abstract class ProcessTree implements Iterable<OSProcess>, IProcessTree, 
          * Executes a chunk of code at the same machine where this process resides.
          */
         public <T> T act(ProcessCallable<T> callable) throws IOException, InterruptedException {
-            return callable.invoke(this,Hudson.MasterComputer.localChannel);
+            return callable.invoke(this,HudsonExt.MasterComputer.localChannel);
         }
 
         Object writeReplace() {

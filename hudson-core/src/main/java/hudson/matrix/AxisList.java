@@ -25,7 +25,7 @@ package hudson.matrix;
 
 import com.thoughtworks.xstream.XStream;
 import hudson.Util;
-import hudson.model.Label;
+import hudson.model.LabelExt;
 import hudson.util.RobustCollectionConverter;
 
 import java.util.ArrayList;

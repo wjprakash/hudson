@@ -32,7 +32,7 @@ import java.net.URL;
 import java.util.logging.Logger;
 
 import hudson.FilePathExt;
-import hudson.model.Hudson;
+import hudson.model.HudsonExt;
 import static hudson.init.InitMilestone.JOB_LOADED;
 import hudson.init.Initializer;
 import org.apache.commons.io.FileUtils;
@@ -44,7 +44,7 @@ import org.apache.commons.io.FileUtils;
  */
 public class GroovyInitScript {
     @Initializer(after=JOB_LOADED)
-    public static void init(Hudson h) throws IOException {
+    public static void init(HudsonExt h) throws IOException {
         URL bundledInitScript = h.servletContext.getResource("/WEB-INF/init.groovy");
         if (bundledInitScript!=null) {
             LOGGER.info("Executing bundled init script: "+bundledInitScript);
@@ -59,7 +59,7 @@ public class GroovyInitScript {
     }
 
     private static void execute(GroovyCodeSource initScript) throws IOException {
-        GroovyShell shell = new GroovyShell(Hudson.getInstance().getPluginManager().uberClassLoader);
+        GroovyShell shell = new GroovyShell(HudsonExt.getInstance().getPluginManager().uberClassLoader);
         shell.evaluate(initScript);
     }
 

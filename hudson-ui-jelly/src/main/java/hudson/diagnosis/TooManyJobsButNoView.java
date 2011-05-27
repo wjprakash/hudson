@@ -24,7 +24,7 @@
 package hudson.diagnosis;
 
 import hudson.model.AdministrativeMonitorExt;
-import hudson.model.Hudson;
+import hudson.model.HudsonExt;
 import hudson.Extension;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
@@ -32,7 +32,7 @@ import org.kohsuke.stapler.StaplerResponse;
 import java.io.IOException;
 
 /**
- * If Hudson is run with a lot of jobs but no views, suggest the user that they can create views.
+ * If HudsonExt is run with a lot of jobs but no views, suggest the user that they can create views.
  *
  * <p>
  * I noticed at an user visit that some users didn't notice the '+' icon in the tab bar. 
@@ -42,7 +42,7 @@ import java.io.IOException;
 @Extension
 public class TooManyJobsButNoView extends AdministrativeMonitorExt {
     public boolean isActivated() {
-        Hudson h = Hudson.getInstance();
+        HudsonExt h = HudsonExt.getInstance();
         return h.getViews().size()==1 && h.getItemMap().size()> THRESHOLD;
     }
 

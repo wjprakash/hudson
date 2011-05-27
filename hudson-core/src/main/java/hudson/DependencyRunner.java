@@ -25,7 +25,7 @@
 package hudson;
 
 import hudson.model.AbstractProjectExt;
-import hudson.model.Hudson;
+import hudson.model.HudsonExt;
 import hudson.security.ACL;
 
 import java.util.ArrayList;
@@ -60,7 +60,7 @@ public class DependencyRunner implements Runnable {
             Set<AbstractProjectExt> topLevelProjects = new HashSet<AbstractProjectExt>();
             // Get all top-level projects
             LOGGER.fine("assembling top level projects");
-            for (AbstractProjectExt p : Hudson.getInstance().getAllItems(AbstractProjectExt.class))
+            for (AbstractProjectExt p : HudsonExt.getInstance().getAllItems(AbstractProjectExt.class))
                 if (p.getUpstreamProjects().size() == 0) {
                     LOGGER.fine("adding top level project " + p.getName());
                     topLevelProjects.add(p);

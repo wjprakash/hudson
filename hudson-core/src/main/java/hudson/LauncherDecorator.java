@@ -1,8 +1,8 @@
 package hudson;
 
-import hudson.model.Hudson;
+import hudson.model.HudsonExt;
 import hudson.model.Node;
-import hudson.model.Executor;
+import hudson.model.ExecutorExt;
 import hudson.tasks.BuildWrapper;
 
 /**
@@ -24,10 +24,10 @@ public abstract class LauncherDecorator implements ExtensionPoint {
      *
      * <p>
      * If the implementation wants to do something differently if the launcher is
-     * for a build, call {@link Executor#currentExecutor()}. If it returns non-null
+     * for a build, call {@link ExecutorExt#currentExecutor()}. If it returns non-null
      * you can figure out the current build in progress from there. Note that
      * {@link Launcher}s are also created for doing things other than builds,
-     * so {@link Executor#currentExecutor()} may return null. Also, for job-specific
+     * so {@link ExecutorExt#currentExecutor()} may return null. Also, for job-specific
      * decoration, see {@link BuildWrapper#decorateLauncher(AbstractBuild, Launcher, BuildListener)} as well.
      *
      * @param launcher
@@ -45,6 +45,6 @@ public abstract class LauncherDecorator implements ExtensionPoint {
      * Returns all the registered {@link LauncherDecorator}s.
      */
     public static ExtensionList<LauncherDecorator> all() {
-        return Hudson.getInstance().getExtensionList(LauncherDecorator.class);
+        return HudsonExt.getInstance().getExtensionList(LauncherDecorator.class);
     }
 }

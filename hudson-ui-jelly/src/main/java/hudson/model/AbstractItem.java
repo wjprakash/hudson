@@ -96,7 +96,7 @@ public abstract class AbstractItem extends AbstractItemExt implements HttpDeleta
         if (request == null) {
             throw new IllegalStateException("Not processing a HTTP request");
         }
-        return Util.encode(Hudson.getInstance().getRootUrl() + getUrl());
+        return Util.encode(HudsonExt.getInstance().getRootUrl() + getUrl());
     }
 
     /**

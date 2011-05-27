@@ -39,12 +39,12 @@ package hudson.model;
  */
 public interface HealthReportingAction extends Action {
     /**
-     * Get this {@link Action}'s {@link HealthReport}.
+     * Get this {@link Action}'s {@link HealthReportExt}.
      *
      * @return
      *     The health report for this instance of the Action or 
      *     <code>null</code> if the Action does not want to 
-     *     contribute a HealthReport.
+     *     contribute a HealthReportExt.
      */
-    HealthReport getBuildHealth();
+    HealthReportExt getBuildHealth();
 }

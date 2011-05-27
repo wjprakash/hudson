@@ -36,7 +36,7 @@ import java.util.regex.Pattern;
  * that are no longer relevant.
  *
  * <p>
- * A {@link Fingerprint} is removed when none of the builds that
+ * A {@link FingerprintExt} is removed when none of the builds that
  * it point to is available in the records.
  *
  * @author Kohsuke Kawaguchi
@@ -62,7 +62,7 @@ public final class FingerprintCleanupThread extends AsyncPeriodicWork {
     protected void execute(TaskListener listener) {
         int numFiles = 0;
 
-        File root = new File(Hudson.getInstance().getRootDir(),"fingerprints");
+        File root = new File(HudsonExt.getInstance().getRootDir(),"fingerprints");
         File[] files1 = root.listFiles(LENGTH2DIR_FILTER);
         if(files1!=null) {
             for (File file1 : files1) {
@@ -97,7 +97,7 @@ public final class FingerprintCleanupThread extends AsyncPeriodicWork {
      */
     private boolean check(File fingerprintFile) {
         try {
-            Fingerprint fp = Fingerprint.load(fingerprintFile);
+            FingerprintExt fp = FingerprintExt.load(fingerprintFile);
             if(!fp.isAlive()) {
                 fingerprintFile.delete();
                 return true;

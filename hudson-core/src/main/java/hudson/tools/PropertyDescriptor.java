@@ -2,13 +2,13 @@ package hudson.tools;
 
 import hudson.FunctionsExt;
 import hudson.model.Describable;
-import hudson.model.Descriptor;
+import hudson.model.DescriptorExt;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Base {@link Descriptor} type used for {@code XyzProperty} classes.
+ * Base {@link DescriptorExt} type used for {@code XyzProperty} classes.
  *
  * @param <P>
  *      Type of the {@code XyzProperty}. Called 'property type'
@@ -17,7 +17,7 @@ import java.util.List;
  * @author Kohsuke Kawaguchi
  * @since 1.305
  */
-public abstract class PropertyDescriptor<P extends Describable<P>,T> extends Descriptor<P> {
+public abstract class PropertyDescriptor<P extends Describable<P>,T> extends DescriptorExt<P> {
     protected PropertyDescriptor(Class<? extends P> clazz) {
         super(clazz);
     }
@@ -29,7 +29,7 @@ public abstract class PropertyDescriptor<P extends Describable<P>,T> extends Des
      * Infer the type parameterization 'P'
      */
     private Class<P> getP() {
-        return FunctionsExt.getTypeParameter(getClass(),Descriptor.class,0);
+        return FunctionsExt.getTypeParameter(getClass(),DescriptorExt.class,0);
     }
 
     /**

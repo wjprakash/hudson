@@ -31,7 +31,7 @@ import hudson.cli.declarative.CLIMethod;
 import hudson.cli.declarative.CLIResolver;
 import hudson.model.CauseExt.RemoteCause;
 import hudson.model.CauseExt.UserCause;
-import hudson.model.Descriptor.FormException;
+import hudson.model.DescriptorExt.FormException;
 import hudson.scm.ChangeLogSet;
 import hudson.scm.ChangeLogSet.Entry;
 import hudson.scm.SCM;
@@ -94,19 +94,19 @@ public abstract class AbstractProject extends AbstractProjectExt{
         }
 
         // dependency setting might have been changed by the user, so rebuild.
-        Hudson.getInstance().rebuildDependencyGraph();
+        HudsonExt.getInstance().rebuildDependencyGraph();
 
         // reflect the submission of the pseudo 'upstream build trriger'.
         // this needs to be done after we release the lock on 'this',
         // or otherwise we could dead-lock
 
-        for (AbstractProjectExt<?,?> p : Hudson.getInstance().getAllItems(AbstractProjectExt.class)) {
+        for (AbstractProjectExt<?,?> p : HudsonExt.getInstance().getAllItems(AbstractProjectExt.class)) {
             // Don't consider child projects such as MatrixConfiguration:
             if (!p.isConfigurable()) continue;
             boolean isUpstream = upstream.contains(p);
             synchronized(p) {
                 // does 'p' include us in its BuildTrigger? 
-                DescribableList<Publisher,Descriptor<Publisher>> pl = p.getPublishersList();
+                DescribableList<Publisher,DescriptorExt<Publisher>> pl = p.getPublishersList();
                 BuildTrigger trigger = pl.get(BuildTrigger.class);
                 List<AbstractProjectExt> newChildProjects = trigger == null ? new ArrayList<AbstractProjectExt>():trigger.getChildProjects();
                 if(isUpstream) {
@@ -151,10 +151,10 @@ public abstract class AbstractProject extends AbstractProjectExt{
         }
 
         // notify the queue as the project might be now tied to different node
-        Hudson.getInstance().getQueue().scheduleMaintenance();
+        HudsonExt.getInstance().getQueue().scheduleMaintenance();
 
         // this is to reflect the upstream build adjustments done above
-        Hudson.getInstance().rebuildDependencyGraph();
+        HudsonExt.getInstance().rebuildDependencyGraph();
     }
     
     @Exported
@@ -197,14 +197,14 @@ public abstract class AbstractProject extends AbstractProjectExt{
         if (!isBuildable())
             throw HttpResponses.error(SC_INTERNAL_SERVER_ERROR,new IOException(getFullName()+" is not buildable"));
 
-        Hudson.getInstance().getQueue().schedule(this, getDelay(req), getBuildCause(req));
+        HudsonExt.getInstance().getQueue().schedule(this, getDelay(req), getBuildCause(req));
         rsp.forwardToPreviousPage(req);
     }
 
     /**
      * Computes the build cause, using RemoteCause or UserCause as appropriate.
      */
-    /*package*/ CauseAction getBuildCause(StaplerRequest req) {
+    /*package*/ CauseActionExt getBuildCause(StaplerRequest req) {
         CauseExt cause;
         if (authToken != null && authToken.getToken() != null && req.getParameter("token") != null) {
             // Optional additional cause text when starting via token
@@ -213,7 +213,7 @@ public abstract class AbstractProject extends AbstractProjectExt{
         } else {
             cause = new UserCause();
         }
-        return new CauseAction(cause);
+        return new CauseActionExt(cause);
     }
 
     /**
@@ -264,7 +264,7 @@ public abstract class AbstractProject extends AbstractProjectExt{
     public void doCancelQueue( StaplerRequest req, StaplerResponse rsp ) throws IOException, ServletException {
         checkPermission(BUILD);
 
-        Hudson.getInstance().getQueue().cancel(this);
+        HudsonExt.getInstance().getQueue().cancel(this);
         rsp.forwardToPreviousPage(req);
     }
 
@@ -319,16 +319,16 @@ public abstract class AbstractProject extends AbstractProjectExt{
      * @deprecated
      *      As of 1.261. Use {@link #buildDescribable(StaplerRequest, List)} instead.
      */
-    protected final <T extends Describable<T>> List<T> buildDescribable(StaplerRequest req, List<? extends Descriptor<T>> descriptors, String prefix) throws FormException, ServletException {
+    protected final <T extends Describable<T>> List<T> buildDescribable(StaplerRequest req, List<? extends DescriptorExt<T>> descriptors, String prefix) throws FormException, ServletException {
         return buildDescribable(req,descriptors);
     }
 
-    protected final <T extends Describable<T>> List<T> buildDescribable(StaplerRequest req, List<? extends Descriptor<T>> descriptors)
+    protected final <T extends Describable<T>> List<T> buildDescribable(StaplerRequest req, List<? extends DescriptorExt<T>> descriptors)
         throws FormException, ServletException {
 
         JSONObject data = req.getSubmittedForm();
         List<T> r = new Vector<T>();
-        for (Descriptor<T> d : descriptors) {
+        for (DescriptorExt<T> d : descriptors) {
             String safeName = d.getJsonSafeClassName();
             if (req.getParameter(safeName) != null) {
                 T instance = d.newInstance(req, data.getJSONObject(safeName));
@@ -341,7 +341,7 @@ public abstract class AbstractProject extends AbstractProjectExt{
     /**
      * Serves the workspace files.
      */
-    public DirectoryBrowserSupport doWs( StaplerRequest req, StaplerResponse rsp ) throws IOException, ServletException, InterruptedException {
+    public DirectoryBrowserSupportExt doWs( StaplerRequest req, StaplerResponse rsp ) throws IOException, ServletException, InterruptedException {
         checkPermission(AbstractProjectExt.WORKSPACE);
         FilePathExt ws = getSomeWorkspace();
         if ((ws == null) || (!ws.exists())) {
@@ -349,11 +349,11 @@ public abstract class AbstractProject extends AbstractProjectExt{
             // Would be good if when asked for *plain*, do something else!
             // (E.g. return 404, or send empty doc.)
             // Not critical; client can just check if content type is not text/plain,
-            // which also serves to detect old versions of Hudson.
+            // which also serves to detect old versions of HudsonExt.
             req.getView(this,"noWorkspace.jelly").forward(req,rsp);
             return null;
         } else {
-            return new DirectoryBrowserSupport(this, ws, getDisplayName()+" workspace", "folder.gif", true);
+            return new DirectoryBrowserSupportExt(this, ws, getDisplayName()+" workspace", "folder.gif", true);
         }
     }
 
@@ -463,7 +463,7 @@ public abstract class AbstractProject extends AbstractProjectExt{
     @CLIResolver
     public static AbstractProjectExt resolveForCLI(
             @Argument(required=true,metaVar="NAME",usage="Job name") String name) throws CmdLineException {
-        AbstractProjectExt item = Hudson.getInstance().getItemByFullName(name, AbstractProjectExt.class);
+        AbstractProjectExt item = HudsonExt.getInstance().getItemByFullName(name, AbstractProjectExt.class);
         if (item==null)
             throw new CmdLineException(null,Messages.AbstractItem_NoSuchJobExists(name,AbstractProjectExt.findNearest(name).getFullName()));
         return item;
@@ -474,24 +474,24 @@ public abstract class AbstractProject extends AbstractProjectExt{
             if (Util.fixEmpty(value)==null)
                 return FormValidation.ok(); // nothing typed yet
             try {
-                Label.parseExpression(value);
+                LabelExt.parseExpression(value);
             } catch (ANTLRException e) {
                 return FormValidation.error(e,
                         Messages.AbstractProject_AssignedLabelString_InvalidBooleanExpression(e.getMessage()));
             }
             // TODO: if there's an atom in the expression that is empty, report it
-            if (Hudson.getInstance().getLabel(value).isEmpty())
+            if (HudsonExt.getInstance().getLabel(value).isEmpty())
                 return FormValidation.warning(Messages.AbstractProject_AssignedLabelString_NoMatch());
             return FormValidation.ok();
         }
 
        public AutoCompletionCandidatesExt doAutoCompleteAssignedLabelString(@QueryParameter String value) {
             AutoCompletionCandidatesExt c = new AutoCompletionCandidatesExt();
-            Set<Label> labels = Hudson.getInstance().getLabels();
+            Set<LabelExt> labels = HudsonExt.getInstance().getLabels();
             List<String> queries = new AutoCompleteSeeder(value).getSeeds();
 
             for (String term : queries) {
-                for (Label l : labels) {
+                for (LabelExt l : labels) {
                     if (l.getName().startsWith(term)) {
                         c.add(l.getName());
                     }

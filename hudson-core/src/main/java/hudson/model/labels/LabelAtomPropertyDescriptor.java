@@ -24,10 +24,10 @@
 package hudson.model.labels;
 
 import hudson.Extension;
-import hudson.model.Descriptor;
+import hudson.model.DescriptorExt;
 
 /**
- * {@link Descriptor} for {@link LabelAtom}.
+ * {@link DescriptorExt} for {@link LabelAtom}.
  *
  * <p>
  * Put {@link Extension} on your descriptor implementation to have it auto-registered.
@@ -35,6 +35,6 @@ import hudson.model.Descriptor;
  * @author Kohsuke Kawaguchi
  * @since 1.373
  */
-public abstract class LabelAtomPropertyDescriptor extends Descriptor<LabelAtomProperty> {
+public abstract class LabelAtomPropertyDescriptor extends DescriptorExt<LabelAtomProperty> {
 
 }

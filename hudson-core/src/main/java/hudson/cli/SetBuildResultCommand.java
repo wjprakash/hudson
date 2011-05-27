@@ -25,9 +25,9 @@
 package hudson.cli;
 
 import hudson.Extension;
-import hudson.model.Item;
+import hudson.model.ItemExt;
 import hudson.model.Result;
-import hudson.model.Run;
+import hudson.model.RunExt;
 import org.kohsuke.args4j.Argument;
 
 /**
@@ -47,8 +47,8 @@ public class SetBuildResultCommand extends CommandDuringBuild {
 
     @Override
     protected int run() throws Exception {
-        Run r = getCurrentlyBuilding();
-        r.getParent().checkPermission(Item.BUILD);
+        RunExt r = getCurrentlyBuilding();
+        r.getParent().checkPermission(ItemExt.BUILD);
         r.setResult(result);
         return 0;
     }

@@ -25,7 +25,7 @@ package hudson.markup;
 
 import hudson.ExtensionPoint;
 import hudson.model.AbstractDescribableImpl;
-import hudson.model.Hudson;
+import hudson.model.HudsonExt;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -39,7 +39,7 @@ import java.io.Writer;
  * Use of markup, as opposed to using raw HTML, ensures certain degree of security.
  *
  * <p>
- * This is an extension point in Hudson, allowing plugins to implement different markup formatters.
+ * This is an extension point in HudsonExt, allowing plugins to implement different markup formatters.
  *
  * <h2>Views</h2>
  * <p>
@@ -49,7 +49,7 @@ import java.io.Writer;
  *
  * @author Kohsuke Kawaguchi
  * @since 1.391
- * @see Hudson#getMarkupFormatter()
+ * @see HudsonExt#getMarkupFormatter()
  */
 public abstract class MarkupFormatter extends AbstractDescribableImpl<MarkupFormatter> implements ExtensionPoint {
     /**

@@ -26,8 +26,8 @@ package hudson.cli;
 import hudson.FilePathExt;
 import hudson.FilePathExt.FileCallable;
 import hudson.Util;
-import hudson.model.Hudson;
-import hudson.model.Hudson.MasterComputer;
+import hudson.model.HudsonExt;
+import hudson.model.HudsonExt.MasterComputer;
 
 import hudson.remoting.Callable;
 import hudson.remoting.Channel;
@@ -80,29 +80,29 @@ public class ClientAuthenticationCache implements Serializable {
     }
 
     /**
-     * Gets the persisted authentication for this Hudson.
+     * Gets the persisted authentication for this HudsonExt.
      *
-     * @return {@link Hudson#ANONYMOUS} if no such credential is found, or if the stored credential is invalid.
+     * @return {@link HudsonExt#ANONYMOUS} if no such credential is found, or if the stored credential is invalid.
      */
     public Authentication get() {
-        Hudson h = Hudson.getInstance();
+        HudsonExt h = HudsonExt.getInstance();
         Secret userName = Secret.decrypt(props.getProperty(getPropertyKey()));
-        if (userName==null) return Hudson.ANONYMOUS; // failed to decrypt
+        if (userName==null) return HudsonExt.ANONYMOUS; // failed to decrypt
         try {
             UserDetails u = h.getSecurityRealm().loadUserByUsername(userName.toString());
             return new UsernamePasswordAuthenticationToken(u.getUsername(), u.getPassword(), u.getAuthorities());
         } catch (AuthenticationException e) {
-            return Hudson.ANONYMOUS;
+            return HudsonExt.ANONYMOUS;
         } catch (DataAccessException e) {
-            return Hudson.ANONYMOUS;
+            return HudsonExt.ANONYMOUS;
         }
     }
 
     /**
-     * Computes the key that identifies this Hudson among other Hudsons that the user has a credential for.
+     * Computes the key that identifies this HudsonExt among other Hudsons that the user has a credential for.
      */
     private String getPropertyKey() {
-        String url = Hudson.getInstance().getRootUrl();
+        String url = HudsonExt.getInstance().getRootUrl();
         if (url!=null)  return url;
         return Secret.fromString("key").toString();
     }
@@ -111,7 +111,7 @@ public class ClientAuthenticationCache implements Serializable {
      * Persists the specified authentication.
      */
     public void set(Authentication a) throws IOException, InterruptedException {
-        Hudson h = Hudson.getInstance();
+        HudsonExt h = HudsonExt.getInstance();
 
         // make sure that this security realm is capable of retrieving the authentication by name,
         // as it's not required.

@@ -28,8 +28,8 @@ import hudson.Extension;
 import static hudson.Util.fixNull;
 import static hudson.Util.fixEmptyAndTrim;
 import static hudson.Util.fixEmpty;
-import hudson.model.Descriptor;
-import hudson.model.Hudson;
+import hudson.model.DescriptorExt;
+import hudson.model.HudsonExt;
 import hudson.model.User;
 import hudson.tasks.MailAddressResolver;
 import hudson.util.FormValidation;
@@ -340,7 +340,7 @@ public class LDAPSecurityRealm extends AbstractPasswordBasedSecurityRealm {
         binding.setVariable("instance", this);
 
         BeanBuilder builder = new BeanBuilder();
-        builder.parse(Hudson.getInstance().servletContext.getResourceAsStream("/WEB-INF/security/LDAPBindSecurityRealm.groovy"),binding);
+        builder.parse(HudsonExt.getInstance().servletContext.getResourceAsStream("/WEB-INF/security/LDAPBindSecurityRealm.groovy"),binding);
         WebApplicationContext appContext = builder.createApplicationContext();
 
         ldapTemplate = new LdapTemplate(findBean(InitialDirContextFactory.class, appContext));
@@ -462,7 +462,7 @@ public class LDAPSecurityRealm extends AbstractPasswordBasedSecurityRealm {
     public static final class MailAdressResolverImpl extends MailAddressResolver {
         public String findMailAddressFor(User u) {
             // LDAP not active
-            SecurityRealm realm = Hudson.getInstance().getSecurityRealm();
+            SecurityRealm realm = HudsonExt.getInstance().getSecurityRealm();
             if(!(realm instanceof LDAPSecurityRealm))
                 return null;
             try {
@@ -519,7 +519,7 @@ public class LDAPSecurityRealm extends AbstractPasswordBasedSecurityRealm {
     }
 
     @Extension
-    public static final class DescriptorImpl extends Descriptor<SecurityRealm> {
+    public static final class DescriptorImpl extends DescriptorExt<SecurityRealm> {
         public String getDisplayName() {
             return Messages.LDAPSecurityRealm_DisplayName();
         }
@@ -529,7 +529,7 @@ public class LDAPSecurityRealm extends AbstractPasswordBasedSecurityRealm {
         		@QueryParameter final String managerDN,
         		@QueryParameter final String managerPassword) {
 
-            if(!Hudson.getInstance().hasPermission(Hudson.ADMINISTER))
+            if(!HudsonExt.getInstance().hasPermission(HudsonExt.ADMINISTER))
                 return FormValidation.ok();
 
             try {

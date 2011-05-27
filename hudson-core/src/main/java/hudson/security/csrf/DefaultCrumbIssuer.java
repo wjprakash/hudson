@@ -11,7 +11,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import hudson.Extension;
-import hudson.model.Hudson;
+import hudson.model.HudsonExt;
 import hudson.model.ModelObject;
 
 import javax.servlet.ServletRequest;
@@ -69,7 +69,7 @@ public class DefaultCrumbIssuer extends CrumbIssuer {
             if (md != null) {
                 HttpServletRequest req = (HttpServletRequest) request;
                 StringBuilder buffer = new StringBuilder();
-                Authentication a = Hudson.getAuthentication();
+                Authentication a = HudsonExt.getAuthentication();
                 if (a != null) {
                     buffer.append(a.getName());
                 }
@@ -127,7 +127,7 @@ public class DefaultCrumbIssuer extends CrumbIssuer {
     public static final class DescriptorImpl extends CrumbIssuerDescriptor<DefaultCrumbIssuer> implements ModelObject {
 
         public DescriptorImpl() {
-            super(Hudson.getInstance().getSecretKey(), System.getProperty("hudson.security.csrf.requestfield", ".crumb"));
+            super(HudsonExt.getInstance().getSecretKey(), System.getProperty("hudson.security.csrf.requestfield", ".crumb"));
             load();
         }
 

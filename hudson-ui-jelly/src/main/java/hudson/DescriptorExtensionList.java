@@ -26,7 +26,7 @@ package hudson;
 import hudson.model.Describable;
 import hudson.model.Descriptor;
 import hudson.model.Descriptor.FormException;
-import hudson.model.Hudson;
+import hudson.model.HudsonExt;
 import net.sf.json.JSONObject;
 import org.kohsuke.stapler.Stapler;
 
@@ -36,7 +36,7 @@ import org.kohsuke.stapler.Stapler;
  */
 public class DescriptorExtensionList<T extends Describable<T>, D extends Descriptor<T>> extends DescriptorExtensionListExt {
 
-    protected DescriptorExtensionList(Hudson hudson, Class<T> describableType) {
+    protected DescriptorExtensionList(HudsonExt hudson, Class<T> describableType) {
         super(hudson, describableType);
     }
     

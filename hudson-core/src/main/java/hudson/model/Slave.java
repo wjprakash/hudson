@@ -28,14 +28,14 @@ import hudson.Launcher;
 import hudson.Util;
 import hudson.Launcher.RemoteLauncher;
 import hudson.diagnosis.OldDataMonitorExt;
-import hudson.model.Descriptor.FormException;
+import hudson.model.DescriptorExt.FormException;
 import hudson.remoting.Callable;
 import hudson.remoting.VirtualChannel;
 import hudson.slaves.CommandLauncher;
 import hudson.slaves.ComputerLauncher;
 import hudson.slaves.DumbSlave;
 import hudson.slaves.JNLPLauncher;
-import hudson.slaves.NodeDescriptor;
+import hudson.slaves.NodeDescriptorExt;
 import hudson.slaves.NodeProperty;
 import hudson.slaves.NodePropertyDescriptor;
 import hudson.slaves.RetentionStrategy;
@@ -65,7 +65,7 @@ import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 
 /**
- * Information about a Hudson slave node.
+ * Information about a HudsonExt slave node.
  *
  * <p>
  * Ideally this would have been in the <tt>hudson.slaves</tt> package,
@@ -118,12 +118,12 @@ public abstract class Slave extends Node implements Serializable {
      */
     private String label="";
     
-    private /*almost final*/ DescribableList<NodeProperty<?>,NodePropertyDescriptor> nodeProperties = new DescribableList<NodeProperty<?>,NodePropertyDescriptor>(Hudson.getInstance());
+    private /*almost final*/ DescribableList<NodeProperty<?>,NodePropertyDescriptor> nodeProperties = new DescribableList<NodeProperty<?>,NodePropertyDescriptor>(HudsonExt.getInstance());
 
     /**
      * Lazily computed set of labels from {@link #label}.
      */
-    private transient volatile Set<Label> labels;
+    private transient volatile Set<LabelExt> labels;
 
     @DataBoundConstructor
     public Slave(String name, String nodeDescription, String remoteFS, String numExecutors,
@@ -284,7 +284,7 @@ public abstract class Slave extends Node implements Serializable {
         }
 
         public URL getURL() throws MalformedURLException {
-            URL res = Hudson.getInstance().servletContext.getResource("/WEB-INF/" + fileName);
+            URL res = HudsonExt.getInstance().servletContext.getResource("/WEB-INF/" + fileName);
             if(res==null) {
                 // during the development this path doesn't have the files.
                 res = new URL(new File(".").getAbsoluteFile().toURI().toURL(),"target/generated-resources/WEB-INF/"+fileName);
@@ -340,25 +340,25 @@ public abstract class Slave extends Node implements Serializable {
             agentCommand = command+"java -jar ~/bin/slave.jar";
         }
         if (command!=null || localFS!=null)
-            OldDataMonitorExt.report(Hudson.getInstance(), "1.69");
+            OldDataMonitorExt.report(HudsonExt.getInstance(), "1.69");
         if (launcher == null) {
             launcher = (agentCommand == null || agentCommand.trim().length() == 0)
                     ? new JNLPLauncher()
                     : new CommandLauncher(agentCommand);
         }
         if(nodeProperties==null)
-            nodeProperties = new DescribableList<NodeProperty<?>,NodePropertyDescriptor>(Hudson.getInstance());
+            nodeProperties = new DescribableList<NodeProperty<?>,NodePropertyDescriptor>(HudsonExt.getInstance());
         return this;
     }
 
     public SlaveDescriptor getDescriptor() {
-        Descriptor d = Hudson.getInstance().getDescriptorOrDie(getClass());
+        DescriptorExt d = HudsonExt.getInstance().getDescriptorOrDie(getClass());
         if (d instanceof SlaveDescriptor)
             return (SlaveDescriptor) d;
         throw new IllegalStateException(d.getClass()+" needs to extend from SlaveDescriptor");
     }
 
-    public static abstract class SlaveDescriptor extends NodeDescriptor {
+    public static abstract class SlaveDescriptor extends NodeDescriptorExt {
         public FormValidation doCheckNumExecutors(@QueryParameter String value) {
             return FormValidation.validatePositiveInteger(value);
         }
@@ -382,7 +382,7 @@ public abstract class Slave extends Node implements Serializable {
 // backward compatibility
 //
     /**
-     * In Hudson < 1.69 this was used to store the local file path
+     * In HudsonExt < 1.69 this was used to store the local file path
      * to the remote workspace. No longer in use.
      *
      * @deprecated
@@ -391,7 +391,7 @@ public abstract class Slave extends Node implements Serializable {
     private File localFS;
 
     /**
-     * In Hudson < 1.69 this was used to store the command
+     * In HudsonExt < 1.69 this was used to store the command
      * to connect to the remote machine, like "ssh myslave".
      *
      * @deprecated

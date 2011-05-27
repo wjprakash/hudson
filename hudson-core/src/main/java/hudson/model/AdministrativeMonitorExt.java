@@ -35,13 +35,13 @@ import java.io.IOException;
 
 
 /**
- * Checks the health of a subsystem of Hudson and if there's something
+ * Checks the health of a subsystem of HudsonExt and if there's something
  * that requires administrator's attention, notify the administrator.
  *
  * <h2>How to implement?</h2>
  * <p>
  * Plugins who wish to contribute such notifications can implement this
- * class and put {@link Extension} on it to register it to Hudson.
+ * class and put {@link Extension} on it to register it to HudsonExt.
  *
  * <p>
  * Once installed, it's the implementor's responsibility to perform
@@ -51,14 +51,14 @@ import java.io.IOException;
  * so by running some code periodically (for this, use {@link TimerTrigger#timer})
  *
  * <p>
- * {@link AdministrativeMonitorExt}s are bound to URL by {@link Hudson#getAdministrativeMonitor(String)}.
+ * {@link AdministrativeMonitorExt}s are bound to URL by {@link HudsonExt#getAdministrativeMonitor(String)}.
  * See {@link #getUrl()}.
  *
  * <h3>Views</h3>
  * <dl>
  * <dt>message.jelly</dt>
  * <dd>
- * If {@link #isActivated()} returns true, Hudson will use the <tt>message.jelly</tt>
+ * If {@link #isActivated()} returns true, HudsonExt will use the <tt>message.jelly</tt>
  * view of this object to render the warning text. This happens in the
  * <tt>http://SERVER/hudson/manage</tt> page. This view should typically render
  * a DIV box with class='error' or class='warning' with a human-readable text
@@ -69,7 +69,7 @@ import java.io.IOException;
  *
  * @author Kohsuke Kawaguchi
  * @since 1.273
- * @see Hudson#administrativeMonitors
+ * @see HudsonExt#administrativeMonitors
  */
 @LegacyInstancesAreScopedToHudson
 public abstract class AdministrativeMonitorExt extends AbstractModelObjectExt implements ExtensionPoint {
@@ -78,7 +78,7 @@ public abstract class AdministrativeMonitorExt extends AbstractModelObjectExt im
      *
      * <p>
      * This ID is used to remember persisted setting for this monitor,
-     * so the ID should remain consistent beyond the Hudson JVM lifespan.
+     * so the ID should remain consistent beyond the HudsonExt JVM lifespan.
      */
     public final String id;
 
@@ -109,7 +109,7 @@ public abstract class AdministrativeMonitorExt extends AbstractModelObjectExt im
      * Mark this monitor as disabled, to prevent this from showing up in the UI.
      */
     public void disable(boolean value) throws IOException {
-        Hudson hudson = Hudson.getInstance();
+        HudsonExt hudson = HudsonExt.getInstance();
         Set<String> set = hudson.disabledAdministrativeMonitors;
         if(value)   set.add(id);
         else        set.remove(id);
@@ -124,7 +124,7 @@ public abstract class AdministrativeMonitorExt extends AbstractModelObjectExt im
      * he wants to ignore.
      */
     public boolean isEnabled() {
-        return !Hudson.getInstance().disabledAdministrativeMonitors.contains(id);
+        return !HudsonExt.getInstance().disabledAdministrativeMonitors.contains(id);
     }
 
     /**
@@ -141,6 +141,6 @@ public abstract class AdministrativeMonitorExt extends AbstractModelObjectExt im
      * All registered {@link AdministrativeMonitorExt} instances.
      */
     public static ExtensionList<AdministrativeMonitorExt> all() {
-        return Hudson.getInstance().getExtensionList(AdministrativeMonitorExt.class);
+        return HudsonExt.getInstance().getExtensionList(AdministrativeMonitorExt.class);
     }
 }

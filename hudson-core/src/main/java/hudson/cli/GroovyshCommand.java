@@ -24,7 +24,7 @@
 package hudson.cli;
 
 import hudson.Extension;
-import hudson.model.Hudson;
+import hudson.model.HudsonExt;
 import hudson.remoting.ChannelClosedException;
 import groovy.lang.Binding;
 import groovy.lang.Closure;
@@ -58,7 +58,7 @@ public class GroovyshCommand extends CLICommand {
     @Override
     public int main(List<String> args, Locale locale, InputStream stdin, PrintStream stdout, PrintStream stderr) {
         // this allows the caller to manipulate the JVM state, so require the admin privilege.
-        Hudson.getInstance().checkPermission(Hudson.ADMINISTER);
+        HudsonExt.getInstance().checkPermission(HudsonExt.ADMINISTER);
         // TODO: ^as this class overrides main() (which has authentication stuff),
         // how to get ADMIN permission for this command?
 
@@ -76,7 +76,7 @@ public class GroovyshCommand extends CLICommand {
         Binding binding = new Binding();
         // redirect "println" to the CLI
         binding.setProperty("out", new PrintWriter(stdout,true));
-        binding.setProperty("hudson", hudson.model.Hudson.getInstance());
+        binding.setProperty("hudson", hudson.model.HudsonExt.getInstance());
 
         IO io = new IO(new BufferedInputStream(stdin),stdout,stderr);
 

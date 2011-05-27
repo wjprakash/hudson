@@ -23,7 +23,7 @@
  */
 package hudson.matrix;
 
-import hudson.model.Job;
+import hudson.model.JobExt;
 import hudson.tasks.LogRotator;
 
 import java.io.IOException;
@@ -53,7 +53,7 @@ final class LinkedLogRotator extends LogRotator {
     }
 
     @Override
-    public void perform(Job _job) throws IOException, InterruptedException {
+    public void perform(JobExt _job) throws IOException, InterruptedException {
         // Let superclass handle clearing artifacts, if configured:
         super.perform(_job);
         MatrixConfiguration job = (MatrixConfiguration) _job;

@@ -35,7 +35,7 @@ import hudson.util.Secret;
  * @author Kohsuke Kawaguchi
  * @since 1.319
  */
-public class PasswordParameterDefinition extends SimpleParameterDefinition {
+public class PasswordParameterDefinition extends SimpleParameterDefinitionExt {
 
     private Secret defaultValue;
 
@@ -46,7 +46,7 @@ public class PasswordParameterDefinition extends SimpleParameterDefinition {
     }
 
     @Override
-    public ParameterValue createValue(String value) {
+    public ParameterValueExt createValue(String value) {
         return new PasswordParameterValue(getName(), value, getDescription());
     }
 
@@ -58,7 +58,7 @@ public class PasswordParameterDefinition extends SimpleParameterDefinition {
     }
 
     @Override
-    public ParameterValue getDefaultParameterValue() {
+    public ParameterValueExt getDefaultParameterValue() {
         return new PasswordParameterValue(getName(), getDefaultValue(), getDescription());
     }
 
@@ -72,7 +72,7 @@ public class PasswordParameterDefinition extends SimpleParameterDefinition {
     }
 
     @Extension
-    public final static class ParameterDescriptorImpl extends ParameterDescriptor {
+    public final static class ParameterDescriptorImpl extends ParameterDescriptorExt {
         @Override
         public String getDisplayName() {
             return Messages.PasswordParameterDefinition_DisplayName();

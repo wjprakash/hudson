@@ -30,11 +30,11 @@ import hudson.Launcher;
 import hudson.Util;
 import static hudson.Util.fixNull;
 import hudson.model.BuildListener;
-import hudson.model.Fingerprint.RangeSet;
-import hudson.model.Hudson;
-import hudson.model.Item;
+import hudson.model.FingerprintExt.RangeSet;
+import hudson.model.HudsonExt;
+import hudson.model.ItemExt;
 import hudson.model.Result;
-import hudson.model.Run;
+import hudson.model.RunExt;
 import hudson.model.TaskListener;
 import hudson.model.listeners.RunListener;
 import hudson.tasks.BuildStepDescriptor;
@@ -133,7 +133,7 @@ public class AggregatedTestResultPublisher extends Recorder {
         public Collection<AbstractProjectExt> getJobs() {
             List<AbstractProjectExt> r = new ArrayList<AbstractProjectExt>();
             for (String job : Util.tokenize(jobs,",")) {
-                AbstractProjectExt j = Hudson.getInstance().getItemByFullName(job.trim(), AbstractProjectExt.class);
+                AbstractProjectExt j = HudsonExt.getInstance().getItemByFullName(job.trim(), AbstractProjectExt.class);
                 if(j!=null)
                     r.add(j);
             }
@@ -224,7 +224,7 @@ public class AggregatedTestResultPublisher extends Recorder {
                 RangeSet rs = owner.getDownstreamRelationship(job);
                 if(rs.isEmpty()) {
                     // is this job expected to produce a test result?
-                    Run b = job.getLastSuccessfulBuild();
+                    RunExt b = job.getLastSuccessfulBuild();
                     if(b!=null && b.getAction(AbstractTestResultAction.class)!=null) {
                         if(b.getAction(FingerprintAction.class)!=null) {
                             didntRun.add(job);
@@ -234,7 +234,7 @@ public class AggregatedTestResultPublisher extends Recorder {
                     }
                 } else {
                     for (int n : rs.listNumbersReverse()) {
-                        Run b = job.getBuildByNumber(n);
+                        RunExt b = job.getBuildByNumber(n);
                         if(b==null) continue;
                         if(b.isBuilding() || b.getResult().isWorseThan(Result.UNSTABLE))
                             continue;   // don't count them
@@ -271,9 +271,9 @@ public class AggregatedTestResultPublisher extends Recorder {
         }
 
         @Extension
-        public static class RunListenerImpl extends RunListener<Run> {
+        public static class RunListenerImpl extends RunListener<RunExt> {
             @Override
-            public void onCompleted(Run run, TaskListener listener) {
+            public void onCompleted(RunExt run, TaskListener listener) {
                 lastChanged = System.currentTimeMillis();
             }
         }
@@ -296,11 +296,11 @@ public class AggregatedTestResultPublisher extends Recorder {
 
         public FormValidation doCheck(@AncestorInPath AbstractProjectExt project, @QueryParameter String value) {
             // Require CONFIGURE permission on this project
-            if(!project.hasPermission(Item.CONFIGURE))  return FormValidation.ok();
+            if(!project.hasPermission(ItemExt.CONFIGURE))  return FormValidation.ok();
 
             for (String name : Util.tokenize(fixNull(value), ",")) {
                 name = name.trim();
-                if(Hudson.getInstance().getItemByFullName(name)==null)
+                if(HudsonExt.getInstance().getItemByFullName(name)==null)
                     return FormValidation.error(hudson.tasks.Messages.BuildTrigger_NoSuchProject(name,AbstractProjectExt.findNearest(name).getName()));
             }
             

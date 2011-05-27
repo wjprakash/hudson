@@ -27,8 +27,8 @@ import com.google.common.collect.ImmutableList;
 import hudson.init.InitMilestone;
 import net.java.sezpoz.Index;
 import net.java.sezpoz.IndexItem;
-import hudson.model.Hudson;
-import hudson.model.Descriptor;
+import hudson.model.HudsonExt;
+import hudson.model.DescriptorExt;
 import org.kohsuke.accmod.Restricted;
 import org.kohsuke.accmod.restrictions.NoExternalUse;
 
@@ -47,11 +47,11 @@ import java.lang.reflect.Method;
  *
  * <p>
  * This extension point allows you to write your implementations of {@link ExtensionPoint}s
- * in arbitrary DI containers, and have Hudson discover them.
+ * in arbitrary DI containers, and have HudsonExt discover them.
  *
  * <p>
  * {@link ExtensionFinder} itself is an extension point, but to avoid infinite recursion,
- * Hudson discovers {@link ExtensionFinder}s through {@link Sezpoz} and that alone.
+ * HudsonExt discovers {@link ExtensionFinder}s through {@link Sezpoz} and that alone.
  *
  * @author Kohsuke Kawaguchi
  * @since 1.286
@@ -59,10 +59,10 @@ import java.lang.reflect.Method;
 public abstract class ExtensionFinder implements ExtensionPoint {
     /**
      * @deprecated as of 1.356
-     *      Use and implement {@link #find(Class, Hudson)} that allows us to put some metadata.
+     *      Use and implement {@link #find(Class, HudsonExt)} that allows us to put some metadata.
      */
     @Restricted(NoExternalUse.class)
-    public <T> Collection<T> findExtensions(Class<T> type, Hudson hudson) {
+    public <T> Collection<T> findExtensions(Class<T> type, HudsonExt hudson) {
         return Collections.emptyList();
     }
 
@@ -75,22 +75,22 @@ public abstract class ExtensionFinder implements ExtensionPoint {
      *
      * @param <T>
      *      The type of the extension points. This is not bound to {@link ExtensionPoint} because
-     *      of {@link Descriptor}, which by itself doesn't implement {@link ExtensionPoint} for
+     *      of {@link DescriptorExt}, which by itself doesn't implement {@link ExtensionPoint} for
      *      a historical reason.
      * @param hudson
-     *      Hudson whose behalf this extension finder is performing lookup.
+     *      HudsonExt whose behalf this extension finder is performing lookup.
      * @return
      *      Can be empty but never null.
      * @since 1.356
-     *      Older implementations provide {@link #findExtensions(Class, Hudson)}
+     *      Older implementations provide {@link #findExtensions(Class, HudsonExt)}
      */
-    public abstract <T> Collection<ExtensionComponent<T>> find(Class<T> type, Hudson hudson);
+    public abstract <T> Collection<ExtensionComponent<T>> find(Class<T> type, HudsonExt hudson);
 
     /**
      * A pointless function to work around what appears to be a HotSpot problem. See HUDSON-5756 and bug 6933067
      * on BugParade for more details.
      */
-    public <T> Collection<ExtensionComponent<T>> _find(Class<T> type, Hudson hudson) {
+    public <T> Collection<ExtensionComponent<T>> _find(Class<T> type, HudsonExt hudson) {
         return find(type,hudson);
     }
 
@@ -115,7 +115,7 @@ public abstract class ExtensionFinder implements ExtensionPoint {
      * This inconsistent locking order results in a dead lock, you see.
      *
      * <p>
-     * So to reduce the likelihood, this method is called in prior to {@link #find(Class, Hudson)} invocation,
+     * So to reduce the likelihood, this method is called in prior to {@link #find(Class, HudsonExt)} invocation,
      * but from outside the lock. The implementation is expected to perform all the class initialization activities
      * from here.
      *
@@ -124,7 +124,7 @@ public abstract class ExtensionFinder implements ExtensionPoint {
      * Also see http://kohsuke.org/2010/09/01/deadlock-that-you-cant-avoid/ for how class initialization
      * can results in a dead lock.
      */
-    public void scout(Class extensionType, Hudson hudson) {
+    public void scout(Class extensionType, HudsonExt hudson) {
     }
 
     /**
@@ -152,13 +152,13 @@ public abstract class ExtensionFinder implements ExtensionPoint {
             // 4. thread Y decides to load extensions, now blocked on SZ.
             // 5. dead lock
             if (indices==null) {
-                ClassLoader cl = Hudson.getInstance().getPluginManager().uberClassLoader;
+                ClassLoader cl = HudsonExt.getInstance().getPluginManager().uberClassLoader;
                 indices = ImmutableList.copyOf(Index.load(Extension.class, Object.class, cl));
             }
             return indices;
         }
 
-        public <T> Collection<ExtensionComponent<T>> find(Class<T> type, Hudson hudson) {
+        public <T> Collection<ExtensionComponent<T>> find(Class<T> type, HudsonExt hudson) {
             List<ExtensionComponent<T>> result = new ArrayList<ExtensionComponent<T>>();
 
             for (IndexItem<Extension,Object> item : getIndices()) {
@@ -196,7 +196,7 @@ public abstract class ExtensionFinder implements ExtensionPoint {
         }
 
         @Override
-        public void scout(Class extensionType, Hudson hudson) {
+        public void scout(Class extensionType, HudsonExt hudson) {
             for (IndexItem<Extension,Object> item : getIndices()) {
                 try {
                     // we might end up having multiple threads concurrently calling into element(),

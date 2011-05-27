@@ -33,21 +33,21 @@ import java.util.Locale;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Cache of {@link Fingerprint}s.
+ * Cache of {@link FingerprintExt}s.
  *
  * <p>
- * This implementation makes sure that no two {@link Fingerprint} objects
- * lie around for the same hash code, and that unused {@link Fingerprint}
+ * This implementation makes sure that no two {@link FingerprintExt} objects
+ * lie around for the same hash code, and that unused {@link FingerprintExt}
  * will be adequately GC-ed to prevent memory leak.
  *
  * @author Kohsuke Kawaguchi
- * @see Hudson#getFingerprintMap() 
+ * @see HudsonExt#getFingerprintMap() 
  */
-public final class FingerprintMap extends KeyedDataStorage<Fingerprint,FingerprintParams> {
+public final class FingerprintMap extends KeyedDataStorage<FingerprintExt,FingerprintParams> {
 
     /**
      * @deprecated since 2007-03-26.
-     *      Some old version of Hudson incorrectly serialized this information to the disk.
+     *      Some old version of HudsonExt incorrectly serialized this information to the disk.
      *      So we need this field to be here for such configuration to be read correctly.
      *      This field is otherwise no longer in use.
      */
@@ -57,29 +57,29 @@ public final class FingerprintMap extends KeyedDataStorage<Fingerprint,Fingerpri
      * Returns true if there's some data in the fingerprint database.
      */
     public boolean isReady() {
-        return new File(Hudson.getInstance().getRootDir(),"fingerprints").exists();
+        return new File(HudsonExt.getInstance().getRootDir(),"fingerprints").exists();
     }
 
     /**
      * @param build
-     *      set to non-null if {@link Fingerprint} to be created (if so)
+     *      set to non-null if {@link FingerprintExt} to be created (if so)
      *      will have this build as the owner. Otherwise null, to indicate
      *      an owner-less build.
      */
-    public Fingerprint getOrCreate(AbstractBuildExt build, String fileName, byte[] md5sum) throws IOException {
+    public FingerprintExt getOrCreate(AbstractBuildExt build, String fileName, byte[] md5sum) throws IOException {
         return getOrCreate(build,fileName, Util.toHexString(md5sum));
     }
 
-    public Fingerprint getOrCreate(AbstractBuildExt build, String fileName, String md5sum) throws IOException {
+    public FingerprintExt getOrCreate(AbstractBuildExt build, String fileName, String md5sum) throws IOException {
         return super.getOrCreate(md5sum, new FingerprintParams(build,fileName));
     }
 
-    public Fingerprint getOrCreate(Run build, String fileName, String md5sum) throws IOException {
+    public FingerprintExt getOrCreate(RunExt build, String fileName, String md5sum) throws IOException {
         return super.getOrCreate(md5sum, new FingerprintParams(build,fileName));
     }
 
     @Override
-    protected Fingerprint get(String md5sum, boolean createIfNotExist, FingerprintParams createParams) throws IOException {
+    protected FingerprintExt get(String md5sum, boolean createIfNotExist, FingerprintParams createParams) throws IOException {
         // sanity check
         if(md5sum.length()!=32)
             return null;    // illegal input
@@ -95,16 +95,16 @@ public final class FingerprintMap extends KeyedDataStorage<Fingerprint,Fingerpri
         return data;
     }
 
-    protected Fingerprint create(String md5sum, FingerprintParams createParams) throws IOException {
-        return new Fingerprint(createParams.build, createParams.fileName, toByteArray(md5sum));
+    protected FingerprintExt create(String md5sum, FingerprintParams createParams) throws IOException {
+        return new FingerprintExt(createParams.build, createParams.fileName, toByteArray(md5sum));
     }
 
-    protected Fingerprint load(String key) throws IOException {
-        return Fingerprint.load(toByteArray(key));
+    protected FingerprintExt load(String key) throws IOException {
+        return FingerprintExt.load(toByteArray(key));
     }
 
     private Object readResolve() {
-        if (core != null) OldDataMonitorExt.report(Hudson.getInstance(), "1.91");
+        if (core != null) OldDataMonitorExt.report(HudsonExt.getInstance(), "1.91");
         return this;
     }
 }
@@ -113,10 +113,10 @@ class FingerprintParams {
     /**
      * Null if the build isn't claiming to be the owner.
      */
-    final Run build;
+    final RunExt build;
     final String fileName;
 
-    public FingerprintParams(Run build, String fileName) {
+    public FingerprintParams(RunExt build, String fileName) {
         this.build = build;
         this.fileName = fileName;
 

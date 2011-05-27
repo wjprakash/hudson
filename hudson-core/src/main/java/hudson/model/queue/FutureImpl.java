@@ -23,8 +23,8 @@
  */
 package hudson.model.queue;
 
-import hudson.model.Executor;
-import hudson.model.Hudson;
+import hudson.model.ExecutorExt;
+import hudson.model.HudsonExt;
 import hudson.model.Queue;
 import hudson.model.Queue.Executable;
 import hudson.model.Queue.Task;
@@ -42,9 +42,9 @@ public final class FutureImpl extends AsyncFutureImpl<Executable> {
     private final Task task;
 
     /**
-     * If the computation has started, set to {@link Executor}s that are running the build.
+     * If the computation has started, set to {@link ExecutorExt}s that are running the build.
      */
-    private final Set<Executor> executors = new HashSet<Executor>();
+    private final Set<ExecutorExt> executors = new HashSet<ExecutorExt>();
 
     public FutureImpl(Task task) {
         this.task = task;
@@ -52,12 +52,12 @@ public final class FutureImpl extends AsyncFutureImpl<Executable> {
 
     @Override
     public boolean cancel(boolean mayInterruptIfRunning) {
-        Queue q = Hudson.getInstance().getQueue();
+        Queue q = HudsonExt.getInstance().getQueue();
         synchronized (q) {
             synchronized (this) {
                 if(!executors.isEmpty()) {
                     if(mayInterruptIfRunning)
-                        for (Executor e : executors)
+                        for (ExecutorExt e : executors)
                             e.interrupt();
                     return mayInterruptIfRunning;
                 }
@@ -66,7 +66,7 @@ public final class FutureImpl extends AsyncFutureImpl<Executable> {
         }
     }
 
-    synchronized void addExecutor(Executor executor) {
+    synchronized void addExecutor(ExecutorExt executor) {
         this.executors.add(executor);
     }
 }

@@ -34,8 +34,8 @@ import hudson.model.AbstractProjectExt;
 import hudson.model.DependecyDeclarer;
 import hudson.model.DependencyGraph;
 import hudson.model.Describable;
-import hudson.model.Descriptor;
-import hudson.model.Descriptor.FormException;
+import hudson.model.DescriptorExt;
+import hudson.model.DescriptorExt.FormException;
 import hudson.model.Saveable;
 import net.sf.json.JSONObject;
 import org.kohsuke.stapler.StaplerRequest;
@@ -48,7 +48,7 @@ import java.util.Map;
 
 /**
  * Persisted list of {@link Describable}s with some operations specific
- * to {@link Descriptor}s.
+ * to {@link DescriptorExt}s.
  *
  * <p>
  * This class allows multiple instances of the same descriptor. Some clients
@@ -56,11 +56,11 @@ import java.util.Map;
  * one descriptor" model.
  *
  * Some of the methods defined in this class only makes sense in the latter model,
- * such as {@link #remove(Descriptor)}.
+ * such as {@link #remove(DescriptorExt)}.
  *
  * @author Kohsuke Kawaguchi
  */
-public class DescribableList<T extends Describable<T>, D extends Descriptor<T>> extends PersistedList<T> {
+public class DescribableList<T extends Describable<T>, D extends DescriptorExt<T>> extends PersistedList<T> {
     protected DescribableList() {
     }
 
@@ -124,7 +124,7 @@ public class DescribableList<T extends Describable<T>, D extends Descriptor<T>> 
      */
     @SuppressWarnings("unchecked")
     public Map<D,T> toMap() {
-        return (Map)Descriptor.toMap(data);
+        return (Map)DescriptorExt.toMap(data);
     }
 
     /**
@@ -137,10 +137,10 @@ public class DescribableList<T extends Describable<T>, D extends Descriptor<T>> 
      * @param json
      *      Structured form data that includes the data for nested descriptor list.
      */
-    public void rebuild(StaplerRequest req, JSONObject json, List<? extends Descriptor<T>> descriptors) throws FormException, IOException {
+    public void rebuild(StaplerRequest req, JSONObject json, List<? extends DescriptorExt<T>> descriptors) throws FormException, IOException {
         List<T> newList = new ArrayList<T>();
 
-        for (Descriptor<T> d : descriptors) {
+        for (DescriptorExt<T> d : descriptors) {
             String name = d.getJsonSafeClassName();
             if (json.has(name)) {
                 T instance = d.newInstance(req, json.getJSONObject(name));
@@ -155,7 +155,7 @@ public class DescribableList<T extends Describable<T>, D extends Descriptor<T>> 
      * @deprecated as of 1.271
      *      Use {@link #rebuild(StaplerRequest, JSONObject, List)} instead.
      */
-    public void rebuild(StaplerRequest req, JSONObject json, List<? extends Descriptor<T>> descriptors, String prefix) throws FormException, IOException {
+    public void rebuild(StaplerRequest req, JSONObject json, List<? extends DescriptorExt<T>> descriptors, String prefix) throws FormException, IOException {
         rebuild(req,json,descriptors);
     }
 
@@ -167,8 +167,8 @@ public class DescribableList<T extends Describable<T>, D extends Descriptor<T>> 
      * is allowed to create multiple instances of the same descriptor. Order is also
      * significant.
      */
-    public void rebuildHetero(StaplerRequest req, JSONObject formData, Collection<? extends Descriptor<T>> descriptors, String key) throws FormException, IOException {
-        replaceBy(Descriptor.newInstancesFromHeteroList(req,formData,key,descriptors));
+    public void rebuildHetero(StaplerRequest req, JSONObject formData, Collection<? extends DescriptorExt<T>> descriptors, String key) throws FormException, IOException {
+        replaceBy(DescriptorExt.newInstancesFromHeteroList(req,formData,key,descriptors));
     }
 
     /**

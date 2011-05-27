@@ -36,17 +36,17 @@ import java.util.List;
  */
 public class Jobs {
     /**
-     * List of all installed {@link JobPropertyDescriptor} types.
+     * List of all installed {@link JobPropertyDescriptorExt} types.
      *
      * <p>
-     * Plugins can add their {@link JobPropertyDescriptor}s to this list.
+     * Plugins can add their {@link JobPropertyDescriptorExt}s to this list.
      *
-     * @see JobPropertyDescriptor#getPropertyDescriptors(Class)
+     * @see JobPropertyDescriptorExt#getPropertyDescriptors(Class)
      *
      * @deprecated as of 1.281
-     *      Use {@link JobPropertyDescriptor#all()} for read access,
+     *      Use {@link JobPropertyDescriptorExt#all()} for read access,
      *      and {@link Extension} for registration.
      */
-    public static final List<JobPropertyDescriptor> PROPERTIES = (List)
-            new DescriptorList<JobProperty<?>>((Class)JobProperty.class);
+    public static final List<JobPropertyDescriptorExt> PROPERTIES = (List)
+            new DescriptorList<JobPropertyExt<?>>((Class)JobPropertyExt.class);
 }

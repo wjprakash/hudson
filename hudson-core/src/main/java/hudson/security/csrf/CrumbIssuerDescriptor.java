@@ -6,7 +6,7 @@
 package hudson.security.csrf;
 
 import hudson.Util;
-import hudson.model.Descriptor;
+import hudson.model.DescriptorExt;
 
 /**
  * Describes global configuration for crumb issuers. Create subclasses to specify
@@ -14,7 +14,7 @@ import hudson.model.Descriptor;
  * 
  * @author dty
  */
-public abstract class CrumbIssuerDescriptor<T extends CrumbIssuer> extends Descriptor<CrumbIssuer> {
+public abstract class CrumbIssuerDescriptor<T extends CrumbIssuer> extends DescriptorExt<CrumbIssuer> {
 
     private String crumbSalt;
     private String crumbRequestField;

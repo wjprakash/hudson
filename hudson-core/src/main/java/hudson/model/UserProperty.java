@@ -26,7 +26,7 @@ package hudson.model;
 import hudson.ExtensionPoint;
 import hudson.PluginExt;
 import hudson.DescriptorExtensionListExt;
-import hudson.model.Descriptor.FormException;
+import hudson.model.DescriptorExt.FormException;
 import net.sf.json.JSONObject;
 
 import org.kohsuke.stapler.StaplerRequest;
@@ -53,7 +53,7 @@ import org.kohsuke.stapler.export.ExportedBean;
 public abstract class UserProperty implements Describable<UserProperty>, ExtensionPoint {
     /**
      * The user object that owns this property.
-     * This value will be set by the Hudson code.
+     * This value will be set by the HudsonExt code.
      * Derived classes can expect this value to be always set.
      */
     protected transient User user;
@@ -64,14 +64,14 @@ public abstract class UserProperty implements Describable<UserProperty>, Extensi
 
     // descriptor must be of the UserPropertyDescriptor type
     public UserPropertyDescriptor getDescriptor() {
-        return (UserPropertyDescriptor)Hudson.getInstance().getDescriptorOrDie(getClass());
+        return (UserPropertyDescriptor)HudsonExt.getInstance().getDescriptorOrDie(getClass());
     }
 
     /**
      * Returns all the registered {@link UserPropertyDescriptor}s.
      */
     public static DescriptorExtensionListExt<UserProperty,UserPropertyDescriptor> all() {
-        return Hudson.getInstance().<UserProperty,UserPropertyDescriptor>getDescriptorList(UserProperty.class);
+        return HudsonExt.getInstance().<UserProperty,UserPropertyDescriptor>getDescriptorList(UserProperty.class);
     }
 
     public UserProperty reconfigure(StaplerRequest req, JSONObject form) throws FormException {

@@ -25,7 +25,7 @@ package hudson.slaves;
 
 import hudson.model.AsyncPeriodicWork;
 import hudson.model.TaskListener;
-import hudson.model.Hudson;
+import hudson.model.HudsonExt;
 import hudson.model.ComputerExt;
 import hudson.util.TimeUnit2;
 import hudson.remoting.VirtualChannel;
@@ -56,7 +56,7 @@ public class ConnectionActivityMonitor extends AsyncPeriodicWork {
         if (!enabled)   return;
 
         long now = System.currentTimeMillis();
-        for (ComputerExt c: Hudson.getInstance().getComputers()) {
+        for (ComputerExt c: HudsonExt.getInstance().getComputers()) {
             VirtualChannel ch = c.getChannel();
             if (ch instanceof Channel) {
                 Channel channel = (Channel) ch;

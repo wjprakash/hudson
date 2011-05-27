@@ -23,8 +23,8 @@
  */
 package hudson.security;
 
-import hudson.model.Descriptor;
-import hudson.model.Hudson;
+import hudson.model.DescriptorExt;
+import hudson.model.HudsonExt;
 import hudson.Extension;
 
 import java.util.Collections;
@@ -53,13 +53,13 @@ public class FullControlOnceLoggedInAuthorizationStrategy extends AuthorizationS
     private static final SparseACL THE_ACL = new SparseACL(null);
 
     static {
-        THE_ACL.add(ACL.EVERYONE,Hudson.ADMINISTER,true);
-        THE_ACL.add(ACL.ANONYMOUS,Hudson.ADMINISTER,false);
+        THE_ACL.add(ACL.EVERYONE,HudsonExt.ADMINISTER,true);
+        THE_ACL.add(ACL.ANONYMOUS,HudsonExt.ADMINISTER,false);
         THE_ACL.add(ACL.ANONYMOUS,Permission.READ,true);
     }
 
     @Extension
-    public static final Descriptor<AuthorizationStrategy> DESCRIPTOR = new Descriptor<AuthorizationStrategy>() {
+    public static final DescriptorExt<AuthorizationStrategy> DESCRIPTOR = new DescriptorExt<AuthorizationStrategy>() {
         public String getDisplayName() {
             return Messages.FullControlOnceLoggedInAuthorizationStrategy_DisplayName();
         }

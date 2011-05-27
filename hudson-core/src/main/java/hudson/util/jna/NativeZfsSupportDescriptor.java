@@ -23,15 +23,15 @@
  */
 package hudson.util.jna;
 
-import hudson.model.Descriptor;
+import hudson.model.DescriptorExt;
 
 /**
- * {@link Descriptor} for {@link ZfsSupport}.
+ * {@link DescriptorExt} for {@link ZfsSupport}.
  *
  * @author Winston Prakash
  * @since 2.0.1
  */
-public abstract class NativeZfsSupportDescriptor extends Descriptor<NativeZfsSupport> {
-    // so far nothing different from plain Descriptor
+public abstract class NativeZfsSupportDescriptor extends DescriptorExt<NativeZfsSupport> {
+    // so far nothing different from plain DescriptorExt
     // but it may prove useful for future expansion
 }

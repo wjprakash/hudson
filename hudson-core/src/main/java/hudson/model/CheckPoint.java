@@ -110,7 +110,7 @@ public final class CheckPoint {
      * This method can be only called from an {@link Executor} thread.
      */
     public void report() {
-        Run.reportCheckpoint(this);
+        RunExt.reportCheckpoint(this);
     }
 
     /**
@@ -141,7 +141,7 @@ public final class CheckPoint {
      *      If the build (represented by the calling executor thread) is aborted while it's waiting.  
      */
     public void block() throws InterruptedException {
-        Run.waitForCheckpoint(this);
+        RunExt.waitForCheckpoint(this);
     }
 
     /**

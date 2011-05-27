@@ -32,9 +32,9 @@ import java.util.List;
  * @author Kohsuke Kawaguchi
  */
 public class RunTest extends TestCase {
-    private List<? extends Run<?,?>.Artifact> createArtifactList(String... paths) {
-        Run<FreeStyleProject,FreeStyleBuild> r = new Run<FreeStyleProject,FreeStyleBuild>(null,new GregorianCalendar()) {};
-        Run<FreeStyleProject,FreeStyleBuild>.ArtifactList list = r.new ArtifactList();
+    private List<? extends RunExt<?,?>.Artifact> createArtifactList(String... paths) {
+        RunExt<FreeStyleProjectExt,FreeStyleBuild> r = new RunExt<FreeStyleProjectExt,FreeStyleBuild>(null,new GregorianCalendar()) {};
+        RunExt<FreeStyleProjectExt,FreeStyleBuild>.ArtifactList list = r.new ArtifactList();
         for (String p : paths) {
             list.add(r.new Artifact(p,p,p,"n"+list.size()));  // Assuming all test inputs don't need urlencoding
         }
@@ -43,21 +43,21 @@ public class RunTest extends TestCase {
     }
     
     public void testArtifactListDisambiguation1() {
-        List<? extends Run<?, ?>.Artifact> a = createArtifactList("a/b/c.xml", "d/f/g.xml", "h/i/j.xml");
+        List<? extends RunExt<?, ?>.Artifact> a = createArtifactList("a/b/c.xml", "d/f/g.xml", "h/i/j.xml");
         assertEquals(a.get(0).getDisplayPath(),"c.xml");
         assertEquals(a.get(1).getDisplayPath(),"g.xml");
         assertEquals(a.get(2).getDisplayPath(),"j.xml");
     }
 
     public void testArtifactListDisambiguation2() {
-        List<? extends Run<?, ?>.Artifact> a = createArtifactList("a/b/c.xml", "d/f/g.xml", "h/i/g.xml");
+        List<? extends RunExt<?, ?>.Artifact> a = createArtifactList("a/b/c.xml", "d/f/g.xml", "h/i/g.xml");
         assertEquals(a.get(0).getDisplayPath(),"c.xml");
         assertEquals(a.get(1).getDisplayPath(),"f/g.xml");
         assertEquals(a.get(2).getDisplayPath(),"i/g.xml");
     }
 
     public void testArtifactListDisambiguation3() {
-        List<? extends Run<?, ?>.Artifact> a = createArtifactList("a.xml","a/a.xml");
+        List<? extends RunExt<?, ?>.Artifact> a = createArtifactList("a.xml","a/a.xml");
         assertEquals(a.get(0).getDisplayPath(),"a.xml");
         assertEquals(a.get(1).getDisplayPath(),"a/a.xml");
     }

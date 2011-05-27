@@ -24,7 +24,7 @@
 package hudson.slaves;
 
 import hudson.model.*;
-import hudson.model.Hudson.MasterComputer;
+import hudson.model.HudsonExt.MasterComputer;
 import hudson.remoting.Channel;
 import hudson.remoting.VirtualChannel;
 import hudson.remoting.Callable;
@@ -216,7 +216,7 @@ public class SlaveComputer extends ComputerExt {
      * {@inheritDoc}
      */
     @Override
-    public void taskAccepted(Executor executor, Queue.Task task) {
+    public void taskAccepted(ExecutorExt executor, Queue.Task task) {
         super.taskAccepted(executor, task);
         if (launcher instanceof ExecutorListener) {
             ((ExecutorListener)launcher).taskAccepted(executor, task);
@@ -230,7 +230,7 @@ public class SlaveComputer extends ComputerExt {
      * {@inheritDoc}
      */
     @Override
-    public void taskCompleted(Executor executor, Queue.Task task, long durationMS) {
+    public void taskCompleted(ExecutorExt executor, Queue.Task task, long durationMS) {
         super.taskCompleted(executor, task, durationMS);
         if (launcher instanceof ExecutorListener) {
             ((ExecutorListener)launcher).taskCompleted(executor, task, durationMS);
@@ -245,7 +245,7 @@ public class SlaveComputer extends ComputerExt {
      * {@inheritDoc}
      */
     @Override
-    public void taskCompletedWithProblems(Executor executor, Queue.Task task, long durationMS, Throwable problems) {
+    public void taskCompletedWithProblems(ExecutorExt executor, Queue.Task task, long durationMS, Throwable problems) {
         super.taskCompletedWithProblems(executor, task, durationMS, problems);
         if (launcher instanceof ExecutorListener) {
             ((ExecutorListener)launcher).taskCompletedWithProblems(executor, task, durationMS, problems);
@@ -349,7 +349,7 @@ public class SlaveComputer extends ComputerExt {
                 // check again. we used to have this entire method in a big sycnhronization block,
                 // but Channel constructor blocks for an external process to do the connection
                 // if CommandLauncher is used, and that cannot be interrupted because it blocks at InputStream.
-                // so if the process hangs, it hangs the thread in a lock, and since Hudson will try to relaunch,
+                // so if the process hangs, it hangs the thread in a lock, and since HudsonExt will try to relaunch,
                 // we'll end up queuing the lot of threads in a pseudo deadlock.
                 // This implementation prevents that by avoiding a lock. HUDSON-1705 is likely a manifestation of this.
                 channel.close();
@@ -363,7 +363,7 @@ public class SlaveComputer extends ComputerExt {
         for (ComputerListener cl : ComputerListener.all())
             cl.onOnline(this,taskListener);
         log.println("Slave successfully connected and online");
-        Hudson.getInstance().getQueue().scheduleMaintenance();
+        HudsonExt.getInstance().getQueue().scheduleMaintenance();
     }
 
     @Override
@@ -389,10 +389,10 @@ public class SlaveComputer extends ComputerExt {
     public HttpResponse doDoDisconnect(@QueryParameter String offlineMessage) throws IOException, ServletException {
         if (channel!=null) {
             //does nothing in case computer is already disconnected
-            checkPermission(Hudson.ADMINISTER);
+            checkPermission(HudsonExt.ADMINISTER);
             offlineMessage = Util.fixEmptyAndTrim(offlineMessage);
             disconnect(OfflineCause.create(Messages._SlaveComputer_DisconnectedBy(
-                    Hudson.getAuthentication().getName(),
+                    HudsonExt.getAuthentication().getName(),
                     offlineMessage!=null ? " : " + offlineMessage : "")
             ));
         }
@@ -439,7 +439,7 @@ public class SlaveComputer extends ComputerExt {
      * Serves jar files for JNLP slave agents.
      *
      * @deprecated since 2008-08-18.
-     *      This URL binding is no longer used and moved up directly under to {@link Hudson},
+     *      This URL binding is no longer used and moved up directly under to {@link HudsonExt},
      *      but it's left here for now just in case some old JNLP slave agents request it.
      */
     public Slave.JnlpJar getJnlpJars(String fileName) {
@@ -575,7 +575,7 @@ public class SlaveComputer extends ComputerExt {
      * @since 1.362
      */
     public static VirtualChannel getChannelToMaster() {
-        if (Hudson.getInstance()!=null)
+        if (HudsonExt.getInstance()!=null)
             return MasterComputer.localChannel;
 
         // if this method is called from within the slave computation thread, this should work

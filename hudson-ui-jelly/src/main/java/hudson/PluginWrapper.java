@@ -23,7 +23,7 @@
  */
 package hudson;
 
-import hudson.model.Hudson;
+import hudson.model.HudsonExt;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -48,25 +48,25 @@ public class PluginWrapper extends PluginWrapperExt {
     // Action methods
     
     public HttpResponse doMakeEnabled() throws IOException {
-        Hudson.getInstance().checkPermission(Hudson.ADMINISTER);
+        HudsonExt.getInstance().checkPermission(HudsonExt.ADMINISTER);
         enable();
         return HttpResponses.ok();
     }
 
     public HttpResponse doMakeDisabled() throws IOException {
-        Hudson.getInstance().checkPermission(Hudson.ADMINISTER);
+        HudsonExt.getInstance().checkPermission(HudsonExt.ADMINISTER);
         disable();
         return HttpResponses.ok();
     }
 
     public HttpResponse doPin() throws IOException {
-        Hudson.getInstance().checkPermission(Hudson.ADMINISTER);
+        HudsonExt.getInstance().checkPermission(HudsonExt.ADMINISTER);
         new FileOutputStream(pinFile).close();
         return HttpResponses.ok();
     }
 
     public HttpResponse doUnpin() throws IOException {
-        Hudson.getInstance().checkPermission(Hudson.ADMINISTER);
+        HudsonExt.getInstance().checkPermission(HudsonExt.ADMINISTER);
         pinFile.delete();
         return HttpResponses.ok();
     }

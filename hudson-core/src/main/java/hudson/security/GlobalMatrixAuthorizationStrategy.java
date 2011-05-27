@@ -29,9 +29,9 @@ import com.thoughtworks.xstream.converters.UnmarshallingContext;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
 import hudson.diagnosis.OldDataMonitorExt;
-import hudson.model.Descriptor;
-import hudson.model.Hudson;
-import hudson.model.Item;
+import hudson.model.DescriptorExt;
+import hudson.model.HudsonExt;
+import hudson.model.ItemExt;
 import hudson.util.FormValidation;
 import hudson.util.FormValidation.Kind;
 import hudson.util.VersionNumber;
@@ -118,23 +118,23 @@ public class GlobalMatrixAuthorizationStrategy extends AuthorizationStrategy {
     }
 
     /**
-     * Due to HUDSON-2324, we want to inject Item.READ permission to everyone who has Hudson.READ,
+     * Due to HUDSON-2324, we want to inject ItemExt.READ permission to everyone who has HudsonExt.READ,
      * to remain backward compatible.
      * @param grantedPermissions
      */
     /*package*/ static boolean migrateHudson2324(Map<Permission,Set<String>> grantedPermissions) {
         boolean result = false;
-        if(Hudson.getInstance().isUpgradedFromBefore(new VersionNumber("1.300.*"))) {
-            Set<String> f = grantedPermissions.get(Hudson.READ);
+        if(HudsonExt.getInstance().isUpgradedFromBefore(new VersionNumber("1.300.*"))) {
+            Set<String> f = grantedPermissions.get(HudsonExt.READ);
             if (f!=null) {
-                Set<String> t = grantedPermissions.get(Item.READ);
+                Set<String> t = grantedPermissions.get(ItemExt.READ);
                 if (t!=null)
                     result = t.addAll(f);
                 else {
                     t = new HashSet<String>(f);
                     result = true;
                 }
-                grantedPermissions.put(Item.READ,t);
+                grantedPermissions.put(ItemExt.READ,t);
             }
         }
         return result;
@@ -242,7 +242,7 @@ public class GlobalMatrixAuthorizationStrategy extends AuthorizationStrategy {
         }
     }
     
-    public static class DescriptorImpl extends Descriptor<AuthorizationStrategy> {
+    public static class DescriptorImpl extends DescriptorExt<AuthorizationStrategy> {
         protected DescriptorImpl(Class<? extends GlobalMatrixAuthorizationStrategy> clazz) {
             super(clazz);
         }
@@ -284,14 +284,14 @@ public class GlobalMatrixAuthorizationStrategy extends AuthorizationStrategy {
         }
 
         public FormValidation doCheckName(@QueryParameter String value ) throws IOException, ServletException {
-            return doCheckName(value, Hudson.getInstance(), Hudson.ADMINISTER);
+            return doCheckName(value, HudsonExt.getInstance(), HudsonExt.ADMINISTER);
         }
 
         FormValidation doCheckName(String value, AccessControlled subject, Permission permission) throws IOException, ServletException {
             if(!subject.hasPermission(permission))  return FormValidation.ok(); // can't check
 
             final String v = value.substring(1,value.length()-1);
-            SecurityRealm sr = Hudson.getInstance().getSecurityRealm();
+            SecurityRealm sr = HudsonExt.getInstance().getSecurityRealm();
             String ev = FunctionsExt.escape(v);
 
             if(v.equals("authenticated"))
@@ -327,7 +327,7 @@ public class GlobalMatrixAuthorizationStrategy extends AuthorizationStrategy {
         }
 
         private String makeImg(String gif) {
-            return String.format("<img src='%s%s/images/16x16/%s' style='margin-right:0.2em'>", Stapler.getCurrentRequest().getContextPath(), Hudson.RESOURCE_PATH, gif);
+            return String.format("<img src='%s%s/images/16x16/%s' style='margin-right:0.2em'>", Stapler.getCurrentRequest().getContextPath(), HudsonExt.RESOURCE_PATH, gif);
         }
     }
 }

@@ -24,7 +24,7 @@
 package hudson;
 
 import hudson.init.InitMilestone;
-import hudson.model.Hudson;
+import hudson.model.HudsonExt;
 import hudson.util.AdaptedIterator;
 import hudson.util.DescriptorList;
 import hudson.util.Memoizer;
@@ -53,20 +53,20 @@ import java.util.logging.Logger;
  * manual registration,
  *
  * <p>
- * All {@link ExtensionList} instances should be owned by {@link Hudson}, even though
- * extension points can be defined by anyone on any type. Use {@link Hudson#getExtensionList(Class)}
- * and {@link Hudson#getDescriptorList(Class)} to obtain the instances.
+ * All {@link ExtensionList} instances should be owned by {@link HudsonExt}, even though
+ * extension points can be defined by anyone on any type. Use {@link HudsonExt#getExtensionList(Class)}
+ * and {@link HudsonExt#getDescriptorList(Class)} to obtain the instances.
  *
  * @param <T>
  *      Type of the extension point. This class holds instances of the subtypes of 'T'. 
  *
  * @author Kohsuke Kawaguchi
  * @since 1.286
- * @see Hudson#getExtensionList(Class)
- * @see Hudson#getDescriptorList(Class)
+ * @see HudsonExt#getExtensionList(Class)
+ * @see HudsonExt#getDescriptorList(Class)
  */
 public class ExtensionList<T> extends AbstractList<T> {
-    public final Hudson hudson;
+    public final HudsonExt hudson;
     public final Class<T> extensionType;
 
     /**
@@ -76,12 +76,12 @@ public class ExtensionList<T> extends AbstractList<T> {
     private volatile List<ExtensionComponent<T>> extensions;
 
     /**
-     * Place to store manually registered instances with the per-Hudson scope.
+     * Place to store manually registered instances with the per-HudsonExt scope.
      * {@link CopyOnWriteArrayList} is used here to support concurrent iterations and mutation.
      */
     private final CopyOnWriteArrayList<ExtensionComponent<T>> legacyInstances;
 
-    protected ExtensionList(Hudson hudson, Class<T> extensionType) {
+    protected ExtensionList(HudsonExt hudson, Class<T> extensionType) {
         this(hudson,extensionType,new CopyOnWriteArrayList<ExtensionComponent<T>>());
     }
 
@@ -92,7 +92,7 @@ public class ExtensionList<T> extends AbstractList<T> {
      *      omits this uses a new {@link Vector}, making the storage lifespan tied to the life of  {@link ExtensionList}.
      *      If the manually registered instances are scoped to VM level, the caller should pass in a static list. 
      */
-    protected ExtensionList(Hudson hudson, Class<T> extensionType, CopyOnWriteArrayList<ExtensionComponent<T>> legacyStore) {
+    protected ExtensionList(HudsonExt hudson, Class<T> extensionType, CopyOnWriteArrayList<ExtensionComponent<T>> legacyStore) {
         this.hudson = hudson;
         this.extensionType = extensionType;
         this.legacyInstances = legacyStore;
@@ -200,7 +200,7 @@ public class ExtensionList<T> extends AbstractList<T> {
     private List<ExtensionComponent<T>> ensureLoaded() {
         if(extensions!=null)
             return extensions; // already loaded
-        if(Hudson.getInstance().getInitLevel().compareTo(InitMilestone.PLUGINS_PREPARED)<0)
+        if(HudsonExt.getInstance().getInitLevel().compareTo(InitMilestone.PLUGINS_PREPARED)<0)
             return legacyInstances; // can't perform the auto discovery until all plugins are loaded, so just make the legacy instances visible
 
         synchronized (getLoadLock()) {
@@ -250,7 +250,7 @@ public class ExtensionList<T> extends AbstractList<T> {
         return r;
     }
 
-    public static <T> ExtensionList<T> create(Hudson hudson, Class<T> type) {
+    public static <T> ExtensionList<T> create(HudsonExt hudson, Class<T> type) {
         if(type.getAnnotation(LegacyInstancesAreScopedToHudson.class)!=null)
             return new ExtensionList<T>(hudson,type);
         else {

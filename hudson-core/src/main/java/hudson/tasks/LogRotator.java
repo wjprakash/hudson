@@ -24,9 +24,9 @@
 package hudson.tasks;
 
 import hudson.model.Describable;
-import hudson.model.Descriptor;
-import hudson.model.Job;
-import hudson.model.Run;
+import hudson.model.DescriptorExt;
+import hudson.model.JobExt;
+import hudson.model.RunExt;
 import hudson.scm.SCM;
 
 import org.kohsuke.stapler.DataBoundConstructor;
@@ -105,16 +105,16 @@ public class LogRotator implements Describable<LogRotator> {
         
     }
 
-    public void perform(Job<?,?> job) throws IOException, InterruptedException {
+    public void perform(JobExt<?,?> job) throws IOException, InterruptedException {
         LOGGER.log(FINE,"Running the log rotation for "+job.getFullDisplayName());
         
         // keep the last successful build regardless of the status
-        Run lsb = job.getLastSuccessfulBuild();
-        Run lstb = job.getLastStableBuild();
+        RunExt lsb = job.getLastSuccessfulBuild();
+        RunExt lstb = job.getLastStableBuild();
 
         if(numToKeep!=-1) {
-            List<? extends Run<?,?>> builds = job.getBuilds();
-            for (Run r : builds.subList(Math.min(builds.size(),numToKeep),builds.size())) {
+            List<? extends RunExt<?,?>> builds = job.getBuilds();
+            for (RunExt r : builds.subList(Math.min(builds.size(),numToKeep),builds.size())) {
                 if (r.isKeepLog()) {
                     LOGGER.log(FINER,r.getFullDisplayName()+" is not GC-ed because it's marked as a keeper");
                     continue;
@@ -136,7 +136,7 @@ public class LogRotator implements Describable<LogRotator> {
             Calendar cal = new GregorianCalendar();
             cal.add(Calendar.DAY_OF_YEAR,-daysToKeep);
             // copy it to the array because we'll be deleting builds as we go.
-            for( Run r : job.getBuilds() ) {
+            for( RunExt r : job.getBuilds() ) {
                 if (r.isKeepLog()) {
                     LOGGER.log(FINER,r.getFullDisplayName()+" is not GC-ed because it's marked as a keeper");
                     continue;
@@ -159,8 +159,8 @@ public class LogRotator implements Describable<LogRotator> {
         }
 
         if(artifactNumToKeep!=null && artifactNumToKeep!=-1) {
-            List<? extends Run<?,?>> builds = job.getBuilds();
-            for (Run r : builds.subList(Math.min(builds.size(),artifactNumToKeep),builds.size())) {
+            List<? extends RunExt<?,?>> builds = job.getBuilds();
+            for (RunExt r : builds.subList(Math.min(builds.size(),artifactNumToKeep),builds.size())) {
                 if (r.isKeepLog()) {
                     LOGGER.log(FINER,r.getFullDisplayName()+" is not purged of artifacts because it's marked as a keeper");
                     continue;
@@ -181,7 +181,7 @@ public class LogRotator implements Describable<LogRotator> {
             Calendar cal = new GregorianCalendar();
             cal.add(Calendar.DAY_OF_YEAR,-artifactDaysToKeep);
             // copy it to the array because we'll be deleting builds as we go.
-            for( Run r : job.getBuilds() ) {
+            for( RunExt r : job.getBuilds() ) {
                 if (r.isKeepLog()) {
                     LOGGER.log(FINER,r.getFullDisplayName()+" is not purged of artifacts because it's marked as a keeper");
                     continue;
@@ -252,7 +252,7 @@ public class LogRotator implements Describable<LogRotator> {
 
     public static final LRDescriptor DESCRIPTOR = new LRDescriptor();
 
-    public static final class LRDescriptor extends Descriptor<LogRotator> {
+    public static final class LRDescriptor extends DescriptorExt<LogRotator> {
         public String getDisplayName() {
             return "Log Rotation";
         }

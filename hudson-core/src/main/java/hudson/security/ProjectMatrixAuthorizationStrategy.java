@@ -23,9 +23,9 @@
  */
 package hudson.security;
 
-import hudson.model.Descriptor;
-import hudson.model.Hudson;
-import hudson.model.Job;
+import hudson.model.DescriptorExt;
+import hudson.model.HudsonExt;
+import hudson.model.JobExt;
 import hudson.model.TopLevelItem;
 import hudson.util.RobustReflectionConverter;
 import hudson.Extension;
@@ -47,7 +47,7 @@ import java.util.Set;
  */
 public class ProjectMatrixAuthorizationStrategy extends GlobalMatrixAuthorizationStrategy {
     @Override
-    public ACL getACL(Job<?,?> project) {
+    public ACL getACL(JobExt<?,?> project) {
         AuthorizationMatrixProperty amp = project.getProperty(AuthorizationMatrixProperty.class);
         if (amp != null) {
             return amp.getACL().newInheritingACL(getRootACL());
@@ -60,7 +60,7 @@ public class ProjectMatrixAuthorizationStrategy extends GlobalMatrixAuthorizatio
     public Set<String> getGroups() {
         Set<String> r = new HashSet<String>();
         r.addAll(super.getGroups());
-        for (Job<?,?> j : Hudson.getInstance().getItems(Job.class)) {
+        for (JobExt<?,?> j : HudsonExt.getInstance().getItems(JobExt.class)) {
             AuthorizationMatrixProperty amp = j.getProperty(AuthorizationMatrixProperty.class);
             if (amp != null)
                 r.addAll(amp.getGroups());
@@ -69,7 +69,7 @@ public class ProjectMatrixAuthorizationStrategy extends GlobalMatrixAuthorizatio
     }
 
     @Extension
-    public static final Descriptor<AuthorizationStrategy> DESCRIPTOR = new DescriptorImpl() {
+    public static final DescriptorExt<AuthorizationStrategy> DESCRIPTOR = new DescriptorImpl() {
         @Override
         protected GlobalMatrixAuthorizationStrategy create() {
             return new ProjectMatrixAuthorizationStrategy();

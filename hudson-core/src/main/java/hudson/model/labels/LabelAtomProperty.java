@@ -27,8 +27,8 @@ import hudson.DescriptorExtensionListExt;
 import hudson.ExtensionPoint;
 import hudson.model.AbstractDescribableImpl;
 import hudson.model.Action;
-import hudson.model.Hudson;
-import hudson.slaves.NodeDescriptor;
+import hudson.model.HudsonExt;
+import hudson.slaves.NodeDescriptorExt;
 import hudson.slaves.NodePropertyDescriptor;
 import org.kohsuke.stapler.export.ExportedBean;
 
@@ -62,6 +62,6 @@ public class LabelAtomProperty extends AbstractDescribableImpl<LabelAtomProperty
      * Lists up all the registered {@link LabelAtomPropertyDescriptor}s in the system.
      */
     public static DescriptorExtensionListExt<LabelAtomProperty,LabelAtomPropertyDescriptor> all() {
-        return Hudson.getInstance().<LabelAtomProperty,LabelAtomPropertyDescriptor>getDescriptorList(LabelAtomProperty.class);
+        return HudsonExt.getInstance().<LabelAtomProperty,LabelAtomPropertyDescriptor>getDescriptorList(LabelAtomProperty.class);
     }
 }

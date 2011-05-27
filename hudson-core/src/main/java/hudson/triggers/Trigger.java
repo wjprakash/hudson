@@ -35,11 +35,11 @@ import static hudson.init.InitMilestone.JOB_LOADED;
 import hudson.model.AbstractProjectExt;
 import hudson.model.Action;
 import hudson.model.Build;
-import hudson.model.ComputerSet;
+import hudson.model.ComputerSetExt;
 import hudson.model.Describable;
-import hudson.model.Hudson;
-import hudson.model.Item;
-import hudson.model.Project;
+import hudson.model.HudsonExt;
+import hudson.model.ItemExt;
+import hudson.model.ProjectExt;
 import hudson.model.PeriodicWork;
 import hudson.model.TopLevelItem;
 import hudson.model.TopLevelItemDescriptor;
@@ -70,7 +70,7 @@ import java.util.logging.Logger;
  *
  * @author Kohsuke Kawaguchi
  */
-public abstract class Trigger<J extends Item> implements Describable<Trigger<?>>, ExtensionPoint {
+public abstract class Trigger<J extends ItemExt> implements Describable<Trigger<?>>, ExtensionPoint {
 
     /**
      * Called when a {@link Trigger} is loaded into memory and started.
@@ -78,8 +78,8 @@ public abstract class Trigger<J extends Item> implements Describable<Trigger<?>>
      * @param project
      *      given so that the persisted form of this object won't have to have a back pointer.
      * @param newInstance
-     *      True if this is a newly created trigger first attached to the {@link Project}.
-     *      False if this is invoked for a {@link Project} loaded from disk.
+     *      True if this is a newly created trigger first attached to the {@link ProjectExt}.
+     *      False if this is invoked for a {@link ProjectExt} loaded from disk.
      */
     public void start(J project, boolean newInstance) {
         this.job = project;
@@ -106,7 +106,7 @@ public abstract class Trigger<J extends Item> implements Describable<Trigger<?>>
 
     /**
      * Returns an action object if this {@link Trigger} has an action
-     * to contribute to a {@link Project}.
+     * to contribute to a {@link ProjectExt}.
      *
      * @deprecated as of 1.341
      *      Use {@link #getProjectActions()} instead.
@@ -130,7 +130,7 @@ public abstract class Trigger<J extends Item> implements Describable<Trigger<?>>
     }
 
     public TriggerDescriptor getDescriptor() {
-        return (TriggerDescriptor)Hudson.getInstance().getDescriptorOrDie(getClass());
+        return (TriggerDescriptor)HudsonExt.getInstance().getDescriptorOrDie(getClass());
     }
 
 
@@ -209,7 +209,7 @@ public abstract class Trigger<J extends Item> implements Describable<Trigger<?>>
     private static Future previousSynchronousPolling;
 
     public static void checkTriggers(final Calendar cal) {
-        Hudson inst = Hudson.getInstance();
+        HudsonExt inst = HudsonExt.getInstance();
 
         // Are we using synchronous polling?
         SCMTrigger.DescriptorImpl scmd = inst.getDescriptorByType(SCMTrigger.DescriptorImpl.class);
@@ -261,10 +261,10 @@ public abstract class Trigger<J extends Item> implements Describable<Trigger<?>>
     private static final Logger LOGGER = Logger.getLogger(Trigger.class.getName());
 
     /**
-     * This timer is available for all the components inside Hudson to schedule
+     * This timer is available for all the components inside HudsonExt to schedule
      * some work.
      *
-     * Initialized and cleaned up by {@link Hudson}, but value kept here for compatibility.
+     * Initialized and cleaned up by {@link HudsonExt}, but value kept here for compatibility.
      *
      * If plugins want to run periodic jobs, they should implement {@link PeriodicWork}.
      */
@@ -281,7 +281,7 @@ public abstract class Trigger<J extends Item> implements Describable<Trigger<?>>
         // start monitoring nodes, although there's no hurry.
         timer.schedule(new SafeTimerTask() {
             public void doRun() {
-                ComputerSet.initialize();
+                ComputerSetExt.initialize();
             }
         }, 1000*10);
     }
@@ -290,13 +290,13 @@ public abstract class Trigger<J extends Item> implements Describable<Trigger<?>>
      * Returns all the registered {@link Trigger} descriptors.
      */
     public static DescriptorExtensionListExt<Trigger<?>,TriggerDescriptor> all() {
-        return (DescriptorExtensionListExt)Hudson.getInstance().getDescriptorList(Trigger.class);
+        return (DescriptorExtensionListExt)HudsonExt.getInstance().getDescriptorList(Trigger.class);
     }
 
     /**
      * Returns a subset of {@link TriggerDescriptor}s that applys to the given item.
      */
-    public static List<TriggerDescriptor> for_(Item i) {
+    public static List<TriggerDescriptor> for_(ItemExt i) {
         List<TriggerDescriptor> r = new ArrayList<TriggerDescriptor>();
         for (TriggerDescriptor t : all()) {
             if(!t.isApplicable(i))  continue;

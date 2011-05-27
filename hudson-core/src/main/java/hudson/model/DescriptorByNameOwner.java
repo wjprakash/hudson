@@ -24,27 +24,27 @@
 package hudson.model;
 
 /**
- * Adds {@link #getDescriptorByName(String)} to bind {@link Descriptor}s to URL.
+ * Adds {@link #getDescriptorByName(String)} to bind {@link DescriptorExt}s to URL.
  * Binding them at some specific object (instead of {@link Hudson}), allows
- * {@link Descriptor}s to perform context-specific form field validation.
+ * {@link DescriptorExt}s to perform context-specific form field validation.
  *
  * <p>
- * {@link Descriptor#getCheckUrl(String)} finds an ancestor with this interface
+ * {@link DescriptorExt#getCheckUrl(String)} finds an ancestor with this interface
  * and generates URLs against it.
  *
  * @author Kohsuke Kawaguchi
  * @since 1.294
- * @see Descriptor#getCheckUrl(String)
+ * @see DescriptorExt#getCheckUrl(String)
  */
 public interface DescriptorByNameOwner extends ModelObject {
     /**
-     * Exposes all {@link Descriptor}s by its name to URL.
+     * Exposes all {@link DescriptorExt}s by its name to URL.
      *
      * <p>
      * Implementation should always delegate to {@link Hudson#getDescriptorByName(String)}.
      *
      * @param id
-     *      Either {@link Descriptor#getId()} (recommended) or the short name.
+     *      Either {@link DescriptorExt#getId()} (recommended) or the short name.
      */
-    Descriptor getDescriptorByName(String id);    
+    DescriptorExt getDescriptorByName(String id);    
 }

@@ -27,7 +27,7 @@ import com.thoughtworks.xstream.XStream;
 import hudson.BulkChange;
 import hudson.XmlFile;
 import hudson.model.AbstractModelObjectExt;
-import hudson.model.Hudson;
+import hudson.model.HudsonExt;
 import hudson.model.Saveable;
 import hudson.model.listeners.SaveableListener;
 import hudson.util.CopyOnWriteList;
@@ -51,7 +51,7 @@ import java.util.logging.Logger;
  *
  * <h3>Access Control</h3>
  * {@link LogRecorderExt} is only visible for administrators, and this access control happens at
- * {@link Hudson#getLog()}, the sole entry point for binding {@link LogRecorderExt} to URL.
+ * {@link HudsonExt#getLog()}, the sole entry point for binding {@link LogRecorderExt} to URL.
  *
  * @author Kohsuke Kawaguchi
  * @see LogRecorderManagerExt
@@ -144,14 +144,14 @@ public class LogRecorderExt extends AbstractModelObjectExt implements Saveable {
     }
 
     public LogRecorderManagerExt getParent() {
-        return Hudson.getInstance().getLog();
+        return HudsonExt.getInstance().getLog();
     }
 
        /**
      * The file we save our configuration.
      */
     protected XmlFile getConfigFile() {
-        return new XmlFile(XSTREAM, new File(Hudson.getInstance().getRootDir(),"log/"+name+".xml"));
+        return new XmlFile(XSTREAM, new File(HudsonExt.getInstance().getRootDir(),"log/"+name+".xml"));
     }
     
      

@@ -23,7 +23,7 @@
  */
 package hudson.scm;
 
-import hudson.model.Descriptor;
+import hudson.model.DescriptorExt;
 import hudson.model.AbstractProjectExt;
 
 import java.util.List;
@@ -33,14 +33,14 @@ import static java.util.logging.Level.WARNING;
 import java.lang.reflect.Field;
 
 /**
- * {@link Descriptor} for {@link SCM}.
+ * {@link DescriptorExt} for {@link SCM}.
  *
  * @param <T>
  *      The 'self' type that represents the type of {@link SCM} that
  *      this descriptor describes.
  * @author Kohsuke Kawaguchi
  */
-public abstract class SCMDescriptor<T extends SCM> extends Descriptor<SCM> {
+public abstract class SCMDescriptor<T extends SCM> extends DescriptorExt<SCM> {
     /**
      * If this SCM has corresponding {@link RepositoryBrowser},
      * that type. Otherwise this SCM will not have any repository browser.
@@ -120,13 +120,13 @@ public abstract class SCMDescriptor<T extends SCM> extends Descriptor<SCM> {
     }
 
     /**
-     * Returns the list of {@link RepositoryBrowser} {@link Descriptor}
+     * Returns the list of {@link RepositoryBrowser} {@link DescriptorExt}
      * that can be used with this SCM.
      *
      * @return
      *      can be empty but never null.
      */
-    public List<Descriptor<RepositoryBrowser<?>>> getBrowserDescriptors() {
+    public List<DescriptorExt<RepositoryBrowser<?>>> getBrowserDescriptors() {
         if(repositoryBrowser==null)     return Collections.emptyList();
         return RepositoryBrowsers.filter(repositoryBrowser);
     }

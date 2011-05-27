@@ -23,15 +23,15 @@
  */
 package hudson.security.captcha;
 
-import hudson.model.Descriptor;
+import hudson.model.DescriptorExt;
 
 /**
- * {@link Descriptor} for {@link CaptchaSupport}.
+ * {@link DescriptorExt} for {@link CaptchaSupport}.
  *
  * @author Winston Prakash
  * @since 2.0.1
  */
-public abstract class CaptchaSupportDescriptor extends Descriptor<CaptchaSupport> {
-    // so far nothing different from plain Descriptor
+public abstract class CaptchaSupportDescriptor extends DescriptorExt<CaptchaSupport> {
+    // so far nothing different from plain DescriptorExt
     // but it may prove useful for future expansion
 }
