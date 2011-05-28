@@ -28,7 +28,7 @@ import java.util.WeakHashMap;
 
 import hudson.model.ComputerExt;
 import hudson.model.HudsonExt;
-import hudson.model.Node;
+import hudson.model.NodeExt;
 import hudson.model.PeriodicWork;
 import hudson.Extension;
 
@@ -57,7 +57,7 @@ public class ComputerRetentionWork extends PeriodicWork {
     protected void doRun() {
         final long startRun = System.currentTimeMillis();
         for (ComputerExt c : HudsonExt.getInstance().getComputers()) {
-            Node n = c.getNode();
+            NodeExt n = c.getNode();
             if (n!=null && n.isHoldOffLaunchUntilSave())
                 continue;
             if (!nextCheck.containsKey(c) || startRun > nextCheck.get(c)) {

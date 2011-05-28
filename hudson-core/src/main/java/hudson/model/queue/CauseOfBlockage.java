@@ -1,7 +1,7 @@
 package hudson.model.queue;
 
-import hudson.model.Queue.Task;
-import hudson.model.Node;
+import hudson.model.QueueExt.Task;
+import hudson.model.NodeExt;
 import hudson.model.Messages;
 import hudson.model.LabelExt;
 import org.jvnet.localizer.Localizable;
@@ -37,9 +37,9 @@ public abstract class CauseOfBlockage {
      * Build is blocked because a node is offline.
      */
     public static final class BecauseNodeIsOffline extends CauseOfBlockage {
-        public final Node node;
+        public final NodeExt node;
 
-        public BecauseNodeIsOffline(Node node) {
+        public BecauseNodeIsOffline(NodeExt node) {
             this.node = node;
         }
 
@@ -67,9 +67,9 @@ public abstract class CauseOfBlockage {
      * Build is blocked because a node is fully busy
      */
     public static final class BecauseNodeIsBusy extends CauseOfBlockage {
-        public final Node node;
+        public final NodeExt node;
 
-        public BecauseNodeIsBusy(Node node) {
+        public BecauseNodeIsBusy(NodeExt node) {
             this.node = node;
         }
 

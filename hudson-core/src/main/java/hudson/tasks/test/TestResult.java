@@ -26,7 +26,7 @@ package hudson.tasks.test;
 import hudson.tasks.junit.TestAction;
 import hudson.model.AbstractBuildExt;
 import hudson.model.RunExt;
-import hudson.model.Result;
+import hudson.model.ResultExt;
 
 import java.util.Collection;
 
@@ -89,9 +89,9 @@ public abstract class TestResult extends TestObject {
      * @return {@link Result#UNSTABLE} if there are test failures, null otherwise.
      *
      */
-    public Result getBuildResult() {
+    public ResultExt getBuildResult() {
         if (getFailCount() > 0) {
-            return Result.UNSTABLE;
+            return ResultExt.UNSTABLE;
         } else {
             return null;
         }

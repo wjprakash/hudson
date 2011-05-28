@@ -26,7 +26,7 @@ package hudson.cli;
 
 import hudson.Extension;
 import hudson.model.ItemExt;
-import hudson.model.Result;
+import hudson.model.ResultExt;
 import hudson.model.RunExt;
 import org.kohsuke.args4j.Argument;
 
@@ -38,7 +38,7 @@ import org.kohsuke.args4j.Argument;
 @Extension
 public class SetBuildResultCommand extends CommandDuringBuild {
     @Argument(metaVar="RESULT",required=true)
-    public Result result;
+    public ResultExt result;
 
     @Override
     public String getShortDescription() {

@@ -25,8 +25,8 @@ package hudson;
 
 import hudson.model.FailureExt;
 import hudson.model.HudsonExt;
-import hudson.model.UpdateCenter;
-import hudson.model.UpdateSite;
+import hudson.model.UpdateCenterExt;
+import hudson.model.UpdateSiteExt;
 import hudson.util.PersistedList;
 import java.io.File;
 import java.io.IOException;
@@ -56,7 +56,7 @@ public abstract class PluginManager extends PluginManagerExt{
         HudsonExt.getInstance().checkPermission(HudsonExt.ADMINISTER);
 
         if (req.hasParameter("remove")) {
-            UpdateCenter uc = HudsonExt.getInstance().getUpdateCenter();
+            UpdateCenterExt uc = HudsonExt.getInstance().getUpdateCenter();
             BulkChange bc = new BulkChange(uc);
             try {
                 for (String id : req.getParameterValues("sources"))
@@ -82,7 +82,7 @@ public abstract class PluginManager extends PluginManagerExt{
                 n = n.substring(7);
                 if (n.indexOf(".") > 0) {
                     String[] pluginInfo = n.split("\\.");
-                    UpdateSite.Plugin p = HudsonExt.getInstance().getUpdateCenter().getById(pluginInfo[1]).getPlugin(pluginInfo[0]);
+                    UpdateSiteExt.PluginExt p = HudsonExt.getInstance().getUpdateCenter().getById(pluginInfo[1]).getPlugin(pluginInfo[0]);
                     if(p==null)
                         throw new FailureExt("No such plugin: "+n);
                     p.deploy();
@@ -99,13 +99,13 @@ public abstract class PluginManager extends PluginManagerExt{
     public HttpResponse doSiteConfigure(@QueryParameter String site) throws IOException {
         HudsonExt hudson = HudsonExt.getInstance();
         hudson.checkPermission(HudsonExt.ADMINISTER);
-        UpdateCenter uc = hudson.getUpdateCenter();
-        PersistedList<UpdateSite> sites = uc.getSites();
-        for (UpdateSite s : sites) {
+        UpdateCenterExt uc = hudson.getUpdateCenter();
+        PersistedList<UpdateSiteExt> sites = uc.getSites();
+        for (UpdateSiteExt s : sites) {
             if (s.getId().equals("default"))
                 sites.remove(s);
         }
-        sites.add(new UpdateSite("default",site));
+        sites.add(new UpdateSiteExt("default",site));
         
         return HttpResponses.redirectToContextRoot();
     }

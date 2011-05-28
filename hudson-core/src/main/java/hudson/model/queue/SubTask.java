@@ -25,9 +25,9 @@ package hudson.model.queue;
 
 import hudson.model.ExecutorExt;
 import hudson.model.LabelExt;
-import hudson.model.Node;
-import hudson.model.Queue.Executable;
-import hudson.model.Queue.Task;
+import hudson.model.NodeExt;
+import hudson.model.QueueExt.Executable;
+import hudson.model.QueueExt.Task;
 import hudson.model.ResourceActivity;
 
 import java.io.IOException;
@@ -57,7 +57,7 @@ public interface SubTask extends ResourceActivity {
      * and this task prefers to run on the same node, return that.
      * Otherwise null.
      */
-    Node getLastBuiltOn();
+    NodeExt getLastBuiltOn();
 
     /**
      * Estimate of how long will it take to execute this task.

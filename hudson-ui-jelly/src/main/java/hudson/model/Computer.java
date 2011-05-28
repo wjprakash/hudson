@@ -62,18 +62,18 @@ import java.nio.charset.Charset;
  * (that is the definition of {@link ComputerExt}.)
  *
  * <p>
- * This object is related to {@link Node} but they have some significant difference.
+ * This object is related to {@link NodeExt} but they have some significant difference.
  * {@link ComputerExt} primarily works as a holder of {@link ExecutorExt}s, so
- * if a {@link Node} is configured (probably temporarily) with 0 executors,
+ * if a {@link NodeExt} is configured (probably temporarily) with 0 executors,
  * you won't have a {@link ComputerExt} object for it.
  *
- * Also, even if you remove a {@link Node}, it takes time for the corresponding
+ * Also, even if you remove a {@link NodeExt}, it takes time for the corresponding
  * {@link ComputerExt} to be removed, if some builds are already in progress on that
  * node. Or when the node configuration is changed, unaffected {@link ComputerExt} object
- * remains intact, while all the {@link Node} objects will go away.
+ * remains intact, while all the {@link NodeExt} objects will go away.
  *
  * <p>
- * This object also serves UI (since {@link Node} is an interface and can't have
+ * This object also serves UI (since {@link NodeExt} is an interface and can't have
  * related side pages.)
  *
  * @author Kohsuke Kawaguchi
@@ -81,7 +81,7 @@ import java.nio.charset.Charset;
 @ExportedBean
 public  abstract class Computer extends ComputerExt {
 
-    public Computer(Node node) {
+    public Computer(NodeExt node) {
          super(node);
     }
 
@@ -124,7 +124,7 @@ public  abstract class Computer extends ComputerExt {
      
 
     @Exported
-    public LoadStatistics getLoadStatistics() {
+    public LoadStatisticsExt getLoadStatistics() {
         return super.getLoadStatistics();
     }
 
@@ -330,11 +330,11 @@ public  abstract class Computer extends ComputerExt {
         
         final HudsonExt app = HudsonExt.getInstance();
 
-        Node result = getNode().getDescriptor().newInstance(req, req.getSubmittedForm());
+        NodeExt result = getNode().getDescriptor().newInstance(req, req.getSubmittedForm());
 
-        // replace the old Node object by the new one
+        // replace the old NodeExt object by the new one
         synchronized (app) {
-            List<Node> nodes = new ArrayList<Node>(app.getNodes());
+            List<NodeExt> nodes = new ArrayList<NodeExt>(app.getNodes());
             int i = nodes.indexOf(getNode());
             if(i<0) {
                 sendError("This slave appears to be removed while you were editing the configuration",req,rsp);

@@ -25,10 +25,10 @@
 package hudson.model.queue;
 
 import hudson.model.LabelExt;
-import hudson.model.Node;
-import hudson.model.Queue;
-import hudson.model.Queue.Executable;
-import hudson.model.Queue.Task;
+import hudson.model.NodeExt;
+import hudson.model.QueueExt;
+import hudson.model.QueueExt.Executable;
+import hudson.model.QueueExt.Task;
 import hudson.model.ResourceList;
 
 import java.io.IOException;
@@ -40,8 +40,8 @@ import java.util.Collection;
  * @author Kohsuke Kawaguchi
  * @since 1.360
  */
-public abstract class QueueTaskFilter implements Queue.Task {
-    private final Queue.Task base;
+public abstract class QueueTaskFilter implements QueueExt.Task {
+    private final QueueExt.Task base;
 
     protected QueueTaskFilter(Task base) {
         this.base = base;
@@ -51,7 +51,7 @@ public abstract class QueueTaskFilter implements Queue.Task {
         return base.getAssignedLabel();
     }
 
-    public Node getLastBuiltOn() {
+    public NodeExt getLastBuiltOn() {
         return base.getLastBuiltOn();
     }
 

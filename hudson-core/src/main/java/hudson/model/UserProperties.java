@@ -38,5 +38,5 @@ public class UserProperties {
      * @deprecated as of 1.286
      *      Use {@link UserProperty#all()} for read access and {@link Extension} for auto-registration.
      */
-    public static final List<UserPropertyDescriptor> LIST = (List)new DescriptorList<UserProperty>(UserProperty.class);
+    public static final List<UserPropertyDescriptor> LIST = (List)new DescriptorList<UserPropertyExt>(UserPropertyExt.class);
 }

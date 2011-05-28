@@ -25,7 +25,7 @@ package hudson.slaves;
 
 import hudson.model.DescriptorExt.FormException;
 import hudson.model.HudsonExt;
-import hudson.model.Slave;
+import hudson.model.SlaveExt;
 import hudson.model.TaskListener;
 import hudson.util.StreamTaskListener;
 
@@ -41,12 +41,12 @@ import java.util.logging.Logger;
  * @author Kohsuke Kawaguchi
  * @since 1.382
  */
-public abstract class AbstractCloudSlave extends Slave {
-    public AbstractCloudSlave(String name, String nodeDescription, String remoteFS, String numExecutors, Mode mode, String labelString, ComputerLauncher launcher, RetentionStrategy retentionStrategy, List<? extends NodeProperty<?>> nodeProperties) throws FormException, IOException {
+public abstract class AbstractCloudSlave extends SlaveExt {
+    public AbstractCloudSlave(String name, String nodeDescription, String remoteFS, String numExecutors, ModeExt mode, String labelString, ComputerLauncher launcher, RetentionStrategy retentionStrategy, List<? extends NodeProperty<?>> nodeProperties) throws FormException, IOException {
         super(name, nodeDescription, remoteFS, numExecutors, mode, labelString, launcher, retentionStrategy, nodeProperties);
     }
 
-    public AbstractCloudSlave(String name, String nodeDescription, String remoteFS, int numExecutors, Mode mode, String labelString, ComputerLauncher launcher, RetentionStrategy retentionStrategy, List<? extends NodeProperty<?>> nodeProperties) throws FormException, IOException {
+    public AbstractCloudSlave(String name, String nodeDescription, String remoteFS, int numExecutors, ModeExt mode, String labelString, ComputerLauncher launcher, RetentionStrategy retentionStrategy, List<? extends NodeProperty<?>> nodeProperties) throws FormException, IOException {
         super(name, nodeDescription, remoteFS, numExecutors, mode, labelString, launcher, retentionStrategy, nodeProperties);
     }
 

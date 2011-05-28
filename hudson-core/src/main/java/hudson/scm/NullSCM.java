@@ -41,7 +41,7 @@ import java.io.IOException;
  *
  * @author Kohsuke Kawaguchi
  */
-public class NullSCM extends SCM {
+public class NullSCM extends SCMExt {
     public SCMRevisionState calcRevisionsFromBuild(AbstractBuildExt<?, ?> build, Launcher launcher, TaskListener listener) throws IOException, InterruptedException {
         return null;
     }
@@ -69,7 +69,7 @@ public class NullSCM extends SCM {
         }
 
         @Override
-        public SCM newInstance(StaplerRequest req, JSONObject formData) throws FormException {
+        public SCMExt newInstance(StaplerRequest req, JSONObject formData) throws FormException {
             return new NullSCM();
         }
     }

@@ -40,11 +40,11 @@ public class SearchTest extends TestCase {
                     .make()))
             .make();
 
-        SuggestedItem x = Search.find(si, "abc def ghi");
+        SuggestedItem x = SearchExt.find(si, "abc def ghi");
         assertNotNull(x);
         assertEquals(x.getUrl(),"/abc-def-ghi");
 
-        List<SuggestedItem> l = Search.suggest(si, "abc def ghi");
+        List<SuggestedItem> l = SearchExt.suggest(si, "abc def ghi");
         assertEquals(2,l.size());
         assertEquals("/abc-def-ghi",l.get(0).getUrl());
         assertEquals("/abc/def-ghi",l.get(1).getUrl());

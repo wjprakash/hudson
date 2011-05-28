@@ -41,9 +41,9 @@ import hudson.model.HudsonExt;
 final class AutoBrowserHolder {
     private int cacheGeneration;
     private RepositoryBrowser cache;
-    private SCM owner;
+    private SCMExt owner;
 
-    public AutoBrowserHolder(SCM owner) {
+    public AutoBrowserHolder(SCMExt owner) {
         this.owner = owner;
     }
 
@@ -65,7 +65,7 @@ final class AutoBrowserHolder {
      */
     private RepositoryBrowser infer() {
         for( AbstractProjectExt p : HudsonExt.getInstance().getAllItems(AbstractProjectExt.class) ) {
-            SCM scm = p.getScm();
+            SCMExt scm = p.getScm();
             if (scm!=null && scm.getClass()==owner.getClass() && scm.getBrowser()!=null &&
                     ((SCMDescriptor)scm.getDescriptor()).isBrowserReusable(scm,owner)) {
                 return scm.getBrowser();

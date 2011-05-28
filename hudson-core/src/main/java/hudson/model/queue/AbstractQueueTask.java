@@ -24,8 +24,8 @@
 
 package hudson.model.queue;
 
-import hudson.model.Queue;
-import hudson.model.Queue.Task;
+import hudson.model.QueueExt;
+import hudson.model.QueueExt.Task;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -37,7 +37,7 @@ import java.util.Collections;
  * @author Kohsuke Kawaguchi
  * @since 1.360
  */
-public abstract class AbstractQueueTask implements Queue.Task {
+public abstract class AbstractQueueTask implements QueueExt.Task {
     public Collection<? extends SubTask> getSubTasks() {
         return Collections.singleton(this);
     }

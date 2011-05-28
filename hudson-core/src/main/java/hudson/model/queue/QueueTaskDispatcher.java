@@ -28,9 +28,9 @@ import hudson.Extension;
 import hudson.ExtensionList;
 import hudson.ExtensionPoint;
 import hudson.model.HudsonExt;
-import hudson.model.Node;
-import hudson.model.Queue;
-import hudson.model.Queue.Task;
+import hudson.model.NodeExt;
+import hudson.model.QueueExt;
+import hudson.model.QueueExt.Task;
 
 /**
  * Vetos the execution of a task on a node
@@ -60,7 +60,7 @@ public abstract class QueueTaskDispatcher implements ExtensionPoint {
      * the task won't run on the given node if any one of them returns a non-null value.
      * (This relationship is also the same with built-in check logic.)
      */
-    public abstract CauseOfBlockage canTake(Node node, Task task);
+    public abstract CauseOfBlockage canTake(NodeExt node, Task task);
 
     /**
      * All registered {@link QueueTaskDispatcher}s.

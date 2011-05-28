@@ -54,7 +54,7 @@ public class LabelAtomProperty extends AbstractDescribableImpl<LabelAtomProperty
      * This allows properties to create additional links in the left navigation bar and
      * hook into the URL space of the label atom.
      */
-    public Collection<? extends Action> getActions(LabelAtom atom) {
+    public Collection<? extends Action> getActions(LabelAtomExt atom) {
         return Collections.emptyList();
     }
 

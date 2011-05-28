@@ -124,7 +124,7 @@ public final class ComputerSet extends ComputerSetExt {
         if(mode!=null && mode.equals("copy")) {
             name = checkName(name);
 
-            Node src = app.getNode(from);
+            NodeExt src = app.getNode(from);
             if(src==null) {
                 rsp.setStatus(SC_BAD_REQUEST);
                 if(Util.fixEmpty(from)==null)
@@ -136,7 +136,7 @@ public final class ComputerSet extends ComputerSetExt {
 
             // copy through XStream
             String xml = HudsonExt.XSTREAM.toXML(src);
-            Node result = (Node)HudsonExt.XSTREAM.fromXML(xml);
+            NodeExt result = (NodeExt)HudsonExt.XSTREAM.fromXML(xml);
             result.setNodeName(name);
             result.holdOffLaunchUntilSave = true;
 
@@ -166,7 +166,7 @@ public final class ComputerSet extends ComputerSetExt {
         app.checkPermission(HudsonExt.ADMINISTER);  // TODO: new permission?
         checkName(name);
 
-        Node result = NodeDescriptorExt.all().find(type).newInstance(req, req.getSubmittedForm());
+        NodeExt result = NodeDescriptorExt.all().find(type).newInstance(req, req.getSubmittedForm());
         app.addNode(result);
 
         // take the user back to the slave list top page

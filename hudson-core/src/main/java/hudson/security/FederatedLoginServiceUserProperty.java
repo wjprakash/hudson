@@ -23,7 +23,7 @@
  */
 package hudson.security;
 
-import hudson.model.UserProperty;
+import hudson.model.UserPropertyExt;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -37,7 +37,7 @@ import java.util.Set;
  * @since 1.394
  * @see FederatedLoginService
  */
-public class FederatedLoginServiceUserProperty extends UserProperty {
+public class FederatedLoginServiceUserProperty extends UserPropertyExt {
     protected final Set<String> identifiers;
 
     protected FederatedLoginServiceUserProperty(Collection<String> identifiers) {

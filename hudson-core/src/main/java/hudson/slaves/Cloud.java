@@ -29,7 +29,7 @@ import hudson.DescriptorExtensionListExt;
 import hudson.slaves.NodeProvisioner.PlannedNode;
 import hudson.model.Describable;
 import hudson.model.HudsonExt;
-import hudson.model.Node;
+import hudson.model.NodeExt;
 import hudson.model.AbstractModelObjectExt;
 import hudson.model.LabelExt;
 import hudson.model.DescriptorExt;
@@ -41,7 +41,7 @@ import hudson.util.DescriptorList;
 import java.util.Collection;
 
 /**
- * Creates {@link Node}s to dynamically expand/shrink the slaves attached to HudsonExt.
+ * Creates {@link NodeExt}s to dynamically expand/shrink the slaves attached to HudsonExt.
  *
  * <p>
  * Put another way, this class encapsulates different communication protocols
@@ -83,7 +83,7 @@ public abstract class Cloud extends AbstractModelObjectExt implements ExtensionP
     }
 
     /**
-     * Provisions new {@link Node}s from this cloud.
+     * Provisions new {@link NodeExt}s from this cloud.
      *
      * <p>
      * {@link NodeProvisioner} performs a trend analysis on the load,
@@ -99,7 +99,7 @@ public abstract class Cloud extends AbstractModelObjectExt implements ExtensionP
      *      Newly launched node needs to have this label.
      *      Only those {@link LabelExt}s that this instance returned true
      *      from the {@link #canProvision(LabelExt)} method will be passed here.
-     *      This parameter is null if HudsonExt needs to provision a new {@link Node}
+     *      This parameter is null if HudsonExt needs to provision a new {@link NodeExt}
      *      for jobs that don't have any tie to any label.
      * @param excessWorkload
      *      Number of total executors needed to meet the current demand.
@@ -108,10 +108,10 @@ public abstract class Cloud extends AbstractModelObjectExt implements ExtensionP
      *      3 executors, etc.
      *
      * @return
-     *      {@link PlannedNode}s that represent asynchronous {@link Node}
+     *      {@link PlannedNode}s that represent asynchronous {@link NodeExt}
      *      provisioning operations. Can be empty but must not be null.
-     *      {@link NodeProvisioner} will be responsible for adding the resulting {@link Node}
-     *      into HudsonExt via {@link HudsonExt#addNode(Node)}, so a {@link Cloud} implementation
+     *      {@link NodeProvisioner} will be responsible for adding the resulting {@link NodeExt}
+     *      into HudsonExt via {@link HudsonExt#addNode(NodeExt)}, so a {@link Cloud} implementation
      *      just needs to create a new node object.
      */
     public abstract Collection<PlannedNode> provision(LabelExt label, int excessWorkload);

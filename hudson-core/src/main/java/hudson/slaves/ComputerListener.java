@@ -26,7 +26,7 @@ package hudson.slaves;
 import hudson.model.ComputerExt;
 import hudson.model.HudsonExt;
 import hudson.model.TaskListener;
-import hudson.model.Node;
+import hudson.model.NodeExt;
 import hudson.ExtensionPoint;
 import hudson.Extension;
 import hudson.ExtensionList;
@@ -57,7 +57,7 @@ public abstract class ComputerListener implements ExtensionPoint {
      *      it's connected.
      * @param root
      *      The directory where this slave stores files.
-     *      The same as {@link Node#getRootPath()}, except that method returns
+     *      The same as {@link NodeExt#getRootPath()}, except that method returns
      *      null until the slave is connected. So this parameter is passed explicitly instead.
      * @param listener
      *      This is connected to the launch log of the computer.

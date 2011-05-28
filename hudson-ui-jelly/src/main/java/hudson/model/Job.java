@@ -82,7 +82,7 @@ public abstract class Job<JobT extends Job<JobT, RunT>, RunT extends RunExt<JobT
      */
     @Exported
     @Override
-    public Queue.Item getQueueItem() {
+    public QueueExt.Item getQueueItem() {
         return super.getQueueItem();
     }
 

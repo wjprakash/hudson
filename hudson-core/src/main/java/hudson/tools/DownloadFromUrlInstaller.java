@@ -2,7 +2,7 @@ package hudson.tools;
 
 import hudson.FilePathExt;
 import hudson.model.DownloadServiceExt.DownloadableExt;
-import hudson.model.Node;
+import hudson.model.NodeExt;
 import hudson.model.TaskListener;
 import net.sf.json.JSONObject;
 import org.kohsuke.stapler.DataBoundConstructor;
@@ -57,7 +57,7 @@ public abstract class DownloadFromUrlInstaller extends ToolInstaller {
         return null;
     }
 
-    public FilePathExt performInstallation(ToolInstallation tool, Node node, TaskListener log) throws IOException, InterruptedException {
+    public FilePathExt performInstallation(ToolInstallation tool, NodeExt node, TaskListener log) throws IOException, InterruptedException {
         FilePathExt expected = preferredLocation(tool, node);
 
         Installable inst = getInstallable();

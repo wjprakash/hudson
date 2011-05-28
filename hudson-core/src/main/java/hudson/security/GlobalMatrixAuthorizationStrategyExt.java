@@ -1,0 +1,235 @@
+/*
+ * The MIT License
+ * 
+ * Copyright (c) 2004-2010, Sun Microsystems, Inc., Kohsuke Kawaguchi, Yahoo! Inc.
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+package hudson.security;
+
+import com.thoughtworks.xstream.converters.Converter;
+import com.thoughtworks.xstream.converters.MarshallingContext;
+import com.thoughtworks.xstream.converters.UnmarshallingContext;
+import com.thoughtworks.xstream.io.HierarchicalStreamReader;
+import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
+import hudson.diagnosis.OldDataMonitorExt;
+import hudson.model.HudsonExt;
+import hudson.model.ItemExt;
+import hudson.util.VersionNumber;
+import hudson.util.RobustReflectionConverter;
+import org.acegisecurity.acls.sid.Sid;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.Collections;
+import java.util.SortedMap;
+import java.util.TreeMap;
+
+/**
+ * Role-based authorization via a matrix.
+ *
+ * @author Kohsuke Kawaguchi
+ */
+// TODO: think about the concurrency commitment of this class
+public class GlobalMatrixAuthorizationStrategyExt extends AuthorizationStrategyExt {
+
+    private transient SidACL acl = new AclImpl();
+    /**
+     * List up all permissions that are granted.
+     *
+     * Strings are either the granted authority or the principal,
+     * which is not distinguished.
+     */
+    private final Map<Permission, Set<String>> grantedPermissions = new HashMap<Permission, Set<String>>();
+    private final Set<String> sids = new HashSet<String>();
+
+    /**
+     * Adds to {@link #grantedPermissions}.
+     * Use of this method should be limited during construction,
+     * as this object itself is considered immutable once populated.
+     */
+    public void add(Permission p, String sid) {
+        if (p == null) {
+            throw new IllegalArgumentException();
+        }
+        Set<String> set = grantedPermissions.get(p);
+        if (set == null) {
+            grantedPermissions.put(p, set = new HashSet<String>());
+        }
+        set.add(sid);
+        sids.add(sid);
+    }
+
+    /**
+     * Works like {@link #add(Permission, String)} but takes both parameters
+     * from a single string of the form <tt>PERMISSIONID:sid</tt>
+     */
+    private void add(String shortForm) {
+        int idx = shortForm.indexOf(':');
+        Permission p = Permission.fromId(shortForm.substring(0, idx));
+        if (p == null) {
+            throw new IllegalArgumentException("Failed to parse '" + shortForm + "' --- no such permission");
+        }
+        add(p, shortForm.substring(idx + 1));
+    }
+
+    @Override
+    public SidACL getRootACL() {
+        return acl;
+    }
+
+    public Set<String> getGroups() {
+        return sids;
+    }
+
+    /**
+     * Due to HUDSON-2324, we want to inject ItemExt.READ permission to everyone who has HudsonExt.READ,
+     * to remain backward compatible.
+     * @param grantedPermissions
+     */
+    /*package*/ static boolean migrateHudson2324(Map<Permission, Set<String>> grantedPermissions) {
+        boolean result = false;
+        if (HudsonExt.getInstance().isUpgradedFromBefore(new VersionNumber("1.300.*"))) {
+            Set<String> f = grantedPermissions.get(HudsonExt.READ);
+            if (f != null) {
+                Set<String> t = grantedPermissions.get(ItemExt.READ);
+                if (t != null) {
+                    result = t.addAll(f);
+                } else {
+                    t = new HashSet<String>(f);
+                    result = true;
+                }
+                grantedPermissions.put(ItemExt.READ, t);
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Checks if the given SID has the given permission.
+     */
+    public boolean hasPermission(String sid, Permission p) {
+        for (; p != null; p = p.impliedBy) {
+            Set<String> set = grantedPermissions.get(p);
+            if (set != null && set.contains(sid) && p.getEnabled()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Checks if the permission is explicitly given, instead of implied through {@link Permission#impliedBy}.
+     */
+    public boolean hasExplicitPermission(String sid, Permission p) {
+        Set<String> set = grantedPermissions.get(p);
+        return set != null && set.contains(sid) && p.getEnabled();
+    }
+
+    /**
+     * Returns all SIDs configured in this matrix, minus "anonymous"
+     *
+     * @return
+     *      Always non-null.
+     */
+    public List<String> getAllSIDs() {
+        Set<String> r = new HashSet<String>();
+        for (Set<String> set : grantedPermissions.values()) {
+            r.addAll(set);
+        }
+        r.remove("anonymous");
+
+        String[] data = r.toArray(new String[r.size()]);
+        Arrays.sort(data);
+        return Arrays.asList(data);
+    }
+
+    private final class AclImpl extends SidACL {
+
+        protected Boolean hasPermission(Sid p, Permission permission) {
+            if (GlobalMatrixAuthorizationStrategyExt.this.hasPermission(toString(p), permission)) {
+                return true;
+            }
+            return null;
+        }
+    }
+
+    /**
+     * Persist {@link GlobalMatrixAuthorizationStrategy} as a list of IDs that
+     * represent {@link GlobalMatrixAuthorizationStrategy#grantedPermissions}.
+     */
+    public static class ConverterImpl implements Converter {
+
+        public boolean canConvert(Class type) {
+            return type == GlobalMatrixAuthorizationStrategyExt.class;
+        }
+
+        public void marshal(Object source, HierarchicalStreamWriter writer, MarshallingContext context) {
+            GlobalMatrixAuthorizationStrategyExt strategy = (GlobalMatrixAuthorizationStrategyExt) source;
+
+            // Output in alphabetical order for readability.
+            SortedMap<Permission, Set<String>> sortedPermissions = new TreeMap<Permission, Set<String>>(Permission.ID_COMPARATOR);
+            sortedPermissions.putAll(strategy.grantedPermissions);
+            for (Entry<Permission, Set<String>> e : sortedPermissions.entrySet()) {
+                String p = e.getKey().getId();
+                List<String> sids = new ArrayList<String>(e.getValue());
+                Collections.sort(sids);
+                for (String sid : sids) {
+                    writer.startNode("permission");
+                    writer.setValue(p + ':' + sid);
+                    writer.endNode();
+                }
+            }
+
+        }
+
+        public Object unmarshal(HierarchicalStreamReader reader, final UnmarshallingContext context) {
+            GlobalMatrixAuthorizationStrategyExt as = create();
+
+            while (reader.hasMoreChildren()) {
+                reader.moveDown();
+                try {
+                    as.add(reader.getValue());
+                } catch (IllegalArgumentException ex) {
+                    Logger.getLogger(GlobalMatrixAuthorizationStrategyExt.class.getName()).log(Level.WARNING, "Skipping a non-existent permission", ex);
+                    RobustReflectionConverter.addErrorInContext(context, ex);
+                }
+                reader.moveUp();
+            }
+
+            if (migrateHudson2324(as.grantedPermissions)) {
+                OldDataMonitorExt.report(context, "1.301");
+            }
+
+            return as;
+        }
+
+        protected GlobalMatrixAuthorizationStrategyExt create() {
+            return new GlobalMatrixAuthorizationStrategyExt();
+        }
+    }
+}

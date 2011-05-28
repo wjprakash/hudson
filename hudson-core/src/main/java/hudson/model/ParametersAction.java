@@ -26,7 +26,7 @@ package hudson.model;
 import hudson.Util;
 import hudson.EnvVars;
 import hudson.diagnosis.OldDataMonitorExt;
-import hudson.model.Queue.QueueAction;
+import hudson.model.QueueExt.QueueAction;
 import hudson.tasks.BuildStep;
 import hudson.tasks.BuildWrapper;
 import hudson.util.VariableResolver;

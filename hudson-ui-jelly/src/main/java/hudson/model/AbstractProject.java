@@ -24,6 +24,7 @@
 package hudson.model;
 
 import antlr.ANTLRException;
+import com.sun.jdi.connect.Connector.Argument;
 import hudson.FeedAdapter;
 import hudson.FilePathExt;
 import hudson.Util;
@@ -31,10 +32,11 @@ import hudson.cli.declarative.CLIMethod;
 import hudson.cli.declarative.CLIResolver;
 import hudson.model.CauseExt.RemoteCause;
 import hudson.model.CauseExt.UserCause;
+import hudson.model.Descriptor.FormException;
 import hudson.model.DescriptorExt.FormException;
 import hudson.scm.ChangeLogSet;
 import hudson.scm.ChangeLogSet.Entry;
-import hudson.scm.SCM;
+import hudson.scm.SCMExt;
 import hudson.scm.SCMS;
 import hudson.tasks.BuildTrigger;
 import hudson.tasks.Mailer;
@@ -42,6 +44,8 @@ import hudson.tasks.Publisher;
 import hudson.triggers.Trigger;
 import hudson.util.DescribableList;
 import hudson.util.FormValidation;
+import hudson.widgets.BuildHistoryWidget;
+import hudson.widgets.HistoryWidget;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -145,7 +149,7 @@ public abstract class AbstractProject extends AbstractProjectExt{
                     if(existing!=null && existing.hasSame(newChildProjects))
                         continue;   // no need to touch
                     pl.replace(new BuildTrigger(newChildProjects,
-                        existing==null?Result.SUCCESS:existing.getThreshold()));
+                        existing==null?ResultExt.SUCCESS:existing.getThreshold()));
                 }
             }
         }
@@ -158,7 +162,7 @@ public abstract class AbstractProject extends AbstractProjectExt{
     }
     
     @Exported
-    public SCM getScm() {
+    public SCMExt getScm() {
         return super.getScm();
     }
     
@@ -175,6 +179,12 @@ public abstract class AbstractProject extends AbstractProjectExt{
     public final List<AbstractProjectExt> getUpstreamProjects() {
         return super.getUpstreamProjects();
     }
+    
+     @Override
+    protected HistoryWidget createHistoryWidget() {
+        return new BuildHistoryWidget<R>(this,getBuilds(),HISTORY_ADAPTER);
+    }
+    
     
     //
 //

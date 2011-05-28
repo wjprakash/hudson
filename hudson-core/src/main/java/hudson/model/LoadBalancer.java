@@ -23,7 +23,7 @@
  */
 package hudson.model;
 
-import hudson.model.Queue.Task;
+import hudson.model.QueueExt.Task;
 import hudson.model.queue.MappingWorksheet;
 import hudson.model.queue.MappingWorksheet.ExecutorChunk;
 import hudson.model.queue.MappingWorksheet.Mapping;
@@ -135,7 +135,7 @@ public abstract class LoadBalancer /*implements ExtensionPoint*/ {
         return new LoadBalancer() {
             @Override
             public Mapping map(Task task, MappingWorksheet worksheet) {
-                if (Queue.ifBlockedByHudsonShutdown(task)) {
+                if (QueueExt.ifBlockedByHudsonShutdown(task)) {
                     // if we are quieting down, don't start anything new so that
                     // all executors will be eventually free.
                     return null;

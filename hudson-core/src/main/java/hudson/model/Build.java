@@ -37,7 +37,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.logging.Logger;
 
-import static hudson.model.Result.FAILURE;
+import static hudson.model.ResultExt.FAILURE;
 
 /**
  * A build of a {@link ProjectExt}.
@@ -113,13 +113,13 @@ public abstract class Build <P extends ProjectExt<P,B>,B extends Build<P,B>>
     }
     
     protected class RunnerImpl extends AbstractRunner {
-        protected Result doRun(BuildListener listener) throws Exception {
+        protected ResultExt doRun(BuildListener listener) throws Exception {
             if(!preBuild(listener,project.getBuilders()))
                 return FAILURE;
             if(!preBuild(listener,project.getPublishers()))
                 return FAILURE;
 
-            Result r = null;
+            ResultExt r = null;
             try {
                 List<BuildWrapper> wrappers = new ArrayList<BuildWrapper>(project.getBuildWrappers().values());
                 

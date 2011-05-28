@@ -25,7 +25,7 @@ package hudson.util;
 
 import com.google.common.collect.ImmutableMap;
 import junit.framework.TestCase;
-import hudson.model.Result;
+import hudson.model.ResultExt;
 import hudson.model.RunExt;
 
 import java.util.Map;
@@ -37,12 +37,12 @@ import java.util.Map;
 public class XStream2Test extends TestCase {
 
     public static final class Foo {
-        Result r1,r2;
+        ResultExt r1,r2;
     }
 
     public void testMarshalValue() {
         Foo f = new Foo();
-        f.r1 = f.r2 = Result.FAILURE;
+        f.r1 = f.r2 = ResultExt.FAILURE;
         String xml = RunExt.XSTREAM.toXML(f);
         // we should find two "FAILURE"s as they should be written out twice
         assertEquals(xml, 3, xml.split("FAILURE").length);

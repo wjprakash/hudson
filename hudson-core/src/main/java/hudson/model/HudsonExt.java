@@ -57,27 +57,27 @@ import hudson.lifecycle.Lifecycle;
 import hudson.logging.LogRecorderManagerExt;
 import hudson.lifecycle.RestartNotSupportedException;
 import hudson.markup.RawHtmlMarkupFormatter;
-import hudson.model.labels.LabelAtom;
+import hudson.model.labels.LabelAtomExt;
 import hudson.model.listeners.ItemListener;
 import hudson.model.listeners.SCMListener;
 import hudson.model.listeners.SaveableListener;
 import hudson.remoting.LocalChannel;
 import hudson.remoting.VirtualChannel;
 import hudson.scm.RepositoryBrowser;
-import hudson.scm.SCM;
+import hudson.scm.SCMExt;
 import hudson.search.CollectionSearchIndex;
 import hudson.search.SearchIndexBuilder;
 import hudson.security.ACL;
 import hudson.security.AccessControlled;
-import hudson.security.AuthorizationStrategy;
+import hudson.security.AuthorizationStrategyExt;
 import hudson.security.FederatedLoginService;
 import hudson.security.HudsonFilter;
-import hudson.security.LegacyAuthorizationStrategy;
-import hudson.security.LegacySecurityRealm;
+import hudson.security.LegacyAuthorizationStrategyExt;
+import hudson.security.LegacySecurityRealmExt;
 import hudson.security.Permission;
 import hudson.security.PermissionGroup;
 import hudson.security.SecurityMode;
-import hudson.security.SecurityRealm;
+import hudson.security.SecurityRealmExt;
 import hudson.security.csrf.CrumbIssuer;
 import hudson.slaves.Cloud;
 import hudson.slaves.ComputerListener;
@@ -187,8 +187,8 @@ import java.util.regex.Pattern;
  *
  * @author Kohsuke Kawaguchi
  */
-public class HudsonExt extends Node implements ItemGroup<TopLevelItem>, ViewGroup, AccessControlled, DescriptorByNameOwner {
-    private transient final Queue queue;
+public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, ViewGroup, AccessControlled, DescriptorByNameOwner {
+    private transient final QueueExt queue;
 
     /**
      * Stores various objects scoped to {@link HudsonExt}.
@@ -198,7 +198,7 @@ public class HudsonExt extends Node implements ItemGroup<TopLevelItem>, ViewGrou
     /**
      * {@link ComputerExt}s in this HudsonExt system. Read-only.
      */
-    private transient final Map<Node,ComputerExt> computers = new CopyOnWriteMap.Hash<Node,ComputerExt>();
+    private transient final Map<NodeExt,ComputerExt> computers = new CopyOnWriteMap.Hash<NodeExt,ComputerExt>();
 
     /**
      * We update this field to the current version of HudsonExt whenever we save {@code config.xml}.
@@ -222,7 +222,7 @@ public class HudsonExt extends Node implements ItemGroup<TopLevelItem>, ViewGrou
     /**
      * JobExt allocation strategy.
      */
-    protected Mode mode = Mode.NORMAL;
+    protected ModeExt mode = ModeExt.NORMAL;
 
     /**
      * False to enable anyone to do anything.
@@ -242,7 +242,7 @@ public class HudsonExt extends Node implements ItemGroup<TopLevelItem>, ViewGrou
      *
      * Never null.
      */
-    protected volatile AuthorizationStrategy authorizationStrategy = AuthorizationStrategy.UNSECURED;
+    protected volatile AuthorizationStrategyExt authorizationStrategy = AuthorizationStrategyExt.UNSECURED;
 
     /**
      * Controls a part of the
@@ -259,7 +259,7 @@ public class HudsonExt extends Node implements ItemGroup<TopLevelItem>, ViewGrou
      * @see #getSecurity()
      * @see #setSecurityRealm(SecurityRealm)
      */
-    protected volatile SecurityRealm securityRealm = SecurityRealm.NO_AUTHENTICATION;
+    protected volatile SecurityRealmExt securityRealm = SecurityRealmExt.NO_AUTHENTICATION;
 
     /**
      * Message displayed in the top page.
@@ -417,7 +417,7 @@ public class HudsonExt extends Node implements ItemGroup<TopLevelItem>, ViewGrou
     protected int slaveAgentPort =0;
 
     /**
-     * Whitespace-separated labels assigned to the master as a {@link Node}.
+     * Whitespace-separated labels assigned to the master as a {@link NodeExt}.
      */
     protected String label="";
 
@@ -435,7 +435,7 @@ public class HudsonExt extends Node implements ItemGroup<TopLevelItem>, ViewGrou
     /**
      * Load statistics of the entire system.
      */
-    public transient final OverallLoadStatistics overallLoad = new OverallLoadStatistics();
+    public transient final OverallLoadStatisticsExt overallLoad = new OverallLoadStatisticsExt();
 
     /**
      * {@link NodeProvisioner} that reacts to {@link OverallLoadStatistics}.
@@ -502,7 +502,7 @@ public class HudsonExt extends Node implements ItemGroup<TopLevelItem>, ViewGrou
      */
     private transient final String secretKey;
 
-    private transient final UpdateCenter updateCenter = new UpdateCenter();
+    private transient final UpdateCenterExt updateCenter = new UpdateCenterExt();
 
     /**
      * True if the user opted out from the statistics tracking. We'll never send anything if this is true.
@@ -542,7 +542,7 @@ public class HudsonExt extends Node implements ItemGroup<TopLevelItem>, ViewGrou
             final InitStrategy is = InitStrategy.get(Thread.currentThread().getContextClassLoader());
 
             Trigger.timer = new Timer("Hudson cron thread");
-            queue = new Queue(CONSISTENT_HASH?LoadBalancer.CONSISTENT_HASH:LoadBalancer.DEFAULT);
+            queue = new QueueExt(CONSISTENT_HASH?LoadBalancer.CONSISTENT_HASH:LoadBalancer.DEFAULT);
 
             try {
                 dependencyGraph = DependencyGraph.EMPTY;
@@ -739,7 +739,7 @@ public class HudsonExt extends Node implements ItemGroup<TopLevelItem>, ViewGrou
         return pluginManager;
     }
 
-    public UpdateCenter getUpdateCenter() {
+    public UpdateCenterExt getUpdateCenter() {
         return updateCenter;
     }
 
@@ -784,8 +784,8 @@ public class HudsonExt extends Node implements ItemGroup<TopLevelItem>, ViewGrou
     /**
      * Gets the SCM descriptor by name. Primarily used for making them web-visible.
      */
-    public DescriptorExt<SCM> getScm(String shortClassName) {
-        return findDescriptor(shortClassName,SCM.all());
+    public DescriptorExt<SCMExt> getScm(String shortClassName) {
+        return findDescriptor(shortClassName,SCMExt.all());
     }
 
     /**
@@ -907,8 +907,8 @@ public class HudsonExt extends Node implements ItemGroup<TopLevelItem>, ViewGrou
     /**
      * Gets the {@link SecurityRealm} descriptors by name. Primarily used for making them web-visible.
      */
-    public DescriptorExt<SecurityRealm> getSecurityRealms(String shortClassName) {
-        return findDescriptor(shortClassName,SecurityRealm.all());
+    public DescriptorExt<SecurityRealmExt> getSecurityRealms(String shortClassName) {
+        return findDescriptor(shortClassName,SecurityRealmExt.all());
     }
 
     /**
@@ -1071,7 +1071,7 @@ public class HudsonExt extends Node implements ItemGroup<TopLevelItem>, ViewGrou
             Set<ComputerExt> used = new HashSet<ComputerExt>();
 
             updateComputer(this, byName, used);
-            for (Node s : getNodes())
+            for (NodeExt s : getNodes())
                 updateComputer(s, byName, used);
 
             // find out what computers are removed, and kill off all executors.
@@ -1087,7 +1087,7 @@ public class HudsonExt extends Node implements ItemGroup<TopLevelItem>, ViewGrou
             cl.onConfigurationChange();
     }
 
-    private void updateComputer(Node n, Map<String,ComputerExt> byNameMap, Set<ComputerExt> used) {
+    private void updateComputer(NodeExt n, Map<String,ComputerExt> byNameMap, Set<ComputerExt> used) {
         ComputerExt c;
         c = byNameMap.get(n.getNodeName());
         if (c!=null) {
@@ -1111,7 +1111,7 @@ public class HudsonExt extends Node implements ItemGroup<TopLevelItem>, ViewGrou
     }
 
     /*package*/ void removeComputer(ComputerExt computer) {
-        for (Entry<Node, ComputerExt> e : computers.entrySet()) {
+        for (Entry<NodeExt, ComputerExt> e : computers.entrySet()) {
             if (e.getValue() == computer) {
                 computers.remove(e.getKey());
                 return;
@@ -1321,7 +1321,7 @@ public class HudsonExt extends Node implements ItemGroup<TopLevelItem>, ViewGrou
         return r;
     }
 
-    /*package*/ ComputerExt getComputer(Node n) {
+    /*package*/ ComputerExt getComputer(NodeExt n) {
         return computers.get(n);
     }
 
@@ -1372,16 +1372,16 @@ public class HudsonExt extends Node implements ItemGroup<TopLevelItem>, ViewGrou
     /**
      * Returns the label atom of the given name.
      */
-    public LabelAtom getLabelAtom(String name) {
+    public LabelAtomExt getLabelAtom(String name) {
         if (name==null)  return null;
 
         while(true) {
             LabelExt l = labels.get(name);
             if(l!=null)
-                return (LabelAtom)l;
+                return (LabelAtomExt)l;
 
             // non-existent
-            LabelAtom la = new LabelAtom(name);
+            LabelAtomExt la = new LabelAtomExt(name);
             if (labels.putIfAbsent(name, la)==null)
                 la.load();
         }
@@ -1399,16 +1399,16 @@ public class HudsonExt extends Node implements ItemGroup<TopLevelItem>, ViewGrou
         return r;
     }
 
-    public Set<LabelAtom> getLabelAtoms() {
-        Set<LabelAtom> r = new TreeSet<LabelAtom>();
+    public Set<LabelAtomExt> getLabelAtoms() {
+        Set<LabelAtomExt> r = new TreeSet<LabelAtomExt>();
         for (LabelExt l : labels.values()) {
-            if(!l.isEmpty() && l instanceof LabelAtom)
-                r.add((LabelAtom)l);
+            if(!l.isEmpty() && l instanceof LabelAtomExt)
+                r.add((LabelAtomExt)l);
         }
         return r;
     }
 
-    public Queue getQueue() {
+    public QueueExt getQueue() {
         return queue;
     }
 
@@ -1446,18 +1446,18 @@ public class HudsonExt extends Node implements ItemGroup<TopLevelItem>, ViewGrou
      * @deprecated
      *      Use {@link #getNode(String)}. Since 1.252.
      */
-    public Slave getSlave(String name) {
-        Node n = getNode(name);
-        if (n instanceof Slave)
-            return (Slave)n;
+    public SlaveExt getSlave(String name) {
+        NodeExt n = getNode(name);
+        if (n instanceof SlaveExt)
+            return (SlaveExt)n;
         return null;
     }
 
     /**
      * Gets the slave node of the give name, hooked under this HudsonExt.
      */
-    public Node getNode(String name) {
-        for (Node s : getNodes()) {
+    public NodeExt getNode(String name) {
+        for (NodeExt s : getNodes()) {
             if(s.getNodeName().equals(name))
                 return s;
         }
@@ -1475,15 +1475,15 @@ public class HudsonExt extends Node implements ItemGroup<TopLevelItem>, ViewGrou
      * @deprecated
      *      Use {@link #getNodes()}. Since 1.252.
      */
-    public List<Slave> getSlaves() {
+    public List<SlaveExt> getSlaves() {
         return (List)Collections.unmodifiableList(slaves);
     }
 
     /**
-     * Returns all {@link Node}s in the system, excluding {@link HudsonExt} instance itself which
+     * Returns all {@link NodeExt}s in the system, excluding {@link HudsonExt} instance itself which
      * represents the master.
      */
-    public List<Node> getNodes() {
+    public List<NodeExt> getNodes() {
         return Collections.unmodifiableList(slaves);
     }
 
@@ -1493,38 +1493,38 @@ public class HudsonExt extends Node implements ItemGroup<TopLevelItem>, ViewGrou
      * @deprecated
      *      Use {@link #setNodes(List)}. Since 1.252.
      */
-    public void setSlaves(List<Slave> slaves) throws IOException {
+    public void setSlaves(List<SlaveExt> slaves) throws IOException {
         setNodes(slaves);
     }
 
     /**
-     * Adds one more {@link Node} to HudsonExt.
+     * Adds one more {@link NodeExt} to HudsonExt.
      */
-    public synchronized void addNode(Node n) throws IOException {
+    public synchronized void addNode(NodeExt n) throws IOException {
         if(n==null)     throw new IllegalArgumentException();
-        ArrayList<Node> nl = new ArrayList<Node>(this.slaves);
+        ArrayList<NodeExt> nl = new ArrayList<NodeExt>(this.slaves);
         if(!nl.contains(n)) // defensive check
             nl.add(n);
         setNodes(nl);
     }
 
     /**
-     * Removes a {@link Node} from HudsonExt.
+     * Removes a {@link NodeExt} from HudsonExt.
      */
-    public synchronized void removeNode(Node n) throws IOException {
+    public synchronized void removeNode(NodeExt n) throws IOException {
         ComputerExt c = n.toComputer();
         if (c!=null)
             c.disconnect(OfflineCause.create(Messages._Hudson_NodeBeingRemoved()));
 
-        ArrayList<Node> nl = new ArrayList<Node>(this.slaves);
+        ArrayList<NodeExt> nl = new ArrayList<NodeExt>(this.slaves);
         nl.remove(n);
         setNodes(nl);
     }
 
-    public void setNodes(List<? extends Node> nodes) throws IOException {
+    public void setNodes(List<? extends NodeExt> nodes) throws IOException {
         // make sure that all names are unique
         Set<String> names = new HashSet<String>();
-        for (Node n : nodes)
+        for (NodeExt n : nodes)
             if(!names.add(n.getNodeName()))
                 throw new IllegalArgumentException(n.getNodeName()+" is defined more than once");
         this.slaves = new NodeList(nodes);
@@ -1628,8 +1628,8 @@ public class HudsonExt extends Node implements ItemGroup<TopLevelItem>, ViewGrou
                 protected Collection<ComputerExt> all() { return computers.values(); }
             })
             .add(new CollectionSearchIndex() {// for users
-                protected User get(String key) { return User.get(key,false); }
-                protected Collection<User> all() { return User.getAll(); }
+                protected UserExt get(String key) { return UserExt.get(key,false); }
+                protected Collection<UserExt> all() { return UserExt.getAll(); }
             })
             .add(new CollectionSearchIndex() {// for views
                 protected View get(String key) { return getView(key); }
@@ -1687,7 +1687,7 @@ public class HudsonExt extends Node implements ItemGroup<TopLevelItem>, ViewGrou
      * restrictions in place.
      */
     public boolean isUseSecurity() {
-        return securityRealm!=SecurityRealm.NO_AUTHENTICATION || authorizationStrategy!=AuthorizationStrategy.UNSECURED;
+        return securityRealm!=SecurityRealmExt.NO_AUTHENTICATION || authorizationStrategy!=AuthorizationStrategyExt.UNSECURED;
     }
 
     /**
@@ -1704,11 +1704,11 @@ public class HudsonExt extends Node implements ItemGroup<TopLevelItem>, ViewGrou
      */
     public SecurityMode getSecurity() {
         // fix the variable so that this code works under concurrent modification to securityRealm.
-        SecurityRealm realm = securityRealm;
+        SecurityRealmExt realm = securityRealm;
 
-        if(realm==SecurityRealm.NO_AUTHENTICATION)
+        if(realm==SecurityRealmExt.NO_AUTHENTICATION)
             return SecurityMode.UNSECURED;
-        if(realm instanceof LegacySecurityRealm)
+        if(realm instanceof LegacySecurityRealmExt)
             return SecurityMode.LEGACY;
         return SecurityMode.SECURED;
     }
@@ -1717,13 +1717,13 @@ public class HudsonExt extends Node implements ItemGroup<TopLevelItem>, ViewGrou
      * @return
      *      never null.
      */
-    public SecurityRealm getSecurityRealm() {
+    public SecurityRealmExt getSecurityRealm() {
         return securityRealm;
     }
 
-    public void setSecurityRealm(SecurityRealm securityRealm) {
+    public void setSecurityRealm(SecurityRealmExt securityRealm) {
         if(securityRealm==null)
-            securityRealm= SecurityRealm.NO_AUTHENTICATION;
+            securityRealm= SecurityRealmExt.NO_AUTHENTICATION;
         this.securityRealm = securityRealm;
         // reset the filters and proxies for the new SecurityRealm
         try {
@@ -1743,9 +1743,9 @@ public class HudsonExt extends Node implements ItemGroup<TopLevelItem>, ViewGrou
         }
     }
 
-    public void setAuthorizationStrategy(AuthorizationStrategy a) {
+    public void setAuthorizationStrategy(AuthorizationStrategyExt a) {
         if (a == null)
-            a = AuthorizationStrategy.UNSECURED;
+            a = AuthorizationStrategyExt.UNSECURED;
         authorizationStrategy = a;
     }
 
@@ -1802,7 +1802,7 @@ public class HudsonExt extends Node implements ItemGroup<TopLevelItem>, ViewGrou
      * @return
      *      never null.
      */
-    public AuthorizationStrategy getAuthorizationStrategy() {
+    public AuthorizationStrategyExt getAuthorizationStrategy() {
         return authorizationStrategy;
     }
 
@@ -1925,8 +1925,8 @@ public class HudsonExt extends Node implements ItemGroup<TopLevelItem>, ViewGrou
      * @return
      *      This method returns a non-null object for any user name, without validation.
      */
-    public User getUser(String name) {
-        return User.get(name);
+    public UserExt getUser(String name) {
+        return UserExt.get(name);
     }
 
     /**
@@ -2038,7 +2038,7 @@ public class HudsonExt extends Node implements ItemGroup<TopLevelItem>, ViewGrou
         return numExecutors;
     }
 
-    public Mode getMode() {
+    public ModeExt getMode() {
         return mode;
     }
 
@@ -2047,7 +2047,7 @@ public class HudsonExt extends Node implements ItemGroup<TopLevelItem>, ViewGrou
     }
 
     @Override
-    public LabelAtom getSelfLabel() {
+    public LabelAtomExt getSelfLabel() {
         return getLabelAtom("master");
     }
 
@@ -2104,7 +2104,7 @@ public class HudsonExt extends Node implements ItemGroup<TopLevelItem>, ViewGrou
                 rebuildDependencyGraph();
 
                 {// recompute label objects - populates the labels mapping.
-                    for (Node slave : slaves)
+                    for (NodeExt slave : slaves)
                         // Note that not all labels are visible until the slaves have connected.
                         slave.getAssignedLabels();
                     getAssignedLabels();
@@ -2122,15 +2122,15 @@ public class HudsonExt extends Node implements ItemGroup<TopLevelItem>, ViewGrou
                 // read in old data that doesn't have the security field set
                 if(authorizationStrategy==null) {
                     if(useSecurity==null || !useSecurity)
-                        authorizationStrategy = AuthorizationStrategy.UNSECURED;
+                        authorizationStrategy = AuthorizationStrategyExt.UNSECURED;
                     else
-                        authorizationStrategy = new LegacyAuthorizationStrategy();
+                        authorizationStrategy = new LegacyAuthorizationStrategyExt();
                 }
                 if(securityRealm==null) {
                     if(useSecurity==null || !useSecurity)
-                        setSecurityRealm(SecurityRealm.NO_AUTHENTICATION);
+                        setSecurityRealm(SecurityRealmExt.NO_AUTHENTICATION);
                     else
-                        setSecurityRealm(new LegacySecurityRealm());
+                        setSecurityRealm(new LegacySecurityRealmExt());
                 } else {
                     // force the set to proxy
                     setSecurityRealm(securityRealm);
@@ -2139,8 +2139,8 @@ public class HudsonExt extends Node implements ItemGroup<TopLevelItem>, ViewGrou
                 if(useSecurity!=null && !useSecurity) {
                     // forced reset to the unsecure mode.
                     // this works as an escape hatch for people who locked themselves out.
-                    authorizationStrategy = AuthorizationStrategy.UNSECURED;
-                    setSecurityRealm(SecurityRealm.NO_AUTHENTICATION);
+                    authorizationStrategy = AuthorizationStrategyExt.UNSECURED;
+                    setSecurityRealm(SecurityRealmExt.NO_AUTHENTICATION);
                 }
 
                 // Initialize the filter with the crumb issuer
@@ -2317,8 +2317,8 @@ public class HudsonExt extends Node implements ItemGroup<TopLevelItem>, ViewGrou
     /**
      * Serves jar files for JNLP slave agents.
      */
-    public Slave.JnlpJar getJnlpJars(String fileName) {
-        return new Slave.JnlpJar(fileName);
+    public SlaveExt.JnlpJar getJnlpJars(String fileName) {
+        return new SlaveExt.JnlpJar(fileName);
     }
 
    
@@ -2328,7 +2328,7 @@ public class HudsonExt extends Node implements ItemGroup<TopLevelItem>, ViewGrou
      */
     public void reload() throws IOException, InterruptedException, ReactorException {
         executeReactor(null, loadTasks());
-        User.reload();
+        UserExt.reload();
         servletContext.setAttribute("app", this);
     }
 
@@ -2501,8 +2501,8 @@ public class HudsonExt extends Node implements ItemGroup<TopLevelItem>, ViewGrou
     /**
      * Exposes the current user to <tt>/me</tt> URL.
      */
-    public User getMe() {
-        User u = User.current();
+    public UserExt getMe() {
+        UserExt u = UserExt.current();
         if (u == null)
             throw new AccessDeniedException("/me is not available when not logged in");
         return u;
@@ -2776,7 +2776,7 @@ public class HudsonExt extends Node implements ItemGroup<TopLevelItem>, ViewGrou
         XSTREAM.alias("view", ListViewExt.class);
         XSTREAM.alias("listView", ListViewExt.class);
         // this seems to be necessary to force registration of converter early enough
-        Mode.class.getEnumConstants();
+        ModeExt.class.getEnumConstants();
 
         // double check that initialization order didn't do any harm
         assert PERMISSIONS!=null;

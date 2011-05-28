@@ -48,7 +48,7 @@ public class FreeStyleBuild extends Build<FreeStyleProjectExt,FreeStyleBuild> {
 
     protected class RunnerImpl extends Build<FreeStyleProjectExt,FreeStyleBuild>.RunnerImpl {
         @Override
-        protected Lease decideWorkspace(Node n, WorkspaceList wsl) throws IOException, InterruptedException {
+        protected Lease decideWorkspace(NodeExt n, WorkspaceList wsl) throws IOException, InterruptedException {
             String customWorkspace = getProject().getCustomWorkspace();
             if (customWorkspace != null)
                 // we allow custom workspaces to be concurrently used between jobs.

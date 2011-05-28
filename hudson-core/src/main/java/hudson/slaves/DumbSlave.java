@@ -23,7 +23,7 @@
  */
 package hudson.slaves;
 
-import hudson.model.Slave;
+import hudson.model.SlaveExt;
 import hudson.model.DescriptorExt.FormException;
 import hudson.Extension;
 
@@ -39,17 +39,17 @@ import org.kohsuke.stapler.DataBoundConstructor;
  *
  * @author Kohsuke Kawaguchi
  */
-public final class DumbSlave extends Slave {
+public final class DumbSlave extends SlaveExt {
     /**
      * @deprecated as of 1.286.
      *      Use {@link #DumbSlave(String, String, String, String, Mode, String, ComputerLauncher, RetentionStrategy, List)}
      */
-    public DumbSlave(String name, String nodeDescription, String remoteFS, String numExecutors, Mode mode, String labelString, ComputerLauncher launcher, RetentionStrategy retentionStrategy) throws FormException, IOException {
+    public DumbSlave(String name, String nodeDescription, String remoteFS, String numExecutors, ModeExt mode, String labelString, ComputerLauncher launcher, RetentionStrategy retentionStrategy) throws FormException, IOException {
         this(name, nodeDescription, remoteFS, numExecutors, mode, labelString, launcher, retentionStrategy, new ArrayList());
     }
     
     @DataBoundConstructor
-    public DumbSlave(String name, String nodeDescription, String remoteFS, String numExecutors, Mode mode, String labelString, ComputerLauncher launcher, RetentionStrategy retentionStrategy, List<? extends NodeProperty<?>> nodeProperties) throws IOException, FormException {
+    public DumbSlave(String name, String nodeDescription, String remoteFS, String numExecutors, ModeExt mode, String labelString, ComputerLauncher launcher, RetentionStrategy retentionStrategy, List<? extends NodeProperty<?>> nodeProperties) throws IOException, FormException {
     	super(name, nodeDescription, remoteFS, numExecutors, mode, labelString, launcher, retentionStrategy, nodeProperties);
     }
 

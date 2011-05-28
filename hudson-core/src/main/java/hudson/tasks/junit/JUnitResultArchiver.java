@@ -37,7 +37,7 @@ import hudson.model.Action;
 import hudson.model.BuildListener;
 import hudson.model.CheckPoint;
 import hudson.model.DescriptorExt;
-import hudson.model.Result;
+import hudson.model.ResultExt;
 import hudson.model.Saveable;
 import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.BuildStepMonitor;
@@ -159,17 +159,17 @@ public class JUnitResultArchiver extends Recorder implements Serializable,
 			CHECKPOINT.block();
 
 		} catch (AbortException e) {
-			if (build.getResult() == Result.FAILURE)
+			if (build.getResult() == ResultExt.FAILURE)
 				// most likely a build failed before it gets to the test phase.
 				// don't report confusing error message.
 				return true;
 
 			listener.getLogger().println(e.getMessage());
-			build.setResult(Result.FAILURE);
+			build.setResult(ResultExt.FAILURE);
 			return true;
 		} catch (IOException e) {
 			e.printStackTrace(listener.error("Failed to archive test reports"));
-			build.setResult(Result.FAILURE);
+			build.setResult(ResultExt.FAILURE);
 			return true;
 		}
 
@@ -177,7 +177,7 @@ public class JUnitResultArchiver extends Recorder implements Serializable,
 		CHECKPOINT.report();
 
 		if (action.getResult().getFailCount() > 0)
-			build.setResult(Result.UNSTABLE);
+			build.setResult(ResultExt.UNSTABLE);
 
 		return true;
 	}

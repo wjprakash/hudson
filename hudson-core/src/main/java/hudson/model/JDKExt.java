@@ -104,7 +104,7 @@ public class JDKExt extends ToolInstallation implements NodeSpecific<JDKExt>, En
         env.put("JAVA_HOME",getHome());
     }
 
-    public JDKExt forNode(Node node, TaskListener log) throws IOException, InterruptedException {
+    public JDKExt forNode(NodeExt node, TaskListener log) throws IOException, InterruptedException {
         return new JDKExt(getName(), translateFor(node, log));
     }
 
@@ -119,7 +119,7 @@ public class JDKExt extends ToolInstallation implements NodeSpecific<JDKExt>, En
      * If it's not, then the user must specify a configured JDKExt,
      * so this is often useful for form field validation.
      */
-    public static boolean isDefaultJDKValid(Node n) {
+    public static boolean isDefaultJDKValid(NodeExt n) {
         try {
             TaskListener listener = new StreamTaskListener(new NullStream());
             Launcher launcher = n.createLauncher(listener);

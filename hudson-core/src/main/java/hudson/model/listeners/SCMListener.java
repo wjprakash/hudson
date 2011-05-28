@@ -28,7 +28,7 @@ import hudson.model.Action;
 import hudson.model.BuildListener;
 import hudson.model.HudsonExt;
 import hudson.scm.ChangeLogSet;
-import hudson.scm.SCM;
+import hudson.scm.SCMExt;
 import hudson.ExtensionPoint;
 
 /**

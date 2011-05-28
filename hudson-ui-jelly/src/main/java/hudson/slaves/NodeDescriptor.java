@@ -26,8 +26,8 @@ package hudson.slaves;
 import hudson.Extension;
 import hudson.model.ComputerSetExt;
 import hudson.model.DescriptorExt;
-import hudson.model.Slave;
-import hudson.model.Node;
+import hudson.model.SlaveExt;
+import hudson.model.NodeExt;
 import hudson.model.HudsonExt;
 import hudson.util.DescriptorList;
 import hudson.util.FormValidation;
@@ -58,7 +58,7 @@ import javax.servlet.ServletException;
  * @author Kohsuke Kawaguchi
  */
 public abstract class NodeDescriptor extends NodeDescriptorExt {
-    protected NodeDescriptor(Class<? extends Node> clazz) {
+    protected NodeDescriptor(Class<? extends NodeExt> clazz) {
         super(clazz);
     }
 
@@ -85,7 +85,7 @@ public abstract class NodeDescriptor extends NodeDescriptorExt {
      * Returns all the registered {@link NodeDescriptorExt} descriptors.
      */
 //    public static DescriptorExtensionListExt<Node,NodeDescriptor> all() {
-//        return HudsonExt.getInstance().<Node,NodeDescriptor>getDescriptorList(Node.class);
+//        return HudsonExt.getInstance().<Node,NodeDescriptor>getDescriptorList(NodeExt.class);
 //    }
 
 }

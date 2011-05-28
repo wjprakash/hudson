@@ -24,7 +24,7 @@
 package hudson.util;
 
 import hudson.Util;
-import hudson.model.Node;
+import hudson.model.NodeExt;
 
 import java.io.IOException;
 
@@ -91,7 +91,7 @@ public final class ClockDifference {
         return s;
     }
 
-    public static String toHtml(Node d) {
+    public static String toHtml(NodeExt d) {
         try {
             if(d==null) return FAILED_HTML;
             return d.getClockDifference().toHtml();

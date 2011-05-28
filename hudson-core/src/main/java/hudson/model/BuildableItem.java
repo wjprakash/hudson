@@ -23,7 +23,7 @@
  */
 package hudson.model;
 
-import hudson.model.Queue.Task;
+import hudson.model.QueueExt.Task;
 
 /**
  * {@link ItemExt} that can be "built", for

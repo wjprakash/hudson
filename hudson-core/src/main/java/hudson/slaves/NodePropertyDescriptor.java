@@ -24,7 +24,7 @@
 package hudson.slaves;
 
 import hudson.Extension;
-import hudson.model.Node;
+import hudson.model.NodeExt;
 import hudson.tools.PropertyDescriptor;
 
 /**
@@ -36,7 +36,7 @@ import hudson.tools.PropertyDescriptor;
  * @since 1.286
  * @see NodeProperty
  */
-public abstract class NodePropertyDescriptor extends PropertyDescriptor<NodeProperty<?>,Node> {
+public abstract class NodePropertyDescriptor extends PropertyDescriptor<NodeProperty<?>,NodeExt> {
     protected NodePropertyDescriptor(Class<? extends NodeProperty<?>> clazz) {
         super(clazz);
     }

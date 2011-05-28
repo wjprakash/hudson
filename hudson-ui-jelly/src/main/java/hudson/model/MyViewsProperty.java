@@ -31,8 +31,8 @@ import hudson.model.DescriptorExt.FormException;
 import hudson.model.HudsonExt;
 import hudson.model.Messages;
 import hudson.model.RootAction;
-import hudson.model.User;
-import hudson.model.UserProperty;
+import hudson.model.UserExt;
+import hudson.model.UserPropertyExt;
 import hudson.model.UserPropertyDescriptor;
 import hudson.security.ACL;
 import hudson.security.Permission;
@@ -67,7 +67,7 @@ import org.kohsuke.stapler.StaplerResponse;
  *
  * @author Tom Huybrechts
  */
-public class MyViewsProperty extends UserProperty implements ViewGroup, Action {
+public class MyViewsProperty extends UserPropertyExt implements ViewGroup, Action {
 
     private static final Logger log = Logger.getLogger(MyViewsProperty.class.getName());
 
@@ -95,7 +95,7 @@ public class MyViewsProperty extends UserProperty implements ViewGroup, Action {
         this.primaryViewName = primaryViewName;
     }
 
-    public User getUser() {
+    public UserExt getUser() {
         return user;
     }
 
@@ -228,13 +228,13 @@ public class MyViewsProperty extends UserProperty implements ViewGroup, Action {
         }
 
         @Override
-        public UserProperty newInstance(User user) {
+        public UserPropertyExt newInstance(UserExt user) {
             return new MyViewsProperty();
         }
     }
     
     @Override
-    public UserProperty reconfigure(StaplerRequest req, JSONObject form) throws FormException {
+    public UserPropertyExt reconfigure(StaplerRequest req, JSONObject form) throws FormException {
     	req.bindJSON(this, form);
     	return this;
     }
@@ -267,7 +267,7 @@ public class MyViewsProperty extends UserProperty implements ViewGroup, Action {
 
 		public String getIconFileName() {
 			// do not show when not logged in
-			if (User.current() == null ) {
+			if (UserExt.current() == null ) {
 				return null;
 			} 
 			

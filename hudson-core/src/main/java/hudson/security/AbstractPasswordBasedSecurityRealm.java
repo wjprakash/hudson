@@ -37,7 +37,7 @@ import java.io.IOException;
  * @author Kohsuke Kawaguchi
  * @since 1.317
  */
-public abstract class AbstractPasswordBasedSecurityRealm extends SecurityRealm implements UserDetailsService {
+public abstract class AbstractPasswordBasedSecurityRealm extends SecurityRealmExt implements UserDetailsService {
     @Override
     public SecurityComponents createSecurityComponents() {
         Binding binding = new Binding();

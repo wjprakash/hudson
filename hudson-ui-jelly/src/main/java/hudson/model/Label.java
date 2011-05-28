@@ -33,7 +33,7 @@ import java.util.Set;
 
 
 /**
- * Group of {@link Node}s.
+ * Group of {@link NodeExt}s.
  * 
  * @author Kohsuke Kawaguchi
  * @see HudsonExt#getLabels()
@@ -43,7 +43,7 @@ import java.util.Set;
 public abstract class Label extends LabelExt {
    
     @Exported
-    public transient final LoadStatistics loadStatistics = null;
+    public transient final LoadStatisticsExt loadStatistics = null;
 
     public Label(String name) {
         super(name);
@@ -73,11 +73,11 @@ public abstract class Label extends LabelExt {
     
 
     /**
-     * Gets all {@link Node}s that belong to this label.
+     * Gets all {@link NodeExt}s that belong to this label.
      */
     @Exported
     @Override
-    public Set<Node> getNodes() {
+    public Set<NodeExt> getNodes() {
         return super.getNodes();
     }
 

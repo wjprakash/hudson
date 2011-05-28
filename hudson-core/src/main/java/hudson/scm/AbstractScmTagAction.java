@@ -24,7 +24,7 @@
 package hudson.scm;
 
 import hudson.model.AbstractBuildExt;
-import hudson.model.TaskAction;
+import hudson.model.TaskActionExt;
 import hudson.model.BuildBadgeAction;
 import hudson.security.Permission;
 import hudson.security.ACL;
@@ -44,7 +44,7 @@ import java.io.IOException;
  *
  * @author Kohsuke Kawaguchi
  */
-public abstract class AbstractScmTagAction extends TaskAction implements BuildBadgeAction {
+public abstract class AbstractScmTagAction extends TaskActionExt implements BuildBadgeAction {
     protected final AbstractBuildExt build;
 
     protected AbstractScmTagAction(AbstractBuildExt build) {
@@ -60,7 +60,7 @@ public abstract class AbstractScmTagAction extends TaskAction implements BuildBa
      * Defaults to {@link SCM#TAG}.
      */
     protected Permission getPermission() {
-        return SCM.TAG;
+        return SCMExt.TAG;
     }
 
     public AbstractBuildExt getBuild() {

@@ -23,12 +23,12 @@
  */
 package hudson.slaves;
 
-import hudson.model.LoadStatistics;
-import hudson.model.Node;
+import hudson.model.LoadStatisticsExt;
+import hudson.model.NodeExt;
 import hudson.model.HudsonExt;
 import hudson.model.LabelExt;
 import hudson.model.PeriodicWork;
-import static hudson.model.LoadStatistics.DECAY;
+import static hudson.model.LoadStatisticsExt.DECAY;
 import hudson.Extension;
 import hudson.util.graph.MultiStageTimeSeries;
 import hudson.util.graph.MultiStageTimeSeries.TimeScale;
@@ -46,7 +46,7 @@ import java.io.IOException;
 
 /**
  * Uses the {@link LoadStatistics} and determines when we need to allocate
- * new {@link Node}s through {@link Cloud}.
+ * new {@link NodeExt}s through {@link Cloud}.
  *
  * @author Kohsuke Kawaguchi
  */
@@ -61,10 +61,10 @@ public class NodeProvisioner {
          * can be just a name of the template being provisioned (like the machine image ID.)
          */
         public final String displayName;
-        public final Future<Node> future;
+        public final Future<NodeExt> future;
         public final int numExecutors;
 
-        public PlannedNode(String displayName, Future<Node> future, int numExecutors) {
+        public PlannedNode(String displayName, Future<NodeExt> future, int numExecutors) {
             if(displayName==null || future==null || numExecutors<1)  throw new IllegalArgumentException();
             this.displayName = displayName;
             this.future = future;
@@ -75,7 +75,7 @@ public class NodeProvisioner {
     /**
      * Load for the label.
      */
-    private final LoadStatistics stat;
+    private final LoadStatisticsExt stat;
 
     /**
      * For which label are we working?
@@ -96,7 +96,7 @@ public class NodeProvisioner {
     private final MultiStageTimeSeries plannedCapacitiesEMA =
             new MultiStageTimeSeries(Messages._NodeProvisioner_EmptyString(),Color.WHITE,0,DECAY);
 
-    public NodeProvisioner(LabelExt label, LoadStatistics loadStatistics) {
+    public NodeProvisioner(LabelExt label, LoadStatisticsExt loadStatistics) {
         this.label = label;
         this.stat = loadStatistics;
     }
@@ -251,8 +251,8 @@ public class NodeProvisioner {
          * Give some initial warm up time so that statically connected slaves
          * can be brought online before we start allocating more.
          */
-    	 public static int INITIALDELAY = Integer.getInteger(NodeProvisioner.class.getName()+".initialDelay",LoadStatistics.CLOCK*10);
-    	 public static int RECURRENCEPERIOD = Integer.getInteger(NodeProvisioner.class.getName()+".recurrencePeriod",LoadStatistics.CLOCK);
+    	 public static int INITIALDELAY = Integer.getInteger(NodeProvisioner.class.getName()+".initialDelay",LoadStatisticsExt.CLOCK*10);
+    	 public static int RECURRENCEPERIOD = Integer.getInteger(NodeProvisioner.class.getName()+".recurrencePeriod",LoadStatisticsExt.CLOCK);
     	 
         @Override
         public long getInitialDelay() {

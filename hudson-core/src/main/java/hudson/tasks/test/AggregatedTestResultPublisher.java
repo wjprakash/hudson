@@ -33,7 +33,7 @@ import hudson.model.BuildListener;
 import hudson.model.FingerprintExt.RangeSet;
 import hudson.model.HudsonExt;
 import hudson.model.ItemExt;
-import hudson.model.Result;
+import hudson.model.ResultExt;
 import hudson.model.RunExt;
 import hudson.model.TaskListener;
 import hudson.model.listeners.RunListener;
@@ -236,7 +236,7 @@ public class AggregatedTestResultPublisher extends Recorder {
                     for (int n : rs.listNumbersReverse()) {
                         RunExt b = job.getBuildByNumber(n);
                         if(b==null) continue;
-                        if(b.isBuilding() || b.getResult().isWorseThan(Result.UNSTABLE))
+                        if(b.isBuilding() || b.getResult().isWorseThan(ResultExt.UNSTABLE))
                             continue;   // don't count them
 
                         for( AbstractTestResultAction ta : b.getActions(AbstractTestResultAction.class)) {

@@ -44,10 +44,10 @@ import hudson.remoting.LocalChannel;
 import hudson.remoting.VirtualChannel;
 import hudson.security.ACL;
 import hudson.security.AccessControlled;
-import hudson.security.AuthorizationStrategy;
+import hudson.security.AuthorizationStrategyExt;
 import hudson.security.BasicAuthenticationFilter;
 import hudson.security.Permission;
-import hudson.security.SecurityRealm;
+import hudson.security.SecurityRealmExt;
 import hudson.security.csrf.CrumbIssuer;
 import hudson.slaves.Cloud;
 import hudson.slaves.NodeProperty;
@@ -141,7 +141,7 @@ public final class Hudson extends HudsonExt implements ItemGroup<TopLevelItem>, 
      * Load statistics of the entire system.
      */
     @Exported
-    public transient final OverallLoadStatistics overallLoad = new OverallLoadStatistics();
+    public transient final OverallLoadStatisticsExt overallLoad = new OverallLoadStatisticsExt();
 
 
     /**
@@ -324,8 +324,8 @@ public final class Hudson extends HudsonExt implements ItemGroup<TopLevelItem>, 
             if (json.has("use_security")) {
                 useSecurity = true;
                 JSONObject security = json.getJSONObject("use_security");
-                setSecurityRealm(SecurityRealm.all().newInstanceFromRadioList(security,"realm"));
-                setAuthorizationStrategy(AuthorizationStrategy.all().newInstanceFromRadioList(security, "authorization"));
+                setSecurityRealm(SecurityRealmExt.all().newInstanceFromRadioList(security,"realm"));
+                setAuthorizationStrategy(AuthorizationStrategyExt.all().newInstanceFromRadioList(security, "authorization"));
 
                 if (security.has("markupFormatter")) {
                     markupFormatter = req.bindJSON(MarkupFormatter.class,security.getJSONObject("markupFormatter"));
@@ -334,8 +334,8 @@ public final class Hudson extends HudsonExt implements ItemGroup<TopLevelItem>, 
                 }
             } else {
                 useSecurity = null;
-                setSecurityRealm(SecurityRealm.NO_AUTHENTICATION);
-                authorizationStrategy = AuthorizationStrategy.UNSECURED;
+                setSecurityRealm(SecurityRealmExt.NO_AUTHENTICATION);
+                authorizationStrategy = AuthorizationStrategyExt.UNSECURED;
                 markupFormatter = null;
             }
 
@@ -393,9 +393,9 @@ public final class Hudson extends HudsonExt implements ItemGroup<TopLevelItem>, 
 
             numExecutors = json.getInt("numExecutors");
             if(req.hasParameter("master.mode"))
-                mode = Mode.valueOf(req.getParameter("master.mode"));
+                mode = ModeExt.valueOf(req.getParameter("master.mode"));
             else
-                mode = Mode.NORMAL;
+                mode = ModeExt.NORMAL;
 
             label = json.optString("labelString","");
 
@@ -460,11 +460,11 @@ public final class Hudson extends HudsonExt implements ItemGroup<TopLevelItem>, 
 
             setNumExecutors(Integer.parseInt(req.getParameter("numExecutors")));
             if(req.hasParameter("master.mode"))
-                mode = Mode.valueOf(req.getParameter("master.mode"));
+                mode = ModeExt.valueOf(req.getParameter("master.mode"));
             else
-                mode = Mode.NORMAL;
+                mode = ModeExt.NORMAL;
 
-            setNodes(req.bindJSONToList(Slave.class,json.get("slaves")));
+            setNodes(req.bindJSONToList(SlaveExt.class,json.get("slaves")));
         } finally {
             bc.commit();
         }
@@ -594,8 +594,8 @@ public final class Hudson extends HudsonExt implements ItemGroup<TopLevelItem>, 
     }
 
 
-    public Slave.JnlpJar doJnlpJars(StaplerRequest req) {
-        return new Slave.JnlpJar(req.getRestOfPath());
+    public SlaveExt.JnlpJar doJnlpJars(StaplerRequest req) {
+        return new SlaveExt.JnlpJar(req.getRestOfPath());
     }
 
     /**

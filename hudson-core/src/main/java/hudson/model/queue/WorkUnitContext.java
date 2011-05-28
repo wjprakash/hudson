@@ -25,9 +25,9 @@ package hudson.model.queue;
 
 import hudson.model.Action;
 import hudson.model.ExecutorExt;
-import hudson.model.Queue;
-import hudson.model.Queue.BuildableItem;
-import hudson.model.Queue.Task;
+import hudson.model.QueueExt;
+import hudson.model.QueueExt.BuildableItem;
+import hudson.model.QueueExt.Task;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -119,7 +119,7 @@ public final class WorkUnitContext {
      *      If any of the member thread is interrupted while waiting for other threads to join, all
      *      the member threads will report {@link InterruptedException}.
      */
-    public void synchronizeEnd(Queue.Executable executable, Throwable problems, long duration) throws InterruptedException {
+    public void synchronizeEnd(QueueExt.Executable executable, Throwable problems, long duration) throws InterruptedException {
         endLatch.synchronize();
 
         // the main thread will send a notification

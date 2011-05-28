@@ -24,8 +24,8 @@
 package hudson.widgets;
 
 import hudson.model.HudsonExt;
-import hudson.model.Queue.Item;
-import hudson.model.Queue.Task;
+import hudson.model.QueueExt.Item;
+import hudson.model.QueueExt.Task;
 
 import java.util.ArrayList;
 import java.util.Collections;

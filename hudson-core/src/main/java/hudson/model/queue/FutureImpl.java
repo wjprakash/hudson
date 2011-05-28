@@ -25,9 +25,9 @@ package hudson.model.queue;
 
 import hudson.model.ExecutorExt;
 import hudson.model.HudsonExt;
-import hudson.model.Queue;
-import hudson.model.Queue.Executable;
-import hudson.model.Queue.Task;
+import hudson.model.QueueExt;
+import hudson.model.QueueExt.Executable;
+import hudson.model.QueueExt.Task;
 import hudson.remoting.AsyncFutureImpl;
 
 import java.util.HashSet;
@@ -52,7 +52,7 @@ public final class FutureImpl extends AsyncFutureImpl<Executable> {
 
     @Override
     public boolean cancel(boolean mayInterruptIfRunning) {
-        Queue q = HudsonExt.getInstance().getQueue();
+        QueueExt q = HudsonExt.getInstance().getQueue();
         synchronized (q) {
             synchronized (this) {
                 if(!executors.isEmpty()) {

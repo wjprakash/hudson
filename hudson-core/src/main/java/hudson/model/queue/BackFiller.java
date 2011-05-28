@@ -6,7 +6,7 @@ import hudson.model.ComputerExt;
 import hudson.model.ExecutorExt;
 import hudson.model.HudsonExt;
 import hudson.model.InvisibleAction;
-import hudson.model.Queue.BuildableItem;
+import hudson.model.QueueExt.BuildableItem;
 import hudson.model.queue.MappingWorksheet.ExecutorChunk;
 import hudson.model.queue.MappingWorksheet.ExecutorSlot;
 import hudson.model.queue.MappingWorksheet.Mapping;

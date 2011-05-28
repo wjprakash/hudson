@@ -30,7 +30,7 @@ import hudson.Extension;
 import hudson.model.AbstractBuildExt;
 import hudson.model.AbstractProjectExt;
 import hudson.model.BuildListener;
-import hudson.model.Result;
+import hudson.model.ResultExt;
 import hudson.model.HudsonExt;
 import hudson.util.FormValidation;
 import org.kohsuke.stapler.StaplerRequest;
@@ -99,7 +99,7 @@ public class ArtifactArchiver extends Recorder {
     public boolean perform(AbstractBuildExt<?,?> build, Launcher launcher, BuildListener listener) throws InterruptedException {
         if(artifacts.length()==0) {
             listener.error(Messages.ArtifactArchiver_NoIncludes());
-            build.setResult(Result.FAILURE);
+            build.setResult(ResultExt.FAILURE);
             return true;
         }
         
@@ -115,7 +115,7 @@ public class ArtifactArchiver extends Recorder {
 
             String artifacts = build.getEnvironment(listener).expand(this.artifacts);
             if(ws.copyRecursiveTo(artifacts,excludes,new FilePathExt(dir))==0) {
-                if(build.getResult().isBetterOrEqualTo(Result.UNSTABLE)) {
+                if(build.getResult().isBetterOrEqualTo(ResultExt.UNSTABLE)) {
                     // If the build failed, don't complain that there was no matching artifact.
                     // The build probably didn't even get to the point where it produces artifacts. 
                     listenerWarnOrError(listener, Messages.ArtifactArchiver_NoMatchFound(artifacts));
@@ -129,7 +129,7 @@ public class ArtifactArchiver extends Recorder {
                         listenerWarnOrError(listener, msg);
                 }
                 if (!allowEmptyArchive) {
-                	build.setResult(Result.FAILURE);
+                	build.setResult(ResultExt.FAILURE);
                 }
                 return true;
             }
@@ -147,7 +147,7 @@ public class ArtifactArchiver extends Recorder {
     public boolean prebuild(AbstractBuildExt<?, ?> build, BuildListener listener) {
         if(latestOnly) {
             AbstractBuildExt<?,?> b = build.getProject().getLastCompletedBuild();
-            Result bestResultSoFar = Result.NOT_BUILT;
+            ResultExt bestResultSoFar = ResultExt.NOT_BUILT;
             while(b!=null) {
                 if (b.getResult().isBetterThan(bestResultSoFar)) {
                     bestResultSoFar = b.getResult();

@@ -27,14 +27,14 @@ import hudson.ExtensionList;
 import hudson.ExtensionPoint;
 import hudson.slaves.NodeSpecific;
 import hudson.model.HudsonExt;
-import hudson.model.Node;
+import hudson.model.NodeExt;
 import hudson.model.TaskListener;
 import java.io.File;
 import java.io.IOException;
 
 /**
  * This HudsonExt-wide extension points can participate in determining the actual node-specific path
- * of the {@link ToolInstallation} for the given {@link Node}.
+ * of the {@link ToolInstallation} for the given {@link NodeExt}.
  *
  * <p>
  * This extension point is useful when there's a deterministic rule of where tools are installed.
@@ -47,12 +47,12 @@ import java.io.IOException;
  *
  * @author Kohsuke Kawaguchi
  * @since 1.299
- * @see ToolInstallation#translateFor(Node, TaskListener)
+ * @see ToolInstallation#translateFor(NodeExt, TaskListener)
  */
 public abstract class ToolLocationTranslator implements ExtensionPoint {
     /**
-     * Called for each {@link ToolInstallation#translateFor(Node, TaskListener)} invocations
-     * (which normally means it's invoked for each {@link NodeSpecific#forNode(Node, TaskListener)})
+     * Called for each {@link ToolInstallation#translateFor(NodeExt, TaskListener)} invocations
+     * (which normally means it's invoked for each {@link NodeSpecific#forNode(NodeExt, TaskListener)})
      * to translate the tool location into the node specific location.
      *
      * <p>
@@ -63,7 +63,7 @@ public abstract class ToolLocationTranslator implements ExtensionPoint {
      * Otherwise return null to let other {@link ToolLocationTranslator}s a chance to do translations
      * on their own. 
      */
-    public abstract String getToolHome(Node node, ToolInstallation installation, TaskListener log) throws IOException, InterruptedException;
+    public abstract String getToolHome(NodeExt node, ToolInstallation installation, TaskListener log) throws IOException, InterruptedException;
 
     /**
      * Returns all the registered {@link ToolLocationTranslator}s.

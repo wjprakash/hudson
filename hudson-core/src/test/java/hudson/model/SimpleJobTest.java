@@ -18,13 +18,13 @@ public class SimpleJobTest extends TestCase {
         
         JobExt project = createMockProject(runs);
         
-        TestBuild previousPreviousBuild = new TestBuild(project, Result.SUCCESS, 20, null);
+        TestBuild previousPreviousBuild = new TestBuild(project, ResultExt.SUCCESS, 20, null);
         runs.put(3, previousPreviousBuild);
         
-        TestBuild previousBuild = new TestBuild(project, Result.SUCCESS, 15, previousPreviousBuild);
+        TestBuild previousBuild = new TestBuild(project, ResultExt.SUCCESS, 15, previousPreviousBuild);
         runs.put(2, previousBuild);
         
-        TestBuild lastBuild = new TestBuild(project, Result.SUCCESS, 42, previousBuild);
+        TestBuild lastBuild = new TestBuild(project, ResultExt.SUCCESS, 42, previousBuild);
         runs.put(1, lastBuild);
 
         // without assuming to know to much about the internal calculation
@@ -39,7 +39,7 @@ public class SimpleJobTest extends TestCase {
         
         JobExt project = createMockProject(runs);
         
-        TestBuild lastBuild = new TestBuild(project, Result.SUCCESS, 42, null);
+        TestBuild lastBuild = new TestBuild(project, ResultExt.SUCCESS, 42, null);
         runs.put(1, lastBuild);
 
         Assert.assertEquals(42, project.getEstimatedDuration());
@@ -51,7 +51,7 @@ public class SimpleJobTest extends TestCase {
         
         JobExt project = createMockProject(runs);
         
-        TestBuild lastBuild = new TestBuild(project, Result.FAILURE, 42, null);
+        TestBuild lastBuild = new TestBuild(project, ResultExt.FAILURE, 42, null);
         runs.put(1, lastBuild);
 
         Assert.assertEquals(-1, project.getEstimatedDuration());
@@ -72,19 +72,19 @@ public class SimpleJobTest extends TestCase {
         
         JobExt project = createMockProject(runs);
         
-        TestBuild prev4Build = new TestBuild(project, Result.SUCCESS, 1, null);
+        TestBuild prev4Build = new TestBuild(project, ResultExt.SUCCESS, 1, null);
         runs.put(5, prev4Build);
         
-        TestBuild prev3Build = new TestBuild(project, Result.SUCCESS, 1, prev4Build);
+        TestBuild prev3Build = new TestBuild(project, ResultExt.SUCCESS, 1, prev4Build);
         runs.put(4, prev3Build);
         
-        TestBuild previous2Build = new TestBuild(project, Result.FAILURE, 50, prev3Build);
+        TestBuild previous2Build = new TestBuild(project, ResultExt.FAILURE, 50, prev3Build);
         runs.put(3, previous2Build);
         
-        TestBuild previousBuild = new TestBuild(project, Result.FAILURE, 50, previous2Build);
+        TestBuild previousBuild = new TestBuild(project, ResultExt.FAILURE, 50, previous2Build);
         runs.put(2, previousBuild);
         
-        TestBuild lastBuild = new TestBuild(project, Result.FAILURE, 50, previousBuild);
+        TestBuild lastBuild = new TestBuild(project, ResultExt.FAILURE, 50, previousBuild);
         runs.put(1, lastBuild);
 
         // failed builds must not be used. Instead the last successful builds before them
@@ -122,7 +122,7 @@ public class SimpleJobTest extends TestCase {
     
     private static class TestBuild extends RunExt {
         
-        public TestBuild(JobExt project, Result result, long duration, TestBuild previousBuild) throws IOException {
+        public TestBuild(JobExt project, ResultExt result, long duration, TestBuild previousBuild) throws IOException {
             super(project);
             this.result = result;
             this.duration = duration;
@@ -135,7 +135,7 @@ public class SimpleJobTest extends TestCase {
         }
         
         @Override
-        public Result getResult() {
+        public ResultExt getResult() {
             return result;
         }
         

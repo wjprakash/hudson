@@ -26,7 +26,7 @@ package hudson.scm;
 import hudson.MarkupText;
 import hudson.Util;
 import hudson.model.AbstractBuildExt;
-import hudson.model.User;
+import hudson.model.UserExt;
 import org.kohsuke.stapler.export.Exported;
 import org.kohsuke.stapler.export.ExportedBean;
 
@@ -126,7 +126,7 @@ public abstract class ChangeLogSet<T extends ChangeLogSet.Entry> implements Iter
          * @return
          *      never null.
          */
-        public abstract User getAuthor();
+        public abstract UserExt getAuthor();
 
         /**
          * Returns a set of paths in the workspace that was

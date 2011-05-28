@@ -36,7 +36,7 @@ import hudson.model.BuildListener;
 import hudson.model.ComputerExt;
 import hudson.model.EnvironmentSpecific;
 import hudson.model.HudsonExt;
-import hudson.model.Node;
+import hudson.model.NodeExt;
 import hudson.model.TaskListener;
 import hudson.remoting.Callable;
 import hudson.slaves.NodeSpecific;
@@ -376,7 +376,7 @@ public class Ant extends Builder {
             return new AntInstallation(getName(), environment.expand(getHome()), getProperties().toList());
         }
 
-        public AntInstallation forNode(Node node, TaskListener log) throws IOException, InterruptedException {
+        public AntInstallation forNode(NodeExt node, TaskListener log) throws IOException, InterruptedException {
             return new AntInstallation(getName(), translateFor(node, log), getProperties().toList());
         }
 

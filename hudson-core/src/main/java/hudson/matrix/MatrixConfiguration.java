@@ -38,9 +38,9 @@ import hudson.model.LabelExt;
 import hudson.model.ParametersAction;
 import hudson.model.ProjectExt;
 import hudson.model.SCMedItem;
-import hudson.model.Queue.NonBlockingTask;
+import hudson.model.QueueExt.NonBlockingTask;
 import hudson.model.CauseExt.LegacyCodeCause;
-import hudson.scm.SCM;
+import hudson.scm.SCMExt;
 import hudson.tasks.BuildWrapper;
 import hudson.tasks.Builder;
 import hudson.tasks.LogRotator;
@@ -254,7 +254,7 @@ public class MatrixConfiguration extends ProjectExt<MatrixConfiguration,MatrixRu
     }
 
     @Override
-    public SCM getScm() {
+    public SCMExt getScm() {
         return getParent().getScm();
     }
 

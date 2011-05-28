@@ -28,7 +28,7 @@ import hudson.slaves.WorkspaceList;
 import hudson.slaves.WorkspaceList.Lease;
 import static hudson.matrix.MatrixConfiguration.useShortWorkspaceName;
 import hudson.model.Build;
-import hudson.model.Node;
+import hudson.model.NodeExt;
 
 import java.io.File;
 import java.io.IOException;
@@ -103,7 +103,7 @@ public class MatrixRunExt extends Build<MatrixConfiguration,MatrixRunExt> {
 
     protected class RunnerImpl extends Build<MatrixConfiguration,MatrixRunExt>.RunnerImpl {
         @Override
-        protected Lease decideWorkspace(Node n, WorkspaceList wsl) throws InterruptedException, IOException {
+        protected Lease decideWorkspace(NodeExt n, WorkspaceList wsl) throws InterruptedException, IOException {
             // Map current combination to a directory subtree, e.g. 'axis1=a,axis2=b' to 'axis1/a/axis2/b'.
             String subtree;
             if(useShortWorkspaceName) {
@@ -120,7 +120,7 @@ public class MatrixRunExt extends Build<MatrixConfiguration,MatrixRunExt> {
                 return Lease.createDummyLease(ws.child(subtree));
             } else {
                 // Use default workspace as assigned by Hudson.
-                Node node = getBuiltOn();
+                NodeExt node = getBuiltOn();
                 FilePathExt ws = node.getWorkspaceFor(getParent().getParent());
                 // Allocate unique workspace (not to be shared between jobs and runs).
                 return wsl.allocate(ws.child(subtree));

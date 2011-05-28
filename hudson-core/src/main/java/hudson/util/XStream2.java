@@ -43,7 +43,7 @@ import com.thoughtworks.xstream.mapper.CannotResolveClassException;
 import hudson.diagnosis.OldDataMonitorExt;
 import hudson.model.HudsonExt;
 import hudson.model.LabelExt;
-import hudson.model.Result;
+import hudson.model.ResultExt;
 import hudson.model.Saveable;
 import hudson.util.xstream.ImmutableMapConverter;
 
@@ -94,7 +94,7 @@ public class XStream2 extends XStream {
 
     private void init() {
         // list up types that should be marshalled out like a value, without referencial integrity tracking.
-        addImmutableType(Result.class);
+        addImmutableType(ResultExt.class);
 
         registerConverter(new RobustCollectionConverter(getMapper(),getReflectionProvider()),10);
         registerConverter(new ImmutableMapConverter(getMapper(),getReflectionProvider()),10);

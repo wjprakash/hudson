@@ -24,7 +24,7 @@
 package hudson.model.queue;
 
 import hudson.model.LabelExt;
-import hudson.model.Node;
+import hudson.model.NodeExt;
 import hudson.model.ResourceList;
 
 /**
@@ -38,7 +38,7 @@ public abstract class AbstractSubTask implements SubTask {
         return null;
     }
 
-    public Node getLastBuiltOn() {
+    public NodeExt getLastBuiltOn() {
         return null;
     }
 

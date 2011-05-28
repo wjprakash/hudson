@@ -24,7 +24,7 @@
 package hudson.model;
 
 import hudson.diagnosis.OldDataMonitorExt;
-import hudson.model.Queue.Task;
+import hudson.model.QueueExt.Task;
 import hudson.model.queue.FoldableAction;
 import hudson.util.XStream2;
 import com.thoughtworks.xstream.converters.UnmarshallingContext;
@@ -113,7 +113,7 @@ public class CauseActionExt implements FoldableAction, RunAction {
         }
     }
 
-    public void foldIntoExisting(hudson.model.Queue.Item item, Task owner, List<Action> otherActions) {
+    public void foldIntoExisting(hudson.model.QueueExt.Item item, Task owner, List<Action> otherActions) {
         CauseActionExt existing = item.getAction(CauseActionExt.class);
         if (existing != null) {
             existing.causes.addAll(this.causes);

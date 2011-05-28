@@ -24,7 +24,7 @@
 package hudson.util;
 
 import hudson.ExtensionPoint;
-import hudson.security.SecurityRealm;
+import hudson.security.SecurityRealmExt;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;

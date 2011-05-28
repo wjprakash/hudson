@@ -70,8 +70,8 @@ public class WorkspaceCleanupThread extends AsyncPeriodicWork {
             this.listener = listener;
 
             HudsonExt h = HudsonExt.getInstance();
-            for (Node n : h.getNodes())
-                if (n instanceof Slave) process((Slave)n);
+            for (NodeExt n : h.getNodes())
+                if (n instanceof SlaveExt) process((SlaveExt)n);
 
             process(h);
         } finally {
@@ -91,7 +91,7 @@ public class WorkspaceCleanupThread extends AsyncPeriodicWork {
         }
     }
 
-    private boolean shouldBeDeleted(String jobName, FilePathExt dir, Node n) throws IOException, InterruptedException {
+    private boolean shouldBeDeleted(String jobName, FilePathExt dir, NodeExt n) throws IOException, InterruptedException {
         // TODO: the use of remoting is not optimal.
         // One remoting can execute "exists", "lastModified", and "delete" all at once.
         TopLevelItem item = HudsonExt.getInstance().getItem(jobName);
@@ -113,7 +113,7 @@ public class WorkspaceCleanupThread extends AsyncPeriodicWork {
 
         if (item instanceof AbstractProjectExt) {
             AbstractProjectExt p = (AbstractProjectExt) item;
-            Node lb = p.getLastBuiltOn();
+            NodeExt lb = p.getLastBuiltOn();
             LOGGER.finer("Directory "+dir+" is last built on "+lb);
             if(lb!=null && lb.equals(n)) {
                 // this is the active workspace. keep it.
@@ -131,7 +131,7 @@ public class WorkspaceCleanupThread extends AsyncPeriodicWork {
         return true;
     }
 
-    private void process(Slave s) throws InterruptedException {
+    private void process(SlaveExt s) throws InterruptedException {
         listener.getLogger().println("Scanning "+s.getNodeName());
 
         try {

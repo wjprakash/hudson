@@ -26,12 +26,12 @@ package hudson.model;
 import hudson.Extension;
 import hudson.ExtensionList;
 import hudson.ExtensionPoint;
-import hudson.model.labels.LabelAtom;
+import hudson.model.labels.LabelAtomExt;
 
 import java.util.Collection;
 
 /**
- * Automatically adds labels to {@link Node}s.
+ * Automatically adds labels to {@link NodeExt}s.
  *
  * <p>
  * To register your implementation, put {@link Extension} on your derived types.
@@ -57,5 +57,5 @@ public abstract class LabelFinder implements ExtensionPoint {
      * @return
      *      A set of labels for the node. Can be empty but never null.
      */
-    public abstract Collection<LabelAtom> findLabels(Node node);
+    public abstract Collection<LabelAtomExt> findLabels(NodeExt node);
 }

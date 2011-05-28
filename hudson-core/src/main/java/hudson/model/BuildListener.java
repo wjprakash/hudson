@@ -43,5 +43,5 @@ public interface BuildListener extends TaskListener {
     /**
      * Called when a build is finished.
      */
-    void finished(Result result);
+    void finished(ResultExt result);
 }

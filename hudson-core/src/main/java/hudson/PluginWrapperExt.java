@@ -26,8 +26,8 @@ package hudson;
 
 import hudson.PluginManagerExt.PluginInstanceStore;
 import hudson.model.HudsonExt;
-import hudson.model.UpdateCenter;
-import hudson.model.UpdateSite;
+import hudson.model.UpdateCenterExt;
+import hudson.model.UpdateSiteExt;
 import hudson.util.VersionNumber;
 
 import java.io.File;
@@ -268,7 +268,7 @@ public class PluginWrapperExt implements Comparable<PluginWrapperExt> {
         if(url!=null)      return url;
 
         // fallback to update center metadata
-        UpdateSite.Plugin ui = getInfo();
+        UpdateSiteExt.PluginExt ui = getInfo();
         if(ui!=null)    return ui.wiki;
 
         return null;
@@ -427,9 +427,9 @@ public class PluginWrapperExt implements Comparable<PluginWrapperExt> {
      *      This method may return null &mdash; for example,
      *      the user may have installed a plugin locally developed.
      */
-    public UpdateSite.Plugin getUpdateInfo() {
-        UpdateCenter uc = HudsonExt.getInstance().getUpdateCenter();
-        UpdateSite.Plugin p = uc.getPlugin(getShortName());
+    public UpdateSiteExt.PluginExt getUpdateInfo() {
+        UpdateCenterExt uc = HudsonExt.getInstance().getUpdateCenter();
+        UpdateSiteExt.PluginExt p = uc.getPlugin(getShortName());
         if(p!=null && p.isNewerThan(getVersion())) return p;
         return null;
     }
@@ -437,8 +437,8 @@ public class PluginWrapperExt implements Comparable<PluginWrapperExt> {
     /**
      * returns the {@link UpdateSite.PluginExt} object, or null.
      */
-    public UpdateSite.Plugin getInfo() {
-        UpdateCenter uc = HudsonExt.getInstance().getUpdateCenter();
+    public UpdateSiteExt.PluginExt getInfo() {
+        UpdateCenterExt uc = HudsonExt.getInstance().getUpdateCenter();
         return uc.getPlugin(getShortName());
     }
 

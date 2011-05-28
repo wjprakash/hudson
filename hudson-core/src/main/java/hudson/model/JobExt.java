@@ -196,7 +196,7 @@ public abstract class JobExt<JobT extends JobExt<JobT, RunT>, RunT extends RunEx
     /**
      * If this job is in the build queue, return its item.
      */
-    public Queue.Item getQueueItem() {
+    public QueueExt.Item getQueueItem() {
         return null;
     }
 
@@ -625,7 +625,7 @@ public abstract class JobExt<JobT extends JobExt<JobT, RunT>, RunT extends RunEx
         RunT r = getLastBuild();
         // temporary hack till we figure out what's causing this bug
         while (r != null
-                && (r.isBuilding() || r.getResult() == null || r.getResult().isWorseThan(Result.UNSTABLE))) {
+                && (r.isBuilding() || r.getResult() == null || r.getResult().isWorseThan(ResultExt.UNSTABLE))) {
             r = r.getPreviousBuild();
         }
         return r;
@@ -639,7 +639,7 @@ public abstract class JobExt<JobT extends JobExt<JobT, RunT>, RunT extends RunEx
     public RunT getLastUnsuccessfulBuild() {
         RunT r = getLastBuild();
         while (r != null
-                && (r.isBuilding() || r.getResult() == Result.SUCCESS)) {
+                && (r.isBuilding() || r.getResult() == ResultExt.SUCCESS)) {
             r = r.getPreviousBuild();
         }
         return r;
@@ -653,7 +653,7 @@ public abstract class JobExt<JobT extends JobExt<JobT, RunT>, RunT extends RunEx
     public RunT getLastUnstableBuild() {
         RunT r = getLastBuild();
         while (r != null
-                && (r.isBuilding() || r.getResult() != Result.UNSTABLE)) {
+                && (r.isBuilding() || r.getResult() != ResultExt.UNSTABLE)) {
             r = r.getPreviousBuild();
         }
         return r;
@@ -667,7 +667,7 @@ public abstract class JobExt<JobT extends JobExt<JobT, RunT>, RunT extends RunEx
     public RunT getLastStableBuild() {
         RunT r = getLastBuild();
         while (r != null
-                && (r.isBuilding() || r.getResult().isWorseThan(Result.SUCCESS))) {
+                && (r.isBuilding() || r.getResult().isWorseThan(ResultExt.SUCCESS))) {
             r = r.getPreviousBuild();
         }
         return r;
@@ -679,7 +679,7 @@ public abstract class JobExt<JobT extends JobExt<JobT, RunT>, RunT extends RunEx
     @QuickSilver
     public RunT getLastFailedBuild() {
         RunT r = getLastBuild();
-        while (r != null && (r.isBuilding() || r.getResult() != Result.FAILURE)) {
+        while (r != null && (r.isBuilding() || r.getResult() != ResultExt.FAILURE)) {
             r = r.getPreviousBuild();
         }
         return r;
@@ -703,7 +703,7 @@ public abstract class JobExt<JobT extends JobExt<JobT, RunT>, RunT extends RunEx
      * @return a list with the builds. May be smaller than 'numberOfBuilds' or even empty
      *   if not enough builds satisfying the threshold have been found. Never null.
      */
-    public List<RunT> getLastBuildsOverThreshold(int numberOfBuilds, Result threshold) {
+    public List<RunT> getLastBuildsOverThreshold(int numberOfBuilds, ResultExt threshold) {
 
         List<RunT> result = new ArrayList<RunT>(numberOfBuilds);
 
@@ -720,7 +720,7 @@ public abstract class JobExt<JobT extends JobExt<JobT, RunT>, RunT extends RunEx
     }
 
     public final long getEstimatedDuration() {
-        List<RunT> builds = getLastBuildsOverThreshold(3, Result.UNSTABLE);
+        List<RunT> builds = getLastBuildsOverThreshold(3, ResultExt.UNSTABLE);
 
         if (builds.isEmpty()) {
             return -1;
@@ -915,12 +915,12 @@ public abstract class JobExt<JobT extends JobExt<JobT, RunT>, RunT extends RunEx
         public Color getColor(int row, int column) {
             // TODO: consider gradation. See
             // http://www.javadrive.jp/java2d/shape/index9.html
-            Result r = run.getResult();
-            if (r == Result.FAILURE) {
+            ResultExt r = run.getResult();
+            if (r == ResultExt.FAILURE) {
                 return ColorPalette.RED;
-            } else if (r == Result.UNSTABLE) {
+            } else if (r == ResultExt.UNSTABLE) {
                 return ColorPalette.YELLOW;
-            } else if (r == Result.ABORTED || r == Result.NOT_BUILT) {
+            } else if (r == ResultExt.ABORTED || r == ResultExt.NOT_BUILT) {
                 return ColorPalette.GREY;
             } else {
                 return ColorPalette.BLUE;

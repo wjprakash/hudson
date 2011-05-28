@@ -27,7 +27,7 @@ import hudson.model.Describable;
 import hudson.model.DescriptorExt;
 import hudson.model.JobExt;
 import hudson.model.RunExt;
-import hudson.scm.SCM;
+import hudson.scm.SCMExt;
 
 import org.kohsuke.stapler.DataBoundConstructor;
 

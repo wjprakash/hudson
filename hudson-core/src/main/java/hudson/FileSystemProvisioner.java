@@ -32,7 +32,7 @@ import hudson.model.JobExt;
 import hudson.model.TaskListener;
 import hudson.model.HudsonExt;
 import hudson.model.listeners.RunListener;
-import hudson.scm.SCM;
+import hudson.scm.SCMExt;
 
 import java.io.BufferedOutputStream;
 import java.io.File;

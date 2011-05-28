@@ -24,7 +24,7 @@
 package hudson.model;
 
 import hudson.scm.PollingResult;
-import hudson.scm.SCM;
+import hudson.scm.SCMExt;
 import hudson.triggers.SCMTrigger;
 
 /**
@@ -40,7 +40,7 @@ public interface SCMedItem extends BuildableItem {
      * @return
      *      may return null for indicating "no SCM".
      */
-    SCM getScm();
+    SCMExt getScm();
 
     /**
      * {@link SCMedItem} needs to be an instance of

@@ -26,14 +26,14 @@ package hudson.slaves;
 
 import junit.framework.TestCase;
 import hudson.model.HudsonExt;
-import hudson.model.Node;
+import hudson.model.NodeExt;
 import hudson.model.TaskListener;
 import hudson.model.ComputerExt;
 import hudson.model.TopLevelItem;
 import hudson.XmlFile;
 import hudson.Launcher;
 import hudson.FilePathExt;
-import hudson.model.labels.LabelAtom;
+import hudson.model.labels.LabelAtomExt;
 import hudson.util.ClockDifference;
 import hudson.util.DescribableList;
 
@@ -47,7 +47,7 @@ import org.apache.commons.io.FileUtils;
  * @author Kohsuke Kawaguchi
  */
 public class NodeListTest extends TestCase {
-    static class DummyNode extends Node {
+    static class DummyNode extends NodeExt {
         public String getNodeName() {
             throw new UnsupportedOperationException();
         }
@@ -68,7 +68,7 @@ public class NodeListTest extends TestCase {
             throw new UnsupportedOperationException();
         }
 
-        public Mode getMode() {
+        public ModeExt getMode() {
             throw new UnsupportedOperationException();
         }
 
@@ -76,7 +76,7 @@ public class NodeListTest extends TestCase {
             throw new UnsupportedOperationException();
         }
 
-        public Set<LabelAtom> getAssignedLabels() {
+        public Set<LabelAtomExt> getAssignedLabels() {
             throw new UnsupportedOperationException();
         }
 
@@ -106,7 +106,7 @@ public class NodeListTest extends TestCase {
 		}
     }
     static class EphemeralNode extends DummyNode implements hudson.slaves.EphemeralNode {
-        public Node asNode() {
+        public NodeExt asNode() {
             return this;
         }
     }

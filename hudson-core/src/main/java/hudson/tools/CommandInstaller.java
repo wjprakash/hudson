@@ -26,7 +26,7 @@ package hudson.tools;
 
 import hudson.Extension;
 import hudson.FilePathExt;
-import hudson.model.Node;
+import hudson.model.NodeExt;
 import hudson.model.TaskListener;
 import hudson.tasks.CommandInterpreter;
 import hudson.util.FormValidation;
@@ -65,7 +65,7 @@ public class CommandInstaller extends ToolInstaller {
         return toolHome;
     }
 
-    public FilePathExt performInstallation(ToolInstallation tool, Node node, TaskListener log) throws IOException, InterruptedException {
+    public FilePathExt performInstallation(ToolInstallation tool, NodeExt node, TaskListener log) throws IOException, InterruptedException {
         FilePathExt dir = preferredLocation(tool, node);
         // XXX support Windows batch scripts, Unix scripts with interpreter line, etc. (see CommandInterpreter subclasses)
         FilePathExt script = dir.createTextTempFile("hudson", ".sh", command);

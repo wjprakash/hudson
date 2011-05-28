@@ -28,7 +28,7 @@ import hudson.DescriptorExtensionListExt;
 import hudson.Extension;
 import hudson.model.DescriptorExt;
 import hudson.model.HudsonExt;
-import hudson.model.Node;
+import hudson.model.NodeExt;
 import hudson.model.TaskListener;
 import hudson.slaves.NodeProperty;
 import hudson.slaves.NodePropertyDescriptor;
@@ -45,7 +45,7 @@ import java.util.List;
  *
  * @since 1.286
  */
-public class ToolLocationNodeProperty extends NodeProperty<Node> {
+public class ToolLocationNodeProperty extends NodeProperty<NodeExt> {
     /**
      * Override locations. Never null.
      */
@@ -79,14 +79,14 @@ public class ToolLocationNodeProperty extends NodeProperty<Node> {
      * return the node-specific home directory. Otherwise return {@code installation.getHome()}
      *
      * <p>
-     * This is the core logic behind {@link NodeSpecific#forNode(Node)} for {@link ToolInstallation}.
+     * This is the core logic behind {@link NodeSpecific#forNode(NodeExt)} for {@link ToolInstallation}.
      *
      * @return
      *      never null.
      * @deprecated since 2009-04-09.
-     *      Use {@link ToolInstallation#translateFor(Node,TaskListener)} 
+     *      Use {@link ToolInstallation#translateFor(NodeExt,TaskListener)} 
      */
-    public static String getToolHome(Node node, ToolInstallation installation, TaskListener log) throws IOException, InterruptedException {
+    public static String getToolHome(NodeExt node, ToolInstallation installation, TaskListener log) throws IOException, InterruptedException {
         String result = null;
 
         // node-specific configuration takes precedence
@@ -120,7 +120,7 @@ public class ToolLocationNodeProperty extends NodeProperty<Node> {
         }
 
         @Override
-        public boolean isApplicable(Class<? extends Node> nodeType) {
+        public boolean isApplicable(Class<? extends NodeExt> nodeType) {
             return nodeType != HudsonExt.class;
         }
     }

@@ -82,7 +82,7 @@ public class SlaveComputer extends ComputerExt {
      *
      * <p>
      * This is normally the same as {@link Slave#getLauncher()} but
-     * can be different. See {@link #grabLauncher(Node)}. 
+     * can be different. See {@link #grabLauncher(NodeExt)}. 
      */
     private ComputerLauncher launcher;
 
@@ -112,7 +112,7 @@ public class SlaveComputer extends ComputerExt {
 
     private Object constructed = new Object();
 
-    public SlaveComputer(Slave slave) {
+    public SlaveComputer(SlaveExt slave) {
         super(slave);
         this.log = new ReopenableFileOutputStream(getLogFile());
         this.taskListener = new StreamTaskListener(log);
@@ -147,8 +147,8 @@ public class SlaveComputer extends ComputerExt {
     }
 
     @Override
-    public Slave getNode() {
-        return (Slave)super.getNode();
+    public SlaveExt getNode() {
+        return (SlaveExt)super.getNode();
     }
 
     @Override
@@ -216,7 +216,7 @@ public class SlaveComputer extends ComputerExt {
      * {@inheritDoc}
      */
     @Override
-    public void taskAccepted(ExecutorExt executor, Queue.Task task) {
+    public void taskAccepted(ExecutorExt executor, QueueExt.Task task) {
         super.taskAccepted(executor, task);
         if (launcher instanceof ExecutorListener) {
             ((ExecutorListener)launcher).taskAccepted(executor, task);
@@ -230,7 +230,7 @@ public class SlaveComputer extends ComputerExt {
      * {@inheritDoc}
      */
     @Override
-    public void taskCompleted(ExecutorExt executor, Queue.Task task, long durationMS) {
+    public void taskCompleted(ExecutorExt executor, QueueExt.Task task, long durationMS) {
         super.taskCompleted(executor, task, durationMS);
         if (launcher instanceof ExecutorListener) {
             ((ExecutorListener)launcher).taskCompleted(executor, task, durationMS);
@@ -245,7 +245,7 @@ public class SlaveComputer extends ComputerExt {
      * {@inheritDoc}
      */
     @Override
-    public void taskCompletedWithProblems(ExecutorExt executor, Queue.Task task, long durationMS, Throwable problems) {
+    public void taskCompletedWithProblems(ExecutorExt executor, QueueExt.Task task, long durationMS, Throwable problems) {
         super.taskCompletedWithProblems(executor, task, durationMS, problems);
         if (launcher instanceof ExecutorListener) {
             ((ExecutorListener)launcher).taskCompletedWithProblems(executor, task, durationMS, problems);
@@ -442,8 +442,8 @@ public class SlaveComputer extends ComputerExt {
      *      This URL binding is no longer used and moved up directly under to {@link HudsonExt},
      *      but it's left here for now just in case some old JNLP slave agents request it.
      */
-    public Slave.JnlpJar getJnlpJars(String fileName) {
-        return new Slave.JnlpJar(fileName);
+    public SlaveExt.JnlpJar getJnlpJars(String fileName) {
+        return new SlaveExt.JnlpJar(fileName);
     }
 
     @Override
@@ -453,7 +453,7 @@ public class SlaveComputer extends ComputerExt {
     }
 
     public RetentionStrategy getRetentionStrategy() {
-        Slave n = getNode();
+        SlaveExt n = getNode();
         return n==null ? RetentionStrategy.INSTANCE : n.getRetentionStrategy();
     }
 
@@ -477,7 +477,7 @@ public class SlaveComputer extends ComputerExt {
     }
 
     @Override
-    protected void setNode(Node node) {
+    protected void setNode(NodeExt node) {
         super.setNode(node);
         launcher = grabLauncher(node);
 
@@ -485,15 +485,15 @@ public class SlaveComputer extends ComputerExt {
         // "constructed==null" test is an ugly hack to avoid launching before the object is fully
         // constructed.
         if(constructed!=null) {
-            if (node instanceof Slave)
-                ((Slave)node).getRetentionStrategy().check(this);
+            if (node instanceof SlaveExt)
+                ((SlaveExt)node).getRetentionStrategy().check(this);
             else
                 connect(false);
         }
     }
 
     /**
-     * Grabs a {@link ComputerLauncher} out of {@link Node} to keep it in this {@link ComputerExt}.
+     * Grabs a {@link ComputerLauncher} out of {@link NodeExt} to keep it in this {@link ComputerExt}.
      * The returned launcher will be set to {@link #launcher} and used to carry out the actual launch operation.
      *
      * <p>
@@ -504,8 +504,8 @@ public class SlaveComputer extends ComputerExt {
      *
      * @see ComputerLauncherFilter
      */
-    protected ComputerLauncher grabLauncher(Node node) {
-        return ((Slave)node).getLauncher();
+    protected ComputerLauncher grabLauncher(NodeExt node) {
+        return ((SlaveExt)node).getLauncher();
     }
 
     private static final Logger logger = Logger.getLogger(SlaveComputer.class.getName());

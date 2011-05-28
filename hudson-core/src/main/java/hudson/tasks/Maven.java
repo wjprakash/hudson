@@ -36,7 +36,7 @@ import hudson.model.AbstractProjectExt;
 import hudson.model.BuildListener;
 import hudson.model.ComputerExt;
 import hudson.model.EnvironmentSpecific;
-import hudson.model.Node;
+import hudson.model.NodeExt;
 import hudson.model.HudsonExt;
 import hudson.model.TaskListener;
 import hudson.remoting.Callable;
@@ -506,7 +506,7 @@ public class Maven extends Builder {
             return new MavenInstallation(getName(), environment.expand(getHome()), getProperties().toList());
         }
 
-        public MavenInstallation forNode(Node node, TaskListener log) throws IOException, InterruptedException {
+        public MavenInstallation forNode(NodeExt node, TaskListener log) throws IOException, InterruptedException {
             return new MavenInstallation(getName(), translateFor(node, log), getProperties().toList());
         }
 

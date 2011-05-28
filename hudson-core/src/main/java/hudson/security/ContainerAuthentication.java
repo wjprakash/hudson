@@ -66,7 +66,7 @@ public final class ContainerAuthentication implements Authentication {
             if(request.isUserInRole(g))
                 l.add(new GrantedAuthorityImpl(g));
         }
-        l.add(SecurityRealm.AUTHENTICATED_AUTHORITY);
+        l.add(SecurityRealmExt.AUTHENTICATED_AUTHORITY);
         authorities = l.toArray(new GrantedAuthority[l.size()]);
     }
 

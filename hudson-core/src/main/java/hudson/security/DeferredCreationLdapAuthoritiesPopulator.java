@@ -32,7 +32,7 @@ import org.acegisecurity.ldap.LdapDataAccessException;
 import org.acegisecurity.providers.ldap.LdapAuthoritiesPopulator;
 import org.acegisecurity.providers.ldap.populator.DefaultLdapAuthoritiesPopulator;
 import org.acegisecurity.userdetails.ldap.LdapUserDetails;
-import hudson.security.SecurityRealm.SecurityComponents;
+import hudson.security.SecurityRealmExt.SecurityComponents;
 
 /**
  * Implementation of {@link LdapAuthoritiesPopulator} that defers creation of a

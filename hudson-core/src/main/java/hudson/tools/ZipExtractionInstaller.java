@@ -30,7 +30,7 @@ import hudson.FilePathExt.FileCallable;
 import hudson.ProxyConfiguration;
 import hudson.Util;
 import hudson.FunctionsExt;
-import hudson.model.Node;
+import hudson.model.NodeExt;
 import hudson.model.TaskListener;
 import hudson.remoting.VirtualChannel;
 import hudson.util.FormValidation;
@@ -75,7 +75,7 @@ public class ZipExtractionInstaller extends ToolInstaller {
         return subdir;
     }
 
-    public FilePathExt performInstallation(ToolInstallation tool, Node node, TaskListener log) throws IOException, InterruptedException {
+    public FilePathExt performInstallation(ToolInstallation tool, NodeExt node, TaskListener log) throws IOException, InterruptedException {
         FilePathExt dir = preferredLocation(tool, node);
         if (dir.installIfNecessaryFrom(new URL(url), log, "Unpacking " + url + " to " + dir + " on " + node.getDisplayName())) {
             dir.act(new ChmodRecAPlusX());

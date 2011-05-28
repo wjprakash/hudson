@@ -31,10 +31,10 @@ import hudson.model.ExecutorExt;
 import hudson.model.FingerprintExt;
 import hudson.model.HudsonExt;
 import hudson.model.JobPropertyExt;
-import hudson.model.Node;
+import hudson.model.NodeExt;
 import hudson.model.ParametersAction;
-import hudson.model.Queue;
-import hudson.model.Result;
+import hudson.model.QueueExt;
+import hudson.model.ResultExt;
 import hudson.model.CauseExt.UpstreamCause;
 import hudson.slaves.WorkspaceList;
 import hudson.slaves.WorkspaceList.Lease;
@@ -94,7 +94,7 @@ public class MatrixBuildExt extends AbstractBuildExt<MatrixProjectExt,MatrixBuil
         public String getTooltip() {
             MatrixRunExt r = getRun();
             if(r!=null) return r.getIconColor().getDescription();
-            Queue.Item item = HudsonExt.getInstance().getQueue().getItem(getParent().getItem(combination));
+            QueueExt.Item item = HudsonExt.getInstance().getQueue().getItem(getParent().getItem(combination));
             if(item!=null)
                 return item.getWhy();
             return null;    // fall back
@@ -148,7 +148,7 @@ public class MatrixBuildExt extends AbstractBuildExt<MatrixProjectExt,MatrixBuil
     private class RunnerImpl extends AbstractRunner {
         private final List<MatrixAggregator> aggregators = new ArrayList<MatrixAggregator>();
 
-        protected Result doRun(BuildListener listener) throws Exception {
+        protected ResultExt doRun(BuildListener listener) throws Exception {
             MatrixProjectExt p = getProject();
             PrintStream logger = listener.getLogger();
 
@@ -189,18 +189,18 @@ public class MatrixBuildExt extends AbstractBuildExt<MatrixProjectExt,MatrixBuil
 
             for (MatrixAggregator a : aggregators)
                 if(!a.startBuild())
-                    return Result.FAILURE;
+                    return ResultExt.FAILURE;
 
             try {
                 if(!p.isRunSequentially())
                     for(MatrixConfiguration c : touchStoneConfigurations)
                         scheduleConfigurationBuild(logger, c);
 
-                Result r = Result.SUCCESS;
+                ResultExt r = ResultExt.SUCCESS;
                 for (MatrixConfiguration c : touchStoneConfigurations) {
                     if(p.isRunSequentially())
                         scheduleConfigurationBuild(logger, c);
-                    Result buildResult = waitForCompletion(listener, c);
+                    ResultExt buildResult = waitForCompletion(listener, c);
                     r = r.combine(buildResult);
                 }
                 
@@ -216,20 +216,20 @@ public class MatrixBuildExt extends AbstractBuildExt<MatrixProjectExt,MatrixBuil
                 for (MatrixConfiguration c : delayedConfigurations) {
                     if(p.isRunSequentially())
                         scheduleConfigurationBuild(logger, c);
-                    Result buildResult = waitForCompletion(listener, c);
+                    ResultExt buildResult = waitForCompletion(listener, c);
                     r = r.combine(buildResult);
                 }
 
                 return r;
             } catch( InterruptedException e ) {
                 logger.println("Aborted");
-                return Result.ABORTED;
+                return ResultExt.ABORTED;
             } catch (AggregatorFailureException e) {
-                return Result.FAILURE;
+                return ResultExt.FAILURE;
             }
             finally {
                 // if the build was aborted in the middle. Cancel all the configuration builds.
-                Queue q = HudsonExt.getInstance().getQueue();
+                QueueExt q = HudsonExt.getInstance().getQueue();
                 synchronized(q) {// avoid micro-locking in q.cancel.
                     for (MatrixConfiguration c : activeConfigurations) {
                         if(q.cancel(c))
@@ -247,7 +247,7 @@ public class MatrixBuildExt extends AbstractBuildExt<MatrixProjectExt,MatrixBuil
             }
         }
         
-        private Result waitForCompletion(BuildListener listener, MatrixConfiguration c) throws InterruptedException, IOException, AggregatorFailureException {
+        private ResultExt waitForCompletion(BuildListener listener, MatrixConfiguration c) throws InterruptedException, IOException, AggregatorFailureException {
             String whyInQueue = "";
             long startTime = System.currentTimeMillis();
 
@@ -258,10 +258,10 @@ public class MatrixBuildExt extends AbstractBuildExt<MatrixProjectExt,MatrixBuil
 
                 // two ways to get beyond this. one is that the build starts and gets done,
                 // or the build gets cancelled before it even started.
-                Result buildResult = null;
+                ResultExt buildResult = null;
                 if(b!=null && !b.isBuilding())
                     buildResult = b.getResult();
-                Queue.Item qi = c.getQueueItem();
+                QueueExt.Item qi = c.getQueueItem();
                 if(b==null && qi==null)
                     appearsCancelledCount++;
                 else
@@ -276,7 +276,7 @@ public class MatrixBuildExt extends AbstractBuildExt<MatrixProjectExt,MatrixBuil
                     // because of this, we really make sure that the build is cancelled by doing this 5
                     // times over 5 seconds
                     listener.getLogger().println(Messages.MatrixBuild_AppearsCancelled(c.getDisplayName()));
-                    buildResult = Result.ABORTED;
+                    buildResult = ResultExt.ABORTED;
                 }
 
                 if(buildResult!=null) {
@@ -310,7 +310,7 @@ public class MatrixBuildExt extends AbstractBuildExt<MatrixProjectExt,MatrixBuil
         }
         
         @Override
-        protected Lease decideWorkspace(Node n, WorkspaceList wsl) throws IOException, InterruptedException {
+        protected Lease decideWorkspace(NodeExt n, WorkspaceList wsl) throws IOException, InterruptedException {
             String customWorkspace = getProject().getCustomWorkspace();
             if (customWorkspace != null) {
                 // we allow custom workspaces to be concurrently used between jobs.

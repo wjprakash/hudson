@@ -100,8 +100,15 @@ import org.kohsuke.stapler.StaplerResponse;
  * @author Kohsuke Kawaguchi
  * @see Describable
  */
-public abstract class Descriptor<T extends Describable<T>>  extends  DescriptorExt {
-     
+public abstract class Descriptor<T extends Describable<T>> extends DescriptorExt<T> {
+
+    protected Descriptor(Class<? extends T> clazz) {
+        super(clazz);
+    }
+
+    protected Descriptor() {
+        super();
+    }
 
     /**
      * Gets the URL that this DescriptorExt is bound to, relative to the nearest {@link DescriptorByNameOwner}.
@@ -125,28 +132,31 @@ public abstract class Descriptor<T extends Describable<T>>  extends  DescriptorE
      */
     public String getCheckUrl(String fieldName) {
         String method = checkMethods.get(fieldName);
-        if(method==null) {
+        if (method == null) {
             method = calcCheckUrl(fieldName);
-            checkMethods.put(fieldName,method);
+            checkMethods.put(fieldName, method);
         }
 
         if (method.equals(NONE)) // == would do, but it makes IDE flag a warning
+        {
             return null;
+        }
 
         // put this under the right contextual umbrella.
         // a is always non-null because we already have Hudson as the sentinel
-        return singleQuote(getCurrentDescriptorByNameUrl()+'/')+'+'+method;
+        return singleQuote(getCurrentDescriptorByNameUrl() + '/') + '+' + method;
     }
 
     private String calcCheckUrl(String fieldName) {
         String capitalizedFieldName = StringUtils.capitalize(fieldName);
 
-        Method method = ReflectionUtils.getPublicMethodNamed(getClass(),"doCheck"+ capitalizedFieldName);
+        Method method = ReflectionUtils.getPublicMethodNamed(getClass(), "doCheck" + capitalizedFieldName);
 
-        if(method==null)
+        if (method == null) {
             return NONE;
+        }
 
-        return singleQuote(getDescriptorUrl() +"/check"+capitalizedFieldName) + buildParameterList(method, new StringBuilder()).append(".toString()");
+        return singleQuote(getDescriptorUrl() + "/check" + capitalizedFieldName) + buildParameterList(method, new StringBuilder()).append(".toString()");
     }
 
     /**
@@ -155,29 +165,36 @@ public abstract class Descriptor<T extends Describable<T>>  extends  DescriptorE
     private StringBuilder buildParameterList(Method method, StringBuilder query) {
         for (Parameter p : ReflectionUtils.getParameters(method)) {
             QueryParameter qp = p.annotation(QueryParameter.class);
-            if (qp!=null) {
+            if (qp != null) {
                 String name = qp.value();
-                if (name.length()==0) name = p.name();
-                if (name==null || name.length()==0)
+                if (name.length() == 0) {
+                    name = p.name();
+                }
+                if (name == null || name.length() == 0) {
                     continue;   // unknown parameter name. we'll report the error when the form is submitted.
-
+                }
                 RelativePath rp = p.annotation(RelativePath.class);
-                if (rp!=null)
-                    name = rp.value()+'/'+name;
+                if (rp != null) {
+                    name = rp.value() + '/' + name;
+                }
 
-                if (query.length()==0)  query.append("+qs(this)");
+                if (query.length() == 0) {
+                    query.append("+qs(this)");
+                }
 
                 if (name.equals("value")) {
                     // The special 'value' parameter binds to the the current field
                     query.append(".addThis()");
                 } else {
-                    query.append(".nearBy('"+name+"')");
+                    query.append(".nearBy('" + name + "')");
                 }
                 continue;
             }
 
             Method m = ReflectionUtils.getPublicMethodNamed(p.type(), "fromStapler");
-            if (m!=null)    buildParameterList(m,query);
+            if (m != null) {
+                buildParameterList(m, query);
+            }
         }
         return query;
     }
@@ -187,41 +204,47 @@ public abstract class Descriptor<T extends Describable<T>>  extends  DescriptorE
      * and sets that as the 'fillDependsOn' attribute. Also computes the URL of the doFillXyzItems and
      * sets that as the 'fillUrl' attribute.
      */
-    public void calcFillSettings(String field, Map<String,Object> attributes) {
+    public void calcFillSettings(String field, Map<String, Object> attributes) {
         String capitalizedFieldName = StringUtils.capitalize(field);
         String methodName = "doFill" + capitalizedFieldName + "Items";
         Method method = ReflectionUtils.getPublicMethodNamed(getClass(), methodName);
-        if(method==null)
+        if (method == null) {
             throw new IllegalStateException(String.format("%s doesn't have the %s method for filling a drop-down list", getClass(), methodName));
+        }
 
         // build query parameter line by figuring out what should be submitted
         List<String> depends = buildFillDependencies(method, new ArrayList<String>());
 
-        if (!depends.isEmpty())
-            attributes.put("fillDependsOn",Util.join(depends," "));
+        if (!depends.isEmpty()) {
+            attributes.put("fillDependsOn", Util.join(depends, " "));
+        }
         attributes.put("fillUrl", String.format("%s/%s/fill%sItems", getCurrentDescriptorByNameUrl(), getDescriptorUrl(), capitalizedFieldName));
     }
 
     private List<String> buildFillDependencies(Method method, List<String> depends) {
         for (Parameter p : ReflectionUtils.getParameters(method)) {
             QueryParameter qp = p.annotation(QueryParameter.class);
-            if (qp!=null) {
+            if (qp != null) {
                 String name = qp.value();
-                if (name.length()==0) name = p.name();
-                if (name==null || name.length()==0)
+                if (name.length() == 0) {
+                    name = p.name();
+                }
+                if (name == null || name.length() == 0) {
                     continue;   // unknown parameter name. we'll report the error when the form is submitted.
-
+                }
                 RelativePath rp = p.annotation(RelativePath.class);
-                if (rp!=null)
-                    name = rp.value()+'/'+name;
+                if (rp != null) {
+                    name = rp.value() + '/' + name;
+                }
 
                 depends.add(name);
                 continue;
             }
 
             Method m = ReflectionUtils.getPublicMethodNamed(p.type(), "fromStapler");
-            if (m!=null)
-                buildFillDependencies(m,depends);
+            if (m != null) {
+                buildFillDependencies(m, depends);
+            }
         }
         return depends;
     }
@@ -229,24 +252,23 @@ public abstract class Descriptor<T extends Describable<T>>  extends  DescriptorE
     /**
      * Computes the auto-completion setting
      */
-    public void calcAutoCompleteSettings(String field, Map<String,Object> attributes) {
+    public void calcAutoCompleteSettings(String field, Map<String, Object> attributes) {
         String capitalizedFieldName = StringUtils.capitalize(field);
         String methodName = "doAutoComplete" + capitalizedFieldName;
         Method method = ReflectionUtils.getPublicMethodNamed(getClass(), methodName);
-        if(method==null)
+        if (method == null) {
             return;    // no auto-completion
-
+        }
         attributes.put("autoCompleteUrl", String.format("%s/%s/autoComplete%s", getCurrentDescriptorByNameUrl(), getDescriptorUrl(), capitalizedFieldName));
     }
 
-    
     /**
      * @deprecated
      *      Implement {@link #newInstance(StaplerRequest, JSONObject)} method instead.
      *      Deprecated as of 1.145. 
      */
     public T newInstance(StaplerRequest req) throws FormException {
-        throw new UnsupportedOperationException(getClass()+" should implement newInstance(StaplerRequest,JSONObject)");
+        throw new UnsupportedOperationException(getClass() + " should implement newInstance(StaplerRequest,JSONObject)");
     }
 
     /**
@@ -287,37 +309,35 @@ public abstract class Descriptor<T extends Describable<T>>  extends  DescriptorE
         try {
             Method m = getClass().getMethod("newInstance", StaplerRequest.class);
 
-            if(!Modifier.isAbstract(m.getDeclaringClass().getModifiers())) {
+            if (!Modifier.isAbstract(m.getDeclaringClass().getModifiers())) {
                 // this class overrides newInstance(StaplerRequest).
                 // maintain the backward compatible behavior
                 return verifyNewInstance(newInstance(req));
             } else {
-                if (req==null) {
+                if (req == null) {
                     // yes, req is supposed to be always non-null, but see the note above
                     return verifyNewInstance(clazz.newInstance());
                 }
 
                 // new behavior as of 1.206
-                return verifyNewInstance(req.bindJSON(clazz,formData));
+                return verifyNewInstance(req.bindJSON(clazz, formData));
             }
         } catch (NoSuchMethodException e) {
             throw new AssertionError(e); // impossible
         } catch (InstantiationException e) {
-            throw new Error("Failed to instantiate "+clazz+" from "+formData,e);
+            throw new Error("Failed to instantiate " + clazz + " from " + formData, e);
         } catch (IllegalAccessException e) {
-            throw new Error("Failed to instantiate "+clazz+" from "+formData,e);
+            throw new Error("Failed to instantiate " + clazz + " from " + formData, e);
         } catch (RuntimeException e) {
-            throw new RuntimeException("Failed to instantiate "+clazz+" from "+formData,e);
+            throw new RuntimeException("Failed to instantiate " + clazz + " from " + formData, e);
         }
     }
-
-   
 
     /**
      * @deprecated
      *      As of 1.239, use {@link #configure(StaplerRequest, JSONObject)}.
      */
-    public boolean configure( StaplerRequest req ) throws FormException {
+    public boolean configure(StaplerRequest req) throws FormException {
         return true;
     }
 
@@ -332,7 +352,7 @@ public abstract class Descriptor<T extends Describable<T>>  extends  DescriptorE
      * @return false
      *      to keep the client in the same config page.
      */
-    public boolean configure( StaplerRequest req, JSONObject json ) throws FormException {
+    public boolean configure(StaplerRequest req, JSONObject json) throws FormException {
         // compatibility
         return configure(req);
     }
@@ -342,14 +362,15 @@ public abstract class Descriptor<T extends Describable<T>>  extends  DescriptorE
     }
 
     public String getGlobalConfigPage() {
-        return getViewPage(clazz, "global.jelly",null);
+        return getViewPage(clazz, "global.jelly", null);
     }
 
     private String getViewPage(Class<?> clazz, String pageName, String defaultValue) {
-        while(clazz!=Object.class) {
+        while (clazz != Object.class) {
             String name = clazz.getName().replace('.', '/').replace('$', '/') + "/" + pageName;
-            if(clazz.getClassLoader().getResource(name)!=null)
-                return '/'+name;
+            if (clazz.getClassLoader().getResource(name) != null) {
+                return '/' + name;
+            }
             clazz = clazz.getSuperclass();
         }
         return defaultValue;
@@ -361,7 +382,7 @@ public abstract class Descriptor<T extends Describable<T>>  extends  DescriptorE
         // it doesn't exist.
         // Or this error is fatal, in which case we want the developer to see what page he's missing.
         // so we put the page name.
-        return getViewPage(clazz,pageName,pageName);
+        return getViewPage(clazz, pageName, pageName);
     }
 
     /**
@@ -369,30 +390,31 @@ public abstract class Descriptor<T extends Describable<T>>  extends  DescriptorE
      */
     public void doHelp(StaplerRequest req, StaplerResponse rsp) throws IOException, ServletException {
         String path = req.getRestOfPath();
-        if(path.contains("..")) throw new ServletException("Illegal path: "+path);
+        if (path.contains("..")) {
+            throw new ServletException("Illegal path: " + path);
+        }
 
-        path = path.replace('/','-');
+        path = path.replace('/', '-');
 
-        for (Class c=clazz; c!=null; c=c.getSuperclass()) {
-            RequestDispatcher rd = Stapler.getCurrentRequest().getView(c, "help"+path);
-            if(rd!=null) {// Jelly-generated help page
-                rd.forward(req,rsp);
+        for (Class c = clazz; c != null; c = c.getSuperclass()) {
+            RequestDispatcher rd = Stapler.getCurrentRequest().getView(c, "help" + path);
+            if (rd != null) {// Jelly-generated help page
+                rd.forward(req, rsp);
                 return;
             }
 
-            InputStream in = getHelpStream(c,path);
-            if(in!=null) {
+            InputStream in = getHelpStream(c, path);
+            if (in != null) {
                 // TODO: generalize macro expansion and perhaps even support JEXL
                 rsp.setContentType("text/html;charset=UTF-8");
-                String literal = IOUtils.toString(in,"UTF-8");
-                rsp.getWriter().println(Util.replaceMacro(literal, Collections.singletonMap("rootURL",req.getContextPath())));
+                String literal = IOUtils.toString(in, "UTF-8");
+                rsp.getWriter().println(Util.replaceMacro(literal, Collections.singletonMap("rootURL", req.getContextPath())));
                 in.close();
                 return;
             }
         }
         rsp.sendError(SC_NOT_FOUND);
     }
-
 
     /**
      * Used to build {@link Describable} instance list from &lt;f:hetero-list> tag.
@@ -408,32 +430,30 @@ public abstract class Descriptor<T extends Describable<T>>  extends  DescriptorE
      * @return
      *      Can be empty but never null.
      */
-    public static <T extends Describable<T>>
-    List<T> newInstancesFromHeteroList(StaplerRequest req, JSONObject formData, String key,
-                Collection<? extends Descriptor<T>> descriptors) throws FormException {
+    public static <T extends Describable<T>> List<T> newInstancesFromHeteroList(StaplerRequest req, JSONObject formData, String key,
+            Collection<? extends Descriptor<T>> descriptors) throws FormException {
 
-        return newInstancesFromHeteroList(req,formData.get(key),descriptors);
+        return newInstancesFromHeteroList(req, formData.get(key), descriptors);
     }
 
-    public static <T extends Describable<T>>
-    List<T> newInstancesFromHeteroList(StaplerRequest req, Object formData,
-                Collection<? extends Descriptor<T>> descriptors) throws FormException {
+    public static <T extends Describable<T>> List<T> newInstancesFromHeteroList(StaplerRequest req, Object formData,
+            Collection<? extends Descriptor<T>> descriptors) throws FormException {
 
         List<T> items = new ArrayList<T>();
 
-        if (formData!=null) {
+        if (formData != null) {
             for (Object o : JSONArray.fromObject(formData)) {
-                JSONObject jo = (JSONObject)o;
+                JSONObject jo = (JSONObject) o;
                 String kind = jo.getString("kind");
-                items.add(find(descriptors,kind).newInstance(req,jo));
+                items.add(find(descriptors, kind).newInstance(req, jo));
             }
         }
 
         return items;
     }
 
-   
     public static final class FormException extends Exception implements HttpResponse {
+
         private final String formField;
 
         public FormException(String message, String formField) {
@@ -460,8 +480,7 @@ public abstract class Descriptor<T extends Describable<T>>  extends  DescriptorE
 
         public void generateResponse(StaplerRequest req, StaplerResponse rsp, Object node) throws IOException, ServletException {
             // for now, we can't really use the field name that caused the problem.
-            new FailureExt(getMessage()).generateResponse(req,rsp,node);
+            new Failure(getMessage()).generateResponse(req, rsp, node);
         }
     }
-
 }

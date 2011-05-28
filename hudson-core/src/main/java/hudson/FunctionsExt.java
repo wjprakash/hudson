@@ -35,7 +35,7 @@ import hudson.model.Items;
 import hudson.model.JobExt;
 import hudson.model.JobPropertyDescriptorExt;
 import hudson.model.ModelObject;
-import hudson.model.Node;
+import hudson.model.NodeExt;
 import hudson.model.PageDecorator;
 import hudson.model.ParameterDefinitionExt;
 import hudson.model.ParameterDefinitionExt.ParameterDescriptorExt;
@@ -43,9 +43,9 @@ import hudson.model.ProjectExt;
 import hudson.model.RunExt;
 import hudson.model.JDKExt;
 import hudson.security.AccessControlled;
-import hudson.security.AuthorizationStrategy;
+import hudson.security.AuthorizationStrategyExt;
 import hudson.security.Permission;
-import hudson.security.SecurityRealm;
+import hudson.security.SecurityRealmExt;
 import hudson.security.csrf.CrumbIssuer;
 import hudson.slaves.Cloud;
 import hudson.slaves.ComputerLauncher;
@@ -57,7 +57,7 @@ import hudson.tasks.BuildWrapper;
 import hudson.tasks.BuildWrappers;
 import hudson.tasks.Builder;
 import hudson.tasks.Publisher;
-import hudson.scm.SCM;
+import hudson.scm.SCMExt;
 import hudson.scm.SCMDescriptor;
 import hudson.security.captcha.CaptchaSupport;
 import hudson.util.Secret;
@@ -282,8 +282,8 @@ public class FunctionsExt {
         }
     }
 
-    public static Node.Mode[] getNodeModes() {
-        return Node.Mode.values();
+    public static NodeExt.ModeExt[] getNodeModes() {
+        return NodeExt.ModeExt.values();
     }
 
     public static String getProjectListString(List<ProjectExt> projects) {
@@ -472,12 +472,12 @@ public class FunctionsExt {
         return BuildWrappers.getFor(project);
     }
 
-    public static List<DescriptorExt<SecurityRealm>> getSecurityRealmDescriptors() {
-        return SecurityRealm.all();
+    public static List<DescriptorExt<SecurityRealmExt>> getSecurityRealmDescriptors() {
+        return SecurityRealmExt.all();
     }
 
-    public static List<DescriptorExt<AuthorizationStrategy>> getAuthorizationStrategyDescriptors() {
-        return AuthorizationStrategy.all();
+    public static List<DescriptorExt<AuthorizationStrategyExt>> getAuthorizationStrategyDescriptors() {
+        return AuthorizationStrategyExt.all();
     }
 
     public static List<DescriptorExt<Builder>> getBuilderDescriptors(AbstractProjectExt<?,?> project) {
@@ -489,7 +489,7 @@ public class FunctionsExt {
     }
 
     public static List<SCMDescriptor<?>> getSCMDescriptors(AbstractProjectExt<?,?> project) {
-        return SCM._for(project);
+        return SCMExt._for(project);
     }
 
     public static List<DescriptorExt<ComputerLauncher>> getComputerLauncherDescriptors() {
@@ -516,7 +516,7 @@ public class FunctionsExt {
         return MyViewsTabBar.all();
     }
 
-    public static List<NodePropertyDescriptor> getNodePropertyDescriptors(Class<? extends Node> clazz) {
+    public static List<NodePropertyDescriptor> getNodePropertyDescriptors(Class<? extends NodeExt> clazz) {
         List<NodePropertyDescriptor> result = new ArrayList<NodePropertyDescriptor>();
         Collection<NodePropertyDescriptor> list = (Collection) HudsonExt.getInstance().getDescriptorList(NodeProperty.class);
         for (NodePropertyDescriptor npd : list) {

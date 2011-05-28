@@ -37,7 +37,7 @@ import hudson.model.FingerprintExt;
 import hudson.model.FingerprintExt.BuildPtr;
 import hudson.model.FingerprintMap;
 import hudson.model.HudsonExt;
-import hudson.model.Result;
+import hudson.model.ResultExt;
 import hudson.model.RunExt;
 import hudson.model.RunAction;
 import hudson.remoting.VirtualChannel;
@@ -112,7 +112,7 @@ public class Fingerprinter extends Recorder implements Serializable {
                 if(aa==null) {
                     // configuration error
                     listener.error(Messages.Fingerprinter_NoArchiving());
-                    build.setResult(Result.FAILURE);
+                    build.setResult(ResultExt.FAILURE);
                     return true;
                 }
                 record(build, listener, record, aa.getArtifacts() );
@@ -122,7 +122,7 @@ public class Fingerprinter extends Recorder implements Serializable {
 
         } catch (IOException e) {
             e.printStackTrace(listener.error(Messages.Fingerprinter_Failed()));
-            build.setResult(Result.FAILURE);
+            build.setResult(ResultExt.FAILURE);
         }
 
         // failing to record fingerprints is an error but not fatal
@@ -160,7 +160,7 @@ public class Fingerprinter extends Recorder implements Serializable {
         FilePathExt ws = build.getWorkspace();
         if(ws==null) {
             listener.error(Messages.Fingerprinter_NoWorkspace());
-            build.setResult(Result.FAILURE);
+            build.setResult(ResultExt.FAILURE);
             return;
         }
 

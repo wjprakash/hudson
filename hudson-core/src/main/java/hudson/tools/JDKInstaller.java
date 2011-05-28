@@ -33,7 +33,7 @@ import hudson.model.HudsonExt;
 import hudson.util.FormValidation;
 import hudson.util.ArgumentListBuilder;
 import hudson.util.IOException2;
-import hudson.model.Node;
+import hudson.model.NodeExt;
 import hudson.model.TaskListener;
 import hudson.model.DownloadServiceExt.DownloadableExt;
 import hudson.model.JDKExt;
@@ -100,7 +100,7 @@ public class JDKInstaller extends ToolInstaller {
         this.acceptLicense = acceptLicense;
     }
 
-    public FilePathExt performInstallation(ToolInstallation tool, Node node, TaskListener log) throws IOException, InterruptedException {
+    public FilePathExt performInstallation(ToolInstallation tool, NodeExt node, TaskListener log) throws IOException, InterruptedException {
         FilePathExt expectedLocation = preferredLocation(tool, node);
         PrintStream out = log.getLogger();
         try {
@@ -246,9 +246,9 @@ public class JDKInstaller extends ToolInstaller {
     }
 
     /*package*/ static final class FilePathFileSystem implements FileSystem {
-        private final Node node;
+        private final NodeExt node;
 
-        FilePathFileSystem(Node node) {
+        FilePathFileSystem(NodeExt node) {
             this.node = node;
         }
 
@@ -453,7 +453,7 @@ public class JDKInstaller extends ToolInstaller {
         /**
          * Determines the platform of the given node.
          */
-        public static Platform of(Node n) throws IOException,InterruptedException,DetectionFailedException {
+        public static Platform of(NodeExt n) throws IOException,InterruptedException,DetectionFailedException {
             return n.getChannel().call(new Callable<Platform,DetectionFailedException>() {
                 public Platform call() throws DetectionFailedException {
                     return current();
@@ -505,7 +505,7 @@ public class JDKInstaller extends ToolInstaller {
         /**
          * Determines the CPU of the given node.
          */
-        public static CPU of(Node n) throws IOException,InterruptedException, DetectionFailedException {
+        public static CPU of(NodeExt n) throws IOException,InterruptedException, DetectionFailedException {
             return n.getChannel().call(new Callable<CPU,DetectionFailedException>() {
                 public CPU call() throws DetectionFailedException {
                     return current();

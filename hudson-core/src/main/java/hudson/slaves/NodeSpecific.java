@@ -24,7 +24,7 @@
 
 package hudson.slaves;
 
-import hudson.model.Node;
+import hudson.model.NodeExt;
 import hudson.model.EnvironmentSpecific;
 import hudson.model.TaskListener;
 import java.io.IOException;
@@ -44,5 +44,5 @@ public interface NodeSpecific<T extends NodeSpecific<T>> {
     /**
      * Returns a specialized copy of T for functioning in the given node.
      */
-    T forNode(Node node, TaskListener log) throws IOException, InterruptedException;
+    T forNode(NodeExt node, TaskListener log) throws IOException, InterruptedException;
 }

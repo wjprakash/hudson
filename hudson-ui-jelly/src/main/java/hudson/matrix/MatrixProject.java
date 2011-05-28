@@ -27,7 +27,7 @@ import hudson.Util;
 import hudson.model.DescriptorExt.FormException;
 import hudson.model.HudsonExt;
 import hudson.model.ItemGroup;
-import hudson.model.Result;
+import hudson.model.ResultExt;
 import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.BuildWrappers;
 import hudson.tasks.Builder;
@@ -95,7 +95,7 @@ public class MatrixProject extends MatrixProjectExt{
         if (req.getParameter("hasTouchStoneCombinationFilter")!=null) {
             this.touchStoneCombinationFilter = Util.nullify(req.getParameter("touchStoneCombinationFilter"));
             String touchStoneResultCondition = req.getParameter("touchStoneResultCondition");
-            this.touchStoneResultCondition = Result.fromString(touchStoneResultCondition);
+            this.touchStoneResultCondition = ResultExt.fromString(touchStoneResultCondition);
         } else {
             this.touchStoneCombinationFilter = null;
         }

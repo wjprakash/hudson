@@ -36,18 +36,18 @@ import hudson.Util;
 import hudson.diagnosis.OldDataMonitorExt;
 import hudson.model.CauseExt.LegacyCodeCause;
 import hudson.model.FingerprintExt.RangeSet;
-import hudson.model.Queue.Executable;
-import hudson.model.Queue.Task;
+import hudson.model.QueueExt.Executable;
+import hudson.model.QueueExt.Task;
 import hudson.model.queue.SubTask;
-import hudson.model.Queue.WaitingItem;
+import hudson.model.QueueExt.WaitingItem;
 import hudson.model.RunMap.Constructor;
-import hudson.model.labels.LabelAtom;
+import hudson.model.labels.LabelAtomExt;
 import hudson.model.labels.LabelExpression;
 import hudson.model.queue.CauseOfBlockage;
 import hudson.model.queue.SubTaskContributor;
 import hudson.scm.NullSCM;
 import hudson.scm.PollingResult;
-import hudson.scm.SCM;
+import hudson.scm.SCMExt;
 import hudson.scm.SCMRevisionState;
 import hudson.search.SearchIndexBuilder;
 import hudson.security.Permission;
@@ -62,8 +62,6 @@ import hudson.triggers.Trigger;
 import hudson.triggers.TriggerDescriptor;
 import hudson.util.DescribableList;
 import hudson.util.EditDistance;
-import hudson.widgets.BuildHistoryWidget;
-import hudson.widgets.HistoryWidget;
 
 import java.io.File;
 import java.io.IOException;
@@ -100,7 +98,7 @@ public abstract class AbstractProjectExt<P extends AbstractProjectExt<P,R>,R ext
      * To allow derived classes to link {@link SCM} config to elsewhere,
      * access to this variable should always go through {@link #getScm()}.
      */
-    private volatile SCM scm = new NullSCM();
+    private volatile SCMExt scm = new NullSCM();
 
     /**
      * State returned from {@link SCM#poll(AbstractProjectExt, Launcher, FilePathExt, TaskListener, SCMRevisionState)}.
@@ -252,7 +250,7 @@ public abstract class AbstractProjectExt<P extends AbstractProjectExt<P,R>,R ext
         makeDisabled(true);
         FilePathExt ws = getWorkspace();
         if(ws!=null) {
-            Node on = getLastBuiltOn();
+            NodeExt on = getLastBuiltOn();
             getScm().processWorkspaceBeforeDeletion(this, ws, on);
             if(on!=null)
                 on.getFileSystemProvisioner().discardWorkspace(this,ws);
@@ -279,7 +277,7 @@ public abstract class AbstractProjectExt<P extends AbstractProjectExt<P,R>,R ext
 
     /**
      * If this project is configured to be always built on this node,
-     * return that {@link Node}. Otherwise null.
+     * return that {@link NodeExt}. Otherwise null.
      */
     public LabelExt getAssignedLabel() {
         if(canRoam)
@@ -300,7 +298,7 @@ public abstract class AbstractProjectExt<P extends AbstractProjectExt<P,R>,R ext
             return assignedNode;
         } catch (ANTLRException e) {
             // must be old label or host name that includes whitespace or other unsafe chars
-            return LabelAtom.escape(assignedNode);
+            return LabelAtomExt.escape(assignedNode);
         }
     }
 
@@ -322,7 +320,7 @@ public abstract class AbstractProjectExt<P extends AbstractProjectExt<P,R>,R ext
     /**
      * Assigns this job to the given node. A convenience method over {@link #setAssignedLabel(LabelExt)}.
      */
-    public void setAssignedNode(Node l) throws IOException {
+    public void setAssignedNode(NodeExt l) throws IOException {
         setAssignedLabel(l.getSelfLabel());
     }
 
@@ -732,7 +730,7 @@ public abstract class AbstractProjectExt<P extends AbstractProjectExt<P,R>,R ext
     }
 
     @Override
-    public Queue.Item getQueueItem() {
+    public QueueExt.Item getQueueItem() {
         return HudsonExt.getInstance().getQueue().getItem(this);
     }
 
@@ -847,13 +845,13 @@ public abstract class AbstractProjectExt<P extends AbstractProjectExt<P,R>,R ext
     }
 
     /**
-     * Gets the {@link Node} where this project was last built on.
+     * Gets the {@link NodeExt} where this project was last built on.
      *
      * @return
      *      null if no information is available (for example,
      *      if no build was done yet.)
      */
-    public Node getLastBuiltOn() {
+    public NodeExt getLastBuiltOn() {
         // where was it built on?
         AbstractBuildExt b = getLastBuild();
         if(b==null)
@@ -1055,7 +1053,7 @@ public abstract class AbstractProjectExt<P extends AbstractProjectExt<P,R>,R ext
     }
 
     public boolean checkout(AbstractBuildExt build, Launcher launcher, BuildListener listener, File changelogFile) throws IOException, InterruptedException {
-        SCM scm = getScm();
+        SCMExt scm = getScm();
         if(scm==null)
             return true;    // no SCM
 
@@ -1111,7 +1109,7 @@ public abstract class AbstractProjectExt<P extends AbstractProjectExt<P,R>,R ext
      * @since 1.345
      */
     public PollingResult poll( TaskListener listener ) {
-        SCM scm = getScm();
+        SCMExt scm = getScm();
         if (scm==null) {
             listener.getLogger().println(Messages.AbstractProject_NoSCM());
             return NO_CHANGES;
@@ -1216,18 +1214,18 @@ public abstract class AbstractProjectExt<P extends AbstractProjectExt<P,R>,R ext
      *
      * @since 1.191
      */
-    public boolean hasParticipant(User user) {
+    public boolean hasParticipant(UserExt user) {
         for( R build = getLastBuild(); build!=null; build=build.getPreviousBuild())
             if(build.hasParticipant(user))
                 return true;
         return false;
     }
 
-    public SCM getScm() {
+    public SCMExt getScm() {
         return scm;
     }
 
-    public void setScm(SCM scm) throws IOException {
+    public void setScm(SCMExt scm) throws IOException {
         this.scm = scm;
         save();
     }
@@ -1396,17 +1394,10 @@ public abstract class AbstractProjectExt<P extends AbstractProjectExt<P,R>,R ext
         return sib;
     }
 
-    @Override
-    protected HistoryWidget createHistoryWidget() {
-        return new BuildHistoryWidget<R>(this,getBuilds(),HISTORY_ADAPTER);
-    }
-    
     public boolean isParameterized() {
         return getProperty(ParametersDefinitionProperty.class) != null;
     }
 
- 
-    
     public boolean cleanWorkspace() throws IOException, InterruptedException{
         checkPermission(BUILD);
         R b = getSomeBuildWithWorkspace();

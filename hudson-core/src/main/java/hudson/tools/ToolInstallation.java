@@ -60,7 +60,7 @@ import com.thoughtworks.xstream.converters.UnmarshallingContext;
  *
  * <p>
  * Implementations of this class are strongly encouraged to also implement {@link NodeSpecific}
- * (by using {@link #translateFor(Node, TaskListener)}) and
+ * (by using {@link #translateFor(NodeExt, TaskListener)}) and
  * {@link EnvironmentSpecific} (by using {@link EnvVars#expand(String)}.)
  *
  * <p>
@@ -138,14 +138,14 @@ public abstract class ToolInstallation extends AbstractDescribableImpl<ToolInsta
      * Otherwise returns {@code installation.getHome()}.
      *
      * <p>
-     * This is the core logic behind {@link NodeSpecific#forNode(Node, TaskListener)} for {@link ToolInstallation},
+     * This is the core logic behind {@link NodeSpecific#forNode(NodeExt, TaskListener)} for {@link ToolInstallation},
      * and meant to be used by the {@code forNode} implementations.
      *
      * @return
      *      never null.
      */
     @SuppressWarnings("deprecation")
-    protected String translateFor(Node node, TaskListener log) throws IOException, InterruptedException {
+    protected String translateFor(NodeExt node, TaskListener log) throws IOException, InterruptedException {
         return ToolLocationNodeProperty.getToolHome(node, this, log);
     }
 

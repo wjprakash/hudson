@@ -39,10 +39,10 @@ import hudson.model.Items;
 import hudson.model.JDKExt;
 import hudson.model.JobExt;
 import hudson.model.LabelExt;
-import hudson.model.Node;
-import hudson.model.Queue.FlyweightTask;
+import hudson.model.NodeExt;
+import hudson.model.QueueExt.FlyweightTask;
 import hudson.model.ResourceController;
-import hudson.model.Result;
+import hudson.model.ResultExt;
 import hudson.model.SCMedItem;
 import hudson.model.Saveable;
 import hudson.model.TopLevelItem;
@@ -131,7 +131,7 @@ public class MatrixProjectExt extends AbstractProjectExt<MatrixProjectExt,Matrix
      * Required result on the touchstone combinations, in order to
      * continue with the rest
      */
-    protected Result touchStoneResultCondition;
+    protected ResultExt touchStoneResultCondition;
 
     /**
      * See {@link #setCustomWorkspace(String)}.
@@ -211,11 +211,11 @@ public class MatrixProjectExt extends AbstractProjectExt<MatrixProjectExt,Matrix
         this.touchStoneCombinationFilter = touchStoneCombinationFilter;
     }
 
-    public Result getTouchStoneResultCondition() {
+    public ResultExt getTouchStoneResultCondition() {
         return touchStoneResultCondition;
     }
 
-    public void setTouchStoneResultCondition(Result touchStoneResultCondition) {
+    public void setTouchStoneResultCondition(ResultExt touchStoneResultCondition) {
         this.touchStoneResultCondition = touchStoneResultCondition;
     }
 
@@ -234,7 +234,7 @@ public class MatrixProjectExt extends AbstractProjectExt<MatrixProjectExt,Matrix
      * This is not {@link File} because it may have to hold a path representation on another OS.
      *
      * <p>
-     * If this path is relative, it's resolved against {@link Node#getRootPath()} on the node where this workspace
+     * If this path is relative, it's resolved against {@link NodeExt#getRootPath()} on the node where this workspace
      * is prepared.
      */
     public void setCustomWorkspace(String customWorkspace) throws IOException {

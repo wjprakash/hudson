@@ -39,7 +39,7 @@ import hudson.model.ItemExt;
 import hudson.model.Items;
 import hudson.model.JobExt;
 import hudson.model.ProjectExt;
-import hudson.model.Result;
+import hudson.model.ResultExt;
 import hudson.model.RunExt;
 import hudson.model.CauseExt.UpstreamCause;
 import hudson.model.TaskListener;
@@ -90,25 +90,25 @@ public class BuildTrigger extends Recorder implements DependecyDeclarer {
      * For compatibility reasons, this field could be null, in which case
      * it should read as "SUCCESS".
      */
-    private final Result threshold;
+    private final ResultExt threshold;
 
     @DataBoundConstructor
     public BuildTrigger(String childProjects, boolean evenIfUnstable) {
-        this(childProjects,evenIfUnstable ? Result.UNSTABLE : Result.SUCCESS);
+        this(childProjects,evenIfUnstable ? ResultExt.UNSTABLE : ResultExt.SUCCESS);
     }
 
-    public BuildTrigger(String childProjects, Result threshold) {
+    public BuildTrigger(String childProjects, ResultExt threshold) {
         if(childProjects==null)
             throw new IllegalArgumentException();
         this.childProjects = childProjects;
         this.threshold = threshold;
     }
 
-    public BuildTrigger(List<AbstractProjectExt> childProjects, Result threshold) {
+    public BuildTrigger(List<AbstractProjectExt> childProjects, ResultExt threshold) {
         this((Collection<AbstractProjectExt>)childProjects,threshold);
     }
 
-    public BuildTrigger(Collection<? extends AbstractProjectExt> childProjects, Result threshold) {
+    public BuildTrigger(Collection<? extends AbstractProjectExt> childProjects, ResultExt threshold) {
         this(Items.toNameList(childProjects),threshold);
     }
 
@@ -116,9 +116,9 @@ public class BuildTrigger extends Recorder implements DependecyDeclarer {
         return childProjects;
     }
 
-    public Result getThreshold() {
+    public ResultExt getThreshold() {
         if(threshold==null)
-            return Result.SUCCESS;
+            return ResultExt.SUCCESS;
         else
             return threshold;
     }

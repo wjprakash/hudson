@@ -1,0 +1,182 @@
+/*
+ * The MIT License
+ * 
+ * Copyright (c) 2004-2010, Sun Microsystems, Inc., Kohsuke Kawaguchi
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+package hudson.model;
+
+import com.thoughtworks.xstream.converters.SingleValueConverter;
+import com.thoughtworks.xstream.converters.basic.AbstractSingleValueConverter;
+import hudson.cli.declarative.OptionHandlerExtension;
+import hudson.util.EditDistance;
+import org.kohsuke.args4j.CmdLineException;
+import org.kohsuke.args4j.CmdLineParser;
+import org.kohsuke.args4j.OptionDef;
+import org.kohsuke.args4j.spi.*;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * The build outcome.
+ *
+ * @author Kohsuke Kawaguchi
+ */
+public class ResultExt implements Serializable {
+    /**
+     * The build had no errors.
+     */
+    public static final ResultExt SUCCESS = new ResultExt("SUCCESS",BallColorExt.BLUE,0);
+    /**
+     * The build had some errors but they were not fatal.
+     * For example, some tests failed.
+     */
+    public static final ResultExt UNSTABLE = new ResultExt("UNSTABLE",BallColorExt.YELLOW,1);
+    /**
+     * The build had a fatal error.
+     */
+    public static final ResultExt FAILURE = new ResultExt("FAILURE",BallColorExt.RED,2);
+    /**
+     * The module was not built.
+     * <p>
+     * This status code is used in a multi-stage build (like maven2)
+     * where a problem in earlier stage prevented later stages from building.
+     */
+    public static final ResultExt NOT_BUILT = new ResultExt("NOT_BUILT",BallColorExt.GREY,3);
+    /**
+     * The build was manually aborted.
+     */
+    public static final ResultExt ABORTED = new ResultExt("ABORTED",BallColorExt.ABORTED,4);
+
+    private final String name;
+
+    /**
+     * Bigger numbers are worse.
+     */
+    public final int ordinal;
+
+    /**
+     * Default ball color for this status.
+     */
+    public final BallColorExt color;
+
+    protected ResultExt(String name, BallColorExt color, int ordinal) {
+        this.name = name;
+        this.color = color;
+        this.ordinal = ordinal;
+    }
+
+    /**
+     * Combines two {@link Result}s and returns the worse one.
+     */
+    public ResultExt combine(ResultExt that) {
+        if(this.ordinal < that.ordinal)
+            return that;
+        else
+            return this;
+    }
+
+    public boolean isWorseThan(ResultExt that) {
+        return this.ordinal > that.ordinal;
+    }
+
+    public boolean isWorseOrEqualTo(ResultExt that) {
+        return this.ordinal >= that.ordinal;
+    }
+
+    public boolean isBetterThan(ResultExt that) {
+        return this.ordinal < that.ordinal;
+    }
+
+    public boolean isBetterOrEqualTo(ResultExt that) {
+        return this.ordinal <= that.ordinal;
+    }
+
+
+    @Override
+    public String toString() {
+        return name;
+    }
+
+    public String toExportedObject() {
+        return name;
+    }
+    
+    public static ResultExt fromString(String s) {
+        for (ResultExt r : all)
+            if (s.equalsIgnoreCase(r.name))
+                return r;
+        return FAILURE;
+    }
+
+    private static List<String> getNames() {
+        List<String> l = new ArrayList<String>();
+        for (ResultExt r : all)
+            l.add(r.name);
+        return l;
+    }
+
+    // Maintain each Result as a singleton deserialized (like build result from a slave node)
+    private Object readResolve() {
+        for (ResultExt r : all)
+            if (ordinal==r.ordinal)
+                return r;
+        return FAILURE;
+    }
+
+    private static final long serialVersionUID = 1L;
+
+    private static final ResultExt[] all = new ResultExt[] {SUCCESS,UNSTABLE,FAILURE,NOT_BUILT,ABORTED};
+
+    public static final SingleValueConverter conv = new AbstractSingleValueConverter () {
+        public boolean canConvert(Class clazz) {
+            return clazz==ResultExt.class;
+        }
+
+        public Object fromString(String s) {
+            return ResultExt.fromString(s);
+        }
+    };
+
+    @OptionHandlerExtension
+    public static final class OptionHandlerImpl extends OptionHandler<ResultExt> {
+        public OptionHandlerImpl(CmdLineParser parser, OptionDef option, Setter<? super ResultExt> setter) {
+            super(parser, option, setter);
+        }
+
+        @Override
+        public int parseArguments(Parameters params) throws CmdLineException {
+            String param = params.getParameter(0);
+            ResultExt v = fromString(param.replace('-', '_'));
+            if (v==null)
+                throw new CmdLineException(owner,"No such status '"+param+"'. Did you mean "+
+                        EditDistance.findNearest(param.replace('-', '_').toUpperCase(), getNames()));
+            setter.addValue(v);
+            return 1;
+        }
+
+        @Override
+        public String getDefaultMetaVariable() {
+            return "STATUS";
+        }
+    }
+}

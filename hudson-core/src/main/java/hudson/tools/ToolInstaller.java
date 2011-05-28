@@ -30,7 +30,7 @@ import hudson.Util;
 import hudson.model.Describable;
 import hudson.model.HudsonExt;
 import hudson.model.LabelExt;
-import hudson.model.Node;
+import hudson.model.NodeExt;
 import hudson.model.TaskListener;
 import java.io.IOException;
 import org.kohsuke.stapler.DataBoundConstructor;
@@ -77,7 +77,7 @@ public abstract class ToolInstaller implements Describable<ToolInstaller>, Exten
      * Checks whether this installer can be applied to a given node.
      * (By default, just checks the label.)
      */
-    public boolean appliesTo(Node node) {
+    public boolean appliesTo(NodeExt node) {
         LabelExt l = HudsonExt.getInstance().getLabel(label);
         return l == null || l.contains(node);
     }
@@ -85,7 +85,7 @@ public abstract class ToolInstaller implements Describable<ToolInstaller>, Exten
     /**
      * Ensure that the configured tool is really installed.
      * If it is already installed, do nothing.
-     * Called only if {@link #appliesTo(Node)} are true.
+     * Called only if {@link #appliesTo(NodeExt)} are true.
      * @param tool the tool being installed
      * @param node the computer on which to install the tool
      * @param log any status messages produced by the installation go here
@@ -94,7 +94,7 @@ public abstract class ToolInstaller implements Describable<ToolInstaller>, Exten
      * @throws IOException if installation fails
      * @throws InterruptedException if communication with a slave is interrupted
      */
-    public abstract FilePathExt performInstallation(ToolInstallation tool, Node node, TaskListener log) throws IOException, InterruptedException;
+    public abstract FilePathExt performInstallation(ToolInstallation tool, NodeExt node, TaskListener log) throws IOException, InterruptedException;
 
     /**
      * Convenience method to find a location to install a tool.
@@ -104,7 +104,7 @@ public abstract class ToolInstaller implements Describable<ToolInstaller>, Exten
      *         HudsonExt work area named according to {@link ToolInstallation#getName}
      * @since 1.310
      */
-    protected final FilePathExt preferredLocation(ToolInstallation tool, Node node) {
+    protected final FilePathExt preferredLocation(ToolInstallation tool, NodeExt node) {
         if (node == null) {
             throw new IllegalArgumentException("must pass non-null node");
         }

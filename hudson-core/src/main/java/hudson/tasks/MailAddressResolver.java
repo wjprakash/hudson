@@ -28,9 +28,9 @@ import hudson.ExtensionList;
 import hudson.ExtensionListView;
 import hudson.ExtensionPoint;
 import hudson.model.HudsonExt;
-import hudson.model.User;
-import hudson.model.UserProperty;
-import hudson.scm.SCM;
+import hudson.model.UserExt;
+import hudson.model.UserPropertyExt;
+import hudson.scm.SCMExt;
 
 import java.util.List;
 import java.util.logging.Logger;
@@ -88,9 +88,9 @@ public abstract class MailAddressResolver implements ExtensionPoint {
      * @return
      *      null if the inference failed.
      */
-    public abstract String findMailAddressFor(User u);
+    public abstract String findMailAddressFor(UserExt u);
     
-    public static String resolve(User u) {
+    public static String resolve(UserExt u) {
         LOGGER.fine("Resolving e-mail address for \""+u+"\" ID="+u.getId());
 
         for (MailAddressResolver r : all()) {

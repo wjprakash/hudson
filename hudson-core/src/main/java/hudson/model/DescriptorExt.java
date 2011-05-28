@@ -99,6 +99,13 @@ import java.beans.Introspector;
  */
 public abstract class DescriptorExt<T extends Describable<T>> implements Saveable {
 
+    protected DescriptorExt(Class<? extends T> clazz) {
+        this.clazz = clazz;
+        // doing this turns out to be very error prone,
+        // as field initializers in derived types will override values.
+        // load();
+    }
+    
     /**
      * Up to HudsonExt 1.61 this was used as the primary persistence mechanism.
      * Going forward HudsonExt simply persists all the non-transient fields
@@ -189,12 +196,6 @@ public abstract class DescriptorExt<T extends Describable<T>> implements Saveabl
         }
     }
 
-    protected DescriptorExt(Class<? extends T> clazz) {
-        this.clazz = clazz;
-        // doing this turns out to be very error prone,
-        // as field initializers in derived types will override values.
-        // load();
-    }
 
     /**
      * Infers the type of the corresponding {@link Describable} from the outer class.

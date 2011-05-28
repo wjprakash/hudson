@@ -26,13 +26,13 @@
 package hudson.model;
 
 import hudson.model.RunExt.Runner;
+import hudson.model.RunExt.Runner;
 import hudson.console.ConsoleLogFilter;
 import hudson.FunctionsExt;
 import hudson.AbortException;
 import hudson.BulkChange;
 import hudson.EnvVars;
 import hudson.ExtensionPoint;
-import hudson.FeedAdapter;
 import hudson.FilePathExt;
 import hudson.Util;
 import hudson.XmlFile;
@@ -48,7 +48,6 @@ import hudson.security.AccessControlled;
 import hudson.security.Permission;
 import hudson.security.PermissionGroup;
 import hudson.tasks.LogRotator;
-import hudson.tasks.Mailer;
 import hudson.tasks.BuildWrapper;
 import hudson.tasks.BuildStep;
 import hudson.tasks.test.AbstractTestResultAction;
@@ -150,7 +149,7 @@ public abstract class RunExt <JobT extends JobExt<JobT,RunT>,RunT extends RunExt
      * The build result.
      * This value may change while the state is in {@link State#BUILDING}.
      */
-    protected volatile Result result;
+    protected volatile ResultExt result;
 
     /**
      * Human-readable description. Can be null.
@@ -252,7 +251,7 @@ public abstract class RunExt <JobT extends JobExt<JobT,RunT>,RunT extends RunExt
         this(project, parseTimestampFromBuildDir(buildDir));
         this.previousBuildInProgress = _this(); // loaded builds are always completed
         this.state = State.COMPLETED;
-        this.result = Result.FAILURE;  // defensive measure. value should be overwritten by unmarshal, but just in case the saved data is inconsistent
+        this.result = ResultExt.FAILURE;  // defensive measure. value should be overwritten by unmarshal, but just in case the saved data is inconsistent
         getDataFile().unmarshal(this); // load the rest of the data
     }
 
@@ -304,11 +303,11 @@ public abstract class RunExt <JobT extends JobExt<JobT,RunT>,RunT extends RunExt
      * When a build is {@link #isBuilding() in progress}, this method
      * returns an intermediate result.
      */
-    public Result getResult() {
+    public ResultExt getResult() {
         return result;
     }
 
-    public void setResult(Result r) {
+    public void setResult(ResultExt r) {
         // state can change only when we are building
         assert state==State.BUILDING;
 
@@ -669,7 +668,7 @@ public abstract class RunExt <JobT extends JobExt<JobT,RunT>,RunT extends RunExt
     public RunT getPreviousBuiltBuild() {
         RunT r=previousBuild;
         // in certain situations (aborted m2 builds) r.getResult() can still be null, although it should theoretically never happen
-        while( r!=null && (r.getResult() == null || r.getResult()==Result.NOT_BUILT) )
+        while( r!=null && (r.getResult() == null || r.getResult()==ResultExt.NOT_BUILT) )
             r=r.previousBuild;
         return r;
     }
@@ -679,7 +678,7 @@ public abstract class RunExt <JobT extends JobExt<JobT,RunT>,RunT extends RunExt
      */
     public RunT getPreviousNotFailedBuild() {
         RunT r=previousBuild;
-        while( r!=null && r.getResult()==Result.FAILURE )
+        while( r!=null && r.getResult()==ResultExt.FAILURE )
             r=r.previousBuild;
         return r;
     }
@@ -689,7 +688,7 @@ public abstract class RunExt <JobT extends JobExt<JobT,RunT>,RunT extends RunExt
      */
     public RunT getPreviousFailedBuild() {
         RunT r=previousBuild;
-        while( r!=null && r.getResult()!=Result.FAILURE )
+        while( r!=null && r.getResult()!=ResultExt.FAILURE )
             r=r.previousBuild;
         return r;
     }
@@ -700,7 +699,7 @@ public abstract class RunExt <JobT extends JobExt<JobT,RunT>,RunT extends RunExt
      */
     public RunT getPreviousSuccessfulBuild() {
         RunT r=previousBuild;
-        while( r!=null && r.getResult()!=Result.SUCCESS )
+        while( r!=null && r.getResult()!=ResultExt.SUCCESS )
             r=r.previousBuild;
         return r;
     }
@@ -715,7 +714,7 @@ public abstract class RunExt <JobT extends JobExt<JobT,RunT>,RunT extends RunExt
      *   if not enough builds satisfying the threshold have been found. Never null.
      * @since 1.383
      */
-    public List<RunT> getPreviousBuildsOverThreshold(int numberOfBuilds, Result threshold) {
+    public List<RunT> getPreviousBuildsOverThreshold(int numberOfBuilds, ResultExt threshold) {
         List<RunT> builds = new ArrayList<RunT>(numberOfBuilds);
         
         RunT r = getPreviousBuild();
@@ -734,30 +733,6 @@ public abstract class RunExt <JobT extends JobExt<JobT,RunT>,RunT extends RunExt
         return nextBuild;
     }
 
-    /**
-     * Returns the URL of this {@link RunExt}, relative to the context root of HudsonExt.
-     *
-     * @return
-     *      String like "job/foo/32/" with trailing slash but no leading slash. 
-     */
-    // I really messed this up. I'm hoping to fix this some time
-    // it shouldn't have trailing '/', and instead it should have leading '/'
-    public String getUrl() {
-        return project.getUrl() + getNumber() + '/';
-    }
-
-    /**
-     * Obtains the absolute URL to this build.
-     *
-     * @deprecated
-     *      This method shall <b>NEVER</b> be used during HTML page rendering, as it won't work with
-     *      network set up like Apache reverse proxy.
-     *      This method is only intended for the remote API clients who cannot resolve relative references
-     *      (even this won't work for the same reason, which should be fixed.)
-     */
-    public final String getAbsoluteUrl() {
-        return project.getAbsoluteUrl()+getNumber()+'/';
-    }
 
     public final String getSearchUrl() {
         return getNumber() + "/";
@@ -1213,7 +1188,7 @@ public abstract class RunExt <JobT extends JobExt<JobT,RunT>,RunT extends RunExt
          * @throws Exception
          *      exception will be recorded and the build will be considered a failure.
          */
-        public abstract Result run( BuildListener listener ) throws Exception, RunnerAbortedException;
+        public abstract ResultExt run( BuildListener listener ) throws Exception, RunnerAbortedException;
 
         /**
          * Performs the post-build action.
@@ -1305,20 +1280,20 @@ public abstract class RunExt <JobT extends JobExt<JobT,RunT>,RunT extends RunExt
                 } catch (ThreadDeath t) {
                     throw t;
                 } catch( AbortException e ) {// orderly abortion.
-                    result = Result.FAILURE;
+                    result = ResultExt.FAILURE;
                     listener.error(e.getMessage());
                     LOGGER.log(FINE, "Build "+this+" aborted",e);
                 } catch( RunnerAbortedException e ) {// orderly abortion.
-                    result = Result.FAILURE;
+                    result = ResultExt.FAILURE;
                     LOGGER.log(FINE, "Build "+this+" aborted",e);
                 } catch( InterruptedException e) {
                     // aborted
-                    result = Result.ABORTED;
+                    result = ResultExt.ABORTED;
                     listener.getLogger().println(Messages.Run_BuildAborted());
                     LOGGER.log(Level.INFO,toString()+" aborted",e);
                 } catch( Throwable e ) {
                     handleFatalBuildProblem(listener,e);
-                    result = Result.FAILURE;
+                    result = ResultExt.FAILURE;
                 }
 
                 // even if the main build fails fatally, try to run post build processing
@@ -1328,7 +1303,7 @@ public abstract class RunExt <JobT extends JobExt<JobT,RunT>,RunT extends RunExt
                 throw t;
             } catch( Throwable e ) {
                 handleFatalBuildProblem(listener,e);
-                result = Result.FAILURE;
+                result = ResultExt.FAILURE;
             } finally {
                 long end = System.currentTimeMillis();
                 duration = Math.max(end - start, 0);  // @see HUDSON-5844
@@ -1417,7 +1392,7 @@ public abstract class RunExt <JobT extends JobExt<JobT,RunT>,RunT extends RunExt
             state = State.COMPLETED;
         }
         if (result == null) {
-            result = Result.FAILURE;
+            result = ResultExt.FAILURE;
             LOGGER.warning(toString() + ": No build result is set, so marking as failure. This shouldn't happen.");
         }
 
@@ -1510,14 +1485,14 @@ public abstract class RunExt <JobT extends JobExt<JobT,RunT>,RunT extends RunExt
     public Summary getBuildStatusSummary() {
         RunExt prev = getPreviousBuild();
 
-        if(getResult()==Result.SUCCESS) {
-            if(prev==null || prev.getResult()== Result.SUCCESS)
+        if(getResult()==ResultExt.SUCCESS) {
+            if(prev==null || prev.getResult()== ResultExt.SUCCESS)
                 return new Summary(false, Messages.Run_Summary_Stable());
             else
                 return new Summary(false, Messages.Run_Summary_BackToNormal());
         }
 
-        if(getResult()==Result.FAILURE) {
+        if(getResult()==ResultExt.FAILURE) {
             RunT since = getPreviousNotFailedBuild();
             if(since==null)
                 return new Summary(false, Messages.Run_Summary_BrokenForALongTime());
@@ -1527,10 +1502,10 @@ public abstract class RunExt <JobT extends JobExt<JobT,RunT>,RunT extends RunExt
             return new Summary(false, Messages.Run_Summary_BrokenSince(failedBuild.getDisplayName()));
         }
 
-        if(getResult()==Result.ABORTED)
+        if(getResult()==ResultExt.ABORTED)
             return new Summary(false, Messages.Run_Summary_Aborted());
 
-        if(getResult()==Result.UNSTABLE) {
+        if(getResult()==ResultExt.UNSTABLE) {
             if(((RunExt)this) instanceof AbstractBuildExt) {
                 AbstractTestResultAction trN = ((AbstractBuildExt)(RunExt)this).getTestResultAction();
                 AbstractTestResultAction trP = prev==null ? null : ((AbstractBuildExt) prev).getTestResultAction();
@@ -1626,12 +1601,6 @@ public abstract class RunExt <JobT extends JobExt<JobT,RunT>,RunT extends RunExt
         ComputerExt c = ComputerExt.currentComputer();
         if (c!=null)
             env = c.getEnvironment().overrideAll(env);
-        String rootUrl = HudsonExt.getInstance().getRootUrl();
-        if(rootUrl!=null) {
-            env.put("HUDSON_URL", rootUrl);
-            env.put("BUILD_URL", rootUrl+getUrl());
-            env.put("JOB_URL", rootUrl+getParent().getUrl());
-        }
         
         if(!env.containsKey("HUDSON_HOME"))
             env.put("HUDSON_HOME", HudsonExt.getInstance().getRootDir().getPath() );
@@ -1641,7 +1610,7 @@ public abstract class RunExt <JobT extends JobExt<JobT,RunT>,RunT extends RunExt
             ExecutorExt e = (ExecutorExt) t;
             env.put("EXECUTOR_NUMBER",String.valueOf(e.getNumber()));
             env.put("NODE_NAME",e.getOwner().getName());
-            Node n = e.getOwner().getNode();
+            NodeExt n = e.getOwner().getNode();
             if (n!=null)
                 env.put("NODE_LABELS",Util.join(n.getAssignedLabels()," "));
         }
@@ -1705,7 +1674,7 @@ public abstract class RunExt <JobT extends JobExt<JobT,RunT>,RunT extends RunExt
         XSTREAM.alias("build",FreeStyleBuild.class);
         XSTREAM.alias("matrix-build",MatrixBuildExt.class);
         XSTREAM.alias("matrix-run",MatrixRunExt.class);
-        XSTREAM.registerConverter(Result.conv);
+        XSTREAM.registerConverter(ResultExt.conv);
     }
 
     private static final Logger LOGGER = Logger.getLogger(RunExt.class.getName());
@@ -1720,26 +1689,6 @@ public abstract class RunExt <JobT extends JobExt<JobT,RunT>,RunT extends RunExt
             if(lt>rt)   return -1;
             if(lt<rt)   return 1;
             return 0;
-        }
-    };
-
-    /**
-     * {@link FeedAdapter} to produce feed from the summary of this build.
-     */
-    public static final FeedAdapter<RunExt> FEED_ADAPTER = new DefaultFeedAdapter();
-
-    /**
-     * {@link FeedAdapter} to produce feeds to show one build per project.
-     */
-    public static final FeedAdapter<RunExt> FEED_ADAPTER_LATEST = new DefaultFeedAdapter() {
-        /**
-         * The entry unique ID needs to be tied to a project, so that
-         * new builds will replace the old result.
-         */
-        @Override
-        public String getEntryID(RunExt e) {
-            // can't use a meaningful year field unless we remember when the job was created.
-            return "tag:hudson.java.net,2008:"+e.getParent().getAbsoluteUrl();
         }
     };
 
@@ -1760,32 +1709,4 @@ public abstract class RunExt <JobT extends JobExt<JobT,RunT>,RunT extends RunExt
     public static final Permission ARTIFACTS = new Permission(PERMISSIONS,"Artifacts",Messages._Run_ArtifactsPermission_Description(), null,
                                                               FunctionsExt.isArtifactsPermissionEnabled());
 
-    private static class DefaultFeedAdapter implements FeedAdapter<RunExt> {
-        public String getEntryTitle(RunExt entry) {
-            return entry+" ("+entry.getBuildStatusSummary().message+")";
-        }
-
-        public String getEntryUrl(RunExt entry) {
-            return entry.getUrl();
-        }
-
-        public String getEntryID(RunExt entry) {
-            return "tag:" + "hudson.java.net,"
-                + entry.getTimestamp().get(Calendar.YEAR) + ":"
-                + entry.getParent().getName()+':'+entry.getId();
-        }
-
-        public String getEntryDescription(RunExt entry) {
-            // TODO: this could provide some useful details
-            return null;
-        }
-
-        public Calendar getEntryTimestamp(RunExt entry) {
-            return entry.getTimestamp();
-        }
-
-        public String getEntryAuthor(RunExt entry) {
-            return Mailer.descriptor().getAdminAddress();
-        }
-    }
 }

@@ -24,7 +24,7 @@
 package hudson.model;
 
 import hudson.EnvVars;
-import hudson.model.Queue.Task;
+import hudson.model.QueueExt.Task;
 import hudson.tasks.Builder;
 import hudson.tasks.BuildWrapper;
 

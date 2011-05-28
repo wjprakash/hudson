@@ -74,7 +74,7 @@ public class StreamBuildListener extends StreamTaskListener implements BuildList
         }
     }
 
-    public void finished(Result result) {
+    public void finished(ResultExt result) {
         getLogger().println("Finished: "+result);
     }
 

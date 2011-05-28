@@ -60,7 +60,7 @@ public class Executor extends ExecutorExt {
      */
     @Exported
     @Override
-    public Queue.Executable getCurrentExecutable() {
+    public QueueExt.Executable getCurrentExecutable() {
         return super.getCurrentExecutable();
     }
 
@@ -128,7 +128,7 @@ public class Executor extends ExecutorExt {
      * Stops the current build.
      */
     public void doStop( StaplerRequest req, StaplerResponse rsp ) throws IOException, ServletException {
-        Queue.Executable e = executable;
+        QueueExt.Executable e = executable;
         if(e!=null) {
             Tasks.getOwnerTaskOf(getParentOf(e)).checkAbortPermission();
             interrupt();

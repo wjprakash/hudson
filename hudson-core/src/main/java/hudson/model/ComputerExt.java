@@ -81,18 +81,18 @@ import java.net.Inet4Address;
  * (that is the definition of {@link ComputerExt}.)
  *
  * <p>
- * This object is related to {@link Node} but they have some significant difference.
+ * This object is related to {@link NodeExt} but they have some significant difference.
  * {@link ComputerExt} primarily works as a holder of {@link ExecutorExt}s, so
- * if a {@link Node} is configured (probably temporarily) with 0 executors,
+ * if a {@link NodeExt} is configured (probably temporarily) with 0 executors,
  * you won't have a {@link ComputerExt} object for it.
  *
- * Also, even if you remove a {@link Node}, it takes time for the corresponding
+ * Also, even if you remove a {@link NodeExt}, it takes time for the corresponding
  * {@link ComputerExt} to be removed, if some builds are already in progress on that
  * node. Or when the node configuration is changed, unaffected {@link ComputerExt} object
- * remains intact, while all the {@link Node} objects will go away.
+ * remains intact, while all the {@link NodeExt} objects will go away.
  *
  * <p>
- * This object also serves UI (since {@link Node} is an interface and can't have
+ * This object also serves UI (since {@link NodeExt} is an interface and can't have
  * related side pages.)
  *
  * @author Kohsuke Kawaguchi
@@ -118,7 +118,7 @@ public /*transient*/ abstract class ComputerExt extends ActionableExt implements
     protected boolean temporarilyOffline;
 
     /**
-     * {@link Node} object may be created and deleted independently
+     * {@link NodeExt} object may be created and deleted independently
      * from this object.
      */
     protected String nodeName;
@@ -131,7 +131,7 @@ public /*transient*/ abstract class ComputerExt extends ActionableExt implements
 
     private final WorkspaceList workspaceList = new WorkspaceList();
 
-    public ComputerExt(Node node) {
+    public ComputerExt(NodeExt node) {
         assert node.getNumExecutors()!=0 : "Computer created with 0 executors";
         setNode(node);
     }
@@ -349,26 +349,26 @@ public /*transient*/ abstract class ComputerExt extends ActionableExt implements
     }
 
     /**
-     * Returns {@link Node#getNodeName() the name of the node}.
+     * Returns {@link NodeExt#getNodeName() the name of the node}.
      */
     public String getName() {
         return nodeName;
     }
 
     /**
-     * Returns the {@link Node} that this computer represents.
+     * Returns the {@link NodeExt} that this computer represents.
      *
      * @return
      *      null if the configuration has changed and the node is removed, yet the corresponding {@link ComputerExt}
      *      is not yet gone.
      */
-    public Node getNode() {
+    public NodeExt getNode() {
         if(nodeName==null)
             return HudsonExt.getInstance();
         return HudsonExt.getInstance().getNode(nodeName);
     }
 
-    public LoadStatistics getLoadStatistics() {
+    public LoadStatisticsExt getLoadStatistics() {
         return getNode().getSelfLabel().loadStatistics;
     }
 
@@ -379,21 +379,21 @@ public /*transient*/ abstract class ComputerExt extends ActionableExt implements
     /**
      * {@inheritDoc}
      */
-    public void taskAccepted(ExecutorExt executor, Queue.Task task) {
+    public void taskAccepted(ExecutorExt executor, QueueExt.Task task) {
         // dummy implementation
     }
 
     /**
      * {@inheritDoc}
      */
-    public void taskCompleted(ExecutorExt executor, Queue.Task task, long durationMS) {
+    public void taskCompleted(ExecutorExt executor, QueueExt.Task task, long durationMS) {
         // dummy implementation
     }
 
     /**
      * {@inheritDoc}
      */
-    public void taskCompletedWithProblems(ExecutorExt executor, Queue.Task task, long durationMS, Throwable problems) {
+    public void taskCompletedWithProblems(ExecutorExt executor, QueueExt.Task task, long durationMS, Throwable problems) {
         // dummy implementation
     }
 
@@ -517,12 +517,12 @@ public /*transient*/ abstract class ComputerExt extends ActionableExt implements
     }
 
     /**
-     * Called to notify {@link ComputerExt} that its corresponding {@link Node}
+     * Called to notify {@link ComputerExt} that its corresponding {@link NodeExt}
      * configuration is updated.
      */
-    protected void setNode(Node node) {
+    protected void setNode(NodeExt node) {
         assert node!=null;
-        if(node instanceof Slave)
+        if(node instanceof SlaveExt)
             this.nodeName = node.getNodeName();
         else
             this.nodeName = null;
@@ -640,7 +640,7 @@ public /*transient*/ abstract class ComputerExt extends ActionableExt implements
      */
     public final long getDemandStartMilliseconds() {
         long firstDemand = Long.MAX_VALUE;
-        for (Queue.BuildableItem item : HudsonExt.getInstance().getQueue().getBuildableItems(this)) {
+        for (QueueExt.BuildableItem item : HudsonExt.getInstance().getQueue().getBuildableItems(this)) {
             firstDemand = Math.min(item.buildableStartMilliseconds, firstDemand);
         }
         return firstDemand;

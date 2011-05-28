@@ -23,7 +23,7 @@
  */
 package hudson.model;
 
-import hudson.model.Queue.FlyweightTask;
+import hudson.model.QueueExt.FlyweightTask;
 import hudson.model.queue.WorkUnit;
 
 /**

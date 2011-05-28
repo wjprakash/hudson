@@ -25,8 +25,8 @@ package hudson.slaves;
 
 import hudson.Extension;
 import hudson.model.DescriptorExt;
-import hudson.model.Slave;
-import hudson.model.Node;
+import hudson.model.SlaveExt;
+import hudson.model.NodeExt;
 import hudson.model.HudsonExt;
 import hudson.util.DescriptorList;
 import hudson.DescriptorExtensionListExt;
@@ -47,8 +47,8 @@ import java.util.ArrayList;
  *
  * @author Kohsuke Kawaguchi
  */
-public abstract class NodeDescriptorExt extends DescriptorExt<Node> {
-    protected NodeDescriptorExt(Class<? extends Node> clazz) {
+public abstract class NodeDescriptorExt extends DescriptorExt<NodeExt> {
+    protected NodeDescriptorExt(Class<? extends NodeExt> clazz) {
         super(clazz);
     }
 
@@ -72,8 +72,8 @@ public abstract class NodeDescriptorExt extends DescriptorExt<Node> {
     /**
      * Returns all the registered {@link NodeDescriptorExt} descriptors.
      */
-    public static DescriptorExtensionListExt<Node,NodeDescriptorExt> all() {
-        return HudsonExt.getInstance().<Node,NodeDescriptorExt>getDescriptorList(Node.class);
+    public static DescriptorExtensionListExt<NodeExt,NodeDescriptorExt> all() {
+        return HudsonExt.getInstance().<NodeExt,NodeDescriptorExt>getDescriptorList(NodeExt.class);
     }
 
     /**
@@ -81,7 +81,7 @@ public abstract class NodeDescriptorExt extends DescriptorExt<Node> {
      * @deprecated as of 1.286
      *      Use {@link #all()} for read access, and {@link Extension} for registration.
      */
-    public static final DescriptorList<Node> ALL = new DescriptorList<Node>(Node.class);
+    public static final DescriptorList<NodeExt> ALL = new DescriptorList<NodeExt>(NodeExt.class);
 
     public static List<NodeDescriptorExt> allInstantiable() {
         List<NodeDescriptorExt> r = new ArrayList<NodeDescriptorExt>();

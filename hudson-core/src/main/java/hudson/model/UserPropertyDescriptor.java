@@ -28,8 +28,8 @@ package hudson.model;
  * 
  * @author Kohsuke Kawaguchi
  */
-public abstract class UserPropertyDescriptor extends DescriptorExt<UserProperty> {
-    protected UserPropertyDescriptor(Class<? extends UserProperty> clazz) {
+public abstract class UserPropertyDescriptor extends DescriptorExt<UserPropertyExt> {
+    protected UserPropertyDescriptor(Class<? extends UserPropertyExt> clazz) {
         super(clazz);
     }
 
@@ -54,7 +54,7 @@ public abstract class UserPropertyDescriptor extends DescriptorExt<UserProperty>
      * @return null
      *      if the implementation choose not to add any property object for such user.
      */
-    public abstract UserProperty newInstance(User user);
+    public abstract UserPropertyExt newInstance(UserExt user);
 
     /**
      * Whether or not the described property is enabled in the current context.

@@ -28,7 +28,7 @@ import hudson.ExtensionList;
 import hudson.ExtensionListView;
 import hudson.ExtensionPoint;
 import hudson.model.HudsonExt;
-import hudson.model.User;
+import hudson.model.UserExt;
 
 import java.util.List;
 
@@ -68,9 +68,9 @@ public abstract class UserNameResolver implements ExtensionPoint {
      * @return
      *      null if the inference failed.
      */
-    public abstract String findNameFor(User u);
+    public abstract String findNameFor(UserExt u);
     
-    public static String resolve(User u) {
+    public static String resolve(UserExt u) {
         for (UserNameResolver r : all()) {
             String name = r.findNameFor(u);
             if(name!=null) return name;

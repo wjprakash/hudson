@@ -64,9 +64,9 @@ public class ExternalRun extends RunExt<ExternalJobExt,ExternalRun> {
      */
     public void run(final String[] cmd) {
         run(new Runner() {
-            public Result run(BuildListener listener) throws Exception {
+            public ResultExt run(BuildListener listener) throws Exception {
                 Proc proc = new Proc.LocalProc(cmd,getEnvironment(listener),System.in,new DualOutputStream(System.out,listener.getLogger()));
-                return proc.join()==0?Result.SUCCESS:Result.FAILURE;
+                return proc.join()==0?ResultExt.SUCCESS:ResultExt.FAILURE;
             }
 
             public void post(BuildListener listener) {
@@ -109,7 +109,7 @@ public class ExternalRun extends RunExt<ExternalJobExt,ExternalRun> {
                 }
             }
 
-            public Result run(BuildListener listener) throws Exception {
+            public ResultExt run(BuildListener listener) throws Exception {
                 PrintStream logger = new PrintStream(new DecodingStream(listener.getLogger()));
 
                 XMLInputFactory xif = XMLInputFactory.newInstance();
@@ -128,7 +128,7 @@ public class ExternalRun extends RunExt<ExternalJobExt,ExternalRun> {
 
 
 
-                Result r = Integer.parseInt(elementText(p))==0?Result.SUCCESS:Result.FAILURE;
+                ResultExt r = Integer.parseInt(elementText(p))==0?ResultExt.SUCCESS:ResultExt.FAILURE;
 
                 p.nextTag();  // get to <duration> (optional)
                 if(p.getEventType()== START_ELEMENT

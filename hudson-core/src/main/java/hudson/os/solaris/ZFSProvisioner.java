@@ -33,7 +33,7 @@ import hudson.FilePathExt.FileCallable;
 import hudson.model.AbstractBuildExt;
 import hudson.model.TaskListener;
 import hudson.model.AbstractProjectExt;
-import hudson.model.Node;
+import hudson.model.NodeExt;
 import hudson.util.jna.NativeAccessException;
 import hudson.util.jna.NativeUtils;
 import hudson.util.jna.NativeZfsFileSystem;
@@ -52,10 +52,10 @@ import java.util.logging.Logger;
 public class ZFSProvisioner extends FileSystemProvisioner implements Serializable {
     
     private NativeUtils nativeUtils = NativeUtils.getInstance();
-    private final Node node;
+    private final NodeExt node;
     private final String rootDataset;
 
-    public ZFSProvisioner(Node node) throws IOException, InterruptedException {
+    public ZFSProvisioner(NodeExt node) throws IOException, InterruptedException {
         this.node = node;
         rootDataset = node.getRootPath().act(new FileCallable<String>() {
             public String invoke(File f, VirtualChannel channel) throws IOException {

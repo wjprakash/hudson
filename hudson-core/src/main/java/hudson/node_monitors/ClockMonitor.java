@@ -24,7 +24,7 @@
 package hudson.node_monitors;
 
 import hudson.model.ComputerExt;
-import hudson.model.Node;
+import hudson.model.NodeExt;
 import hudson.util.ClockDifference;
 import hudson.Extension;
 import org.kohsuke.stapler.StaplerRequest;
@@ -34,7 +34,7 @@ import java.io.IOException;
 import net.sf.json.JSONObject;
 
 /**
- * {@link NodeMonitor} that checks clock of {@link Node} to
+ * {@link NodeMonitor} that checks clock of {@link NodeExt} to
  * detect out of sync clocks.
  *
  * @author Kohsuke Kawaguchi
@@ -48,7 +48,7 @@ public class ClockMonitor extends NodeMonitor {
     @Extension
     public static final AbstractNodeMonitorDescriptor<ClockDifference> DESCRIPTOR = new AbstractNodeMonitorDescriptor<ClockDifference>() {
         protected ClockDifference monitor(ComputerExt c) throws IOException, InterruptedException {
-            Node n = c.getNode();
+            NodeExt n = c.getNode();
             if(n==null) return null;
             return n.getClockDifference();
         }

@@ -27,7 +27,7 @@ import antlr.ANTLRException;
 import hudson.Util;
 import static hudson.Util.fixNull;
 
-import hudson.model.labels.LabelAtom;
+import hudson.model.labels.LabelAtomExt;
 import hudson.model.labels.LabelExpression;
 import hudson.model.labels.LabelExpressionLexer;
 import hudson.model.labels.LabelExpressionParser;
@@ -53,7 +53,7 @@ import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 
 /**
- * Group of {@link Node}s.
+ * Group of {@link NodeExt}s.
  * 
  * @author Kohsuke Kawaguchi
  * @see HudsonExt#getLabels()
@@ -64,16 +64,16 @@ public abstract class LabelExt extends ActionableExt implements Comparable<Label
      * Display name of this label.
      */
     protected transient final String name;
-    private transient volatile Set<Node> nodes;
+    private transient volatile Set<NodeExt> nodes;
     private transient volatile Set<Cloud> clouds;
 
-    public transient final LoadStatistics loadStatistics;
+    public transient final LoadStatisticsExt loadStatistics;
     public transient final NodeProvisioner nodeProvisioner;
 
     public LabelExt(String name) {
         this.name = name;
          // passing these causes an infinite loop - getTotalExecutors(),getBusyExecutors());
-        this.loadStatistics = new LoadStatistics(0,0) {
+        this.loadStatistics = new LoadStatisticsExt(0,0) {
             @Override
             public int computeIdleExecutors() {
                 return LabelExt.this.getIdleExecutors();
@@ -132,10 +132,10 @@ public abstract class LabelExt extends ActionableExt implements Comparable<Label
      * Evaluates whether the label expression is true when an entity owns the given set of
      * {@link LabelAtom}s.
      */
-    public final boolean matches(final Collection<LabelAtom> labels) {
+    public final boolean matches(final Collection<LabelAtomExt> labels) {
         return matches(new VariableResolver<Boolean>() {
             public Boolean resolve(String name) {
-                for (LabelAtom a : labels)
+                for (LabelAtomExt a : labels)
                     if (a.getName().equals(name))
                         return true;
                 return false;
@@ -143,31 +143,31 @@ public abstract class LabelExt extends ActionableExt implements Comparable<Label
         });
     }
 
-    public final boolean matches(Node n) {
+    public final boolean matches(NodeExt n) {
         return matches(n.getAssignedLabels());
     }
 
     /**
      * Returns true if this label is a "self label",
-     * which means the label is the name of a {@link Node}.
+     * which means the label is the name of a {@link NodeExt}.
      */
     public boolean isSelfLabel() {
-        Set<Node> nodes = getNodes();
+        Set<NodeExt> nodes = getNodes();
         return nodes.size() == 1 && nodes.iterator().next().getSelfLabel() == this;
     }
 
     /**
-     * Gets all {@link Node}s that belong to this label.
+     * Gets all {@link NodeExt}s that belong to this label.
      */
-    public Set<Node> getNodes() {
-        Set<Node> nodes = this.nodes;
+    public Set<NodeExt> getNodes() {
+        Set<NodeExt> nodes = this.nodes;
         if(nodes!=null) return nodes;
 
-        Set<Node> r = new HashSet<Node>();
+        Set<NodeExt> r = new HashSet<NodeExt>();
         HudsonExt h = HudsonExt.getInstance();
         if(this.matches(h))
             r.add(h);
-        for (Node n : h.getNodes()) {
+        for (NodeExt n : h.getNodes()) {
             if(this.matches(n))
                 r.add(n);
         }
@@ -199,7 +199,7 @@ public abstract class LabelExt extends ActionableExt implements Comparable<Label
      * that can provision slaves that have this label.
      */
     public boolean isAssignable() {
-        for (Node n : getNodes())
+        for (NodeExt n : getNodes())
             if(n.getNumExecutors()>0)
                 return true;
         return !getClouds().isEmpty();
@@ -217,7 +217,7 @@ public abstract class LabelExt extends ActionableExt implements Comparable<Label
      */
     public int getTotalConfiguredExecutors() {
         int r=0;
-        for (Node n : getNodes())
+        for (NodeExt n : getNodes())
             r += n.getNumExecutors();
         return r;
     }
@@ -229,7 +229,7 @@ public abstract class LabelExt extends ActionableExt implements Comparable<Label
      */
     public int getTotalExecutors() {
         int r=0;
-        for (Node n : getNodes()) {
+        for (NodeExt n : getNodes()) {
             ComputerExt c = n.toComputer();
             if(c!=null && c.isOnline())
                 r += c.countExecutors();
@@ -242,7 +242,7 @@ public abstract class LabelExt extends ActionableExt implements Comparable<Label
      */
     public int getBusyExecutors() {
         int r=0;
-        for (Node n : getNodes()) {
+        for (NodeExt n : getNodes()) {
             ComputerExt c = n.toComputer();
             if(c!=null && c.isOnline())
                 r += c.countBusy();
@@ -255,7 +255,7 @@ public abstract class LabelExt extends ActionableExt implements Comparable<Label
      */
     public int getIdleExecutors() {
         int r=0;
-        for (Node n : getNodes()) {
+        for (NodeExt n : getNodes()) {
             ComputerExt c = n.toComputer();
             if(c!=null && (c.isOnline() || c.isConnecting()))
                 r += c.countIdle();
@@ -267,7 +267,7 @@ public abstract class LabelExt extends ActionableExt implements Comparable<Label
      * Returns true if all the nodes of this label is offline.
      */
     public boolean isOffline() {
-        for (Node n : getNodes()) {
+        for (NodeExt n : getNodes()) {
             if(n.toComputer() != null && !n.toComputer().isOffline())
                 return false;
         }
@@ -278,7 +278,7 @@ public abstract class LabelExt extends ActionableExt implements Comparable<Label
      * Returns a human readable text that explains this label.
      */
     public String getDescription() {
-        Set<Node> nodes = getNodes();
+        Set<NodeExt> nodes = getNodes();
         if(nodes.isEmpty()) {
             Set<Cloud> clouds = getClouds();
             if(clouds.isEmpty())
@@ -320,12 +320,12 @@ public abstract class LabelExt extends ActionableExt implements Comparable<Label
         return r;
     }
 
-    public boolean contains(Node node) {
+    public boolean contains(NodeExt node) {
         return getNodes().contains(node);
     }
 
     /**
-     * If there's no such label defined in {@link Node} or {@link Cloud}.
+     * If there's no such label defined in {@link NodeExt} or {@link Cloud}.
      * This is usually used as a signal that this label is invalid.
      */
     public boolean isEmpty() {
@@ -438,8 +438,8 @@ public abstract class LabelExt extends ActionableExt implements Comparable<Label
      *      so that the caller can add more to the set.
      * @since 1.308
      */
-    public static Set<LabelAtom> parse(String labels) {
-        Set<LabelAtom> r = new TreeSet<LabelAtom>();
+    public static Set<LabelAtomExt> parse(String labels) {
+        Set<LabelAtomExt> r = new TreeSet<LabelAtomExt>();
         labels = fixNull(labels);
         if(labels.length()>0)
             for( String l : new QuotedStringTokenizer(labels).toArray())

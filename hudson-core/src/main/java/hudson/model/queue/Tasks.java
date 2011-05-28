@@ -23,7 +23,7 @@
  */
 package hudson.model.queue;
 
-import hudson.model.Queue.Task;
+import hudson.model.QueueExt.Task;
 
 import java.util.Collection;
 import java.util.Collections;

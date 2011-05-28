@@ -104,7 +104,7 @@ public class HudsonFilter implements Filter {
             if (hudson != null) {
                 // looks like we are initialized after HudsonExt came into being. initialize it now. See #3069
                 LOGGER.fine("Security wasn't initialized; Initializing it...");
-                SecurityRealm securityRealm = hudson.getSecurityRealm();
+                SecurityRealmExt securityRealm = hudson.getSecurityRealm();
                 reset(securityRealm);
                 LOGGER.fine("securityRealm is " + securityRealm);
                 LOGGER.fine("Security initialized");
@@ -129,9 +129,9 @@ public class HudsonFilter implements Filter {
     /**
      * Reset the proxies and filter for a change in {@link SecurityRealm}.
      */
-    public void reset(SecurityRealm securityRealm) throws ServletException {
+    public void reset(SecurityRealmExt securityRealm) throws ServletException {
         if (securityRealm != null) {
-            SecurityRealm.SecurityComponents sc = securityRealm.getSecurityComponents();
+            SecurityRealmExt.SecurityComponents sc = securityRealm.getSecurityComponents();
             AUTHENTICATION_MANAGER.setDelegate(sc.manager);
             USER_DETAILS_SERVICE_PROXY.setDelegate(sc.userDetails);
             REMEMBER_ME_SERVICES_PROXY.setDelegate(sc.rememberMe);

@@ -28,10 +28,13 @@ package hudson.model;
 import hudson.console.AnnotatedLargeText;
 import hudson.FunctionsExt;
 import hudson.BulkChange;
+import hudson.EnvVars;
+import hudson.FeedAdapter;
 import hudson.FilePathExt;
 import hudson.model.Descriptor.FormException;
 import hudson.model.listeners.RunListener;
 import hudson.tasks.LogRotator;
+import hudson.tasks.Mailer;
 import hudson.util.FlushProofOutputStream;
 
 import java.io.File;
@@ -70,15 +73,15 @@ import org.kohsuke.stapler.export.ExportedBean;
  * @see RunListener
  */
 @ExportedBean
-public abstract class Run <JobT extends JobExt<JobT,RunT>, RunT extends Run<JobT,RunT>>
-        extends  RunExt<JobT, RunT>{
+public abstract class Run<JobT extends JobExt<JobT, RunT>, RunT extends Run<JobT, RunT>>
+        extends RunExt<JobT, RunT> {
 
     /**
      * Creates a new {@link RunExt}.
      */
     protected Run(JobT job) throws IOException {
         super(job);
-         
+
     }
 
     /**
@@ -97,9 +100,8 @@ public abstract class Run <JobT extends JobExt<JobT,RunT>, RunT extends Run<JobT
      * Loads a run from a log file.
      */
     protected Run(JobT project, File buildDir) throws IOException {
-         super(project, buildDir);
+        super(project, buildDir);
     }
- 
 
     /**
      * Returns the build result.
@@ -109,18 +111,17 @@ public abstract class Run <JobT extends JobExt<JobT,RunT>, RunT extends Run<JobT
      * returns an intermediate result.
      */
     @Exported
-    public Result getResult() {
-         return super.getResult();
+    public ResultExt getResult() {
+        return super.getResult();
     }
 
-     
     /**
      * Returns true if the build is not completed yet.
      * This includes "not started yet" state.
      */
     @Exported
     public boolean isBuilding() {
-        return  super.isBuilding();
+        return super.isBuilding();
     }
 
     /**
@@ -133,21 +134,19 @@ public abstract class Run <JobT extends JobExt<JobT,RunT>, RunT extends Run<JobT
         return super.isKeepLog();
     }
 
-     
-
     /**
      * When the build is scheduled.
      */
     @Exported
     public Calendar getTimestamp() {
-         return super.getTimestamp();
+        return super.getTimestamp();
     }
-
 
     @Exported
     public String getDescription() {
         return super.getDescription();
     }
+
     /**
      * Gets the millisecond it took to build.
      */
@@ -156,18 +155,15 @@ public abstract class Run <JobT extends JobExt<JobT,RunT>, RunT extends Run<JobT
         return super.getDuration();
     }
 
-
     @Exported
     public String getFullDisplayName() {
         return super.getFullDisplayName();
     }
 
-    @Exported(visibility=2)
+    @Exported(visibility = 2)
     public int getNumber() {
         return super.getNumber();
     }
-
-    
 
     /**
      * Returns the URL of this {@link RunExt}, relative to the context root of HudsonExt.
@@ -178,7 +174,7 @@ public abstract class Run <JobT extends JobExt<JobT,RunT>, RunT extends Run<JobT
     // I really messed this up. I'm hoping to fix this some time
     // it shouldn't have trailing '/', and instead it should have leading '/'
     public String getUrl() {
-        return project.getUrl()+getNumber()+'/';
+        return project.getUrl() + getNumber() + '/';
     }
 
     /**
@@ -190,13 +186,13 @@ public abstract class Run <JobT extends JobExt<JobT,RunT>, RunT extends Run<JobT
      *      This method is only intended for the remote API clients who cannot resolve relative references
      *      (even this won't work for the same reason, which should be fixed.)
      */
-    @Exported(visibility=2,name="url")
+    @Exported(visibility = 2, name = "url")
     public final String getAbsoluteUrl() {
-        return project.getAbsoluteUrl()+getNumber()+'/';
+        return project.getAbsoluteUrl() + getNumber() + '/';
     }
 
     public final String getSearchUrl() {
-        return getNumber()+"/";
+        return getNumber() + "/";
     }
 
     /**
@@ -204,9 +200,8 @@ public abstract class Run <JobT extends JobExt<JobT,RunT>, RunT extends Run<JobT
      */
     @Exported
     public String getId() {
-         return super.getId();
+        return super.getId();
     }
-    
 
     /**
      * Gets the artifacts (relative to {@link #getArtifactsDir()}.
@@ -215,7 +210,7 @@ public abstract class Run <JobT extends JobExt<JobT,RunT>, RunT extends Run<JobT
     public List<Artifact> getArtifacts() {
         return super.getArtifacts();
     }
- 
+
     /**
      * Used from <tt>console.jelly</tt> to write annotated log to the given output.
      *
@@ -241,23 +236,21 @@ public abstract class Run <JobT extends JobExt<JobT,RunT>, RunT extends Run<JobT
      * Used to URL-bind {@link AnnotatedLargeText}.
      */
     public AnnotatedLargeText getLogText() {
-        return new AnnotatedLargeText(getLogFile(),getCharset(),!isLogUpdated(),this);
+        return new AnnotatedLargeText(getLogFile(), getCharset(), !isLogUpdated(), this);
     }
-
 
     public Api getApi() {
         return new Api(this);
     }
 
-
     /**
      * Serves the artifacts.
      */
     public DirectoryBrowserSupportExt doArtifact() {
-        if(FunctionsExt.isArtifactsPermissionEnabled()) {
-          checkPermission(ARTIFACTS);
+        if (FunctionsExt.isArtifactsPermissionEnabled()) {
+            checkPermission(ARTIFACTS);
         }
-        return new DirectoryBrowserSupportExt(this,new FilePathExt(getArtifactsDir()), project.getDisplayName()+' '+getDisplayName(), "package.gif", true);
+        return new DirectoryBrowserSupportExt(this, new FilePathExt(getArtifactsDir()), project.getDisplayName() + ' ' + getDisplayName(), "package.gif", true);
     }
 
     /**
@@ -273,13 +266,13 @@ public abstract class Run <JobT extends JobExt<JobT,RunT>, RunT extends Run<JobT
     /**
      * Returns the build time stamp in the body.
      */
-    public void doBuildTimestamp( StaplerRequest req, StaplerResponse rsp, @QueryParameter String format) throws IOException {
+    public void doBuildTimestamp(StaplerRequest req, StaplerResponse rsp, @QueryParameter String format) throws IOException {
         rsp.setContentType("text/plain");
         rsp.setCharacterEncoding("US-ASCII");
         rsp.setStatus(HttpServletResponse.SC_OK);
-        DateFormat df = format==null ?
-                DateFormat.getDateTimeInstance(DateFormat.SHORT,DateFormat.SHORT, Locale.ENGLISH) :
-                new SimpleDateFormat(format,req.getLocale());
+        DateFormat df = format == null
+                ? DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT, Locale.ENGLISH)
+                : new SimpleDateFormat(format, req.getLocale());
         rsp.getWriter().print(df.format(getTime()));
     }
 
@@ -290,7 +283,7 @@ public abstract class Run <JobT extends JobExt<JobT,RunT>, RunT extends Run<JobT
         rsp.setContentType("text/plain;charset=UTF-8");
         // Prevent jelly from flushing stream so Content-Length header can be added afterwards
         FlushProofOutputStream out = new FlushProofOutputStream(rsp.getCompressedOutputStream(req));
-        getLogText().writeLogTo(0,out);
+        getLogText().writeLogTo(0, out);
         out.close();
     }
 
@@ -299,11 +292,11 @@ public abstract class Run <JobT extends JobExt<JobT,RunT>, RunT extends Run<JobT
      * @deprecated as of 1.352
      *      Use {@code getLogText().doProgressiveText(req,rsp)}
      */
-    public void doProgressiveLog( StaplerRequest req, StaplerResponse rsp) throws IOException {
-        getLogText().doProgressText(req,rsp);
+    public void doProgressiveLog(StaplerRequest req, StaplerResponse rsp) throws IOException {
+        getLogText().doProgressText(req, rsp);
     }
 
-    public void doToggleLogKeep( StaplerRequest req, StaplerResponse rsp ) throws IOException, ServletException {
+    public void doToggleLogKeep(StaplerRequest req, StaplerResponse rsp) throws IOException, ServletException {
         keepLog(!keepLog);
         rsp.forwardToPreviousPage(req);
     }
@@ -311,7 +304,7 @@ public abstract class Run <JobT extends JobExt<JobT,RunT>, RunT extends Run<JobT
     /**
      * Deletes the build when the button is pressed.
      */
-    public void doDoDelete( StaplerRequest req, StaplerResponse rsp ) throws IOException, ServletException {
+    public void doDoDelete(StaplerRequest req, StaplerResponse rsp) throws IOException, ServletException {
         requirePOST();
         checkPermission(DELETE);
 
@@ -319,25 +312,35 @@ public abstract class Run <JobT extends JobExt<JobT,RunT>, RunT extends Run<JobT
         // marked to be preserved, or if the build should not be deleted
         // due to dependencies!
         String why = getWhyKeepLog();
-        if (why!=null) {
-            sendError(Messages.Run_UnableToDelete(toString(),why),req,rsp);
+        if (why != null) {
+            sendError(Messages.Run_UnableToDelete(toString(), why), req, rsp);
             return;
         }
 
         delete();
-        rsp.sendRedirect2(req.getContextPath()+'/' + getParent().getUrl());
+        rsp.sendRedirect2(req.getContextPath() + '/' + getParent().getUrl());
+    }
+
+    public EnvVars getEnvironment(TaskListener log) throws IOException, InterruptedException {
+        EnvVars env = super.getEnvironment(log);
+        String rootUrl = Hudson.getInstance().getRootUrl();
+        if (rootUrl != null) {
+            env.put("HUDSON_URL", rootUrl);
+            env.put("BUILD_URL", rootUrl + getUrl());
+            env.put("JOB_URL", rootUrl + getParent().getUrl());
+        }
+        return env;
     }
 
     /**
      * Accepts the new description.
      */
-    public synchronized void doSubmitDescription( StaplerRequest req, StaplerResponse rsp ) throws IOException, ServletException {
+    public synchronized void doSubmitDescription(StaplerRequest req, StaplerResponse rsp) throws IOException, ServletException {
         setDescription(req.getParameter("description"));
         rsp.sendRedirect(".");  // go to the top page
     }
 
-
-    public HttpResponse doConfigSubmit( StaplerRequest req ) throws IOException, ServletException, FormException {
+    public HttpResponse doConfigSubmit(StaplerRequest req) throws IOException, ServletException, FormException {
         checkPermission(UPDATE);
         BulkChange bc = new BulkChange(this);
         try {
@@ -350,32 +353,81 @@ public abstract class Run <JobT extends JobExt<JobT,RunT>, RunT extends Run<JobT
         return HttpResponses.redirectToDot();
     }
 
-    
-
     @Override
     public Object getDynamic(String token, StaplerRequest req, StaplerResponse rsp) {
         Object result = super.getDynamic(token, req, rsp);
-        if (result == null)
-            // Next/Previous Build links on an action page (like /job/Abc/123/testReport)
-            // will also point to same action (/job/Abc/124/testReport), but other builds
-            // may not have the action.. tell browsers to redirect up to the build page.
+        if (result == null) // Next/Previous Build links on an action page (like /job/Abc/123/testReport)
+        // will also point to same action (/job/Abc/124/testReport), but other builds
+        // may not have the action.. tell browsers to redirect up to the build page.
+        {
             result = new RedirectUp();
+        }
         return result;
+    }
+    
+    /**
+     * {@link FeedAdapter} to produce feed from the summary of this build.
+     */
+    public static final FeedAdapter<Run> FEED_ADAPTER = new DefaultFeedAdapter();
+
+    /**
+     * {@link FeedAdapter} to produce feeds to show one build per project.
+     */
+    public static final FeedAdapter<Run> FEED_ADAPTER_LATEST = new DefaultFeedAdapter() {
+        /**
+         * The entry unique ID needs to be tied to a project, so that
+         * new builds will replace the old result.
+         */
+        @Override
+        public String getEntryID(Run e) {
+            // can't use a meaningful year field unless we remember when the job was created.
+            return "tag:hudson.java.net,2008:"+ e.getParent().getAbsoluteUrl();
+        }
+    };
+    
+    private static class DefaultFeedAdapter implements FeedAdapter<Run> {
+        public String getEntryTitle(Run entry) {
+            return entry+" ("+entry.getBuildStatusSummary().message+")";
+        }
+
+        public String getEntryUrl(Run entry) {
+            return entry.getUrl();
+        }
+
+        public String getEntryID(Run entry) {
+            return "tag:" + "hudson.java.net,"
+                + entry.getTimestamp().get(Calendar.YEAR) + ":"
+                + entry.getParent().getName()+':'+entry.getId();
+        }
+
+        public String getEntryDescription(Run entry) {
+            // TODO: this could provide some useful details
+            return null;
+        }
+
+        public Calendar getEntryTimestamp(Run entry) {
+            return entry.getTimestamp();
+        }
+
+        public String getEntryAuthor(Run entry) {
+            return Mailer.descriptor().getAdminAddress();
+        }
     }
 
     public static class RedirectUp {
+
         public void doDynamic(StaplerResponse rsp) throws IOException {
             // Compromise to handle both browsers (auto-redirect) and programmatic access
             // (want accurate 404 response).. send 404 with javscript to redirect browsers.
             rsp.setStatus(HttpServletResponse.SC_NOT_FOUND);
             rsp.setContentType("text/html;charset=UTF-8");
             PrintWriter out = rsp.getWriter();
-            out.println("<html><head>" +
-                "<meta http-equiv='refresh' content='1;url=..'/>" +
-                "<script>window.location.replace('..');</script>" +
-                "</head>" +
-                "<body style='background-color:white; color:white;'>" +
-                "Not found</body></html>");
+            out.println("<html><head>"
+                    + "<meta http-equiv='refresh' content='1;url=..'/>"
+                    + "<script>window.location.replace('..');</script>"
+                    + "</head>"
+                    + "<body style='background-color:white; color:white;'>"
+                    + "Not found</body></html>");
             out.flush();
         }
     }

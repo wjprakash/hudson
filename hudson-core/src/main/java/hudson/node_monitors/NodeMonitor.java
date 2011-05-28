@@ -30,7 +30,7 @@ import hudson.tasks.Publisher;
 import hudson.model.ComputerExt;
 import hudson.model.ComputerSetExt;
 import hudson.model.Describable;
-import hudson.model.Node;
+import hudson.model.NodeExt;
 import hudson.model.HudsonExt;
 import hudson.model.DescriptorExt;
 import hudson.util.DescriptorList;
@@ -41,7 +41,7 @@ import org.kohsuke.stapler.export.Exported;
 import org.kohsuke.stapler.export.ExportedBean;
 
 /**
- * Extension point for managing and monitoring {@link Node}s.
+ * Extension point for managing and monitoring {@link NodeExt}s.
  *
  * <h2>Views</h2>
  * <dl>

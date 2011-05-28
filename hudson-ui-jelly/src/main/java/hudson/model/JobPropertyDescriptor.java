@@ -23,6 +23,7 @@
  */
 package hudson.model;
 
+import hudson.model.Descriptor.FormException;
 import org.kohsuke.stapler.StaplerRequest;
 import org.jvnet.tiger_types.Types;
 
@@ -40,7 +41,8 @@ import net.sf.json.JSONObject;
  * @author Kohsuke Kawaguchi
  * @since 1.72
  */
-public abstract class JobPropertyDescriptor extends DescriptorExt<JobPropertyExt<?>> {
+public abstract class JobPropertyDescriptor extends Descriptor<JobPropertyExt<?>> {
+    
     protected JobPropertyDescriptor(Class<? extends JobPropertyExt<?>> clazz) {
         super(clazz);
     }

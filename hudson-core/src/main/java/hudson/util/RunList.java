@@ -26,8 +26,8 @@ package hudson.util;
 import hudson.model.AbstractBuildExt;
 import hudson.model.ItemExt;
 import hudson.model.JobExt;
-import hudson.model.Node;
-import hudson.model.Result;
+import hudson.model.NodeExt;
+import hudson.model.ResultExt;
 import hudson.model.RunExt;
 import hudson.model.View;
 
@@ -92,7 +92,7 @@ public class RunList<R extends RunExt> extends ArrayList<R> {
     public RunList<R> failureOnly() {
         for (Iterator<R> itr = iterator(); itr.hasNext();) {
             RunExt r = itr.next();
-            if(r.getResult()==Result.SUCCESS)
+            if(r.getResult()==ResultExt.SUCCESS)
                 itr.remove();
         }
         return this;
@@ -101,7 +101,7 @@ public class RunList<R extends RunExt> extends ArrayList<R> {
     /**
      * Filter the list to builds on a single node only
      */
-    public RunList<R> node(Node node) {
+    public RunList<R> node(NodeExt node) {
         for (Iterator<R> itr = iterator(); itr.hasNext();) {
             RunExt r = itr.next();
             if (!(r instanceof AbstractBuildExt) || ((AbstractBuildExt)r).getBuiltOn()!=node) {

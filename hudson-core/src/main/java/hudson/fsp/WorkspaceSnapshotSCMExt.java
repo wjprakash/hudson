@@ -24,7 +24,7 @@
 package hudson.fsp;
 
 import hudson.scm.PollingResult;
-import hudson.scm.SCM;
+import hudson.scm.SCMExt;
 import hudson.scm.ChangeLogParser;
 import hudson.scm.SCMDescriptor;
 import hudson.scm.SCMRevisionState;
@@ -33,7 +33,7 @@ import hudson.model.TaskListener;
 import hudson.model.AbstractBuildExt;
 import hudson.model.BuildListener;
 import hudson.model.HudsonExt;
-import hudson.model.Result;
+import hudson.model.ResultExt;
 import hudson.model.PermalinkProjectAction.Permalink;
 import hudson.Launcher;
 import hudson.FilePathExt;
@@ -48,7 +48,7 @@ import java.io.File;
  *
  * @author Kohsuke Kawaguchi
  */
-public class WorkspaceSnapshotSCMExt extends SCM {
+public class WorkspaceSnapshotSCMExt extends SCMExt {
     /**
      * The job name from which we inherit the workspace.
      */
@@ -131,7 +131,7 @@ public class WorkspaceSnapshotSCMExt extends SCM {
             return true;
         } catch (ResolvedFailedException e) {
             listener.error(e.getMessage()); // stack trace is meaningless
-            build.setResult(Result.FAILURE);
+            build.setResult(ResultExt.FAILURE);
             return false;
         }
     }

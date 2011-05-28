@@ -29,7 +29,7 @@ import com.thoughtworks.xstream.converters.MarshallingContext;
 import com.thoughtworks.xstream.converters.UnmarshallingContext;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
-import hudson.model.Node;
+import hudson.model.NodeExt;
 import hudson.util.RobustCollectionConverter;
 
 import java.util.ArrayList;
@@ -38,20 +38,20 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
- * {@link CopyOnWriteArrayList} for {@link Node} that has special serialization semantics
+ * {@link CopyOnWriteArrayList} for {@link NodeExt} that has special serialization semantics
  * of not serializing {@link EphemeralNode}s.
  *
  * @author Kohsuke Kawaguchi
  */
-public final class NodeList extends CopyOnWriteArrayList<Node> {
+public final class NodeList extends CopyOnWriteArrayList<NodeExt> {
     public NodeList() {
     }
 
-    public NodeList(Collection<? extends Node> c) {
+    public NodeList(Collection<? extends NodeExt> c) {
         super(c);
     }
 
-    public NodeList(Node[] toCopyIn) {
+    public NodeList(NodeExt[] toCopyIn) {
         super(toCopyIn);
     }
 
@@ -72,7 +72,7 @@ public final class NodeList extends CopyOnWriteArrayList<Node> {
 
         @Override
         public void marshal(Object source, HierarchicalStreamWriter writer, MarshallingContext context) {
-            for (Node o : (NodeList) source) {
+            for (NodeExt o : (NodeList) source) {
                 if(o instanceof EphemeralNode)
                     continue;   // skip
                 writeItem(o, context, writer);
@@ -86,7 +86,7 @@ public final class NodeList extends CopyOnWriteArrayList<Node> {
 
         @Override
         public Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext context) {
-            return new NodeList((List<Node>)super.unmarshal(reader, context));
+            return new NodeList((List<NodeExt>)super.unmarshal(reader, context));
         }
     }
 }

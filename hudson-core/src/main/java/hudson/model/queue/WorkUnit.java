@@ -24,9 +24,9 @@
 package hudson.model.queue;
 
 import hudson.model.ExecutorExt;
-import hudson.model.Queue;
-import hudson.model.Queue.Executable;
-import hudson.model.Queue.Task;
+import hudson.model.QueueExt;
+import hudson.model.QueueExt.Executable;
+import hudson.model.QueueExt.Task;
 import org.kohsuke.stapler.export.ExportedBean;
 
 /**

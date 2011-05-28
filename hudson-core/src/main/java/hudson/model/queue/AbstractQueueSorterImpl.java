@@ -1,6 +1,6 @@
 package hudson.model.queue;
 
-import hudson.model.Queue.BuildableItem;
+import hudson.model.QueueExt.BuildableItem;
 
 import java.util.Collections;
 import java.util.Comparator;

@@ -28,7 +28,7 @@ import hudson.Proc.RemoteProc;
 import hudson.model.ComputerExt;
 import hudson.model.HudsonExt;
 import hudson.model.TaskListener;
-import hudson.model.Node;
+import hudson.model.NodeExt;
 import hudson.remoting.Callable;
 import hudson.remoting.Channel;
 import hudson.remoting.Pipe;
@@ -565,7 +565,7 @@ public abstract class Launcher {
     /**
      * Returns a decorated {@link Launcher} for the given node.
      */
-    public final Launcher decorateFor(Node node) {
+    public final Launcher decorateFor(NodeExt node) {
         Launcher l = this;
         for (LauncherDecorator d : LauncherDecorator.all())
             l = d.decorate(l,node);

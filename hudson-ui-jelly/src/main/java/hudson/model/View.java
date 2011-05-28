@@ -42,13 +42,13 @@ import hudson.model.ItemExt;
 import hudson.model.JobExt;
 import hudson.model.LabelExt;
 import hudson.model.Messages;
-import hudson.model.Node;
-import hudson.model.Node.Mode;
-import hudson.model.Queue;
+import hudson.model.NodeExt;
+import hudson.model.NodeExt.ModeExt;
+import hudson.model.QueueExt;
 import hudson.model.RunExt;
 import hudson.model.TopLevelItem;
 import hudson.model.TransientViewActionFactory;
-import hudson.model.User;
+import hudson.model.UserExt;
 import hudson.scm.ChangeLogSet.Entry;
 import hudson.search.CollectionSearchIndex;
 import hudson.search.SearchIndexBuilder;
@@ -277,9 +277,9 @@ public abstract class View extends AbstractModelObjectExt implements AccessContr
     	}
     	
     	for (ComputerExt c: computers) {
-    		Node n = c.getNode();
+    		NodeExt n = c.getNode();
     		if (n != null) {
-    			if (roam && n.getMode() == Mode.NORMAL || !Collections.disjoint(n.getAssignedLabels(), labels)) {
+    			if (roam && n.getMode() == ModeExt.NORMAL || !Collections.disjoint(n.getAssignedLabels(), labels)) {
     				result.add(c);
     			}
     		}
@@ -288,14 +288,14 @@ public abstract class View extends AbstractModelObjectExt implements AccessContr
     	return result;
     }
     
-    public List<Queue.Item> getQueueItems() {
+    public List<QueueExt.Item> getQueueItems() {
     	if (!isFilterQueue()) {
     		return Arrays.asList(HudsonExt.getInstance().getQueue().getItems());
     	}
     	
     	Collection<TopLevelItem> items = getItems(); 
-    	List<Queue.Item> result = new ArrayList<Queue.Item>();
-    	for (Queue.Item qi: HudsonExt.getInstance().getQueue().getItems()) {
+    	List<QueueExt.Item> result = new ArrayList<QueueExt.Item>();
+    	for (QueueExt.Item qi: HudsonExt.getInstance().getQueue().getItems()) {
     		if (items.contains(qi.task)) {
     			result.add(qi);
     		}
@@ -408,7 +408,7 @@ public abstract class View extends AbstractModelObjectExt implements AccessContr
 
     @ExportedBean(defaultVisibility=2)
     public static final class UserInfo implements Comparable<UserInfo> {
-        private final User user;
+        private final UserExt user;
         /**
          * When did this user made a last commit on any of our projects? Can be null.
          */
@@ -418,14 +418,14 @@ public abstract class View extends AbstractModelObjectExt implements AccessContr
          */
         private AbstractProjectExt project;
 
-        UserInfo(User user, AbstractProjectExt p, Calendar lastChange) {
+        UserInfo(UserExt user, AbstractProjectExt p, Calendar lastChange) {
             this.user = user;
             this.project = p;
             this.lastChange = lastChange;
         }
 
         @Exported
-        public User getUser() {
+        public UserExt getUser() {
             return user;
         }
 
@@ -491,9 +491,9 @@ public abstract class View extends AbstractModelObjectExt implements AccessContr
         public People(HudsonExt parent) {
             this.parent = parent;
             // for HudsonExt, really load all users
-            Map<User,UserInfo> users = getUserInfo(parent.getItems());
-            User unknown = User.getUnknown();
-            for (User u : User.getAll()) {
+            Map<UserExt,UserInfo> users = getUserInfo(parent.getItems());
+            UserExt unknown = UserExt.getUnknown();
+            for (UserExt u : UserExt.getAll()) {
                 if(u==unknown)  continue;   // skip the special 'unknown' user
                 if(!users.containsKey(u))
                     users.put(u,new UserInfo(u,null,null));
@@ -506,15 +506,15 @@ public abstract class View extends AbstractModelObjectExt implements AccessContr
             this.users = toList(getUserInfo(parent.getItems()));
         }
 
-        private Map<User,UserInfo> getUserInfo(Collection<? extends ItemExt> items) {
-            Map<User,UserInfo> users = new HashMap<User,UserInfo>();
+        private Map<UserExt,UserInfo> getUserInfo(Collection<? extends ItemExt> items) {
+            Map<UserExt,UserInfo> users = new HashMap<UserExt,UserInfo>();
             for (ItemExt item : items) {
                 for (JobExt job : item.getAllJobs()) {
                     if (job instanceof AbstractProjectExt) {
                         AbstractProjectExt<?,?> p = (AbstractProjectExt) job;
                         for (AbstractBuildExt<?,?> build : p.getBuilds()) {
                             for (Entry entry : build.getChangeSet()) {
-                                User user = entry.getAuthor();
+                                UserExt user = entry.getAuthor();
 
                                 UserInfo info = users.get(user);
                                 if(info==null)
@@ -532,7 +532,7 @@ public abstract class View extends AbstractModelObjectExt implements AccessContr
             return users;
         }
 
-        private List<UserInfo> toList(Map<User,UserInfo> users) {
+        private List<UserInfo> toList(Map<UserExt,UserInfo> users) {
             ArrayList<UserInfo> list = new ArrayList<UserInfo>();
             list.addAll(users.values());
             Collections.sort(list);
@@ -550,7 +550,7 @@ public abstract class View extends AbstractModelObjectExt implements AccessContr
                         AbstractProjectExt<?,?> p = (AbstractProjectExt) job;
                         for (AbstractBuildExt<?,?> build : p.getBuilds()) {
                             for (Entry entry : build.getChangeSet()) {
-                                User user = entry.getAuthor();
+                                UserExt user = entry.getAuthor();
                                 if(user!=null)
                                     return true;
                             }

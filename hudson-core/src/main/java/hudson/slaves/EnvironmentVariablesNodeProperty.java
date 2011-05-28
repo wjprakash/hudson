@@ -30,7 +30,7 @@ import hudson.model.AbstractBuildExt;
 import hudson.model.BuildListener;
 import hudson.model.ComputerSetExt;
 import hudson.model.Environment;
-import hudson.model.Node;
+import hudson.model.NodeExt;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.Stapler;
 
@@ -43,7 +43,7 @@ import java.util.List;
  *
  * @since 1.286
  */
-public class EnvironmentVariablesNodeProperty extends NodeProperty<Node> {
+public class EnvironmentVariablesNodeProperty extends NodeProperty<NodeExt> {
 
     /**
      * Slave-specific environment variables

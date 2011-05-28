@@ -30,7 +30,7 @@ import hudson.model.HudsonExt;
 import hudson.model.AbstractProjectExt;
 import hudson.model.RunExt;
 import hudson.model.ExecutorExt;
-import hudson.model.Node;
+import hudson.model.NodeExt;
 import hudson.model.EnvironmentSpecific;
 import hudson.model.ItemExt;
 import hudson.remoting.Callable;
@@ -121,7 +121,7 @@ public class InstallToolCommand extends CLICommand {
         if (exec==null)
             throw new AbortException(b.getFullDisplayName()+" is not building");
 
-        Node node = exec.getOwner().getNode();
+        NodeExt node = exec.getOwner().getNode();
 
         if (t instanceof NodeSpecific) {
             NodeSpecific n = (NodeSpecific) t;

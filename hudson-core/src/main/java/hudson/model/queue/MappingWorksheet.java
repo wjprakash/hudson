@@ -29,11 +29,11 @@ import hudson.model.ComputerExt;
 import hudson.model.ExecutorExt;
 import hudson.model.LabelExt;
 import hudson.model.LoadBalancer;
-import hudson.model.Node;
-import hudson.model.Queue.BuildableItem;
-import hudson.model.Queue.Executable;
-import hudson.model.Queue.JobOffer;
-import hudson.model.Queue.Task;
+import hudson.model.NodeExt;
+import hudson.model.QueueExt.BuildableItem;
+import hudson.model.QueueExt.Executable;
+import hudson.model.QueueExt.JobOffer;
+import hudson.model.QueueExt.Task;
 
 import java.util.AbstractList;
 import java.util.ArrayList;
@@ -109,7 +109,7 @@ public class MappingWorksheet {
     public final class ExecutorChunk extends ReadOnlyList<ExecutorSlot> {
         public final int index;
         public final ComputerExt computer;
-        public final Node node;
+        public final NodeExt node;
 
         private ExecutorChunk(List<ExecutorSlot> base, int index) {
             super(base);
@@ -128,7 +128,7 @@ public class MappingWorksheet {
         }
 
         /**
-         * Node name.
+         * NodeExt name.
          */
         public String getName() {
             return node.getNodeName();
@@ -183,7 +183,7 @@ public class MappingWorksheet {
             this.index = index;
             this.assignedLabel = base.get(0).getAssignedLabel();
 
-            Node lbo = base.get(0).getLastBuiltOn();
+            NodeExt lbo = base.get(0).getLastBuiltOn();
             for (ExecutorChunk ec : executors) {
                 if (ec.node==lbo) {
                     lastBuiltOn = ec;

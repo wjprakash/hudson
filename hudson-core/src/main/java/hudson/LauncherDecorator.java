@@ -1,7 +1,7 @@
 package hudson;
 
 import hudson.model.HudsonExt;
-import hudson.model.Node;
+import hudson.model.NodeExt;
 import hudson.model.ExecutorExt;
 import hudson.tasks.BuildWrapper;
 
@@ -15,7 +15,7 @@ import hudson.tasks.BuildWrapper;
  */
 public abstract class LauncherDecorator implements ExtensionPoint {
     /**
-     * Called from {@link Node#createLauncher(TaskListener)} to decorate the launchers.
+     * Called from {@link NodeExt#createLauncher(TaskListener)} to decorate the launchers.
      *
      * <p>
      * This method should perform node-specific decoration. For job-specific decoration,
@@ -33,13 +33,13 @@ public abstract class LauncherDecorator implements ExtensionPoint {
      * @param launcher
      *      The base launcher that you can decorate. Never null.
      * @param node
-     *      Node for which this launcher is created. Never null.
+     *      NodeExt for which this launcher is created. Never null.
      * @return
      *      Never null. Return the 'launcher' parameter to do no-op.
-     * @see Launcher#decorateFor(Node)
+     * @see Launcher#decorateFor(NodeExt)
      * @see Launcher#decorateByPrefix(String[])
      */
-    public abstract Launcher decorate(Launcher launcher, Node node);
+    public abstract Launcher decorate(Launcher launcher, NodeExt node);
 
     /**
      * Returns all the registered {@link LauncherDecorator}s.

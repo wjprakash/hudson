@@ -26,7 +26,7 @@ package hudson.model;
 
 
 import hudson.search.SearchableModelObject;
-import hudson.search.Search;
+import hudson.search.SearchExt;
 import hudson.search.SearchIndexBuilder;
 import hudson.search.SearchIndex;
 
@@ -49,8 +49,8 @@ public abstract class AbstractModelObjectExt implements SearchableModelObject {
         return makeSearchIndex().make();
     }
 
-    public Search getSearch() {
-        return new Search();
+    public SearchExt getSearch() {
+        return new SearchExt();
     }
 
     /**

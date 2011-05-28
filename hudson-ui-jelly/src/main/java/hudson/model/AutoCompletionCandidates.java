@@ -23,7 +23,7 @@
  */
 package hudson.model;
 
-import hudson.search.Search;
+import hudson.search.SearchExt;
 import java.io.IOException;
 import javax.servlet.ServletException;
 import org.kohsuke.stapler.HttpResponse;
@@ -37,9 +37,9 @@ import org.kohsuke.stapler.export.Flavor;
  */
 public class AutoCompletionCandidates extends AutoCompletionCandidatesExt implements HttpResponse{
     public void generateResponse(StaplerRequest req, StaplerResponse rsp, Object o) throws IOException, ServletException {
-        Search.Result r = new Search.Result();
+        SearchExt.Result r = new SearchExt.Result();
         for (String value : values) {
-            r.suggestions.add(new hudson.search.Search.Item(value));
+            r.suggestions.add(new hudson.search.SearchExt.Item(value));
         }
         rsp.serveExposedBean(req,r, Flavor.JSON);
     }

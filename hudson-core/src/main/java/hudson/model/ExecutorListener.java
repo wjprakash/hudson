@@ -36,7 +36,7 @@ public interface ExecutorListener {
      * @param executor The executor.
      * @param task The task.
      */
-    void taskAccepted(ExecutorExt executor, Queue.Task task);
+    void taskAccepted(ExecutorExt executor, QueueExt.Task task);
 
     /**
      * Called whenever a task is completed without any problems by an executor.
@@ -44,7 +44,7 @@ public interface ExecutorListener {
      * @param task The task.
      * @param durationMS The number of milliseconds that the task took to complete.
      */
-    void taskCompleted(ExecutorExt executor, Queue.Task task, long durationMS);
+    void taskCompleted(ExecutorExt executor, QueueExt.Task task, long durationMS);
 
     /**
      * Called whenever a task is completed without any problems by an executor.
@@ -53,5 +53,5 @@ public interface ExecutorListener {
      * @param durationMS The number of milliseconds that the task took to complete.
      * @param problems The exception that was thrown.
      */
-    void taskCompletedWithProblems(ExecutorExt executor, Queue.Task task, long durationMS, Throwable problems);
+    void taskCompletedWithProblems(ExecutorExt executor, QueueExt.Task task, long durationMS, Throwable problems);
 }

@@ -23,7 +23,7 @@
  */
 package hudson.model;
 
-import hudson.model.Queue.Executable;
+import hudson.model.QueueExt.Executable;
 import hudson.Util;
 import hudson.FilePathExt;
 import hudson.model.queue.Executables;
@@ -50,7 +50,7 @@ import static hudson.model.queue.Executables.*;
 public class ExecutorExt extends Thread implements ModelObject {
 
     protected final ComputerExt owner;
-    private final Queue queue;
+    private final QueueExt queue;
     private long startTime;
     /**
      * Used to track when a job was last executed.
@@ -63,7 +63,7 @@ public class ExecutorExt extends Thread implements ModelObject {
     /**
      * {@link Queue.Executable} being executed right now, or null if the executor is idle.
      */
-    protected volatile Queue.Executable executable;
+    protected volatile QueueExt.Executable executable;
     private volatile WorkUnit workUnit;
     private Throwable causeOfDeath;
     private boolean induceDeath;
@@ -188,7 +188,7 @@ public class ExecutorExt extends Thread implements ModelObject {
      * @return
      *      null if the executor is idle.
      */
-    public Queue.Executable getCurrentExecutable() {
+    public QueueExt.Executable getCurrentExecutable() {
         return executable;
     }
 
@@ -269,7 +269,7 @@ public class ExecutorExt extends Thread implements ModelObject {
      *      if it's impossible to estimate the progress.
      */
     public int getProgress() {
-        Queue.Executable e = executable;
+        QueueExt.Executable e = executable;
         if (e == null) {
             return -1;
         }
@@ -293,7 +293,7 @@ public class ExecutorExt extends Thread implements ModelObject {
      * this method returns true.
      */
     public boolean isLikelyStuck() {
-        Queue.Executable e = executable;
+        QueueExt.Executable e = executable;
         if (e == null) {
             return false;
         }
@@ -328,7 +328,7 @@ public class ExecutorExt extends Thread implements ModelObject {
      * until the build completes.
      */
     public String getEstimatedRemainingTime() {
-        Queue.Executable e = executable;
+        QueueExt.Executable e = executable;
         if (e == null) {
             return Messages.Executor_NotAvailable();
         }
@@ -351,7 +351,7 @@ public class ExecutorExt extends Thread implements ModelObject {
      * it as a number of milli-seconds.
      */
     public long getEstimatedRemainingTimeMillis() {
-        Queue.Executable e = executable;
+        QueueExt.Executable e = executable;
         if (e == null) {
             return -1;
         }
@@ -373,7 +373,7 @@ public class ExecutorExt extends Thread implements ModelObject {
      * Checks if the current user has a permission to stop this build.
      */
     public boolean hasStopPermission() {
-        Queue.Executable e = executable;
+        QueueExt.Executable e = executable;
         return e != null && Tasks.getOwnerTaskOf(getParentOf(e)).hasAbortPermission();
     }
 

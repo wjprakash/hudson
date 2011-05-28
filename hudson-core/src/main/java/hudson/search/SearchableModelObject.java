@@ -40,5 +40,5 @@ public interface SearchableModelObject extends ModelObject, SearchItem {
     /**
      * This binds {@link Search} object to the URL hierarchy.
      */
-    Search getSearch();
+    SearchExt getSearch();
 }

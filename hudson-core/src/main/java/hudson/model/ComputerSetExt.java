@@ -103,7 +103,7 @@ public class ComputerSetExt extends AbstractModelObjectExt {
      */
     public List<String> get_slaveNames() {
         return new AbstractList<String>() {
-            final List<Node> nodes = HudsonExt.getInstance().getNodes();
+            final List<NodeExt> nodes = HudsonExt.getInstance().getNodes();
 
             public String get(int index) {
                 return nodes.get(index).getNodeName();

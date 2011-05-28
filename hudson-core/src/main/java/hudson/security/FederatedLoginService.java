@@ -26,14 +26,14 @@ package hudson.security;
 import hudson.ExtensionList;
 import hudson.ExtensionPoint;
 import hudson.model.HudsonExt;
-import hudson.model.User;
-import hudson.model.UserProperty;
+import hudson.model.UserExt;
+import hudson.model.UserPropertyExt;
 import org.acegisecurity.context.SecurityContextHolder;
 import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 import org.acegisecurity.userdetails.UserDetails;
-import org.kohsuke.stapler.HttpResponse;
-import org.kohsuke.stapler.StaplerRequest;
-import org.kohsuke.stapler.StaplerResponse;
+//import org.kohsuke.stapler.HttpResponse;
+//import org.kohsuke.stapler.StaplerRequest;
+//import org.kohsuke.stapler.StaplerResponse;
 
 import javax.servlet.ServletException;
 import java.io.IOException;
@@ -149,11 +149,11 @@ public abstract class FederatedLoginService implements ExtensionPoint {
         /**
          * Locates the user who owns this identifier.
          */
-        public final User locateUser() {
+        public final UserExt locateUser() {
             Class<? extends FederatedLoginServiceUserProperty> pt = getUserPropertyClass();
             String id = getIdentifier();
 
-            for (User u : User.getAll()) {
+            for (UserExt u : UserExt.getAll()) {
                 if (u.getProperty(pt).has(id))
                     return u;
             }
@@ -173,8 +173,8 @@ public abstract class FederatedLoginService implements ExtensionPoint {
          *      to the caller of your "doXyz" method, it will either render an error page or initiate
          *      a user registration session (provided that {@link SecurityRealm} supports that.)
          */
-        public User signin() throws UnclaimedIdentityException {
-            User u = locateUser();
+        public UserExt signin() throws UnclaimedIdentityException {
+            UserExt u = locateUser();
             if (u!=null) {
                 // login as this user
                 UserDetails d = HudsonExt.getInstance().getSecurityRealm().loadUserByUsername(u.getId());
@@ -198,7 +198,7 @@ public abstract class FederatedLoginService implements ExtensionPoint {
          * in the future the user can login to HudsonExt with the identifier.
          */
         public void addToCurrentUser() throws IOException {
-            User u = User.current();
+            UserExt u = UserExt.current();
             if (u==null)    throw new IllegalStateException("Current request is unauthenticated");
 
             addTo(u);
@@ -207,10 +207,10 @@ public abstract class FederatedLoginService implements ExtensionPoint {
         /**
          * Adds this identity to the specified user.
          */
-        public void addTo(User u) throws IOException {
+        public void addTo(UserExt u) throws IOException {
             FederatedLoginServiceUserProperty p = u.getProperty(getUserPropertyClass());
             if (p==null) {
-                p = (FederatedLoginServiceUserProperty) UserProperty.all().find(getUserPropertyClass()).newInstance(u);
+                p = (FederatedLoginServiceUserProperty) UserPropertyExt.all().find(getUserPropertyClass()).newInstance(u);
                 u.addProperty(p);
             }
             p.addIdentifier(getIdentifier());
@@ -226,28 +226,28 @@ public abstract class FederatedLoginService implements ExtensionPoint {
      * Used in {@link FederatedIdentity#signin()} to indicate that the identifier is not currently
      * associated with anyone.
      */
-    public static class UnclaimedIdentityException extends RuntimeException implements HttpResponse {
+    public static class UnclaimedIdentityException extends RuntimeException { //implements HttpResponse {
         public final FederatedIdentity identity;
 
         public UnclaimedIdentityException(FederatedIdentity identity) {
             this.identity = identity;
         }
 
-        public void generateResponse(StaplerRequest req, StaplerResponse rsp, Object node) throws IOException, ServletException {
-            SecurityRealm sr = HudsonExt.getInstance().getSecurityRealm();
-            if (sr.allowsSignup()) {
-                try {
-                    sr.commenceSignup(identity).generateResponse(req,rsp,node);
-                    return;
-                } catch (UnsupportedOperationException e) {
-                    // fall through
-                }
-            }
-
-            // this security realm doesn't support user registration.
-            // just report an error
-            req.getView(this,"error").forward(req,rsp);
-        }
+//        public void generateResponse(StaplerRequest req, StaplerResponse rsp, Object node) throws IOException, ServletException {
+//            SecurityRealm sr = HudsonExt.getInstance().getSecurityRealm();
+//            if (sr.allowsSignup()) {
+//                try {
+//                    sr.commenceSignup(identity).generateResponse(req,rsp,node);
+//                    return;
+//                } catch (UnsupportedOperationException e) {
+//                    // fall through
+//                }
+//            }
+//
+//            // this security realm doesn't support user registration.
+//            // just report an error
+//            req.getView(this,"error").forward(req,rsp);
+//        }
     }
 
     public static ExtensionList<FederatedLoginService> all() {

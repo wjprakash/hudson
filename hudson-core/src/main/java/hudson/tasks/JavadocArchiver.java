@@ -96,18 +96,18 @@ public class JavadocArchiver extends Recorder {
 
         try {
             if (javadoc.copyRecursiveTo("**/*",target)==0) {
-                if(build.getResult().isBetterOrEqualTo(Result.UNSTABLE)) {
+                if(build.getResult().isBetterOrEqualTo(ResultExt.UNSTABLE)) {
                     // If the build failed, don't complain that there was no javadoc.
                     // The build probably didn't even get to the point where it produces javadoc.
                     listener.error(Messages.JavadocArchiver_NoMatchFound(javadoc,javadoc.validateAntFileMask("**/*")));
                 }
-                build.setResult(Result.FAILURE);
+                build.setResult(ResultExt.FAILURE);
                 return true;
             }
         } catch (IOException e) {
             Util.displayIOException(e,listener);
             e.printStackTrace(listener.fatalError(Messages.JavadocArchiver_UnableToCopy(javadoc,target)));
-            build.setResult(Result.FAILURE);
+            build.setResult(ResultExt.FAILURE);
              return true;
         }
         

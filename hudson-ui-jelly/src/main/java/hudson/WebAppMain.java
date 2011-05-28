@@ -26,7 +26,7 @@ package hudson;
 import com.thoughtworks.xstream.converters.reflection.PureJavaReflectionProvider;
 import com.thoughtworks.xstream.core.JVM;
 import hudson.model.HudsonExt;
-import hudson.model.User;
+import hudson.model.UserExt;
 import hudson.triggers.SafeTimerTask;
 import hudson.triggers.Trigger;
 import hudson.util.HudsonIsLoading;
@@ -224,7 +224,7 @@ public final class WebAppMain implements ServletContextListener {
                         // can be served quickly
                         Trigger.timer.schedule(new SafeTimerTask() {
                             public void doRun() {
-                                User.getUnknown().getBuilds();
+                                UserExt.getUnknown().getBuilds();
                             }
                         }, 1000*10);
                     } catch (Error e) {

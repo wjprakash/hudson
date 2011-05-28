@@ -74,7 +74,7 @@ public abstract class AbstractBuild extends AbstractBuildExt{
      */
     @Exported
     @Override
-    public Set<User> getCulprits() {
+    public Set<UserExt> getCulprits() {
         return super.getCulprits();
     }
     

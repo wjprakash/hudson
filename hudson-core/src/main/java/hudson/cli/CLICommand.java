@@ -35,7 +35,7 @@ import hudson.remoting.Callable;
 import hudson.remoting.Channel;
 import hudson.remoting.ChannelProperty;
 import hudson.security.CliAuthenticator;
-import hudson.security.SecurityRealm;
+import hudson.security.SecurityRealmExt;
 import org.acegisecurity.Authentication;
 import org.acegisecurity.context.SecurityContext;
 import org.acegisecurity.context.SecurityContextHolder;

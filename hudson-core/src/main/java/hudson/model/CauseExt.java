@@ -182,7 +182,7 @@ public abstract class CauseExt {
         }
 
         public String getUserName() {
-        	User u = User.get(authenticationName, false);
+        	UserExt u = UserExt.get(authenticationName, false);
             return u != null ? u.getDisplayName() : authenticationName;
         }
 

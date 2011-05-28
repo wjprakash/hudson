@@ -25,7 +25,7 @@ package hudson.triggers;
 
 import hudson.model.DescriptorExt;
 import hudson.model.ItemExt;
-import hudson.scm.SCM;
+import hudson.scm.SCMExt;
 
 /**
  * {@link DescriptorExt} for Trigger.

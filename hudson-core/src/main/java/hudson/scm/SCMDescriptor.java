@@ -40,7 +40,7 @@ import java.lang.reflect.Field;
  *      this descriptor describes.
  * @author Kohsuke Kawaguchi
  */
-public abstract class SCMDescriptor<T extends SCM> extends DescriptorExt<SCM> {
+public abstract class SCMDescriptor<T extends SCMExt> extends DescriptorExt<SCMExt> {
     /**
      * If this SCM has corresponding {@link RepositoryBrowser},
      * that type. Otherwise this SCM will not have any repository browser.

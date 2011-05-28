@@ -40,7 +40,7 @@ import hudson.model.listeners.SCMListener;
 import hudson.scm.ChangeLogParser;
 import hudson.scm.ChangeLogSet;
 import hudson.scm.ChangeLogSet.Entry;
-import hudson.scm.SCM;
+import hudson.scm.SCMExt;
 import hudson.scm.NullChangeLogParser;
 import hudson.tasks.BuildStep;
 import hudson.tasks.BuildWrapper;
@@ -82,7 +82,7 @@ import java.util.logging.Logger;
  * @author Kohsuke Kawaguchi
  * @see AbstractProjectExt
  */
-public abstract class AbstractBuildExt<P extends AbstractProjectExt<P,R>,R extends AbstractBuildExt<P,R>> extends RunExt<P,R> implements Queue.Executable {
+public abstract class AbstractBuildExt<P extends AbstractProjectExt<P,R>,R extends AbstractBuildExt<P,R>> extends RunExt<P,R> implements QueueExt.Executable {
 
     /**
      * Set if we want the blame information to flow from upstream to downstream build.
@@ -160,7 +160,7 @@ public abstract class AbstractBuildExt<P extends AbstractProjectExt<P,R>,R exten
      * @return
      *      null, for example if the slave that this build run no longer exists.
      */
-    public Node getBuiltOn() {
+    public NodeExt getBuiltOn() {
         if (builtOn==null || builtOn.equals(""))
             return HudsonExt.getInstance();
         else
@@ -182,7 +182,7 @@ public abstract class AbstractBuildExt<P extends AbstractProjectExt<P,R>,R exten
      *
      * <p>
      * Note to implementors: to control where the workspace is created, override
-     * {@link AbstractRunner#decideWorkspace(Node,WorkspaceList)}.
+     * {@link AbstractRunner#decideWorkspace(NodeExt,WorkspaceList)}.
      *
      * @return
      *      null if the workspace is on a slave that's not connected. Note that once the build is completed,
@@ -192,7 +192,7 @@ public abstract class AbstractBuildExt<P extends AbstractProjectExt<P,R>,R exten
      */
     public final FilePathExt getWorkspace() {
         if (workspace==null) return null;
-        Node n = getBuiltOn();
+        NodeExt n = getBuiltOn();
         if (n==null) return null;
         return n.createPath(workspace);
     }
@@ -240,13 +240,13 @@ public abstract class AbstractBuildExt<P extends AbstractProjectExt<P,R>,R exten
      * @return
      *      can be empty but never null.
      */
-    public Set<User> getCulprits() {
+    public Set<UserExt> getCulprits() {
         if (culprits==null) {
-            Set<User> r = new HashSet<User>();
+            Set<UserExt> r = new HashSet<UserExt>();
             R p = getPreviousCompletedBuild();
             if (p !=null && isBuilding()) {
-                Result pr = p.getResult();
-                if (pr!=null && pr.isWorseThan(Result.UNSTABLE)) {
+                ResultExt pr = p.getResult();
+                if (pr!=null && pr.isWorseThan(ResultExt.UNSTABLE)) {
                     // we are still building, so this is just the current latest information,
                     // but we seems to be failing so far, so inherit culprits from the previous build.
                     // isBuilding() check is to avoid recursion when loading data from old HudsonExt, which doesn't record
@@ -274,11 +274,11 @@ public abstract class AbstractBuildExt<P extends AbstractProjectExt<P,R>,R exten
             return r;
         }
 
-        return new AbstractSet<User>() {
-            public Iterator<User> iterator() {
-                return new AdaptedIterator<String,User>(culprits.iterator()) {
-                    protected User adapt(String id) {
-                        return User.get(id);
+        return new AbstractSet<UserExt>() {
+            public Iterator<UserExt> iterator() {
+                return new AdaptedIterator<String,UserExt>(culprits.iterator()) {
+                    protected UserExt adapt(String id) {
+                        return UserExt.get(id);
                     }
                 };
             }
@@ -294,7 +294,7 @@ public abstract class AbstractBuildExt<P extends AbstractProjectExt<P,R>,R exten
      *
      * @since 1.191
      */
-    public boolean hasParticipant(User user) {
+    public boolean hasParticipant(UserExt user) {
         for (ChangeLogSet.Entry e : getChangeSet())
             if (e.getAuthor()==user)
                 return true;
@@ -355,9 +355,9 @@ public abstract class AbstractBuildExt<P extends AbstractProjectExt<P,R>,R exten
         protected BuildListener listener;
 
         /**
-         * Returns the current {@link Node} on which we are buildling.
+         * Returns the current {@link NodeExt} on which we are buildling.
          */
-        protected final Node getCurrentNode() {
+        protected final NodeExt getCurrentNode() {
             return ExecutorExt.currentExecutor().getOwner().getNode();
         }
 
@@ -369,13 +369,13 @@ public abstract class AbstractBuildExt<P extends AbstractProjectExt<P,R>,R exten
          * @param wsl
          *      Passed in for the convenience. The returned path must be registered to this object.
          */
-        protected Lease decideWorkspace(Node n, WorkspaceList wsl) throws InterruptedException, IOException {
+        protected Lease decideWorkspace(NodeExt n, WorkspaceList wsl) throws InterruptedException, IOException {
             // TODO: this cast is indicative of abstraction problem
             return wsl.allocate(n.getWorkspaceFor((TopLevelItem)getProject()));
         }
 
-        public Result run(BuildListener listener) throws Exception {
-            Node node = getCurrentNode();
+        public ResultExt run(BuildListener listener) throws Exception {
+            NodeExt node = getCurrentNode();
             assert builtOn==null;
             builtOn = node.getNodeName();
             hudsonVersion = HudsonExt.VERSION;
@@ -401,9 +401,9 @@ public abstract class AbstractBuildExt<P extends AbstractProjectExt<P,R>,R exten
                 checkout(listener);
 
                 if (!preBuild(listener,project.getProperties()))
-                    return Result.FAILURE;
+                    return ResultExt.FAILURE;
 
-                Result result = doRun(listener);
+                ResultExt result = doRun(listener);
 
                 ComputerExt c = node.toComputer();
                 if (c==null || c.isOffline()) {
@@ -429,7 +429,7 @@ public abstract class AbstractBuildExt<P extends AbstractProjectExt<P,R>,R exten
                 // this is ugly, but for historical reason, if non-null value is returned
                 // it should become the final result.
                 if (result==null)    result = getResult();
-                if (result==null)    result = Result.SUCCESS;
+                if (result==null)    result = ResultExt.SUCCESS;
 
                 return result;
             } finally {
@@ -484,7 +484,7 @@ public abstract class AbstractBuildExt<P extends AbstractProjectExt<P,R>,R exten
                     try {
                         if (project.checkout(AbstractBuildExt.this,launcher,listener,new File(getRootDir(),"changelog.xml"))) {
                             // check out succeeded
-                            SCM scm = project.getScm();
+                            SCMExt scm = project.getScm();
 
                             AbstractBuildExt.this.scm = scm.createChangeLogParser();
                             AbstractBuildExt.this.changeSet = AbstractBuildExt.this.calcChangeSet();
@@ -522,7 +522,7 @@ public abstract class AbstractBuildExt<P extends AbstractProjectExt<P,R>,R exten
          *      itself run successfully)
          *      Return a non-null value to abort the build right there with the specified result code.
          */
-        protected abstract Result doRun(BuildListener listener) throws Exception, RunnerAbortedException;
+        protected abstract ResultExt doRun(BuildListener listener) throws Exception, RunnerAbortedException;
 
         /**
          * @see #post(BuildListener)
@@ -533,15 +533,15 @@ public abstract class AbstractBuildExt<P extends AbstractProjectExt<P,R>,R exten
             try {
                 post2(listener);
 
-                if (result.isBetterOrEqualTo(Result.UNSTABLE))
+                if (result.isBetterOrEqualTo(ResultExt.UNSTABLE))
                     createSymlink(listener, "lastSuccessful");
 
-                if (result.isBetterOrEqualTo(Result.SUCCESS))
+                if (result.isBetterOrEqualTo(ResultExt.SUCCESS))
                     createSymlink(listener, "lastStable");
             } finally {
                 // update the culprit list
                 HashSet<String> r = new HashSet<String>();
-                for (User u : getCulprits())
+                for (UserExt u : getCulprits())
                     r.add(u.getId());
                 culprits = r;
                 CheckPoint.CULPRITS_DETERMINED.report();
@@ -589,7 +589,7 @@ public abstract class AbstractBuildExt<P extends AbstractProjectExt<P,R>,R exten
                         String msg = "Publisher " + bs.getClass().getName() + " aborted due to exception";
                         e.printStackTrace(listener.error(msg));
                         LOGGER.log(Level.WARNING, msg, e);
-                        setResult(Result.FAILURE);
+                        setResult(ResultExt.FAILURE);
                     }
             }
             return r;

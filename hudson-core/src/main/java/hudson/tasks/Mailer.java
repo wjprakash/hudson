@@ -35,7 +35,7 @@ import static hudson.Util.fixEmptyAndTrim;
 import hudson.model.AbstractBuildExt;
 import hudson.model.AbstractProjectExt;
 import hudson.model.BuildListener;
-import hudson.model.User;
+import hudson.model.UserExt;
 import hudson.model.UserPropertyDescriptor;
 import hudson.model.HudsonExt;
 import hudson.util.FormValidation;
@@ -476,7 +476,7 @@ public class Mailer extends Notifier {
     /**
      * Per user property that is e-mail address.
      */
-    public static class UserProperty extends hudson.model.UserProperty {
+    public static class UserProperty extends hudson.model.UserPropertyExt {
         /**
          * The user's e-mail address.
          * Null to leave it to default.
@@ -502,7 +502,7 @@ public class Mailer extends Notifier {
                 return Messages.Mailer_UserProperty_DisplayName();
             }
 
-            public UserProperty newInstance(User user) {
+            public UserProperty newInstance(UserExt user) {
                 return new UserProperty(null);
             }
 

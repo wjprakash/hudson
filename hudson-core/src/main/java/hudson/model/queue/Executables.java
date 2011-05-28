@@ -23,7 +23,7 @@
  */
 package hudson.model.queue;
 
-import hudson.model.Queue.Executable;
+import hudson.model.QueueExt.Executable;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;

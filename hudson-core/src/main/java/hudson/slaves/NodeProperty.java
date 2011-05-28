@@ -27,24 +27,24 @@ import hudson.ExtensionPoint;
 import hudson.Launcher;
 import hudson.DescriptorExtensionListExt;
 import hudson.model.queue.CauseOfBlockage;
-import hudson.scm.SCM;
+import hudson.scm.SCMExt;
 import hudson.model.AbstractBuildExt;
 import hudson.model.BuildListener;
 import hudson.model.Describable;
 import hudson.model.Environment;
 import hudson.model.HudsonExt;
-import hudson.model.Node;
-import hudson.model.Queue.Task;
+import hudson.model.NodeExt;
+import hudson.model.QueueExt.Task;
 
 import java.io.IOException;
 import java.util.List;
 
 /**
- * Extensible property of {@link Node}.
+ * Extensible property of {@link NodeExt}.
  *
  * <p>
- * Plugins can contribute this extension point to add additional data or UI actions to {@link Node}.
- * {@link NodeProperty}s show up in the configuration screen of a node, and they are persisted with the {@link Node} object.
+ * Plugins can contribute this extension point to add additional data or UI actions to {@link NodeExt}.
+ * {@link NodeProperty}s show up in the configuration screen of a node, and they are persisted with the {@link NodeExt} object.
  *
  *
  * <h2>Views</h2>
@@ -58,12 +58,12 @@ import java.util.List;
  * </dl>
  *
  * @param <N>
- *      {@link NodeProperty} can choose to only work with a certain subtype of {@link Node}, and this 'N'
+ *      {@link NodeProperty} can choose to only work with a certain subtype of {@link NodeExt}, and this 'N'
  *      represents that type. Also see {@link NodePropertyDescriptor#isApplicable(Class)}.
  *
  * @since 1.286
  */
-public abstract class NodeProperty<N extends Node> implements Describable<NodeProperty<?>>, ExtensionPoint {
+public abstract class NodeProperty<N extends NodeExt> implements Describable<NodeProperty<?>>, ExtensionPoint {
 
     protected transient N node;
 
@@ -74,7 +74,7 @@ public abstract class NodeProperty<N extends Node> implements Describable<NodePr
     }
 
     /**
-     * Called by the {@link Node} to help determine whether or not it should
+     * Called by the {@link NodeExt} to help determine whether or not it should
      * take the given task. Individual properties can return a non-null value
      * here if there is some reason the given task should not be run on its
      * associated node. By default, this method returns <code>null</code>.
@@ -120,7 +120,7 @@ public abstract class NodeProperty<N extends Node> implements Describable<NodePr
      * List up all {@link NodePropertyDescriptor}s that are applicable for the
      * given project.
      */
-    public static List<NodePropertyDescriptor> for_(Node node) {
+    public static List<NodePropertyDescriptor> for_(NodeExt node) {
         return NodePropertyDescriptor.for_(all(),node);
     }
 }

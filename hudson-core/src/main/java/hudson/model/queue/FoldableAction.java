@@ -23,9 +23,9 @@
  */
 package hudson.model.queue;
 
-import hudson.model.Queue.Task;
+import hudson.model.QueueExt.Task;
 import hudson.model.Action;
-import hudson.model.Queue;
+import hudson.model.QueueExt;
 
 import java.util.List;
 
@@ -55,5 +55,5 @@ public interface FoldableAction extends Action {
      *      Other {@link Action}s that are submitted with the task. (One of them is this {@link FoldableAction}.)
      *      Never null.
      */
-    void foldIntoExisting(Queue.Item item, Task owner, List<Action> otherActions);
+    void foldIntoExisting(QueueExt.Item item, Task owner, List<Action> otherActions);
 }

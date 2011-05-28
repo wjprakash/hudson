@@ -23,10 +23,10 @@
  */
 package hudson.slaves;
 
-import hudson.model.Node;
+import hudson.model.NodeExt;
 
 /**
- * {@link Node}s that are not persisted as configuration by itself.
+ * {@link NodeExt}s that are not persisted as configuration by itself.
  *
  * @author Kohsuke Kawaguchi
  */
@@ -34,5 +34,5 @@ public interface EphemeralNode {
     /**
      * Type-safe cast.
      */
-    Node asNode();
+    NodeExt asNode();
 }

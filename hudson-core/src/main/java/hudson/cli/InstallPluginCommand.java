@@ -26,8 +26,8 @@ package hudson.cli;
 import hudson.Extension;
 import hudson.FilePathExt;
 import hudson.model.HudsonExt;
-import hudson.model.UpdateSite;
-import hudson.model.UpdateSite.Data;
+import hudson.model.UpdateSiteExt;
+import hudson.model.UpdateSiteExt.Data;
 import hudson.util.EditDistance;
 import org.kohsuke.args4j.Argument;
 import org.kohsuke.args4j.Option;
@@ -97,7 +97,7 @@ public class InstallPluginCommand extends CLICommand {
             }
 
             // is this a plugin the update center?
-            UpdateSite.Plugin p = h.getUpdateCenter().getPlugin(source);
+            UpdateSiteExt.PluginExt p = h.getUpdateCenter().getPlugin(source);
             if (p!=null) {
                 stdout.println(Messages.InstallPluginCommand_InstallingFromUpdateCenter(source));
                 p.deploy().get();
@@ -112,7 +112,7 @@ public class InstallPluginCommand extends CLICommand {
                     stdout.println(Messages.InstallPluginCommand_NoUpdateCenterDefined());
                 } else {
                     Set<String> candidates = new HashSet<String>();
-                    for (UpdateSite s : h.getUpdateCenter().getSites()) {
+                    for (UpdateSiteExt s : h.getUpdateCenter().getSites()) {
                         Data dt = s.getData();
                         if (dt==null) {
                             stdout.println(Messages.InstallPluginCommand_NoUpdateDataRetrieved(s.getUrl()));

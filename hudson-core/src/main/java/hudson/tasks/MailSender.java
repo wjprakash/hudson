@@ -96,7 +96,7 @@ public class MailSender {
                 // if the previous e-mail was sent for a success, this new e-mail
                 // is not a follow up
                 AbstractBuildExt<?, ?> pb = build.getPreviousBuild();
-                if(pb!=null && pb.getResult()==Result.SUCCESS) {
+                if(pb!=null && pb.getResult()==ResultExt.SUCCESS) {
                     mail.removeHeader("In-Reply-To");
                     mail.removeHeader("References");
                 }
@@ -132,33 +132,33 @@ public class MailSender {
      * And since we are consulting the earlier result, we need to wait for the previous build
      * to pass the check point.
      */
-    private Result findPreviousBuildResult(AbstractBuildExt<?,?> b) throws InterruptedException {
+    private ResultExt findPreviousBuildResult(AbstractBuildExt<?,?> b) throws InterruptedException {
         CHECKPOINT.block();
         do {
             b=b.getPreviousBuild();
             if(b==null) return null;
-        } while(b.getResult()==Result.ABORTED);
+        } while(b.getResult()==ResultExt.ABORTED);
         return b.getResult();
     }
 
     protected MimeMessage getMail(AbstractBuildExt<?, ?> build, BuildListener listener) throws MessagingException, InterruptedException {
-        if (build.getResult() == Result.FAILURE) {
+        if (build.getResult() == ResultExt.FAILURE) {
             return createFailureMail(build, listener);
         }
 
-        if (build.getResult() == Result.UNSTABLE) {
+        if (build.getResult() == ResultExt.UNSTABLE) {
             if (!dontNotifyEveryUnstableBuild)
                 return createUnstableMail(build, listener);
-            Result prev = findPreviousBuildResult(build);
-            if (prev == Result.SUCCESS)
+            ResultExt prev = findPreviousBuildResult(build);
+            if (prev == ResultExt.SUCCESS)
                 return createUnstableMail(build, listener);
         }
 
-        if (build.getResult() == Result.SUCCESS) {
-            Result prev = findPreviousBuildResult(build);
-            if (prev == Result.FAILURE)
+        if (build.getResult() == ResultExt.SUCCESS) {
+            ResultExt prev = findPreviousBuildResult(build);
+            if (prev == ResultExt.FAILURE)
                 return createBackToNormalMail(build, Messages.MailSender_BackToNormal_Normal(), listener);
-            if (prev == Result.UNSTABLE)
+            if (prev == ResultExt.UNSTABLE)
                 return createBackToNormalMail(build, Messages.MailSender_BackToNormal_Stable(), listener);
         }
 
@@ -184,9 +184,9 @@ public class MailSender {
         AbstractBuildExt<?, ?> prev = build.getPreviousBuild();
         boolean still = false;
         if(prev!=null) {
-            if(prev.getResult()==Result.SUCCESS)
+            if(prev.getResult()==ResultExt.SUCCESS)
                 subject =Messages.MailSender_UnstableMail_ToUnStable_Subject();
-            else if(prev.getResult()==Result.UNSTABLE) {
+            else if(prev.getResult()==ResultExt.UNSTABLE) {
                 subject = Messages.MailSender_UnstableMail_StillUnstable_Subject();
                 still = true;
             }
@@ -337,7 +337,7 @@ public class MailSender {
         }
 
         if (sendToIndividuals) {
-            Set<User> culprits = build.getCulprits();
+            Set<UserExt> culprits = build.getCulprits();
 
             if(debug)
                 listener.getLogger().println("Trying to send e-mails to individuals who broke the build. sizeof(culprits)=="+culprits.size());
@@ -377,9 +377,9 @@ public class MailSender {
         } while ( b != upstreamBuild && b != null );
     }
 
-    private Set<InternetAddress> buildCulpritList(BuildListener listener, Set<User> culprits) throws AddressException {
+    private Set<InternetAddress> buildCulpritList(BuildListener listener, Set<UserExt> culprits) throws AddressException {
         Set<InternetAddress> r = new HashSet<InternetAddress>();
-        for (User a : culprits) {
+        for (UserExt a : culprits) {
             String adrs = Util.fixEmpty(a.getProperty(Mailer.UserProperty.class).getAddress());
             if(debug)
                 listener.getLogger().println("  User "+a.getId()+" -> "+adrs);
