@@ -23,7 +23,7 @@
  */
 package hudson.model;
 
-import hudson.Util;
+import hudson.UtilExt;
 import hudson.security.AccessControlled;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
@@ -81,7 +81,7 @@ public abstract class ItemGroupMixIn extends ItemGroupMixInExt{
                 src = HudsonExt.getInstance().getItemByFullName(from);
 
             if(src==null) {
-                if(Util.fixEmpty(from)==null)
+                if(UtilExt.fixEmpty(from)==null)
                     throw new FailureExt("Specify which job to copy");
                 else
                     throw new FailureExt("No such job: "+from);

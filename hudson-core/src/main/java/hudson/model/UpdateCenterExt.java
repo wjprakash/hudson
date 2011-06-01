@@ -30,7 +30,7 @@ import hudson.FunctionsExt;
 import hudson.PluginManagerExt;
 import hudson.PluginWrapperExt;
 import hudson.ProxyConfiguration;
-import hudson.Util;
+import hudson.UtilExt;
 import hudson.XmlFile;
 import static hudson.init.InitMilestone.PLUGINS_STARTED;
 import hudson.init.Initializer;
@@ -217,7 +217,7 @@ public class UpdateCenterExt extends AbstractModelObjectExt implements Saveable 
         if (newestTs < 0) {
             return "N/A";
         }
-        return Util.getPastTimeString(System.currentTimeMillis() - newestTs);
+        return UtilExt.getPastTimeString(System.currentTimeMillis() - newestTs);
     }
 
     /**
@@ -620,7 +620,7 @@ public class UpdateCenterExt extends AbstractModelObjectExt implements Saveable 
 
         private void testConnection(URL url) throws IOException {
             try {
-                Util.copyStreamAndClose(ProxyConfiguration.open(url).getInputStream(), new NullOutputStream());
+                UtilExt.copyStreamAndClose(ProxyConfiguration.open(url).getInputStream(), new NullOutputStream());
             } catch (SSLHandshakeException e) {
                 if (e.getMessage().contains("PKIX path building failed")) // fix up this crappy error message from JDK
                 {
@@ -793,7 +793,7 @@ public class UpdateCenterExt extends AbstractModelObjectExt implements Saveable 
          * the old file with the new file.
          */
         protected void replace(File dst, File src) throws IOException {
-            File bak = Util.changeExtension(dst, ".bak");
+            File bak = UtilExt.changeExtension(dst, ".bak");
             bak.delete();
             dst.renameTo(bak);
             dst.delete(); // any failure up to here is no big deal

@@ -30,7 +30,7 @@ import com.thoughtworks.xstream.converters.UnmarshallingContext;
 import com.thoughtworks.xstream.converters.collections.CollectionConverter;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
-import hudson.Util;
+import hudson.UtilExt;
 import hudson.XmlFile;
 import hudson.BulkChange;
 import hudson.model.listeners.SaveableListener;
@@ -441,13 +441,13 @@ public class FingerprintExt implements ModelObject, Saveable {
          */
         public static RangeSet fromString(String list, boolean skipError) {
             RangeSet rs = new RangeSet();
-            for (String s : Util.tokenize(list,",")) {
+            for (String s : UtilExt.tokenize(list,",")) {
                 s = s.trim();
                 // s is either single number or range "x-y".
                 // note that the end range is inclusive in this notation, but not in the Range class
                 try {
                     if(s.contains("-")) {
-                        String[] tokens = Util.tokenize(s,"-");
+                        String[] tokens = UtilExt.tokenize(s,"-");
                         rs.ranges.add(new Range(Integer.parseInt(tokens[0]),Integer.parseInt(tokens[1])+1));
                     } else {
                         int n = Integer.parseInt(s);
@@ -559,7 +559,7 @@ public class FingerprintExt implements ModelObject, Saveable {
      * Gets the MD5 hash string.
      */
     public String getHashString() {
-        return Util.toHexString(md5sum);
+        return UtilExt.toHexString(md5sum);
     }
 
     /**
@@ -577,7 +577,7 @@ public class FingerprintExt implements ModelObject, Saveable {
      */
     public String getTimestampString() {
         long duration = System.currentTimeMillis()-timestamp.getTime();
-        return Util.getPastTimeString(duration);
+        return UtilExt.getPastTimeString(duration);
     }
 
     /**
@@ -702,7 +702,7 @@ public class FingerprintExt implements ModelObject, Saveable {
     private static File getFingerprintFile(byte[] md5sum) {
         assert md5sum.length==16;
         return new File( HudsonExt.getInstance().getRootDir(),
-            "fingerprints/"+ Util.toHexString(md5sum,0,1)+'/'+Util.toHexString(md5sum,1,1)+'/'+Util.toHexString(md5sum,2,md5sum.length-2)+".xml");
+            "fingerprints/"+ UtilExt.toHexString(md5sum,0,1)+'/'+UtilExt.toHexString(md5sum,1,1)+'/'+UtilExt.toHexString(md5sum,2,md5sum.length-2)+".xml");
     }
 
     /**

@@ -24,7 +24,7 @@
 package hudson.slaves;
 
 import hudson.ExtensionPoint;
-import hudson.Util;
+import hudson.UtilExt;
 import hudson.DescriptorExtensionListExt;
 import hudson.Extension;
 import hudson.model.*;
@@ -195,7 +195,7 @@ public abstract class RetentionStrategy<T extends ComputerExt> extends AbstractD
                 if (demandMilliseconds > inDemandDelay * 1000 * 60 /*MINS->MILLIS*/ && c.isLaunchSupported()) {
                     // we've been in demand for long enough
                     logger.log(Level.INFO, "Launching computer {0} as it has been in demand for {1}",
-                            new Object[]{c.getName(), Util.getTimeSpanString(demandMilliseconds)});
+                            new Object[]{c.getName(), UtilExt.getTimeSpanString(demandMilliseconds)});
                     c.connect(false);
                 }
             } else if (c.isIdle()) {
@@ -203,7 +203,7 @@ public abstract class RetentionStrategy<T extends ComputerExt> extends AbstractD
                 if (idleMilliseconds > idleDelay * 1000 * 60 /*MINS->MILLIS*/) {
                     // we've been idle for long enough
                     logger.log(Level.INFO, "Disconnecting computer {0} as it has been idle for {1}",
-                            new Object[]{c.getName(), Util.getTimeSpanString(idleMilliseconds)});
+                            new Object[]{c.getName(), UtilExt.getTimeSpanString(idleMilliseconds)});
                     c.disconnect(OfflineCause.create(Messages._RetentionStrategy_Demand_OfflineIdle()));
                 }
             }

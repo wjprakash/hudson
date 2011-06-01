@@ -24,7 +24,7 @@
 package hudson.model;
 
 import com.thoughtworks.xstream.converters.basic.AbstractSingleValueConverter;
-import hudson.Util;
+import hudson.UtilExt;
 import hudson.security.ACL;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
@@ -50,7 +50,7 @@ public final class BuildAuthorizationToken extends BuildAuthorizationTokenExt{
 
     public static BuildAuthorizationToken create(StaplerRequest req) {
         if (req.getParameter("pseudoRemoteTrigger") != null) {
-            String token = Util.fixEmpty(req.getParameter("authToken"));
+            String token = UtilExt.fixEmpty(req.getParameter("authToken"));
             if(token!=null)
                 return new BuildAuthorizationToken(token);
         }

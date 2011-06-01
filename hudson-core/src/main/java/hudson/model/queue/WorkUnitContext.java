@@ -56,7 +56,7 @@ public final class WorkUnitContext {
 
     private final Latch startLatch, endLatch;
 
-    private List<WorkUnit> workUnits = new ArrayList<WorkUnit>();
+    private List<WorkUnitExt> workUnits = new ArrayList<WorkUnitExt>();
 
     /**
      * If the execution is aborted, set to non-null that indicates where it was aborted.
@@ -90,18 +90,18 @@ public final class WorkUnitContext {
      * Called by the executor that executes a member {@link SubTask} that belongs to this task
      * to create its {@link WorkUnit}.
      */
-    public WorkUnit createWorkUnit(SubTask execUnit) {
+    public WorkUnitExt createWorkUnit(SubTask execUnit) {
         future.addExecutor(ExecutorExt.currentExecutor());
-        WorkUnit wu = new WorkUnit(this, execUnit);
+        WorkUnitExt wu = new WorkUnitExt(this, execUnit);
         workUnits.add(wu);
         return wu;
     }
 
-    public List<WorkUnit> getWorkUnits() {
+    public List<WorkUnitExt> getWorkUnits() {
         return Collections.unmodifiableList(workUnits);
     }
 
-    public WorkUnit getPrimaryWorkUnit() {
+    public WorkUnitExt getPrimaryWorkUnit() {
         return workUnits.get(0);
     }
 
@@ -124,7 +124,7 @@ public final class WorkUnitContext {
 
         // the main thread will send a notification
         ExecutorExt e = ExecutorExt.currentExecutor();
-        WorkUnit wu = e.getCurrentWorkUnit();
+        WorkUnitExt wu = e.getCurrentWorkUnit();
         if (wu.isMainWork()) {
             if (problems == null) {
                 future.set(executable);
@@ -147,7 +147,7 @@ public final class WorkUnitContext {
         endLatch.abort(cause);
 
         Thread c = Thread.currentThread();
-        for (WorkUnit wu : workUnits) {
+        for (WorkUnitExt wu : workUnits) {
             ExecutorExt e = wu.getExecutor();
             if (e!=null && e!=c)
                 e.interrupt();

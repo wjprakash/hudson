@@ -25,7 +25,7 @@ package hudson.lifecycle;
 
 import hudson.FilePathExt;
 import hudson.Launcher.LocalLauncher;
-import hudson.Util;
+import hudson.UtilExt;
 import hudson.model.HudsonExt;
 import hudson.util.StreamTaskListener;
 import hudson.util.jna.NativeAccessException;
@@ -62,7 +62,7 @@ public class WindowsServiceLifecycle extends Lifecycle {
             File rootDir = HudsonExt.getInstance().getRootDir();
 
             URL exe = getClass().getResource("/windows-service/hudson.exe");
-            String ourCopy = Util.getDigestOf(exe.openStream());
+            String ourCopy = UtilExt.getDigestOf(exe.openStream());
             File currentCopy = new File(rootDir,"hudson.exe");
             if(!currentCopy.exists())   return;
             String curCopy = new FilePathExt(currentCopy).digest();

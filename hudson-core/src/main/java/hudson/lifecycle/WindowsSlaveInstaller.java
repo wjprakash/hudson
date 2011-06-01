@@ -24,7 +24,7 @@
 package hudson.lifecycle;
 
 import hudson.Launcher.LocalLauncher;
-import hudson.Util;
+import hudson.UtilExt;
 import hudson.model.TaskListener;
 import hudson.remoting.Callable;
 import hudson.remoting.Engine;
@@ -152,7 +152,7 @@ public class WindowsSlaveInstaller implements Callable<Void,RuntimeException>, A
             FileUtils.copyURLToFile(getClass().getResource("/windows-service/hudson.exe"), slaveExe);
 
             // write out the descriptor
-            URL jnlp = new URL(engine.getHudsonUrl(),"computer/"+Util.rawEncode(engine.slaveName)+"/slave-agent.jnlp");
+            URL jnlp = new URL(engine.getHudsonUrl(),"computer/"+UtilExt.rawEncode(engine.slaveName)+"/slave-agent.jnlp");
             String xml = generateSlaveXml(
                     generateServiceId(rootDir),
                     System.getProperty("java.home")+"\\bin\\java.exe", "-jnlpUrl "+jnlp.toExternalForm());

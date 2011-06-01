@@ -2,8 +2,8 @@ package hudson.cli;
 
 import hudson.Extension;
 import hudson.model.AbstractBuildExt;
-import hudson.scm.ChangeLogSet;
-import hudson.scm.ChangeLogSet.Entry;
+import hudson.scm.ChangeLogSetExt;
+import hudson.scm.ChangeLogSetExt.Entry;
 import hudson.util.QuotedStringTokenizer;
 import org.kohsuke.args4j.Option;
 import org.kohsuke.stapler.export.Flavor;
@@ -48,7 +48,7 @@ public class ListChangesCommand extends AbstractBuildRangeCommand {
             w.println("<changes>");
             for (AbstractBuildExt build : builds) {
                 w.println("<build number='"+build.getNumber()+"'>");
-                ChangeLogSet<?> cs = build.getChangeSet();
+                ChangeLogSetExt<?> cs = build.getChangeSet();
                 Model p = new ModelBuilder().get(cs.getClass());
                 p.writeTo(cs,Flavor.XML.createDataWriter(cs,w));
                 w.println("</build>");
@@ -58,7 +58,7 @@ public class ListChangesCommand extends AbstractBuildRangeCommand {
             break;
         case CSV:
             for (AbstractBuildExt build : builds) {
-                ChangeLogSet<?> cs = build.getChangeSet();
+                ChangeLogSetExt<?> cs = build.getChangeSet();
                 for (Entry e : cs) {
                     stdout.printf("%s,%s\n",
                             QuotedStringTokenizer.quote(e.getAuthor().getId()),
@@ -68,7 +68,7 @@ public class ListChangesCommand extends AbstractBuildRangeCommand {
             break;
         case PLAIN:
             for (AbstractBuildExt build : builds) {
-                ChangeLogSet<?> cs = build.getChangeSet();
+                ChangeLogSetExt<?> cs = build.getChangeSet();
                 for (Entry e : cs) {
                     stdout.printf("%s\t%s\n",e.getAuthor(),e.getMsg());
                     for (String p : e.getAffectedPaths())

@@ -25,7 +25,7 @@
 package hudson.tasks.test;
 
 import hudson.model.Api;
-import hudson.Util;
+import hudson.UtilExt;
 import hudson.FunctionsExt;
 import hudson.model.*;
 import hudson.tasks.junit.History;
@@ -278,7 +278,7 @@ public abstract class TestObject extends hudson.tasks.junit.TestObject {
      */
     @Override
     public String getDurationString() {
-        return Util.getTimeSpanString((long) (getDuration() * 1000));
+        return UtilExt.getTimeSpanString((long) (getDuration() * 1000));
     }
 
     @Override

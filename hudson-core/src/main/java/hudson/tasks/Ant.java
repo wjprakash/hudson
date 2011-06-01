@@ -29,7 +29,7 @@ import hudson.Extension;
 import hudson.FilePathExt;
 import hudson.FunctionsExt;
 import hudson.Launcher;
-import hudson.Util;
+import hudson.UtilExt;
 import hudson.model.AbstractBuildExt;
 import hudson.model.AbstractProjectExt;
 import hudson.model.BuildListener;
@@ -100,9 +100,9 @@ public class Ant extends Builder {
     public Ant(String targets,String antName, String antOpts, String buildFile, String properties) {
         this.targets = targets;
         this.antName = antName;
-        this.antOpts = Util.fixEmptyAndTrim(antOpts);
-        this.buildFile = Util.fixEmptyAndTrim(buildFile);
-        this.properties = Util.fixEmptyAndTrim(properties);
+        this.antOpts = UtilExt.fixEmptyAndTrim(antOpts);
+        this.buildFile = UtilExt.fixEmptyAndTrim(buildFile);
+        this.properties = UtilExt.fixEmptyAndTrim(properties);
     }
 
 	public String getBuildFile() {
@@ -159,7 +159,7 @@ public class Ant extends Builder {
         VariableResolver<String> vr = build.getBuildVariableResolver();
 
         String buildFile = env.expand(this.buildFile);
-        String targets = Util.replaceMacro(env.expand(this.targets), vr);
+        String targets = UtilExt.replaceMacro(env.expand(this.targets), vr);
         
         FilePathExt buildFilePath = buildFilePath(build.getModuleRoot(), buildFile, targets);
 
@@ -219,7 +219,7 @@ public class Ant extends Builder {
             }
             return r==0;
         } catch (IOException e) {
-            Util.displayIOException(e,listener);
+            UtilExt.displayIOException(e,listener);
 
             String errorMessage = Messages.Ant_ExecFailed();
             if(ai==null && (System.currentTimeMillis()-startTime)<1000) {
@@ -239,7 +239,7 @@ public class Ant extends Builder {
         if(buildFile!=null)     return base.child(buildFile);
         // some users specify the -f option in the targets field, so take that into account as well.
         // see 
-        String[] tokens = Util.tokenize(targets);
+        String[] tokens = UtilExt.tokenize(targets);
         for (int i = 0; i<tokens.length-1; i++) {
             String a = tokens[i];
             if(a.equals("-f") || a.equals("-file") || a.equals("-buildfile"))
@@ -358,7 +358,7 @@ public class Ant extends Builder {
 
         private File getExeFile() {
             String execName = FunctionsExt.isWindows() ? "ant.bat" : "ant";
-            String home = Util.replaceMacro(getHome(), EnvVars.masterEnvVars);
+            String home = UtilExt.replaceMacro(getHome(), EnvVars.masterEnvVars);
 
             return new File(home,"bin/"+execName);
         }

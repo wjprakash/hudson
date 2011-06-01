@@ -27,7 +27,7 @@ import hudson.AbortException;
 import hudson.Extension;
 import hudson.FilePathExt;
 import hudson.ProxyConfiguration;
-import hudson.Util;
+import hudson.UtilExt;
 import hudson.Launcher;
 import hudson.model.HudsonExt;
 import hudson.util.FormValidation;
@@ -566,7 +566,7 @@ public class JDKInstaller extends ToolInstaller {
         }
 
         public FormValidation doCheckId(@QueryParameter String value) {
-            if (Util.fixEmpty(value) == null) {
+            if (UtilExt.fixEmpty(value) == null) {
                 return FormValidation.error(Messages.JDKInstaller_DescriptorImpl_doCheckId()); // improve message
             } else {
                 // XXX further checks? 

@@ -531,7 +531,7 @@ public class FilePathExt implements Serializable {
                 } catch (IOException e) {
                     // various people reported "java.io.IOException: Not in GZIP format" here, so diagnose this problem better
                     in.fillSide();
-                    throw new IOException2(e.getMessage()+"\nstream="+Util.toHexString(in.getSideBuffer()),e);
+                    throw new IOException2(e.getMessage()+"\nstream="+UtilExt.toHexString(in.getSideBuffer()),e);
                 }
             }
             public OutputStream compress(OutputStream out) throws IOException {
@@ -818,7 +818,7 @@ public class FilePathExt implements Serializable {
     public void deleteRecursive() throws IOException, InterruptedException {
         act(new FileCallable<Void>() {
             public Void invoke(File f, VirtualChannel channel) throws IOException {
-                Util.deleteRecursive(f);
+                UtilExt.deleteRecursive(f);
                 return null;
             }
         });
@@ -830,7 +830,7 @@ public class FilePathExt implements Serializable {
     public void deleteContents() throws IOException, InterruptedException {
         act(new FileCallable<Void>() {
             public Void invoke(File f, VirtualChannel channel) throws IOException {
-                Util.deleteContentsRecursive(f);
+                UtilExt.deleteContentsRecursive(f);
                 return null;
             }
         });
@@ -989,7 +989,7 @@ public class FilePathExt implements Serializable {
     public boolean delete() throws IOException, InterruptedException {
         act(new FileCallable<Void>() {
             public Void invoke(File f, VirtualChannel channel) throws IOException {
-                Util.deleteFile(f);
+                UtilExt.deleteFile(f);
                 return null;
             }
         });
@@ -1078,7 +1078,7 @@ public class FilePathExt implements Serializable {
         if(!isUnix() || mask==-1)   return;
         act(new FileCallable<Void>() {
             public Void invoke(File f, VirtualChannel channel) throws IOException {
-                Util.chmod(f, mask);
+                UtilExt.chmod(f, mask);
                 return null;
             }
         });
@@ -1191,7 +1191,7 @@ public class FilePathExt implements Serializable {
     private static String[] glob(File dir, String includes) throws IOException {
         if(isAbsolute(includes))
             throw new IOException("Expecting Ant GLOB pattern, but saw '"+includes+"'. See http://ant.apache.org/manual/Types/fileset.html for syntax");
-        FileSet fs = Util.createFileSet(dir,includes);
+        FileSet fs = UtilExt.createFileSet(dir,includes);
         DirectoryScanner ds = fs.getDirectoryScanner(new Project());
         String[] files = ds.getIncludedFiles();
         return files;
@@ -1210,7 +1210,7 @@ public class FilePathExt implements Serializable {
                 FileInputStream fis=null;
                 try {
                     fis = new FileInputStream(new File(remote));
-                    Util.copyStream(fis,p.getOut());
+                    UtilExt.copyStream(fis,p.getOut());
                     return null;
                 } finally {
                     IOUtils.closeQuietly(fis);
@@ -1285,7 +1285,7 @@ public class FilePathExt implements Serializable {
     public String digest() throws IOException, InterruptedException {
         return act(new FileCallable<String>() {
             public String invoke(File f, VirtualChannel channel) throws IOException {
-                return Util.getDigestOf(new FileInputStream(f));
+                return UtilExt.getDigestOf(new FileInputStream(f));
             }
         });
     }
@@ -1367,7 +1367,7 @@ public class FilePathExt implements Serializable {
                 FileInputStream fis = null;
                 try {
                     fis = new FileInputStream(f);
-                    Util.copyStream(fis,out);
+                    UtilExt.copyStream(fis,out);
                     try {
                         if (Channel.current() != null){
                             Channel.current().flushPipe();
@@ -1453,7 +1453,7 @@ public class FilePathExt implements Serializable {
 
                         CopyImpl copyTask = new CopyImpl();
                         copyTask.setTodir(new File(target.remote));
-                        copyTask.addFileset(Util.createFileSet(base,fileMask,excludes));
+                        copyTask.addFileset(UtilExt.createFileSet(base,fileMask,excludes));
                         copyTask.setOverwrite(true);
                         copyTask.setIncludeEmptyDirs(false);
 
@@ -1578,7 +1578,7 @@ public class FilePathExt implements Serializable {
                     f.setLastModified(te.getModTime().getTime());
                     int mode = te.getMode()&0777;
                     if(mode!=0 && !FunctionsExt.isWindows()) // be defensive
-                        Util.chmod(f, mode);
+                        UtilExt.chmod(f, mode);
                 }
             }
         } catch(IOException e) {
@@ -1636,7 +1636,7 @@ public class FilePathExt implements Serializable {
                     // so see if we can match by using ' ' as the separator
                     if(fileMask.contains(" ")) {
                         boolean matched = true;
-                        for (String token : Util.tokenize(fileMask))
+                        for (String token : UtilExt.tokenize(fileMask))
                             matched &= hasMatch(dir,token);
                         if(matched)
                             return Messages.FilePath_validateAntFileMask_whitespaceSeprator();
@@ -1660,7 +1660,7 @@ public class FilePathExt implements Serializable {
 
                     {// check the (2) above next as this is more expensive.
                         // Try prepending "**/" to see if that results in a match
-                        FileSet fs = Util.createFileSet(dir,"**/"+fileMask);
+                        FileSet fs = UtilExt.createFileSet(dir,"**/"+fileMask);
                         DirectoryScanner ds = fs.getDirectoryScanner(new Project());
                         if(ds.getIncludedFilesCount()!=0) {
                             // try shorter name first so that the suggestion results in least amount of changes
@@ -1719,7 +1719,7 @@ public class FilePathExt implements Serializable {
             }
 
             private boolean hasMatch(File dir, String pattern) {
-                FileSet fs = Util.createFileSet(dir,pattern);
+                FileSet fs = UtilExt.createFileSet(dir,pattern);
                 DirectoryScanner ds = fs.getDirectoryScanner(new Project());
 
                 return ds.getIncludedFilesCount()!=0 || ds.getIncludedDirsCount()!=0;

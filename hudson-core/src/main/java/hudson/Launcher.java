@@ -251,7 +251,7 @@ public abstract class Launcher {
          * becomes the "current" process), these variables will be also set.
          */
         public ProcStarter envs(Map<String, String> overrides) {
-            return envs(Util.mapToEnv(overrides));
+            return envs(UtilExt.mapToEnv(overrides));
         }
 
         /**
@@ -302,7 +302,7 @@ public abstract class Launcher {
      *      Use {@link #launch()} and its associated builder pattern
      */
     public final Proc launch(String cmd, Map<String,String> env, OutputStream out, FilePathExt workDir) throws IOException {
-        return launch(cmd,Util.mapToEnv(env),out,workDir);
+        return launch(cmd,UtilExt.mapToEnv(env),out,workDir);
     }
 
     /**
@@ -310,7 +310,7 @@ public abstract class Launcher {
      *      Use {@link #launch()} and its associated builder pattern
      */
     public final Proc launch(String[] cmd, Map<String, String> env, OutputStream out, FilePathExt workDir) throws IOException {
-        return launch(cmd, Util.mapToEnv(env), out, workDir);
+        return launch(cmd, UtilExt.mapToEnv(env), out, workDir);
     }
 
     /**
@@ -318,7 +318,7 @@ public abstract class Launcher {
      *      Use {@link #launch()} and its associated builder pattern
      */
     public final Proc launch(String[] cmd, Map<String, String> env, InputStream in, OutputStream out) throws IOException {
-        return launch(cmd, Util.mapToEnv(env), in, out);
+        return launch(cmd, UtilExt.mapToEnv(env), in, out);
     }
 
     /**
@@ -339,7 +339,7 @@ public abstract class Launcher {
      *      Use {@link #launch()} and its associated builder pattern
      */
     public final Proc launch(String[] cmd, boolean[] mask, Map<String, String> env, OutputStream out, FilePathExt workDir) throws IOException {
-        return launch(cmd, mask, Util.mapToEnv(env), out, workDir);
+        return launch(cmd, mask, UtilExt.mapToEnv(env), out, workDir);
     }
 
     /**
@@ -360,7 +360,7 @@ public abstract class Launcher {
      *      Use {@link #launch()} and its associated builder pattern
      */
     public final Proc launch(String[] cmd, boolean[] mask, Map<String, String> env, InputStream in, OutputStream out) throws IOException {
-        return launch(cmd, mask, Util.mapToEnv(env), in, out);
+        return launch(cmd, mask, UtilExt.mapToEnv(env), in, out);
     }
 
     /**
@@ -368,7 +368,7 @@ public abstract class Launcher {
      *      Use {@link #launch()} and its associated builder pattern
      */
     public final Proc launch(String cmd,String[] env,OutputStream out, FilePathExt workDir) throws IOException {
-        return launch(Util.tokenize(cmd),env,out,workDir);
+        return launch(UtilExt.tokenize(cmd),env,out,workDir);
     }
 
     /**
@@ -636,7 +636,7 @@ public abstract class Launcher {
             for ( int idx = 0 ; idx < jobCmd.length; idx++ )
             	jobCmd[idx] = jobEnv.expand(ps.commands.get(idx));
 
-            return new LocalProc(jobCmd, Util.mapToEnv(jobEnv), ps.stdin, ps.stdout, ps.stderr, toFile(ps.pwd));
+            return new LocalProc(jobCmd, UtilExt.mapToEnv(jobEnv), ps.stdin, ps.stdout, ps.stderr, toFile(ps.pwd));
         }
 
         private File toFile(FilePathExt f) {
@@ -831,7 +831,7 @@ public abstract class Launcher {
 
         public OutputStream call() throws IOException {
             Process p = Runtime.getRuntime().exec(cmd,
-                Util.mapToEnv(inherit(envOverrides)),
+                UtilExt.mapToEnv(inherit(envOverrides)),
                 workDir == null ? null : new File(workDir));
 
             List<String> cmdLines = Arrays.asList(cmd);

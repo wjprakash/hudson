@@ -25,7 +25,7 @@ package hudson.tasks;
 
 import hudson.Launcher;
 import hudson.Extension;
-import hudson.Util;
+import hudson.UtilExt;
 import hudson.security.AccessControlled;
 import hudson.model.AbstractBuildExt;
 import hudson.model.AbstractProjectExt;
@@ -290,7 +290,7 @@ public class BuildTrigger extends Recorder implements DependecyDeclarer {
             // Require CONFIGURE permission on this project
             if(!subject.hasPermission(ItemExt.CONFIGURE))      return FormValidation.ok();
 
-            StringTokenizer tokens = new StringTokenizer(Util.fixNull(value),",");
+            StringTokenizer tokens = new StringTokenizer(UtilExt.fixNull(value),",");
             while(tokens.hasMoreTokens()) {
                 String projectName = tokens.nextToken().trim();
                 ItemExt item = HudsonExt.getInstance().getItemByFullName(projectName,ItemExt.class);

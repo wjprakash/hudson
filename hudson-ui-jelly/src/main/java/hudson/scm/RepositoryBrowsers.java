@@ -24,53 +24,29 @@
 package hudson.scm;
 
 import hudson.model.DescriptorExt;
-import hudson.model.HudsonExt;
-import hudson.model.DescriptorExt.FormException;
-import hudson.scm.browsers.*;
-import hudson.util.DescriptorList;
-import hudson.Extension;
+import hudson.model.Descriptor.FormException;
 import org.kohsuke.stapler.StaplerRequest;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import net.sf.json.JSONObject;
-import net.sf.json.JSONArray;
 
 /**
  * List of all installed {@link RepositoryBrowsers}.
  *
  * @author Kohsuke Kawaguchi
  */
-public class RepositoryBrowsers {
-    /**
-     * List of all installed {@link RepositoryBrowsers}.
-     *
-     * @deprecated as of 1.286.
-     *      Use {@link RepositoryBrowser#all()} for read access and {@link Extension} for registration.
-     */
-    public static final List<DescriptorExt<RepositoryBrowser<?>>> LIST = new DescriptorList<RepositoryBrowser<?>>((Class)RepositoryBrowser.class);
-
-    /**
-     * Only returns those {@link RepositoryBrowser} descriptors that extend from the given type.
-     */
-    public static List<DescriptorExt<RepositoryBrowser<?>>> filter(Class<? extends RepositoryBrowser> t) {
-        List<DescriptorExt<RepositoryBrowser<?>>> r = new ArrayList<DescriptorExt<RepositoryBrowser<?>>>();
-        for (DescriptorExt<RepositoryBrowser<?>> d : RepositoryBrowser.all())
-            if(d.isSubTypeOf(t))
-                r.add(d);
-        return r;
-    }
-
+public class RepositoryBrowsers extends RepositoryBrowsersExt{
+     
     /**
      * Creates an instance of {@link RepositoryBrowser} from a form submission.
      *
      * @deprecated since 2008-06-19.
      *      Use {@link #createInstance(Class, StaplerRequest, JSONObject, String)}.
      */
-    public static <T extends RepositoryBrowser>
+    public static <T extends RepositoryBrowserExt>
     T createInstance(Class<T> type, StaplerRequest req, String fieldName) throws FormException {
-        List<DescriptorExt<RepositoryBrowser<?>>> list = filter(type);
+        List<DescriptorExt<RepositoryBrowserExt<?>>> list = filter(type);
         String value = req.getParameter(fieldName);
         if(value==null || value.equals("auto"))
             return null;
@@ -83,7 +59,7 @@ public class RepositoryBrowsers {
      *
      * @since 1.227
      */
-    public static <T extends RepositoryBrowser>
+    public static <T extends RepositoryBrowserExt>
     T createInstance(Class<T> type, StaplerRequest req, JSONObject parent, String fieldName) throws FormException {
         JSONObject o = (JSONObject)parent.get(fieldName);
         if(o==null) return null;

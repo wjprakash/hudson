@@ -24,7 +24,7 @@
 package hudson.model;
 
 import hudson.Extension;
-import hudson.Util;
+import hudson.UtilExt;
 import hudson.model.DescriptorExt.FormException;
 import hudson.model.HudsonExt;
 import hudson.model.ItemExt;
@@ -118,7 +118,7 @@ public class ProxyView extends View implements StaplerFallback {
     public FormValidation doViewExistsCheck(@QueryParameter String value) {
         checkPermission(View.CREATE);
 
-        String view = Util.fixEmpty(value);
+        String view = UtilExt.fixEmpty(value);
         if(view==null) return FormValidation.ok();
 
         if(HudsonExt.getInstance().getView(view)!=null)

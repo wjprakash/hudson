@@ -1,7 +1,7 @@
 package hudson.util;
 
 import hudson.FilePathExt;
-import hudson.Util;
+import hudson.UtilExt;
 import hudson.remoting.Channel;
 import hudson.remoting.Which;
 
@@ -66,6 +66,6 @@ public class ClasspathBuilder implements Serializable {
      */
     @Override
     public String toString() {
-        return Util.join(args,File.pathSeparator);
+        return UtilExt.join(args,File.pathSeparator);
     }
 }

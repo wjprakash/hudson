@@ -25,7 +25,7 @@ package hudson.lifecycle;
 
 import hudson.ExtensionPoint;
 import hudson.FunctionsExt;
-import hudson.Util;
+import hudson.UtilExt;
 import hudson.model.HudsonExt;
 
 import java.io.File;
@@ -173,7 +173,7 @@ public abstract class Lifecycle implements ExtensionPoint {
      */
     public void verifyRestartable() throws RestartNotSupportedException {
         // the rewriteHudsonWar method isn't overridden.
-        if (!Util.isOverridden(Lifecycle.class,getClass(), "restart"))
+        if (!UtilExt.isOverridden(Lifecycle.class,getClass(), "restart"))
             throw new RestartNotSupportedException("Restart is not supported in this running mode (" +
                     getClass().getName() + ").");
     }

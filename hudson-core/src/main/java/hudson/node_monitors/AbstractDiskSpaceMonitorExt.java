@@ -1,8 +1,7 @@
 package hudson.node_monitors;
 
 import hudson.model.ComputerExt;
-import hudson.node_monitors.DiskSpaceMonitorDescriptor.DiskSpace;
-import org.kohsuke.stapler.DataBoundConstructor;
+import hudson.node_monitors.DiskSpaceMonitorDescriptorExt.DiskSpace;
 
 import java.text.ParseException;
 import java.util.logging.Logger;
@@ -10,20 +9,19 @@ import java.util.logging.Logger;
 /**
  * @author Kohsuke Kawaguchi
  */
-public abstract class AbstractDiskSpaceMonitor extends NodeMonitor {
+public abstract class AbstractDiskSpaceMonitorExt extends NodeMonitorExt {
     /**
      * The free space threshold, below which the node monitor will be triggered.
      * This is a human readable string representation as entered by the user, so that we can retain the original notation.
      */
     public final String freeSpaceThreshold;
 
-    @DataBoundConstructor
-    public AbstractDiskSpaceMonitor(String threshold) throws ParseException {
+    public AbstractDiskSpaceMonitorExt(String threshold) throws ParseException {
         this.freeSpaceThreshold = threshold;
         DiskSpace.parse(threshold); // make sure it parses
     }
 
-    public AbstractDiskSpaceMonitor() {
+    public AbstractDiskSpaceMonitorExt() {
         this.freeSpaceThreshold = "1GB";
     }
 
@@ -49,6 +47,6 @@ public abstract class AbstractDiskSpaceMonitor extends NodeMonitor {
         return size;
     }
 
-    private static final Logger LOGGER = Logger.getLogger(AbstractDiskSpaceMonitor.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(AbstractDiskSpaceMonitorExt.class.getName());
     private static final long DEFAULT_THRESHOLD = 1024L*1024*1024;
 }

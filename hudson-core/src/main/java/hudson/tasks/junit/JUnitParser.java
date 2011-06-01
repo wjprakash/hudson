@@ -101,7 +101,7 @@ public class JUnitParser extends TestResultParser {
         public TestResult invoke(File ws, VirtualChannel channel) throws IOException {
             final long nowSlave = System.currentTimeMillis();
 
-            FileSet fs = Util.createFileSet(ws, testResults);
+            FileSet fs = UtilExt.createFileSet(ws, testResults);
             DirectoryScanner ds = fs.getDirectoryScanner();
 
             String[] files = ds.getIncludedFiles();

@@ -25,7 +25,7 @@ package hudson.model;
 
 import hudson.FilePathExt;
 import hudson.Launcher;
-import hudson.Util;
+import hudson.UtilExt;
 import hudson.Launcher.RemoteLauncher;
 import hudson.diagnosis.OldDataMonitorExt;
 import hudson.model.Descriptor.FormException;
@@ -89,7 +89,7 @@ public abstract class Slave extends SlaveExt {
     @DataBoundConstructor
     public Slave(String name, String nodeDescription, String remoteFS, String numExecutors,
                  ModeExt mode, String labelString, ComputerLauncher launcher, RetentionStrategy retentionStrategy, List<? extends NodeProperty<?>> nodeProperties) throws FormException, IOException {
-        this(name,nodeDescription,remoteFS,Util.tryParseNumber(numExecutors, 1).intValue(),mode,labelString,launcher,retentionStrategy, nodeProperties);
+        this(name,nodeDescription,remoteFS,UtilExt.tryParseNumber(numExecutors, 1).intValue(),mode,labelString,launcher,retentionStrategy, nodeProperties);
     }
 
     /**
@@ -160,7 +160,7 @@ public abstract class Slave extends SlaveExt {
          * Performs syntactical check on the remote FS for slaves.
          */
         public FormValidation doCheckRemoteFS(@QueryParameter String value) throws IOException, ServletException {
-            if(Util.fixEmptyAndTrim(value)==null)
+            if(UtilExt.fixEmptyAndTrim(value)==null)
                 return FormValidation.error(Messages.Slave_Remote_Director_Mandatory());
 
             if(value.startsWith("\\\\") || value.startsWith("/net/"))

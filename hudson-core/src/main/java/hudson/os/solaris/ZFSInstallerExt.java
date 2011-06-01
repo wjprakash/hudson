@@ -24,7 +24,7 @@
 package hudson.os.solaris;
 
 import hudson.Launcher.LocalLauncher;
-import hudson.Util;
+import hudson.UtilExt;
 import hudson.Extension;
 import hudson.os.SU;
 import hudson.model.AdministrativeMonitorExt;
@@ -160,7 +160,7 @@ public class ZFSInstallerExt extends AdministrativeMonitorExt implements Seriali
                     hudson = nativeUtils.createZfs(name);
 
                     // mount temporarily to set the owner right
-                    File dir = Util.createTempDir();
+                    File dir = UtilExt.createTempDir();
                     hudson.setMountPoint(dir);
                     hudson.mount();
                     if (nativeUtils.chown(dir, uid, gid)) {
@@ -236,7 +236,7 @@ public class ZFSInstallerExt extends AdministrativeMonitorExt implements Seriali
                 return true;
             }
 
-            File tmpDir = Util.createTempDir();
+            File tmpDir = UtilExt.createTempDir();
 
             // mount a new file system to a temporary location
             out.println("Opening "+target);
@@ -260,7 +260,7 @@ public class ZFSInstallerExt extends AdministrativeMonitorExt implements Seriali
             File backup = new File(home.getPath()+".backup");
             out.println("Moving "+home+" to "+backup);
             if(backup.exists())
-                Util.deleteRecursive(backup);
+                UtilExt.deleteRecursive(backup);
             if(!home.renameTo(backup)) {
                 out.println("Failed to move your current data "+home+" out of the way");
             }

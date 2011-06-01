@@ -47,7 +47,7 @@ import hudson.PluginWrapperExt;
 import hudson.ProxyConfiguration;
 import hudson.TcpSlaveAgentListener;
 import hudson.UDPBroadcastThread;
-import hudson.Util;
+import hudson.UtilExt;
 import hudson.XmlFile;
 import hudson.cli.declarative.CLIResolver;
 import hudson.init.InitMilestone;
@@ -56,14 +56,14 @@ import hudson.init.InitStrategy;
 import hudson.lifecycle.Lifecycle;
 import hudson.logging.LogRecorderManagerExt;
 import hudson.lifecycle.RestartNotSupportedException;
-import hudson.markup.RawHtmlMarkupFormatter;
+import hudson.markup.RawHtmlMarkupFormatterExt;
 import hudson.model.labels.LabelAtomExt;
 import hudson.model.listeners.ItemListener;
 import hudson.model.listeners.SCMListener;
 import hudson.model.listeners.SaveableListener;
 import hudson.remoting.LocalChannel;
 import hudson.remoting.VirtualChannel;
-import hudson.scm.RepositoryBrowser;
+import hudson.scm.RepositoryBrowserExt;
 import hudson.scm.SCMExt;
 import hudson.search.CollectionSearchIndex;
 import hudson.search.SearchIndexBuilder;
@@ -561,7 +561,7 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, ViewG
                 SecureRandom sr = new SecureRandom();
                 byte[] random = new byte[32];
                 sr.nextBytes(random);
-                secretKey = Util.toHexString(random);
+                secretKey = UtilExt.toHexString(random);
                 secretFile.write(secretKey);
             }
 
@@ -778,7 +778,7 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, ViewG
      * @since 1.308
      */
     public SecretKey getSecretKeyAsAES128() {
-        return Util.toAes128Key(secretKey);
+        return UtilExt.toAes128Key(secretKey);
     }
 
     /**
@@ -791,8 +791,8 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, ViewG
     /**
      * Gets the repository browser descriptor by name. Primarily used for making them web-visible.
      */
-    public DescriptorExt<RepositoryBrowser<?>> getRepositoryBrowser(String shortClassName) {
-        return findDescriptor(shortClassName,RepositoryBrowser.all());
+    public DescriptorExt<RepositoryBrowserExt<?>> getRepositoryBrowser(String shortClassName) {
+        return findDescriptor(shortClassName,RepositoryBrowserExt.all());
     }
 
     /**
@@ -1013,7 +1013,7 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, ViewG
      * @since 1.391
      */
     public MarkupFormatter getMarkupFormatter() {
-        return markupFormatter!=null ? markupFormatter : RawHtmlMarkupFormatter.INSTANCE;
+        return markupFormatter!=null ? markupFormatter : RawHtmlMarkupFormatterExt.INSTANCE;
     }
 
     /**
@@ -1218,7 +1218,7 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, ViewG
      * no need to search recursively.
      */
     public List<ProjectExt> getProjects() {
-        return Util.createSubList(items.values(),ProjectExt.class);
+        return UtilExt.createSubList(items.values(),ProjectExt.class);
     }
 
     /**
@@ -2043,7 +2043,7 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, ViewG
     }
 
     public String getLabelString() {
-        return Util.fixNull(label).trim();
+        return UtilExt.fixNull(label).trim();
     }
 
     @Override
@@ -2660,7 +2660,7 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, ViewG
         if(ver==null)   ver="?";
         VERSION = ver;
         context.setAttribute("version",ver);
-        VERSION_HASH = Util.getDigestOf(ver).substring(0, 8);
+        VERSION_HASH = UtilExt.getDigestOf(ver).substring(0, 8);
 
         if(ver.equals("?") || Boolean.getBoolean("hudson.script.noCache"))
             RESOURCE_PATH = "";

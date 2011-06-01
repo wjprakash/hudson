@@ -28,7 +28,7 @@ import hudson.Extension;
 import hudson.FilePathExt;
 import hudson.FilePathExt.FileCallable;
 import hudson.Launcher;
-import hudson.Util;
+import hudson.UtilExt;
 import hudson.model.AbstractBuildExt;
 import hudson.model.AbstractProjectExt;
 import hudson.model.Build;
@@ -168,7 +168,7 @@ public class Fingerprinter extends Recorder implements Serializable {
             public List<Record> invoke(File baseDir, VirtualChannel channel) throws IOException {
                 List<Record> results = new ArrayList<Record>();
 
-                FileSet src = Util.createFileSet(baseDir,targets);
+                FileSet src = UtilExt.createFileSet(baseDir,targets);
 
                 DirectoryScanner ds = src.getDirectoryScanner();
                 for( String f : ds.getIncludedFiles() ) {

@@ -32,7 +32,7 @@ import hudson.model.HudsonExt;
 import hudson.util.DescriptorList;
 import hudson.util.FormValidation;
 import hudson.DescriptorExtensionListExt;
-import hudson.Util;
+import hudson.UtilExt;
 import hudson.model.FailureExt;
 
 import java.io.IOException;
@@ -70,7 +70,7 @@ public abstract class NodeDescriptor extends NodeDescriptorExt {
 //    }
 
     public FormValidation doCheckName(@QueryParameter String value ) {
-        String name = Util.fixEmptyAndTrim(value);
+        String name = UtilExt.fixEmptyAndTrim(value);
         if(name==null)
             return FormValidation.error(Messages.NodeDescripter_CheckName_Mandatory());
         try {

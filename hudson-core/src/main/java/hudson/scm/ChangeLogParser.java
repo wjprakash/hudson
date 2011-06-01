@@ -25,7 +25,7 @@ package hudson.scm;
 
 import hudson.model.AbstractBuildExt;
 import hudson.model.Build;
-import hudson.scm.ChangeLogSet.Entry;
+import hudson.scm.ChangeLogSetExt.Entry;
 import org.xml.sax.SAXException;
 
 import java.io.File;
@@ -40,5 +40,5 @@ import java.io.IOException;
  * @author Kohsuke Kawaguchi
  */
 public abstract class ChangeLogParser {
-    public abstract ChangeLogSet<? extends Entry> parse(AbstractBuildExt build, File changelogFile) throws IOException, SAXException;
+    public abstract ChangeLogSetExt<? extends Entry> parse(AbstractBuildExt build, File changelogFile) throws IOException, SAXException;
 }

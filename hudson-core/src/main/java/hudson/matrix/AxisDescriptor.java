@@ -23,7 +23,7 @@
  */
 package hudson.matrix;
 
-import hudson.Util;
+import hudson.UtilExt;
 import hudson.model.DescriptorExt;
 import hudson.model.FailureExt;
 import hudson.model.HudsonExt;
@@ -54,7 +54,7 @@ public abstract class AxisDescriptor extends DescriptorExt<AxisExt> {
      * Makes sure that the given name is good as a axis name.
      */
     public FormValidation doCheckName(@QueryParameter String value) {
-        if(Util.fixEmpty(value)==null)
+        if(UtilExt.fixEmpty(value)==null)
             return FormValidation.ok();
 
         try {

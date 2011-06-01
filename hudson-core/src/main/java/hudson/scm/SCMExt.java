@@ -28,7 +28,7 @@ import hudson.FilePathExt;
 import hudson.Launcher;
 import hudson.DescriptorExtensionListExt;
 import hudson.Extension;
-import hudson.Util;
+import hudson.UtilExt;
 import hudson.security.PermissionGroup;
 import hudson.security.Permission;
 import hudson.tasks.Builder;
@@ -89,7 +89,7 @@ public abstract class SCMExt implements Describable<SCMExt>, ExtensionPoint {
      *
      * @see #getEffectiveBrowser()
      */
-    public RepositoryBrowser<?> getBrowser() {
+    public RepositoryBrowserExt<?> getBrowser() {
         return null;
     }
 
@@ -110,8 +110,8 @@ public abstract class SCMExt implements Describable<SCMExt>, ExtensionPoint {
      * This method attempts to find applicable browser
      * from other job configurations.
      */
-    public RepositoryBrowser<?> getEffectiveBrowser() {
-        RepositoryBrowser<?> b = getBrowser();
+    public RepositoryBrowserExt<?> getEffectiveBrowser() {
+        RepositoryBrowserExt<?> b = getBrowser();
         if (b != null) {
             return b;
         }
@@ -478,7 +478,7 @@ public abstract class SCMExt implements Describable<SCMExt>, ExtensionPoint {
      *      Use/override {@link #getModuleRoot(FilePathExt, AbstractBuildExt)} instead.
      */
     public FilePathExt getModuleRoot(FilePathExt workspace) {
-        if (Util.isOverridden(SCMExt.class, getClass(), "getModuleRoot", FilePathExt.class, AbstractBuildExt.class)) // if the subtype already implements newer getModuleRoot(FilePathExt,AbstractBuildExt), call that.
+        if (UtilExt.isOverridden(SCMExt.class, getClass(), "getModuleRoot", FilePathExt.class, AbstractBuildExt.class)) // if the subtype already implements newer getModuleRoot(FilePathExt,AbstractBuildExt), call that.
         {
             return getModuleRoot(workspace, null);
         }
@@ -520,7 +520,7 @@ public abstract class SCMExt implements Describable<SCMExt>, ExtensionPoint {
      * @since 1.382
      */
     public FilePathExt[] getModuleRoots(FilePathExt workspace, AbstractBuildExt build) {
-        if (Util.isOverridden(SCMExt.class, getClass(), "getModuleRoots", FilePathExt.class)) // if the subtype derives legacy getModuleRoots(FilePathExt), delegate to it
+        if (UtilExt.isOverridden(SCMExt.class, getClass(), "getModuleRoots", FilePathExt.class)) // if the subtype derives legacy getModuleRoots(FilePathExt), delegate to it
         {
             return getModuleRoots(workspace);
         }
@@ -534,7 +534,7 @@ public abstract class SCMExt implements Describable<SCMExt>, ExtensionPoint {
      *      Use/derive from {@link #getModuleRoots(FilePathExt, AbstractBuildExt)} instead.
      */
     public FilePathExt[] getModuleRoots(FilePathExt workspace) {
-        if (Util.isOverridden(SCMExt.class, getClass(), "getModuleRoots", FilePathExt.class, AbstractBuildExt.class)) // if the subtype already derives newer getModuleRoots(FilePathExt,AbstractBuildExt), delegate to it
+        if (UtilExt.isOverridden(SCMExt.class, getClass(), "getModuleRoots", FilePathExt.class, AbstractBuildExt.class)) // if the subtype already derives newer getModuleRoots(FilePathExt,AbstractBuildExt), delegate to it
         {
             return getModuleRoots(workspace, null);
         }

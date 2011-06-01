@@ -24,7 +24,7 @@
  */
 package hudson.model;
 
-import hudson.Util;
+import hudson.UtilExt;
 import hudson.cli.declarative.CLIMethod;
 import hudson.console.AnnotatedLargeText;
 import hudson.model.DescriptorExt.FormException;
@@ -251,7 +251,7 @@ public  abstract class Computer extends ComputerExt {
     public HttpResponse doToggleOffline(@QueryParameter String offlineMessage) throws IOException, ServletException {
         checkPermission(HudsonExt.ADMINISTER);
         if(!temporarilyOffline) {
-            offlineMessage = Util.fixEmptyAndTrim(offlineMessage);
+            offlineMessage = UtilExt.fixEmptyAndTrim(offlineMessage);
             setTemporarilyOffline(!temporarilyOffline,
                     OfflineCause.create(hudson.slaves.Messages._SlaveComputer_DisconnectedBy(
                         HudsonExt.getAuthentication().getName(),

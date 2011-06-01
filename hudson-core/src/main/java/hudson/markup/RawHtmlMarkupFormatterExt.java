@@ -1,7 +1,6 @@
 package hudson.markup;
 
 import hudson.Extension;
-import org.kohsuke.stapler.DataBoundConstructor;
 
 import java.io.IOException;
 import java.io.Writer;
@@ -12,9 +11,8 @@ import java.io.Writer;
  *
  * @author Kohsuke Kawaguchi
  */
-public class RawHtmlMarkupFormatter extends MarkupFormatter {
-    @DataBoundConstructor
-    public RawHtmlMarkupFormatter() {
+public class RawHtmlMarkupFormatterExt extends MarkupFormatter {
+    public RawHtmlMarkupFormatterExt() {
     }
 
     @Override
@@ -30,5 +28,5 @@ public class RawHtmlMarkupFormatter extends MarkupFormatter {
         }
     }
 
-    public static MarkupFormatter INSTANCE = new RawHtmlMarkupFormatter();
+    public static MarkupFormatter INSTANCE = new RawHtmlMarkupFormatterExt();
 }

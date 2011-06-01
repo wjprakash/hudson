@@ -27,7 +27,7 @@ import hudson.model.Descriptor.FormException;
 import hudson.security.captcha.CaptchaSupport;
 import com.thoughtworks.xstream.converters.UnmarshallingContext;
 import hudson.Extension;
-import hudson.Util;
+import hudson.UtilExt;
 import hudson.diagnosis.OldDataMonitorExt;
 import hudson.model.*;
 import hudson.security.FederatedLoginService.FederatedIdentity;
@@ -358,10 +358,10 @@ public class HudsonPrivateSecurityRealm extends HudsonPrivateSecurityRealmExt {
             }
 
             public Details newInstance(StaplerRequest req, JSONObject formData) throws FormException {
-                String pwd = Util.fixEmpty(req.getParameter("user.password"));
-                String pwd2 = Util.fixEmpty(req.getParameter("user.password2"));
+                String pwd = UtilExt.fixEmpty(req.getParameter("user.password"));
+                String pwd2 = UtilExt.fixEmpty(req.getParameter("user.password2"));
 
-                if (!Util.fixNull(pwd).equals(Util.fixNull(pwd2))) {
+                if (!UtilExt.fixNull(pwd).equals(UtilExt.fixNull(pwd2))) {
                     throw new FormException("Please confirm the password by typing it twice", "user.password2");
                 }
 
@@ -372,7 +372,7 @@ public class HudsonPrivateSecurityRealm extends HudsonPrivateSecurityRealmExt {
                         return Details.fromHashedPassword(data.substring(prefix.length()));
                     }
                 }
-                return Details.fromPlainPassword(Util.fixNull(pwd));
+                return Details.fromPlainPassword(UtilExt.fixNull(pwd));
             }
 
             @Override

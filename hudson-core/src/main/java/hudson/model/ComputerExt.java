@@ -25,10 +25,10 @@
 package hudson.model;
 
 import hudson.EnvVars;
-import hudson.Util;
+import hudson.UtilExt;
 import hudson.cli.declarative.CLIMethod;
-import hudson.model.queue.WorkUnit;
-import hudson.node_monitors.NodeMonitor;
+import hudson.model.queue.WorkUnitExt;
+import hudson.node_monitors.NodeMonitorExt;
 import hudson.remoting.Channel;
 import hudson.remoting.VirtualChannel;
 import hudson.remoting.Callable;
@@ -154,7 +154,7 @@ public /*transient*/ abstract class ComputerExt extends ActionableExt implements
      * Gets the string representation of the slave log.
      */
     public String getLog() throws IOException {
-        return Util.loadFile(getLogFile());
+        return UtilExt.loadFile(getLogFile());
     }
 
 
@@ -290,7 +290,7 @@ public /*transient*/ abstract class ComputerExt extends ActionableExt implements
      */
     public Future<?> disconnect(OfflineCause cause) {
         offlineCause = cause;
-        if (Util.isOverridden(ComputerExt.class,getClass(),"disconnect"))
+        if (UtilExt.isOverridden(ComputerExt.class,getClass(),"disconnect"))
             return disconnect();    // legacy subtypes that extend disconnect().
 
         connectTime=0;
@@ -304,7 +304,7 @@ public /*transient*/ abstract class ComputerExt extends ActionableExt implements
      *      Use {@link #disconnect(OfflineCause)} and specify the cause.
      */
     public Future<?> disconnect() {
-        if (Util.isOverridden(ComputerExt.class,getClass(),"disconnect",OfflineCause.class))
+        if (UtilExt.isOverridden(ComputerExt.class,getClass(),"disconnect",OfflineCause.class))
             // if the subtype already derives disconnect(OfflineCause), delegate to it
             return disconnect(null);
 
@@ -695,7 +695,7 @@ public /*transient*/ abstract class ComputerExt extends ActionableExt implements
      */
     public Map<String/*monitor name*/,Object> getMonitorData() {
         Map<String,Object> r = new HashMap<String, Object>();
-        for (NodeMonitor monitor : NodeMonitor.getAll())
+        for (NodeMonitorExt monitor : NodeMonitorExt.getAll())
             r.put(monitor.getClass().getName(),monitor.data(this));
         return r;
     }
@@ -800,7 +800,7 @@ public /*transient*/ abstract class ComputerExt extends ActionableExt implements
     /**
      * Starts executing a fly-weight task.
      */
-    /*package*/ final void startFlyWeightTask(WorkUnit p) {
+    /*package*/ final void startFlyWeightTask(WorkUnitExt p) {
         OneOffExecutor e = new OneOffExecutor(this, p);
         e.start();
         oneOffExecutors.add(e);

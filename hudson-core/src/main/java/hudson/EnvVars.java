@@ -153,7 +153,7 @@ public class EnvVars extends TreeMap<String,String> {
      */
 	public static void resolve(Map<String, String> env) {
 		for (Map.Entry<String,String> entry: env.entrySet()) {
-			entry.setValue(Util.replaceMacro(entry.getValue(), env));
+			entry.setValue(UtilExt.replaceMacro(entry.getValue(), env));
 		}
 	}
 
@@ -177,7 +177,7 @@ public class EnvVars extends TreeMap<String,String> {
      * Expands the variables in the given string by using environment variables represented in 'this'.
      */
     public String expand(String s) {
-        return Util.replaceMacro(s, this);
+        return UtilExt.replaceMacro(s, this);
     }
 
     /**

@@ -32,7 +32,7 @@ import hudson.Launcher;
 import hudson.model.QueueExt.Task;
 import hudson.model.labels.LabelAtomExt;
 import hudson.model.queue.CauseOfBlockage;
-import hudson.node_monitors.NodeMonitor;
+import hudson.node_monitors.NodeMonitorExt;
 import hudson.remoting.VirtualChannel;
 import hudson.security.ACL;
 import hudson.security.AccessControlled;

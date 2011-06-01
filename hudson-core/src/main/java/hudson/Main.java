@@ -172,11 +172,11 @@ public class Main {
                     con.connect();
                     // send the data
                     FileInputStream in = new FileInputStream(tmpFile);
-                    Util.copyStream(in,con.getOutputStream());
+                    UtilExt.copyStream(in,con.getOutputStream());
                     in.close();
 
                     if(con.getResponseCode()!=200) {
-                        Util.copyStream(con.getErrorStream(),System.err);
+                        UtilExt.copyStream(con.getErrorStream(),System.err);
                     }
 
                     return ret;

@@ -26,7 +26,7 @@ package hudson.model;
 
 import com.infradna.tool.bridge_method_injector.WithBridgeMethods;
 import hudson.XmlFile;
-import hudson.Util;
+import hudson.UtilExt;
 import hudson.BulkChange;
 import hudson.cli.declarative.CLIResolver;
 import hudson.model.listeners.ItemListener;
@@ -207,7 +207,7 @@ public abstract class AbstractItemExt extends ActionableExt implements ItemExt, 
 
                         // try to delete as much as possible
                         try {
-                            Util.deleteRecursive(oldRoot);
+                            UtilExt.deleteRecursive(oldRoot);
                         } catch (IOException e) {
                             // but ignore the error, since we expect that
                             e.printStackTrace();
@@ -277,7 +277,7 @@ public abstract class AbstractItemExt extends ActionableExt implements ItemExt, 
     }
 
     public String getShortUrl() {
-        return getParent().getUrlChildPrefix()+'/'+Util.rawEncode(getName())+'/';
+        return getParent().getUrlChildPrefix()+'/'+UtilExt.rawEncode(getName())+'/';
     }
 
     public String getSearchUrl() {
@@ -358,7 +358,7 @@ public abstract class AbstractItemExt extends ActionableExt implements ItemExt, 
      */
     protected void performDelete() throws IOException, InterruptedException {
         getConfigFile().delete();
-        Util.deleteRecursive(getRootDir());
+        UtilExt.deleteRecursive(getRootDir());
     }
 
     

@@ -26,7 +26,7 @@ package hudson.tools;
 
 import hudson.ExtensionPoint;
 import hudson.FilePathExt;
-import hudson.Util;
+import hudson.UtilExt;
 import hudson.model.Describable;
 import hudson.model.HudsonExt;
 import hudson.model.LabelExt;
@@ -54,7 +54,7 @@ public abstract class ToolInstaller implements Describable<ToolInstaller>, Exten
      * Subclasses should pass these parameters in using {@link DataBoundConstructor}.
      */
     protected ToolInstaller(String label) {
-        this.label = Util.fixEmptyAndTrim(label);
+        this.label = UtilExt.fixEmptyAndTrim(label);
     }
 
     /**
@@ -108,7 +108,7 @@ public abstract class ToolInstaller implements Describable<ToolInstaller>, Exten
         if (node == null) {
             throw new IllegalArgumentException("must pass non-null node");
         }
-        String home = Util.fixEmptyAndTrim(tool.getHome());
+        String home = UtilExt.fixEmptyAndTrim(tool.getHome());
         if (home == null) {
             // XXX should this somehow uniquify paths among ToolInstallation.all()?
             home = tool.getName().replaceAll("[^A-Za-z0-9_.-]+", "_");

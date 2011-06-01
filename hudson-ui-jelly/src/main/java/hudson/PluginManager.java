@@ -121,23 +121,23 @@ public abstract class PluginManager extends PluginManagerExt{
         HudsonExt hudson = HudsonExt.getInstance();
         hudson.checkPermission(HudsonExt.ADMINISTER);
         
-        server = Util.fixEmptyAndTrim(server);
+        server = UtilExt.fixEmptyAndTrim(server);
 
         if ((server != null) && !"".equals(server)) {
             // If port is not specified assume it is port 80 (usual default for HTTP port)
             int portNumber = 80;
-            if (!"".equals(Util.fixNull(port))){
-                portNumber = Integer.parseInt(Util.fixNull(port));
+            if (!"".equals(UtilExt.fixNull(port))){
+                portNumber = Integer.parseInt(UtilExt.fixNull(port));
             }
             
-            boolean proxyAuthNeeded = "on".equals(Util.fixNull(authNeeded));
+            boolean proxyAuthNeeded = "on".equals(UtilExt.fixNull(authNeeded));
             if (!proxyAuthNeeded){
                 userName = "";
                 password = "";
             }
              
-            hudson.proxy = new ProxyConfiguration(server , portNumber, Util.fixEmptyAndTrim(noProxyFor),
-                    Util.fixEmptyAndTrim(userName), Util.fixEmptyAndTrim(password), "on".equals(Util.fixNull(authNeeded)));
+            hudson.proxy = new ProxyConfiguration(server , portNumber, UtilExt.fixEmptyAndTrim(noProxyFor),
+                    UtilExt.fixEmptyAndTrim(userName), UtilExt.fixEmptyAndTrim(password), "on".equals(UtilExt.fixNull(authNeeded)));
             hudson.proxy.save();
         } else {
             hudson.proxy = null;
@@ -158,7 +158,7 @@ public abstract class PluginManager extends PluginManagerExt{
 
             // Parse the request
             FileItem fileItem = (FileItem) upload.parseRequest(req).get(0);
-            String fileName = Util.getFileName(fileItem.getName());
+            String fileName = UtilExt.getFileName(fileItem.getName());
             if("".equals(fileName))
                 return new HttpRedirect("advanced");
             if(!fileName.endsWith(".hpi"))

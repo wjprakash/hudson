@@ -27,7 +27,7 @@ import static hudson.model.HudsonExt.checkGoodName;
 import hudson.DescriptorExtensionListExt;
 import hudson.Extension;
 import hudson.ExtensionPoint;
-import hudson.Util;
+import hudson.UtilExt;
 import hudson.model.AbstractBuildExt;
 import hudson.model.AbstractModelObjectExt;
 import hudson.model.AbstractProjectExt;
@@ -49,7 +49,7 @@ import hudson.model.RunExt;
 import hudson.model.TopLevelItem;
 import hudson.model.TransientViewActionFactory;
 import hudson.model.UserExt;
-import hudson.scm.ChangeLogSet.Entry;
+import hudson.scm.ChangeLogSetExt.Entry;
 import hudson.search.CollectionSearchIndex;
 import hudson.search.SearchIndexBuilder;
 import hudson.security.ACL;
@@ -318,7 +318,7 @@ public abstract class View extends AbstractModelObjectExt implements AccessContr
      * even for the default view.
      */
     public String getViewUrl() {
-        return (owner!=null ? owner.getUrl() : "") + "view/" + Util.rawEncode(getViewName()) + '/';
+        return (owner!=null ? owner.getUrl() : "") + "view/" + UtilExt.rawEncode(getViewName()) + '/';
     }
 
     public String getSearchUrl() {
@@ -445,12 +445,12 @@ public abstract class View extends AbstractModelObjectExt implements AccessContr
         public String getLastChangeTimeString() {
             if(lastChange==null)    return "N/A";
             long duration = new GregorianCalendar().getTimeInMillis()- ordinal();
-            return Util.getTimeSpanString(duration);
+            return UtilExt.getTimeSpanString(duration);
         }
 
         public String getTimeSortKey() {
             if(lastChange==null)    return "-";
-            return Util.XS_DATETIME_FORMATTER.format(lastChange.getTime());
+            return UtilExt.XS_DATETIME_FORMATTER.format(lastChange.getTime());
         }
 
         public int compareTo(UserInfo that) {
@@ -593,7 +593,7 @@ public abstract class View extends AbstractModelObjectExt implements AccessContr
 
         submit(req);
 
-        description = Util.nullify(req.getParameter("description"));
+        description = UtilExt.nullify(req.getParameter("description"));
         filterExecutors = req.getParameter("filterExecutors") != null;
         filterQueue = req.getParameter("filterQueue") != null;
 

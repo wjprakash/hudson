@@ -30,7 +30,7 @@ import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
 import com.trilead.ssh2.crypto.Base64;
 import hudson.model.HudsonExt;
-import hudson.Util;
+import hudson.UtilExt;
 import org.kohsuke.stapler.Stapler;
 
 import javax.crypto.SecretKey;
@@ -101,7 +101,7 @@ public final class Secret implements Serializable {
     private static SecretKey getKey() throws UnsupportedEncodingException, GeneralSecurityException {
         String secret = SECRET;
         if(secret==null)    return HudsonExt.getInstance().getSecretKeyAsAES128();
-        return Util.toAes128Key(secret);
+        return UtilExt.toAes128Key(secret);
     }
 
     /**
@@ -165,7 +165,7 @@ public final class Secret implements Serializable {
      * @return never null
      */
     public static Secret fromString(String data) {
-        data = Util.fixNull(data);
+        data = UtilExt.fixNull(data);
         Secret s = decrypt(data);
         if(s==null) s=new Secret(data);
         return s;

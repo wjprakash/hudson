@@ -1,7 +1,7 @@
 /*
  * The MIT License
  * 
- * Copyright (c) 2004-2009, Sun Microsystems, Inc., Kohsuke Kawaguchi, Thomas J. Black
+ * Copyright (c) 2004-2009, Sun Microsystems, Inc., Kohsuke Kawaguchi
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,42 +24,34 @@
 package hudson.node_monitors;
 
 import hudson.model.ComputerExt;
-import hudson.model.NodeExt;
-import hudson.util.ClockDifference;
+import hudson.model.Descriptor.FormException;
 import hudson.Extension;
+import net.sf.json.JSONObject;
 import org.kohsuke.stapler.StaplerRequest;
 
 import java.io.IOException;
 
-import net.sf.json.JSONObject;
-
 /**
- * {@link NodeMonitor} that checks clock of {@link NodeExt} to
- * detect out of sync clocks.
+ * Discovers the architecture of the system to display in the slave list page.
  *
  * @author Kohsuke Kawaguchi
- * @since 1.123
  */
-public class ClockMonitor extends NodeMonitor {
-    public ClockDifference getDifferenceFor(ComputerExt c) {
-        return DESCRIPTOR.get(c);
-    }
-
+public class ArchitectureMonitor extends ArchitectureMonitorExt {
     @Extension
-    public static final AbstractNodeMonitorDescriptor<ClockDifference> DESCRIPTOR = new AbstractNodeMonitorDescriptor<ClockDifference>() {
-        protected ClockDifference monitor(ComputerExt c) throws IOException, InterruptedException {
-            NodeExt n = c.getNode();
-            if(n==null) return null;
-            return n.getClockDifference();
-        }
-
-        public String getDisplayName() {
-            return Messages.ClockMonitor_DisplayName();
+    public static final class DescriptorImpl extends AbstractNodeMonitorDescriptorExt<String> {
+        @Override
+        protected String monitor(ComputerExt c) throws IOException, InterruptedException {
+            return c.getChannel().call(new GetArchTask());
         }
 
         @Override
-        public NodeMonitor newInstance(StaplerRequest req, JSONObject formData) throws FormException {
-            return new ClockMonitor();
+        public String getDisplayName() {
+            return Messages.ArchitectureMonitor_DisplayName();
         }
-    };
+
+        public NodeMonitorExt newInstance(StaplerRequest req, JSONObject formData) throws FormException {
+            return new ArchitectureMonitor();
+        }
+    }
+
 }

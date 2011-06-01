@@ -24,8 +24,8 @@
 package hudson.model;
 
 import antlr.ANTLRException;
-import hudson.Util;
-import static hudson.Util.fixNull;
+import hudson.UtilExt;
+import static hudson.UtilExt.fixNull;
 
 import hudson.model.labels.LabelAtomExt;
 import hudson.model.labels.LabelExpression;
@@ -313,7 +313,7 @@ public abstract class LabelExt extends ActionableExt implements Comparable<Label
      */
     public List<AbstractProjectExt> getTiedJobs() {
         List<AbstractProjectExt> r = new ArrayList<AbstractProjectExt>();
-        for( AbstractProjectExt p : Util.filter(HudsonExt.getInstance().getItems(),AbstractProjectExt.class) ) {
+        for( AbstractProjectExt p : UtilExt.filter(HudsonExt.getInstance().getItems(),AbstractProjectExt.class) ) {
             if(this.equals(p.getAssignedLabel()))
                 r.add(p);
         }

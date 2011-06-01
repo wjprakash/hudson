@@ -26,7 +26,7 @@ package hudson.model;
 import com.thoughtworks.xstream.XStream;
 import hudson.DescriptorExtensionListExt;
 import hudson.Extension;
-import hudson.scm.RepositoryBrowser;
+import hudson.scm.RepositoryBrowserExt;
 import hudson.matrix.MatrixProjectExt;
 import hudson.matrix.MatrixConfiguration;
 import hudson.XmlFile;

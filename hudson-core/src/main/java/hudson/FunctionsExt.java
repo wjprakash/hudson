@@ -140,11 +140,11 @@ public class FunctionsExt {
     }
 
     public static String xsDate(Calendar cal) {
-        return Util.XS_DATETIME_FORMATTER.format(cal.getTime());
+        return UtilExt.XS_DATETIME_FORMATTER.format(cal.getTime());
     }
 
     public static String rfc822Date(Calendar cal) {
-        return Util.RFC822_DATETIME_FORMATTER.format(cal.getTime());
+        return UtilExt.RFC822_DATETIME_FORMATTER.format(cal.getTime());
     }
 
     /**
@@ -433,7 +433,7 @@ public class FunctionsExt {
     }
 
     public static String getWin32ErrorMessage(IOException e) {
-        return Util.getWin32ErrorMessage(e);
+        return UtilExt.getWin32ErrorMessage(e);
     }
 
     public static boolean isMultiline(String s) {
@@ -442,15 +442,15 @@ public class FunctionsExt {
     }
 
     public static String encode(String s) {
-        return Util.encode(s);
+        return UtilExt.encode(s);
     }
 
     public static String escape(String s) {
-        return Util.escape(s);
+        return UtilExt.escape(s);
     }
 
     public static String xmlEscape(String s) {
-        return Util.xmlEscape(s);
+        return UtilExt.xmlEscape(s);
     }
 
     public static void checkPermission(Permission permission) throws IOException, ServletException {

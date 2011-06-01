@@ -26,7 +26,7 @@ package hudson.model;
 import hudson.DescriptorExtensionListExt;
 import hudson.XmlFile;
 import hudson.model.listeners.SaveableListener;
-import hudson.node_monitors.NodeMonitor;
+import hudson.node_monitors.NodeMonitorExt;
 import hudson.util.DescribableList;
 
 import java.io.File;
@@ -56,8 +56,8 @@ public class ComputerSetExt extends AbstractModelObjectExt {
         }
     };
 
-    protected static final DescribableList<NodeMonitor,DescriptorExt<NodeMonitor>> monitors
-            = new DescribableList<NodeMonitor, DescriptorExt<NodeMonitor>>(MONITORS_OWNER);
+    protected static final DescribableList<NodeMonitorExt,DescriptorExt<NodeMonitorExt>> monitors
+            = new DescribableList<NodeMonitorExt, DescriptorExt<NodeMonitorExt>>(MONITORS_OWNER);
 
     public String getDisplayName() {
         return Messages.ComputerSet_DisplayName();
@@ -67,7 +67,7 @@ public class ComputerSetExt extends AbstractModelObjectExt {
      * @deprecated as of 1.301
      *      Use {@link #getMonitors()}.
      */
-    public static List<NodeMonitor> get_monitors() {
+    public static List<NodeMonitorExt> get_monitors() {
         return monitors.toList();
     }
 
@@ -78,20 +78,20 @@ public class ComputerSetExt extends AbstractModelObjectExt {
     /**
      * Exposing {@link NodeMonitor#all()} for Jelly binding.
      */
-    public DescriptorExtensionListExt<NodeMonitor,DescriptorExt<NodeMonitor>> getNodeMonitorDescriptors() {
-        return NodeMonitor.all();
+    public DescriptorExtensionListExt<NodeMonitorExt,DescriptorExt<NodeMonitorExt>> getNodeMonitorDescriptors() {
+        return NodeMonitorExt.all();
     }
 
-    public static DescribableList<NodeMonitor,DescriptorExt<NodeMonitor>> getMonitors() {
+    public static DescribableList<NodeMonitorExt,DescriptorExt<NodeMonitorExt>> getMonitors() {
         return monitors;
     }
 
     /**
      * Returns a subset pf {@link #getMonitors()} that are {@linkplain NodeMonitor#isIgnored() not ignored}.
      */
-    public static Map<DescriptorExt<NodeMonitor>,NodeMonitor> getNonIgnoredMonitors() {
-        Map<DescriptorExt<NodeMonitor>,NodeMonitor> r = new HashMap<DescriptorExt<NodeMonitor>, NodeMonitor>();
-        for (NodeMonitor m : monitors) {
+    public static Map<DescriptorExt<NodeMonitorExt>,NodeMonitorExt> getNonIgnoredMonitors() {
+        Map<DescriptorExt<NodeMonitorExt>,NodeMonitorExt> r = new HashMap<DescriptorExt<NodeMonitorExt>, NodeMonitorExt>();
+        for (NodeMonitorExt m : monitors) {
             if(!m.isIgnored())
                 r.put(m.getDescriptor(),m);
         }
@@ -191,21 +191,21 @@ public class ComputerSetExt extends AbstractModelObjectExt {
 
     static {
         try {
-            DescribableList<NodeMonitor,DescriptorExt<NodeMonitor>> r
-                    = new DescribableList<NodeMonitor, DescriptorExt<NodeMonitor>>(Saveable.NOOP);
+            DescribableList<NodeMonitorExt,DescriptorExt<NodeMonitorExt>> r
+                    = new DescribableList<NodeMonitorExt, DescriptorExt<NodeMonitorExt>>(Saveable.NOOP);
 
             // load persisted monitors
             XmlFile xf = getConfigFile();
             if(xf.exists()) {
-                DescribableList<NodeMonitor,DescriptorExt<NodeMonitor>> persisted =
-                        (DescribableList<NodeMonitor,DescriptorExt<NodeMonitor>>) xf.read();
+                DescribableList<NodeMonitorExt,DescriptorExt<NodeMonitorExt>> persisted =
+                        (DescribableList<NodeMonitorExt,DescriptorExt<NodeMonitorExt>>) xf.read();
                 r.replaceBy(persisted.toList());
             }
 
             // if we have any new monitors, let's add them
-            for (DescriptorExt<NodeMonitor> d : NodeMonitor.all())
+            for (DescriptorExt<NodeMonitorExt> d : NodeMonitorExt.all())
                 if(r.get(d)==null) {
-                    NodeMonitor i = createDefaultInstance(d,false);
+                    NodeMonitorExt i = createDefaultInstance(d,false);
                     if(i!=null)
                         r.add(i);
                 }
@@ -215,9 +215,9 @@ public class ComputerSetExt extends AbstractModelObjectExt {
         }
     }
 
-    protected static NodeMonitor createDefaultInstance(DescriptorExt<NodeMonitor> d, boolean ignored) {
+    protected static NodeMonitorExt createDefaultInstance(DescriptorExt<NodeMonitorExt> d, boolean ignored) {
         try {
-            NodeMonitor nm = d.clazz.newInstance();
+            NodeMonitorExt nm = d.clazz.newInstance();
             nm.setIgnored(ignored);
             return nm;
         } catch (InstantiationException e) {

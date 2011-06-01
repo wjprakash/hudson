@@ -25,7 +25,7 @@ package hudson.tasks;
 
 import hudson.FilePathExt;
 import hudson.Launcher;
-import hudson.Util;
+import hudson.UtilExt;
 import hudson.Extension;
 import hudson.model.AbstractBuildExt;
 import hudson.model.AbstractProjectExt;
@@ -71,7 +71,7 @@ public class ArtifactArchiver extends Recorder {
     @DataBoundConstructor
     public ArtifactArchiver(String artifacts, String excludes, boolean latestOnly) {
         this.artifacts = artifacts.trim();
-        this.excludes = Util.fixEmptyAndTrim(excludes);
+        this.excludes = UtilExt.fixEmptyAndTrim(excludes);
         this.latestOnly = latestOnly;
     }
 
@@ -134,7 +134,7 @@ public class ArtifactArchiver extends Recorder {
                 return true;
             }
         } catch (IOException e) {
-            Util.displayIOException(e,listener);
+            UtilExt.displayIOException(e,listener);
             e.printStackTrace(listener.error(
                     Messages.ArtifactArchiver_FailedToArchive(artifacts)));
             return true;
@@ -157,7 +157,7 @@ public class ArtifactArchiver extends Recorder {
                     if(ad.exists()) {
                         listener.getLogger().println(Messages.ArtifactArchiver_DeletingOld(b.getDisplayName()));
                         try {
-                            Util.deleteRecursive(ad);
+                            UtilExt.deleteRecursive(ad);
                         } catch (IOException e) {
                             e.printStackTrace(listener.error(e.getMessage()));
                         }

@@ -297,7 +297,7 @@ public class MarkupText extends AbstractMarkupText {
      */
     public String toString(boolean preEscape) {
         if(tags.isEmpty())
-            return preEscape? Util.xmlEscape(text) : Util.escape(text);  // the most common case
+            return preEscape? UtilExt.xmlEscape(text) : UtilExt.escape(text);  // the most common case
 
         Collections.sort(tags);
 
@@ -307,14 +307,14 @@ public class MarkupText extends AbstractMarkupText {
         for (Tag tag : tags) {
             if (copied<tag.pos) {
                 String portion = text.substring(copied, tag.pos);
-                buf.append(preEscape ? Util.xmlEscape(portion) : Util.escape(portion));
+                buf.append(preEscape ? UtilExt.xmlEscape(portion) : UtilExt.escape(portion));
                 copied = tag.pos;
             }
             buf.append(tag.markup);
         }
         if (copied<text.length()) {
             String portion = text.substring(copied, text.length());
-            buf.append(preEscape ? Util.xmlEscape(portion) : Util.escape(portion));
+            buf.append(preEscape ? UtilExt.xmlEscape(portion) : UtilExt.escape(portion));
         }
 
         return buf.toString();

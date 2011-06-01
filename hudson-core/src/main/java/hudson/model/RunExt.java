@@ -34,7 +34,7 @@ import hudson.BulkChange;
 import hudson.EnvVars;
 import hudson.ExtensionPoint;
 import hudson.FilePathExt;
-import hudson.Util;
+import hudson.UtilExt;
 import hudson.XmlFile;
 import hudson.cli.declarative.CLIMethod;
 import hudson.console.ConsoleNote;
@@ -523,14 +523,14 @@ public abstract class RunExt <JobT extends JobExt<JobT,RunT>,RunT extends RunExt
      */
     public String getTimestampString() {
         long duration = new GregorianCalendar().getTimeInMillis()-timestamp;
-        return Util.getPastTimeString(duration);
+        return UtilExt.getPastTimeString(duration);
     }
 
     /**
      * Returns the timestamp formatted in xs:dateTime.
      */
     public String getTimestampString2() {
-        return Util.XS_DATETIME_FORMATTER.format(new Date(timestamp));
+        return UtilExt.XS_DATETIME_FORMATTER.format(new Date(timestamp));
     }
 
     /**
@@ -539,8 +539,8 @@ public abstract class RunExt <JobT extends JobExt<JobT,RunT>,RunT extends RunExt
     public String getDurationString() {
         if(isBuilding())
             return Messages.Run_InProgressDuration(
-                    Util.getTimeSpanString(System.currentTimeMillis()-timestamp));
-        return Util.getTimeSpanString(duration);
+                    UtilExt.getTimeSpanString(System.currentTimeMillis()-timestamp));
+        return UtilExt.getTimeSpanString(duration);
     }
 
     /**
@@ -811,7 +811,7 @@ public abstract class RunExt <JobT extends JobExt<JobT,RunT>,RunT extends RunExt
         int n = 0;
         for (String child : children) {
             String childPath = path + child;
-            String childHref = pathHref + Util.rawEncode(child);
+            String childHref = pathHref + UtilExt.rawEncode(child);
             File sub = new File(dir, child);
             boolean collapsed = (children.length==1 && parent!=null);
             Artifact a;
@@ -1074,7 +1074,7 @@ public abstract class RunExt <JobT extends JobExt<JobT,RunT>,RunT extends RunExt
     public synchronized void deleteArtifacts() throws IOException {
         File artifactsDir = getArtifactsDir();
 
-        Util.deleteContentsRecursive(artifactsDir);
+        UtilExt.deleteContentsRecursive(artifactsDir);
     }
 
     /**
@@ -1094,7 +1094,7 @@ public abstract class RunExt <JobT extends JobExt<JobT,RunT>,RunT extends RunExt
         File tmp = new File(rootDir.getParentFile(),'.'+rootDir.getName());
         
         boolean renamingSucceeded = rootDir.renameTo(tmp);
-        Util.deleteRecursive(tmp);
+        UtilExt.deleteRecursive(tmp);
         // some user reported that they see some left-over .xyz files in the workspace,
         // so just to make sure we've really deleted it, schedule the deletion on VM exit, too.
         if(tmp.exists())
@@ -1271,7 +1271,7 @@ public abstract class RunExt <JobT extends JobExt<JobT,RunT>,RunT extends RunExt
                     RunListener.fireStarted(this,listener);
 
                     // create a symlink from build number to ID.
-                    Util.createSymlink(getParent().getBuildDir(),getId(),String.valueOf(getNumber()),listener);
+                    UtilExt.createSymlink(getParent().getBuildDir(),getId(),String.valueOf(getNumber()),listener);
 
                     setResult(job.run(listener));
 
@@ -1354,7 +1354,7 @@ public abstract class RunExt <JobT extends JobExt<JobT,RunT>,RunT extends RunExt
     private void handleFatalBuildProblem(BuildListener listener, Throwable e) {
         if(listener!=null) {
             if(e instanceof IOException)
-                Util.displayIOException((IOException)e,listener);
+                UtilExt.displayIOException((IOException)e,listener);
 
             Writer w = listener.fatalError(e.getMessage());
             if(w!=null) {
@@ -1421,7 +1421,7 @@ public abstract class RunExt <JobT extends JobExt<JobT,RunT>,RunT extends RunExt
      */
     @Deprecated
     public String getLog() throws IOException {
-        return Util.loadFile(getLogFile(),getCharset());
+        return UtilExt.loadFile(getLogFile(),getCharset());
     }
 
     /**
@@ -1612,7 +1612,7 @@ public abstract class RunExt <JobT extends JobExt<JobT,RunT>,RunT extends RunExt
             env.put("NODE_NAME",e.getOwner().getName());
             NodeExt n = e.getOwner().getNode();
             if (n!=null)
-                env.put("NODE_LABELS",Util.join(n.getAssignedLabels()," "));
+                env.put("NODE_LABELS",UtilExt.join(n.getAssignedLabels()," "));
         }
 
         for (EnvironmentContributor ec : EnvironmentContributor.all())
@@ -1627,7 +1627,7 @@ public abstract class RunExt <JobT extends JobExt<JobT,RunT>,RunT extends RunExt
      */
     public final EnvVars getCharacteristicEnvVars() {
         EnvVars env = new EnvVars();
-        env.put("HUDSON_SERVER_COOKIE",Util.getDigestOf("ServerID:"+HudsonExt.getInstance().getSecretKey()));
+        env.put("HUDSON_SERVER_COOKIE",UtilExt.getDigestOf("ServerID:"+HudsonExt.getInstance().getSecretKey()));
         env.put("BUILD_NUMBER",String.valueOf(number));
         env.put("BUILD_ID",getId());
         env.put("BUILD_TAG","hudson-"+getParent().getName()+"-"+number);
@@ -1665,7 +1665,7 @@ public abstract class RunExt <JobT extends JobExt<JobT,RunT>,RunT extends RunExt
 
 
     protected void submit(JSONObject json) throws IOException {
-        setDisplayName(Util.fixEmptyAndTrim(json.getString("displayName")));
+        setDisplayName(UtilExt.fixEmptyAndTrim(json.getString("displayName")));
         setDescription(json.getString("description"));
     }
 

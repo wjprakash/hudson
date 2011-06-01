@@ -40,14 +40,14 @@ import hudson.model.HudsonExt;
  */
 final class AutoBrowserHolder {
     private int cacheGeneration;
-    private RepositoryBrowser cache;
+    private RepositoryBrowserExt cache;
     private SCMExt owner;
 
     public AutoBrowserHolder(SCMExt owner) {
         this.owner = owner;
     }
 
-    public RepositoryBrowser get() {
+    public RepositoryBrowserExt get() {
         int g = owner.getDescriptor().generation;
         if(g!=cacheGeneration) {
             cacheGeneration = g;
@@ -63,7 +63,7 @@ final class AutoBrowserHolder {
      * @return
      *      null if no applicable configuration was found.
      */
-    private RepositoryBrowser infer() {
+    private RepositoryBrowserExt infer() {
         for( AbstractProjectExt p : HudsonExt.getInstance().getAllItems(AbstractProjectExt.class) ) {
             SCMExt scm = p.getScm();
             if (scm!=null && scm.getClass()==owner.getClass() && scm.getBrowser()!=null &&

@@ -98,7 +98,7 @@ import java.nio.charset.Charset;
  *
  * @author Kohsuke Kawaguchi
  */
-public class Util {
+public class UtilExt {
 
     // Constant number of milliseconds in various time units.
     private static final long ONE_SECOND_MS = 1000;
@@ -1021,7 +1021,7 @@ public class Util {
         } catch (IOException e) {
             PrintStream log = listener.getLogger();
             log.printf("ln %s %s failed\n",targetPath, new File(baseDir, symlinkPath));
-            Util.displayIOException(e,listener);
+            UtilExt.displayIOException(e,listener);
             e.printStackTrace( log );
         }
     }
@@ -1095,16 +1095,6 @@ public class Util {
         }
     }
 
-//    /**
-//     * Wraps with the error icon and the CSS class to render error message.
-//     * @since 1.173
-//     */
-//    public static String wrapToErrorSpan(String s) {
-//        s = "<span class=error><img src='"+
-//            Stapler.getCurrentRequest().getContextPath()+ Hudson.RESOURCE_PATH+
-//            "/images/none.gif' height=16 width=1>"+s+"</span>";
-//        return s;
-//    }
     
     /**
      * Returns the parsed string if parsed successful; otherwise returns the default number.
@@ -1183,12 +1173,12 @@ public class Util {
     public static final FastDateFormat RFC822_DATETIME_FORMATTER
             = FastDateFormat.getInstance("EEE, dd MMM yyyy HH:mm:ss Z", Locale.US);
 
-    private static final Logger LOGGER = Logger.getLogger(Util.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(UtilExt.class.getName());
 
     /**
      * On Unix environment that cannot run "ln", set this to true.
      */
-    public static boolean NO_SYMLINK = Boolean.getBoolean(Util.class.getName()+".noSymLink");
+    public static boolean NO_SYMLINK = Boolean.getBoolean(UtilExt.class.getName()+".noSymLink");
 
-    public static boolean SYMLINK_ESCAPEHATCH = Boolean.getBoolean(Util.class.getName()+".symlinkEscapeHatch");
+    public static boolean SYMLINK_ESCAPEHATCH = Boolean.getBoolean(UtilExt.class.getName()+".symlinkEscapeHatch");
 }

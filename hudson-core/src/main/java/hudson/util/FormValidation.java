@@ -27,12 +27,12 @@ import hudson.EnvVars;
 import hudson.FunctionsExt;
 import hudson.Launcher;
 import hudson.ProxyConfiguration;
-import hudson.Util;
+import hudson.UtilExt;
 import hudson.FilePathExt;
 import hudson.model.AbstractBuildExt;
 import hudson.model.BuildListener;
 import hudson.tasks.Builder;
-import static hudson.Util.fixEmpty;
+import static hudson.UtilExt.fixEmpty;
 import hudson.model.HudsonExt;
 import org.kohsuke.stapler.HttpResponse;
 import org.kohsuke.stapler.StaplerRequest;
@@ -126,15 +126,15 @@ public abstract class FormValidation extends IOException implements HttpResponse
      *      can be used as <tt>ok()</tt>.
      */
     public static FormValidation error(String message) {
-        return errorWithMarkup(message==null?null: Util.escape(message));
+        return errorWithMarkup(message==null?null: UtilExt.escape(message));
     }
 
     public static FormValidation warning(String message) {
-        return warningWithMarkup(message==null?null:Util.escape(message));
+        return warningWithMarkup(message==null?null:UtilExt.escape(message));
     }
 
     public static FormValidation ok(String message) {
-        return okWithMarkup(message==null?null:Util.escape(message));
+        return okWithMarkup(message==null?null:UtilExt.escape(message));
     }
 
     /**
@@ -179,9 +179,9 @@ public abstract class FormValidation extends IOException implements HttpResponse
     }
 
     private static FormValidation _error(Kind kind, Throwable e, String message) {
-        if (e==null)    return _errorWithMarkup(Util.escape(message),kind);
+        if (e==null)    return _errorWithMarkup(UtilExt.escape(message),kind);
 
-        return _errorWithMarkup(Util.escape(message)+
+        return _errorWithMarkup(UtilExt.escape(message)+
             " <a href='#' class='showDetails'>"
             + Messages.FormValidation_Error_Details()
             + "</a><pre style='display:none'>"
@@ -305,7 +305,7 @@ public abstract class FormValidation extends IOException implements HttpResponse
         String tokenizedPath = "";
         String delimiter = null;
         if(path!=null) {
-            for (String _dir : Util.tokenize(path.replace("\\", "\\\\"),File.pathSeparator)) {
+            for (String _dir : UtilExt.tokenize(path.replace("\\", "\\\\"),File.pathSeparator)) {
                 if (delimiter == null) {
                   delimiter = ", ";
                 }
@@ -363,7 +363,7 @@ public abstract class FormValidation extends IOException implements HttpResponse
      * Makes sure that the given string is not null or empty.
      */
     public static FormValidation validateRequired(String value) {
-        if (Util.fixEmptyAndTrim(value) == null)
+        if (UtilExt.fixEmptyAndTrim(value) == null)
             return error(Messages.FormValidation_ValidateRequired());
         return ok();
     }

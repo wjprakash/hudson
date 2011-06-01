@@ -24,7 +24,7 @@
 package hudson.slaves;
 
 import hudson.EnvVars;
-import hudson.Util;
+import hudson.UtilExt;
 import hudson.Extension;
 import hudson.model.DescriptorExt;
 import hudson.model.HudsonExt;
@@ -94,7 +94,7 @@ public class CommandLauncher extends ComputerLauncher {
             }
             listener.getLogger().println("$ " + getCommand());
 
-            ProcessBuilder pb = new ProcessBuilder(Util.tokenize(getCommand()));
+            ProcessBuilder pb = new ProcessBuilder(UtilExt.tokenize(getCommand()));
             final EnvVars cookie = _cookie = EnvVars.createCookie();
             pb.environment().putAll(cookie);
 
@@ -145,9 +145,9 @@ public class CommandLauncher extends ComputerLauncher {
         } catch (Error e) {
             e.printStackTrace(listener.error(Messages.ComputerLauncher_unexpectedError()));
         } catch (IOException e) {
-            Util.displayIOException(e, listener);
+            UtilExt.displayIOException(e, listener);
 
-            String msg = Util.getWin32ErrorMessage(e);
+            String msg = UtilExt.getWin32ErrorMessage(e);
             if (msg == null) {
                 msg = "";
             } else {
@@ -175,7 +175,7 @@ public class CommandLauncher extends ComputerLauncher {
         }
 
         public FormValidation doCheckCommand(@QueryParameter String value) {
-            if(Util.fixEmptyAndTrim(value)==null)
+            if(UtilExt.fixEmptyAndTrim(value)==null)
                 return FormValidation.error("Command is empty");
             else
                 return FormValidation.ok();

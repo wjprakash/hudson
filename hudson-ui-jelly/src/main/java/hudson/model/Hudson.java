@@ -31,8 +31,8 @@ import hudson.markup.MarkupFormatter;
 import hudson.PluginManagerExt;
 import hudson.StructuredForm;
 import hudson.TcpSlaveAgentListener;
-import hudson.Util;
-import static hudson.Util.fixEmpty;
+import hudson.UtilExt;
+import static hudson.UtilExt.fixEmpty;
 import hudson.cli.CLICommand;
 import hudson.cli.CliEntryPoint;
 import hudson.cli.CliManagerImpl;
@@ -403,7 +403,7 @@ public final class Hudson extends HudsonExt implements ItemGroup<TopLevelItem>, 
 
             scmCheckoutRetryCount = json.getInt("retry_count");
 
-            systemMessage = Util.nullify(req.getParameter("system_message"));
+            systemMessage = UtilExt.nullify(req.getParameter("system_message"));
 
             jdks.clear();
             jdks.addAll(req.bindJSONToList(JDKExt.class,json.get("jdks")));
@@ -650,7 +650,7 @@ public final class Hudson extends HudsonExt implements ItemGroup<TopLevelItem>, 
         }
         try {
             rsp.sendRedirect2(req.getContextPath()+"/fingerprint/"+
-                Util.getDigestOf(p.getFileItem("name").getInputStream())+'/');
+                UtilExt.getDigestOf(p.getFileItem("name").getInputStream())+'/');
         } finally {
             p.cleanUp();
         }

@@ -28,7 +28,7 @@ import com.thoughtworks.xstream.converters.MarshallingContext;
 import com.thoughtworks.xstream.converters.UnmarshallingContext;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
-import hudson.Util;
+import hudson.UtilExt;
 
 /**
  * @author Kohsuke Kawaguchi
@@ -41,11 +41,11 @@ public class HexBinaryConverter implements Converter {
 
     public void marshal(Object source, HierarchicalStreamWriter writer, MarshallingContext context) {
         byte[] data = (byte[]) source;
-        writer.setValue(Util.toHexString(data));
+        writer.setValue(UtilExt.toHexString(data));
     }
 
     public Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext context) {
         String data = reader.getValue(); // needs to be called before hasMoreChildren.
-        return Util.fromHexString(data);
+        return UtilExt.fromHexString(data);
     }
 }

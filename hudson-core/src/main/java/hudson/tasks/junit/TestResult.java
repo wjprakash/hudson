@@ -24,7 +24,7 @@
 package hudson.tasks.junit;
 
 import hudson.AbortException;
-import hudson.Util;
+import hudson.UtilExt;
 import hudson.model.AbstractBuildExt;
 import hudson.model.RunExt;
 import hudson.tasks.test.MetaTabulatedResult;
@@ -172,7 +172,7 @@ public final class TestResult extends MetaTabulatedResult {
                 String.format(
                 "Test reports were found but none of them are new. Did tests run? \n"+
                 "For example, %s is %s old\n", f,
-                Util.getTimeSpanString(buildTime-f.lastModified())));
+                UtilExt.getTimeSpanString(buildTime-f.lastModified())));
         }
     }
 

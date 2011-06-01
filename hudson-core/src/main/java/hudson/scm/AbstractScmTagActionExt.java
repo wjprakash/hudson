@@ -28,8 +28,6 @@ import hudson.model.TaskActionExt;
 import hudson.model.BuildBadgeAction;
 import hudson.security.Permission;
 import hudson.security.ACL;
-import org.kohsuke.stapler.StaplerRequest;
-import org.kohsuke.stapler.StaplerResponse;
 
 import javax.servlet.ServletException;
 import java.io.IOException;
@@ -44,10 +42,10 @@ import java.io.IOException;
  *
  * @author Kohsuke Kawaguchi
  */
-public abstract class AbstractScmTagAction extends TaskActionExt implements BuildBadgeAction {
+public abstract class AbstractScmTagActionExt extends TaskActionExt implements BuildBadgeAction {
     protected final AbstractBuildExt build;
 
-    protected AbstractScmTagAction(AbstractBuildExt build) {
+    protected AbstractScmTagActionExt(AbstractBuildExt build) {
         this.build = build;
     }
 
@@ -81,10 +79,6 @@ public abstract class AbstractScmTagAction extends TaskActionExt implements Buil
 
     protected ACL getACL() {
         return build.getACL();
-    }
-
-    public void doIndex(StaplerRequest req, StaplerResponse rsp) throws IOException, ServletException {
-        req.getView(this,chooseAction()).forward(req,rsp);
     }
 
     protected synchronized String chooseAction() {

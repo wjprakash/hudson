@@ -24,7 +24,7 @@
  */
 package hudson.util;
 
-import hudson.Util;
+import hudson.UtilExt;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -131,7 +131,7 @@ public class ArgumentListBuilder implements Serializable {
      */
     public ArgumentListBuilder addTokenized(String s) {
         if(s==null) return this;
-        add(Util.tokenize(s));
+        add(UtilExt.tokenize(s));
         return this;
     }
 
@@ -190,8 +190,8 @@ public class ArgumentListBuilder implements Serializable {
     public ArgumentListBuilder addKeyValuePairsFromPropertyString(String prefix, String properties, VariableResolver vr) throws IOException {
         if(properties==null)    return this;
 
-        for (Entry<Object,Object> entry : Util.loadProperties(properties).entrySet()) {
-            addKeyValuePair(prefix, (String)entry.getKey(), Util.replaceMacro(entry.getValue().toString(),vr), false);
+        for (Entry<Object,Object> entry : UtilExt.loadProperties(properties).entrySet()) {
+            addKeyValuePair(prefix, (String)entry.getKey(), UtilExt.replaceMacro(entry.getValue().toString(),vr), false);
         }
         return this;
     }
@@ -214,8 +214,8 @@ public class ArgumentListBuilder implements Serializable {
     public ArgumentListBuilder addKeyValuePairsFromPropertyString(String prefix, String properties, VariableResolver vr, Set<String> propsToMask) throws IOException {
         if(properties==null)    return this;
 
-        for (Entry<Object,Object> entry : Util.loadProperties(properties).entrySet()) {
-            addKeyValuePair(prefix, (String)entry.getKey(), Util.replaceMacro(entry.getValue().toString(),vr), (propsToMask == null) ? false : propsToMask.contains((String)entry.getKey()));
+        for (Entry<Object,Object> entry : UtilExt.loadProperties(properties).entrySet()) {
+            addKeyValuePair(prefix, (String)entry.getKey(), UtilExt.replaceMacro(entry.getValue().toString(),vr), (propsToMask == null) ? false : propsToMask.contains((String)entry.getKey()));
         }
         return this;
     }

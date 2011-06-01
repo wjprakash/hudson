@@ -25,7 +25,7 @@
 package hudson.model;
 
 import hudson.Extension;
-import hudson.Util;
+import hudson.UtilExt;
 import hudson.model.Descriptor.FormException;
 import hudson.util.CaseInsensitiveComparator;
 import hudson.util.DescribableList;
@@ -226,7 +226,7 @@ public class ListView extends View implements Saveable {
         }
 
         if (req.getParameter("useincluderegex") != null) {
-            includeRegex = Util.nullify(req.getParameter("includeRegex"));
+            includeRegex = UtilExt.nullify(req.getParameter("includeRegex"));
             if (includeRegex == null)
                 includePattern = null;
             else
@@ -246,7 +246,7 @@ public class ListView extends View implements Saveable {
         }
         jobFilters.rebuildHetero(req, req.getSubmittedForm(), ViewJobFilter.all(), "jobFilters");
 
-        String filter = Util.fixEmpty(req.getParameter("statusFilter"));
+        String filter = UtilExt.fixEmpty(req.getParameter("statusFilter"));
         statusFilter = filter != null ? "1".equals(filter) : null;
     }
 
@@ -260,7 +260,7 @@ public class ListView extends View implements Saveable {
          * Checks if the include regular expression is valid.
          */
         public FormValidation doCheckIncludeRegex( @QueryParameter String value ) throws IOException, ServletException, InterruptedException  {
-            String v = Util.fixEmpty(value);
+            String v = UtilExt.fixEmpty(value);
             if (v != null) {
                 try {
                     Pattern.compile(v);

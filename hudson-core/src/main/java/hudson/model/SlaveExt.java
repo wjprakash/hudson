@@ -25,7 +25,7 @@ package hudson.model;
 
 import hudson.FilePathExt;
 import hudson.Launcher;
-import hudson.Util;
+import hudson.UtilExt;
 import hudson.Launcher.RemoteLauncher;
 import hudson.diagnosis.OldDataMonitorExt;
 import hudson.remoting.Callable;
@@ -110,7 +110,7 @@ public abstract class SlaveExt extends NodeExt implements Serializable {
 
     public SlaveExt(String name, String nodeDescription, String remoteFS, String numExecutors,
             ModeExt mode, String labelString, ComputerLauncher launcher, RetentionStrategy retentionStrategy, List<? extends NodeProperty<?>> nodeProperties) throws IOException {
-        this(name, nodeDescription, remoteFS, Util.tryParseNumber(numExecutors, 1).intValue(), mode, labelString, launcher, retentionStrategy, nodeProperties);
+        this(name, nodeDescription, remoteFS, UtilExt.tryParseNumber(numExecutors, 1).intValue(), mode, labelString, launcher, retentionStrategy, nodeProperties);
     }
 
     /**
@@ -128,8 +128,8 @@ public abstract class SlaveExt extends NodeExt implements Serializable {
         this.description = nodeDescription;
         this.numExecutors = numExecutors;
         this.mode = mode;
-        this.remoteFS = Util.fixNull(remoteFS).trim();
-        this.label = Util.fixNull(labelString).trim();
+        this.remoteFS = UtilExt.fixNull(remoteFS).trim();
+        this.label = UtilExt.fixNull(labelString).trim();
         this.launcher = launcher;
         this.retentionStrategy = retentionStrategy;
         getAssignedLabels();    // compute labels now
@@ -187,7 +187,7 @@ public abstract class SlaveExt extends NodeExt implements Serializable {
     }
 
     public String getLabelString() {
-        return Util.fixNull(label).trim();
+        return UtilExt.fixNull(label).trim();
     }
 
     public ClockDifference getClockDifference() throws IOException, InterruptedException {

@@ -28,7 +28,7 @@ import hudson.Extension;
 import hudson.FilePathExt;
 import hudson.FilePathExt.FileCallable;
 import hudson.ProxyConfiguration;
-import hudson.Util;
+import hudson.UtilExt;
 import hudson.FunctionsExt;
 import hudson.model.NodeExt;
 import hudson.model.TaskListener;
@@ -64,7 +64,7 @@ public class ZipExtractionInstaller extends ToolInstaller {
     public ZipExtractionInstaller(String label, String url, String subdir) {
         super(label);
         this.url = url;
-        this.subdir = Util.fixEmptyAndTrim(subdir);
+        this.subdir = UtilExt.fixEmptyAndTrim(subdir);
     }
 
     public String getUrl() {
@@ -130,7 +130,7 @@ public class ZipExtractionInstaller extends ToolInstaller {
                 if (FunctionsExt.isMustangOrAbove()) {
                     f.setExecutable(true, false);
                 } else {
-                    Util.chmod(f, 0755);
+                    UtilExt.chmod(f, 0755);
                 }
             } else {
                 File[] kids = f.listFiles();

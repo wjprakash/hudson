@@ -25,7 +25,7 @@
 package hudson.model;
 
 import hudson.model.labels.LabelAtomExt;
-import hudson.node_monitors.NodeMonitor;
+import hudson.node_monitors.NodeMonitorExt;
 import hudson.slaves.NodeDescriptorExt;
 import hudson.util.ClockDifference;
 import hudson.util.EnumConverter;

@@ -24,7 +24,7 @@
 package hudson.model;
 
 import hudson.model.queue.Tasks;
-import hudson.model.queue.WorkUnit;
+import hudson.model.queue.WorkUnitExt;
 import org.kohsuke.stapler.HttpResponse;
 import org.kohsuke.stapler.HttpResponses;
 import org.kohsuke.stapler.StaplerRequest;
@@ -73,7 +73,7 @@ public class Executor extends ExecutorExt {
      */
     @Exported
     @Override
-    public WorkUnit getCurrentWorkUnit() {
+    public WorkUnitExt getCurrentWorkUnit() {
         return super.getCurrentWorkUnit();
     }
 

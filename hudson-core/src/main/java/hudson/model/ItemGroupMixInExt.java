@@ -23,7 +23,7 @@
  */
 package hudson.model;
 
-import hudson.Util;
+import hudson.UtilExt;
 import hudson.model.listeners.ItemListener;
 import hudson.security.AccessControlled;
 import hudson.util.CopyOnWriteMap;
@@ -123,7 +123,7 @@ public abstract class ItemGroupMixInExt {
         T result = (T)createProject(src.getDescriptor(),name,false);
 
         // copy config
-        Util.copyFile(Items.getConfigFile(src).getFile(),Items.getConfigFile(result).getFile());
+        UtilExt.copyFile(Items.getConfigFile(src).getFile(),Items.getConfigFile(result).getFile());
 
         // reload from the new config
         result = (T)Items.load(parent,result.getRootDir());
@@ -154,7 +154,7 @@ public abstract class ItemGroupMixInExt {
             return result;
         } catch (IOException e) {
             // if anything fails, delete the config file to avoid further confusion
-            Util.deleteRecursive(configXml.getParentFile());
+            UtilExt.deleteRecursive(configXml.getParentFile());
             throw e;
         }
     }

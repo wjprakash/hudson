@@ -23,7 +23,7 @@
  */
 package hudson.triggers;
 
-import static hudson.Util.fixNull;
+import static hudson.UtilExt.fixNull;
 import hudson.model.BuildableItem;
 import hudson.model.CauseExt;
 import hudson.model.ItemExt;

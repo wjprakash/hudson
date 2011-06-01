@@ -25,7 +25,7 @@ package hudson.os;
 
 import com.sun.solaris.EmbeddedSu;
 import hudson.Launcher.LocalLauncher;
-import hudson.Util;
+import hudson.UtilExt;
 import hudson.model.ComputerExt;
 import hudson.model.TaskListener;
 import hudson.remoting.Callable;
@@ -71,7 +71,7 @@ public abstract class SU {
         if(File.pathSeparatorChar==';') // on Windows
             return newLocalChannel();  // TODO: perhaps use RunAs to run as an Administrator?
 
-        String os = Util.fixNull(System.getProperty("os.name"));
+        String os = UtilExt.fixNull(System.getProperty("os.name"));
         if(os.equals("Linux"))
             return new UnixSu() {
                 protected String sudoExe() {
@@ -80,7 +80,7 @@ public abstract class SU {
 
                 protected Process sudoWithPass(ArgumentListBuilder args) throws IOException {
                     args.prepend(sudoExe(),"-S");
-                    listener.getLogger().println("$ "+Util.join(args.toList()," "));
+                    listener.getLogger().println("$ "+UtilExt.join(args.toList()," "));
                     ProcessBuilder pb = new ProcessBuilder(args.toCommandArray());
                     Process p = pb.start();
                     // TODO: use -p to detect prompt

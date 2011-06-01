@@ -29,9 +29,9 @@ import hudson.Extension;
 import hudson.FunctionsExt;
 import hudson.Launcher;
 import hudson.RestrictedSince;
-import hudson.Util;
+import hudson.UtilExt;
 import hudson.diagnosis.OldDataMonitorExt;
-import static hudson.Util.fixEmptyAndTrim;
+import static hudson.UtilExt.fixEmptyAndTrim;
 import hudson.model.AbstractBuildExt;
 import hudson.model.AbstractProjectExt;
 import hudson.model.BuildListener;
@@ -464,7 +464,7 @@ public class Mailer extends Notifier {
                 
                 return FormValidation.ok("Email was successfully sent");
             } catch (MessagingException e) {
-                return FormValidation.errorWithMarkup("<p>Failed to send out e-mail</p><pre>"+Util.escape(FunctionsExt.printThrowable(e))+"</pre>");
+                return FormValidation.errorWithMarkup("<p>Failed to send out e-mail</p><pre>"+UtilExt.escape(FunctionsExt.printThrowable(e))+"</pre>");
             }
         }
 

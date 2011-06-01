@@ -24,9 +24,9 @@
 package hudson.model;
 
 import hudson.BulkChange;
-import hudson.Util;
+import hudson.UtilExt;
 import hudson.model.DescriptorExt.FormException;
-import hudson.node_monitors.NodeMonitor;
+import hudson.node_monitors.NodeMonitorExt;
 import hudson.slaves.NodeDescriptorExt;
 import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest;
@@ -105,7 +105,7 @@ public final class ComputerSet extends ComputerSetExt {
     public void doUpdateNow( StaplerRequest req, StaplerResponse rsp ) throws IOException, ServletException {
         HudsonExt.getInstance().checkPermission(HudsonExt.ADMINISTER);
         
-        for (NodeMonitor nodeMonitor : NodeMonitor.getAll()) {
+        for (NodeMonitorExt nodeMonitor : NodeMonitorExt.getAll()) {
             Thread t = nodeMonitor.triggerUpdate();
             t.setName(nodeMonitor.getColumnCaption());
         }
@@ -127,7 +127,7 @@ public final class ComputerSet extends ComputerSetExt {
             NodeExt src = app.getNode(from);
             if(src==null) {
                 rsp.setStatus(SC_BAD_REQUEST);
-                if(Util.fixEmpty(from)==null)
+                if(UtilExt.fixEmpty(from)==null)
                     sendError(Messages.ComputerSet_SpecifySlaveToCopy(),req,rsp);
                 else
                     sendError(Messages.ComputerSet_NoSuchSlave(from),req,rsp);
@@ -203,9 +203,9 @@ public final class ComputerSet extends ComputerSetExt {
             monitors.rebuild(req,req.getSubmittedForm(),getNodeMonitorDescriptors());
 
             // add in the rest of instances are ignored instances
-            for (DescriptorExt<NodeMonitor> d : NodeMonitor.all())
+            for (DescriptorExt<NodeMonitorExt> d : NodeMonitorExt.all())
                 if(monitors.get(d)==null) {
-                    NodeMonitor i = createDefaultInstance(d, true);
+                    NodeMonitorExt i = createDefaultInstance(d, true);
                     if(i!=null)
                         monitors.add(i);
                 }

@@ -32,7 +32,7 @@ import hudson.AbortException;
 import hudson.CopyOnWrite;
 import hudson.FilePathExt;
 import hudson.Launcher;
-import hudson.Util;
+import hudson.UtilExt;
 import hudson.diagnosis.OldDataMonitorExt;
 import hudson.model.CauseExt.LegacyCodeCause;
 import hudson.model.FingerprintExt.RangeSet;
@@ -45,7 +45,7 @@ import hudson.model.labels.LabelAtomExt;
 import hudson.model.labels.LabelExpression;
 import hudson.model.queue.CauseOfBlockage;
 import hudson.model.queue.SubTaskContributor;
-import hudson.scm.NullSCM;
+import hudson.scm.NullSCMExt;
 import hudson.scm.PollingResult;
 import hudson.scm.SCMExt;
 import hudson.scm.SCMRevisionState;
@@ -98,7 +98,7 @@ public abstract class AbstractProjectExt<P extends AbstractProjectExt<P,R>,R ext
      * To allow derived classes to link {@link SCM} config to elsewhere,
      * access to this variable should always go through {@link #getScm()}.
      */
-    private volatile SCMExt scm = new NullSCM();
+    private volatile SCMExt scm = new NullSCMExt();
 
     /**
      * State returned from {@link SCM#poll(AbstractProjectExt, Launcher, FilePathExt, TaskListener, SCMRevisionState)}.
@@ -237,7 +237,7 @@ public abstract class AbstractProjectExt<P extends AbstractProjectExt<P,R>,R ext
         for (Trigger t : triggers)
             t.start(this,false);
         if(scm==null)
-            scm = new NullSCM(); // perhaps it was pointing to a plugin that no longer exists.
+            scm = new NullSCMExt(); // perhaps it was pointing to a plugin that no longer exists.
 
         if(transientActions==null)
             transientActions = new Vector<Action>();    // happens when loaded from disk
@@ -553,7 +553,7 @@ public abstract class AbstractProjectExt<P extends AbstractProjectExt<P,R>,R ext
             ta.addAll(p.getJobActions((P)this));
 
         for (TransientProjectActionFactory tpaf : TransientProjectActionFactory.all())
-            ta.addAll(Util.fixNull(tpaf.createFor(this))); // be defensive against null
+            ta.addAll(UtilExt.fixNull(tpaf.createFor(this))); // be defensive against null
         return ta;
     }
 
@@ -654,7 +654,7 @@ public abstract class AbstractProjectExt<P extends AbstractProjectExt<P,R>,R ext
             return null;
 
         List<Action> queueActions = new ArrayList<Action>(actions);
-        if (isParameterized() && Util.filter(queueActions, ParametersAction.class).isEmpty()) {
+        if (isParameterized() && UtilExt.filter(queueActions, ParametersAction.class).isEmpty()) {
             queueActions.add(new ParametersAction(getDefaultParametersValues()));
         }
 

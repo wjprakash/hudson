@@ -83,7 +83,7 @@ public class BackFiller extends LoadPredictor {
 
         // this slot isn't executable
         @Override
-        protected void set(WorkUnit p) {
+        protected void set(WorkUnitExt p) {
             throw new UnsupportedOperationException();
         }
     }

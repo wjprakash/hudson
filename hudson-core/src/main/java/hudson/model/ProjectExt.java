@@ -23,7 +23,7 @@
  */
 package hudson.model;
 
-import hudson.Util;
+import hudson.UtilExt;
 import hudson.diagnosis.OldDataMonitorExt;
 import hudson.tasks.BuildStep;
 import hudson.tasks.BuildWrapper;
@@ -122,9 +122,9 @@ public abstract class ProjectExt<P extends ProjectExt<P,B>,B extends Build<P,B>>
         final Set<ResourceActivity> activities = new HashSet<ResourceActivity>();
 
         activities.addAll(super.getResourceActivities());
-        activities.addAll(Util.filter(builders,ResourceActivity.class));
-        activities.addAll(Util.filter(publishers,ResourceActivity.class));
-        activities.addAll(Util.filter(buildWrappers,ResourceActivity.class));
+        activities.addAll(UtilExt.filter(builders,ResourceActivity.class));
+        activities.addAll(UtilExt.filter(publishers,ResourceActivity.class));
+        activities.addAll(UtilExt.filter(buildWrappers,ResourceActivity.class));
 
         return activities;
     }

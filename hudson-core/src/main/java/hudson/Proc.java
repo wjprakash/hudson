@@ -133,15 +133,15 @@ public abstract class Proc {
         private final String name;
 
         public LocalProc(String cmd, Map<String,String> env, OutputStream out, File workDir) throws IOException {
-            this(cmd,Util.mapToEnv(env),out,workDir);
+            this(cmd,UtilExt.mapToEnv(env),out,workDir);
         }
 
         public LocalProc(String[] cmd, Map<String,String> env,InputStream in, OutputStream out) throws IOException {
-            this(cmd,Util.mapToEnv(env),in,out);
+            this(cmd,UtilExt.mapToEnv(env),in,out);
         }
 
         public LocalProc(String cmd,String[] env,OutputStream out, File workDir) throws IOException {
-            this( Util.tokenize(cmd), env, out, workDir );
+            this( UtilExt.tokenize(cmd), env, out, workDir );
         }
 
         public LocalProc(String[] cmd,String[] env,OutputStream out, File workDir) throws IOException {

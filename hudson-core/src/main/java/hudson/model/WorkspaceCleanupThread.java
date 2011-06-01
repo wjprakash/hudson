@@ -24,7 +24,7 @@
 package hudson.model;
 
 import hudson.FilePathExt;
-import hudson.Util;
+import hudson.UtilExt;
 import hudson.Extension;
 
 import java.io.File;
@@ -107,7 +107,7 @@ public class WorkspaceCleanupThread extends AsyncPeriodicWork {
         // if younger than a month, keep it
         long now = new Date().getTime();
         if(dir.lastModified() + 30 * DAY > now) {
-            LOGGER.fine("Directory "+dir+" is only "+ Util.getTimeSpanString(now-dir.lastModified())+" old, so not deleting");
+            LOGGER.fine("Directory "+dir+" is only "+ UtilExt.getTimeSpanString(now-dir.lastModified())+" old, so not deleting");
             return false;
         }
 

@@ -28,9 +28,6 @@ import hudson.ExtensionPoint;
 import hudson.model.AbstractDescribableImpl;
 import hudson.model.Action;
 import hudson.model.HudsonExt;
-import hudson.slaves.NodeDescriptorExt;
-import hudson.slaves.NodePropertyDescriptor;
-import org.kohsuke.stapler.export.ExportedBean;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -46,8 +43,8 @@ import java.util.Collections;
  * @author Kohsuke Kawaguchi
  * @since 1.373
  */
-@ExportedBean
-public class LabelAtomProperty extends AbstractDescribableImpl<LabelAtomProperty> implements ExtensionPoint {
+public class LabelAtomPropertyExt extends AbstractDescribableImpl<LabelAtomPropertyExt> implements ExtensionPoint {
+
     /**
      * Contributes {@link Action}s to the label.
      *
@@ -61,7 +58,7 @@ public class LabelAtomProperty extends AbstractDescribableImpl<LabelAtomProperty
     /**
      * Lists up all the registered {@link LabelAtomPropertyDescriptor}s in the system.
      */
-    public static DescriptorExtensionListExt<LabelAtomProperty,LabelAtomPropertyDescriptor> all() {
-        return HudsonExt.getInstance().<LabelAtomProperty,LabelAtomPropertyDescriptor>getDescriptorList(LabelAtomProperty.class);
+    public static DescriptorExtensionListExt<LabelAtomPropertyExt, LabelAtomPropertyDescriptor> all() {
+        return HudsonExt.getInstance().<LabelAtomPropertyExt, LabelAtomPropertyDescriptor>getDescriptorList(LabelAtomPropertyExt.class);
     }
 }

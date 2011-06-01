@@ -25,7 +25,7 @@ package hudson.cli;
 
 import hudson.FilePathExt;
 import hudson.FilePathExt.FileCallable;
-import hudson.Util;
+import hudson.UtilExt;
 import hudson.model.HudsonExt;
 import hudson.model.HudsonExt.MasterComputer;
 
@@ -142,7 +142,7 @@ public class ClientAuthenticationCache implements Serializable {
                 }
 
                 // try to protect this file from other users, if we can.
-                Util.chmod(f, 0600);
+                UtilExt.chmod(f, 0600);
                 return null;
             }
         });

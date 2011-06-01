@@ -27,7 +27,7 @@ import hudson.AbortException;
 import hudson.FilePathExt;
 import hudson.FilePathExt.FileCallable;
 import hudson.Launcher;
-import hudson.Util;
+import hudson.UtilExt;
 import hudson.model.AbstractBuildExt;
 import hudson.model.TaskListener;
 import hudson.remoting.VirtualChannel;
@@ -105,7 +105,7 @@ public abstract class DefaultTestResultParserImpl extends TestResultParser imple
                         String.format(
                         "Test reports were found but none of them are new. Did tests run? \n"+
                         "For example, %s is %s old\n", paths[0].getRemote(),
-                        Util.getTimeSpanString(localBuildTime-paths[0].lastModified())));
+                        UtilExt.getTimeSpanString(localBuildTime-paths[0].lastModified())));
                 }
 
                 return parse(files,launcher,listener);

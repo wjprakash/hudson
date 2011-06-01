@@ -24,7 +24,7 @@
 package hudson.util;
 
 import hudson.EnvVars;
-import hudson.Util;
+import hudson.UtilExt;
 import hudson.model.HudsonExt;
 import hudson.remoting.Callable;
 import hudson.remoting.Channel;
@@ -324,7 +324,7 @@ public abstract class ProcessTree implements Iterable<OSProcess>, IProcessTree, 
             if(File.pathSeparatorChar==';')
                 return new Windows();
 
-            String os = Util.fixNull(System.getProperty("os.name"));
+            String os = UtilExt.fixNull(System.getProperty("os.name"));
             if(os.equals("Linux"))
                 return new Linux();
             if(os.equals("SunOS"))

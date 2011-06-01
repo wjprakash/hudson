@@ -23,7 +23,7 @@
  */
 package hudson.util;
 
-import hudson.Util;
+import hudson.UtilExt;
 import hudson.model.NodeExt;
 
 import java.io.IOException;
@@ -75,7 +75,7 @@ public final class ClockDifference {
 
         long abs = Math.abs(diff);
 
-        String s = Util.getTimeSpanString(abs);
+        String s = UtilExt.getTimeSpanString(abs);
         if(diff<0)
             s += Messages.ClockDifference_Ahead();
         else
@@ -87,7 +87,7 @@ public final class ClockDifference {
     public String toHtml() {
         String s = toString();
         if(isDangerous())
-            s = Util.wrapToErrorSpan(s);
+            s = UtilExt.wrapToErrorSpan(s);
         return s;
     }
 

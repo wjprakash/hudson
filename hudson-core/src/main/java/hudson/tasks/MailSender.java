@@ -25,10 +25,10 @@
 package hudson.tasks;
 
 import hudson.FilePathExt;
-import hudson.Util;
+import hudson.UtilExt;
 import hudson.FunctionsExt;
 import hudson.model.*;
-import hudson.scm.ChangeLogSet;
+import hudson.scm.ChangeLogSetExt;
 
 import javax.mail.Address;
 import javax.mail.Message;
@@ -196,7 +196,7 @@ public class MailSender {
         StringBuilder buf = new StringBuilder();
         // Link to project changes summary for "still unstable" if this or last build has changes
         if (still && !(build.getChangeSet().isEmptySet() && prev.getChangeSet().isEmptySet()))
-            appendUrl(Util.encode(build.getProject().getUrl()) + "changes", buf);
+            appendUrl(UtilExt.encode(build.getProject().getUrl()) + "changes", buf);
         else
             appendBuildUrl(build, buf);
         msg.setText(buf.toString(), charset);
@@ -205,7 +205,7 @@ public class MailSender {
     }
 
     private void appendBuildUrl(AbstractBuildExt<?, ?> build, StringBuilder buf) {
-        appendUrl(Util.encode(build.getUrl())
+        appendUrl(UtilExt.encode(build.getUrl())
                   + (build.getChangeSet().isEmptySet() ? "" : "changes"), buf);
     }
 
@@ -224,7 +224,7 @@ public class MailSender {
         appendBuildUrl(build, buf);
 
         boolean firstChange = true;
-        for (ChangeLogSet.Entry entry : build.getChangeSet()) {
+        for (ChangeLogSetExt.Entry entry : build.getChangeSet()) {
             if (firstChange) {
                 firstChange = false;
                 buf.append(Messages.MailSender_FailureMail_Changes()).append("\n\n");
@@ -256,8 +256,8 @@ public class MailSender {
                 // Hyperlink local file paths to the repository workspace or build artifacts.
                 // Note that it is possible for a failure mail to refer to a file using a workspace
                 // URL which has already been corrected in a subsequent build. To fix, archive.
-                workspaceUrl = baseUrl + Util.encode(build.getProject().getUrl()) + "ws/";
-                artifactUrl = baseUrl + Util.encode(build.getUrl()) + "artifact/";
+                workspaceUrl = baseUrl + UtilExt.encode(build.getProject().getUrl()) + "ws/";
+                artifactUrl = baseUrl + UtilExt.encode(build.getUrl()) + "artifact/";
                 FilePathExt ws = build.getWorkspace();
                 // Match either file or URL patterns, i.e. either
                 // c:\hudson\workdir\jobs\foo\workspace\src\Foo.java
@@ -280,7 +280,7 @@ public class MailSender {
                     while (m.find(pos)) {
                         String path = m.group(2).replace(File.separatorChar, '/');
                         String linkUrl = artifactMatches(path, build) ? artifactUrl : workspaceUrl;
-                        String prefix = line.substring(0, m.start()) + '<' + linkUrl + Util.encode(path) + '>';
+                        String prefix = line.substring(0, m.start()) + '<' + linkUrl + UtilExt.encode(path) + '>';
                         pos = prefix.length();
                         line = prefix + line.substring(m.end());
                         // XXX better style to reuse Matcher and fix offsets, but more work
@@ -380,7 +380,7 @@ public class MailSender {
     private Set<InternetAddress> buildCulpritList(BuildListener listener, Set<UserExt> culprits) throws AddressException {
         Set<InternetAddress> r = new HashSet<InternetAddress>();
         for (UserExt a : culprits) {
-            String adrs = Util.fixEmpty(a.getProperty(Mailer.UserProperty.class).getAddress());
+            String adrs = UtilExt.fixEmpty(a.getProperty(Mailer.UserProperty.class).getAddress());
             if(debug)
                 listener.getLogger().println("  User "+a.getId()+" -> "+adrs);
             if (adrs != null)

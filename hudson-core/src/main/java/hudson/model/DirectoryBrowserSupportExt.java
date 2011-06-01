@@ -24,7 +24,7 @@
 package hudson.model;
 
 import hudson.FilePathExt;
-import hudson.Util;
+import hudson.UtilExt;
 import hudson.FilePathExt.FileCallable;
 import hudson.remoting.VirtualChannel;
 import org.apache.tools.ant.types.FileSet;
@@ -255,14 +255,14 @@ public class DirectoryBrowserSupportExt {
                 Arrays.sort(files,new FileComparator());
     
                 for( File f : files ) {
-                    Path p = new Path(Util.rawEncode(f.getName()),f.getName(),f.isDirectory(),f.length(), f.canRead());
+                    Path p = new Path(UtilExt.rawEncode(f.getName()),f.getName(),f.isDirectory(),f.length(), f.canRead());
                     if(!f.isDirectory()) {
                         r.add(Collections.singletonList(p));
                     } else {
                         // find all empty intermediate directory
                         List<Path> l = new ArrayList<Path>();
                         l.add(p);
-                        String relPath = Util.rawEncode(f.getName());
+                        String relPath = UtilExt.rawEncode(f.getName());
                         while(true) {
                             // files that don't start with '.' qualify for 'meaningful files', nor SCM related files
                             File[] sub = f.listFiles(new FilenameFilter() {
@@ -273,7 +273,7 @@ public class DirectoryBrowserSupportExt {
                             if(sub==null || sub.length!=1 || !sub[0].isDirectory())
                                 break;
                             f = sub[0];
-                            relPath += '/'+Util.rawEncode(f.getName());
+                            relPath += '/'+UtilExt.rawEncode(f.getName());
                             l.add(new Path(relPath,f.getName(),true,0, f.canRead()));
                         }
                         r.add(l);
@@ -304,7 +304,7 @@ public class DirectoryBrowserSupportExt {
         }
 
         public List<List<Path>> invoke(File baseDir, VirtualChannel channel) throws IOException {
-            FileSet fs = Util.createFileSet(baseDir,pattern);
+            FileSet fs = UtilExt.createFileSet(baseDir,pattern);
             DirectoryScanner ds = fs.getDirectoryScanner();
             String[] files = ds.getIncludedFiles();
 
@@ -340,7 +340,7 @@ public class DirectoryBrowserSupportExt {
                 buildPathList(baseDir, parent, pathList, href);
             }
 
-            href.append(Util.rawEncode(filePath.getName()));
+            href.append(UtilExt.rawEncode(filePath.getName()));
             if (filePath.isDirectory()) {
                 href.append("/");
             }

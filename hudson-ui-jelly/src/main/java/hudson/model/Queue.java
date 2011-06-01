@@ -24,7 +24,7 @@
  */
 package hudson.model;
 
-import hudson.Util;
+import hudson.UtilExt;
 
 import hudson.model.queue.FutureImpl;
 import hudson.model.queue.CauseOfBlockage;
@@ -192,7 +192,7 @@ public class Queue extends QueueExt {
         public CauseOfBlockage getCauseOfBlockage() {
             long diff = timestamp.getTimeInMillis() - System.currentTimeMillis();
             if (diff > 0) {
-                return CauseOfBlockage.fromMessage(Messages._Queue_InQuietPeriod(Util.getTimeSpanString(diff)));
+                return CauseOfBlockage.fromMessage(Messages._Queue_InQuietPeriod(UtilExt.getTimeSpanString(diff)));
             } else {
                 return CauseOfBlockage.fromMessage(Messages._Queue_Unknown());
             }

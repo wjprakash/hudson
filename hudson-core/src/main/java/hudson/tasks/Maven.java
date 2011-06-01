@@ -27,7 +27,7 @@ import hudson.Extension;
 import hudson.Launcher;
 import hudson.FunctionsExt;
 import hudson.EnvVars;
-import hudson.Util;
+import hudson.UtilExt;
 import hudson.CopyOnWrite;
 import hudson.Launcher.LocalLauncher;
 import hudson.FilePathExt.FileCallable;
@@ -129,9 +129,9 @@ public class Maven extends Builder {
     public Maven(String targets,String name, String pom, String properties, String jvmOptions, boolean usePrivateRepository) {
         this.targets = targets;
         this.mavenName = name;
-        this.pom = Util.fixEmptyAndTrim(pom);
-        this.properties = Util.fixEmptyAndTrim(properties);
-        this.jvmOptions = Util.fixEmptyAndTrim(jvmOptions);
+        this.pom = UtilExt.fixEmptyAndTrim(pom);
+        this.properties = UtilExt.fixEmptyAndTrim(properties);
+        this.jvmOptions = UtilExt.fixEmptyAndTrim(jvmOptions);
         this.usePrivateRepository = usePrivateRepository;
     }
 
@@ -207,7 +207,7 @@ public class Maven extends Builder {
 
         EnvVars env = build.getEnvironment(listener);
 
-        String targets = Util.replaceMacro(this.targets,vr);
+        String targets = UtilExt.replaceMacro(this.targets,vr);
         targets = env.expand(targets);
         String pom = env.expand(this.pom);
         String properties = env.expand(this.properties);
@@ -261,7 +261,7 @@ public class Maven extends Builder {
                     return false;
                 }
             } catch (IOException e) {
-                Util.displayIOException(e,listener);
+                UtilExt.displayIOException(e,listener);
                 e.printStackTrace( listener.fatalError(Messages.Maven_ExecFailed()) );
                 return false;
             }
@@ -482,7 +482,7 @@ public class Maven extends Builder {
             if(File.separatorChar=='\\')
                 execName += ".bat";
 
-            String m2Home = Util.replaceMacro(getHome(),EnvVars.masterEnvVars);
+            String m2Home = UtilExt.replaceMacro(getHome(),EnvVars.masterEnvVars);
 
             return new File(m2Home, "bin/" + execName);
         }

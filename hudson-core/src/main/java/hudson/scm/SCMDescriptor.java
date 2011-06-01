@@ -45,7 +45,7 @@ public abstract class SCMDescriptor<T extends SCMExt> extends DescriptorExt<SCME
      * If this SCM has corresponding {@link RepositoryBrowser},
      * that type. Otherwise this SCM will not have any repository browser.
      */
-    public transient final Class<? extends RepositoryBrowser> repositoryBrowser;
+    public transient final Class<? extends RepositoryBrowserExt> repositoryBrowser;
 
     /**
      * Incremented every time a new {@link SCM} instance is created from this descriptor. 
@@ -55,7 +55,7 @@ public abstract class SCMDescriptor<T extends SCMExt> extends DescriptorExt<SCME
      */
     public volatile int generation = 1;
 
-    protected SCMDescriptor(Class<T> clazz, Class<? extends RepositoryBrowser> repositoryBrowser) {
+    protected SCMDescriptor(Class<T> clazz, Class<? extends RepositoryBrowserExt> repositoryBrowser) {
         super(clazz);
         this.repositoryBrowser = repositoryBrowser;
     }
@@ -67,7 +67,7 @@ public abstract class SCMDescriptor<T extends SCMExt> extends DescriptorExt<SCME
      *
      * @since 1.278
      */
-    protected SCMDescriptor(Class<? extends RepositoryBrowser> repositoryBrowser) {
+    protected SCMDescriptor(Class<? extends RepositoryBrowserExt> repositoryBrowser) {
         this.repositoryBrowser = repositoryBrowser;
     }
 
@@ -76,7 +76,7 @@ public abstract class SCMDescriptor<T extends SCMExt> extends DescriptorExt<SCME
     @SuppressWarnings({"ConstantConditions"})
     @Override
     public void load() {
-        Class<? extends RepositoryBrowser> rb = repositoryBrowser;
+        Class<? extends RepositoryBrowserExt> rb = repositoryBrowser;
         super.load();
         if (repositoryBrowser!=rb) { // XStream may overwrite even the final field.
             try {
@@ -126,9 +126,9 @@ public abstract class SCMDescriptor<T extends SCMExt> extends DescriptorExt<SCME
      * @return
      *      can be empty but never null.
      */
-    public List<DescriptorExt<RepositoryBrowser<?>>> getBrowserDescriptors() {
+    public List<DescriptorExt<RepositoryBrowserExt<?>>> getBrowserDescriptors() {
         if(repositoryBrowser==null)     return Collections.emptyList();
-        return RepositoryBrowsers.filter(repositoryBrowser);
+        return RepositoryBrowsersExt.filter(repositoryBrowser);
     }
 
     private static final Logger LOGGER = Logger.getLogger(SCMDescriptor.class.getName());

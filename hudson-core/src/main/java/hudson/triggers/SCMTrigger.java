@@ -24,7 +24,7 @@
 package hudson.triggers;
 
 import antlr.ANTLRException;
-import hudson.Util;
+import hudson.UtilExt;
 import hudson.Extension;
 import hudson.AnnotatedLargeText;
 import hudson.model.AbstractBuildExt;
@@ -185,7 +185,7 @@ public class SCMTrigger extends Trigger<SCMedItem> {
          * Gets the snapshot of {@link Runner}s that are performing polling.
          */
         public List<Runner> getRunners() {
-            return Util.filter(queue.getInProgress(),Runner.class);
+            return UtilExt.filter(queue.getInProgress(),Runner.class);
         }
 
         /**
@@ -341,7 +341,7 @@ public class SCMTrigger extends Trigger<SCMedItem> {
         }
 
         public String getLog() throws IOException {
-            return Util.loadFile(getLogFile());
+            return UtilExt.loadFile(getLogFile());
         }
 
         /**
@@ -404,7 +404,7 @@ public class SCMTrigger extends Trigger<SCMedItem> {
          * Human readable string of when this polling is started.
          */
         public String getDuration() {
-            return Util.getTimeSpanString(System.currentTimeMillis()-startTime);
+            return UtilExt.getTimeSpanString(System.currentTimeMillis()-startTime);
         }
 
         private boolean runPolling() {
@@ -418,7 +418,7 @@ public class SCMTrigger extends Trigger<SCMedItem> {
                     long start = System.currentTimeMillis();
                     logger.println("Started on "+ DateFormat.getDateTimeInstance().format(new Date()));
                     boolean result = job.poll(listener).hasChanges();
-                    logger.println("Done. Took "+ Util.getTimeSpanString(System.currentTimeMillis()-start));
+                    logger.println("Done. Took "+ UtilExt.getTimeSpanString(System.currentTimeMillis()-start));
                     if(result)
                         logger.println("Changes found");
                     else

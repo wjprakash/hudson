@@ -95,7 +95,7 @@ public class FilePath extends FilePathExt {
         AbstractProjectExt subject = Stapler.getCurrentRequest().findAncestorObject(AbstractProjectExt.class);
         subject.checkPermission(ItemExt.CONFIGURE);
 
-        value = Util.fixEmpty(value);
+        value = UtilExt.fixEmpty(value);
         if (value == null) {
             return FormValidation.ok();
         }
@@ -133,7 +133,7 @@ public class FilePath extends FilePathExt {
         AbstractProjectExt subject = Stapler.getCurrentRequest().findAncestorObject(AbstractProjectExt.class);
         subject.checkPermission(ItemExt.CONFIGURE);
 
-        value = Util.fixEmpty(value);
+        value = UtilExt.fixEmpty(value);
 
         // none entered yet, or something is seriously wrong
         if (value == null || (AbstractProjectExt<?, ?>) subject == null) {

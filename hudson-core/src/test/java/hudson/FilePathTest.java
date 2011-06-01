@@ -65,7 +65,7 @@ public class FilePathTest extends ChannelTestCase {
     public void testRepeatCopyRecursiveTo() throws Exception {
         // local->local copy used to return 0 if all files were "up to date"
         // should return number of files processed, whether or not they were copied or already current
-        File tmp = Util.createTempDir(), src = new File(tmp, "src"), dst = new File(tmp, "dst");
+        File tmp = UtilExt.createTempDir(), src = new File(tmp, "src"), dst = new File(tmp, "dst");
         try {
             assertTrue(src.mkdir());
             assertTrue(dst.mkdir());
@@ -75,7 +75,7 @@ public class FilePathTest extends ChannelTestCase {
             // copy again should still report 1
             assertEquals(1, fp.copyRecursiveTo(new FilePathExt(dst)));
         } finally {
-            Util.deleteRecursive(tmp);
+            UtilExt.deleteRecursive(tmp);
         }
 
     }
@@ -84,7 +84,7 @@ public class FilePathTest extends ChannelTestCase {
      * Attempt to reproduce  http://issues.hudson-ci.org/browse/HUDSON-2154
      */
     public void testRemoteFileCopyRecursiveTo() throws IOException, InterruptedException {
-        File tmp = Util.createTempDir(), src = new File(tmp, "src"), dst = new File(tmp, "dst");
+        File tmp = UtilExt.createTempDir(), src = new File(tmp, "src"), dst = new File(tmp, "dst");
         try {
 
             assertTrue(src.mkdir());
@@ -104,19 +104,19 @@ public class FilePathTest extends ChannelTestCase {
                 }
             }
         } finally {
-            Util.deleteRecursive(tmp);
+            UtilExt.deleteRecursive(tmp);
         }
     }
 
     public void testArchiveBug4039() throws Exception {
-        File tmp = Util.createTempDir();
+        File tmp = UtilExt.createTempDir();
         try {
             FilePathExt d = new FilePathExt(french,tmp.getPath());
             d.child("test").touch(0);
             d.zip(new NullOutputStream());
             d.zip(new NullOutputStream(),"**/*");
         } finally {
-            Util.deleteRecursive(tmp);
+            UtilExt.deleteRecursive(tmp);
         }
     }
 

@@ -23,8 +23,6 @@
  */
 package hudson.scm;
 
-import org.kohsuke.stapler.export.CustomExportedBean;
-
 import java.util.List;
 import java.util.Collections;
 import java.util.Arrays;
@@ -34,11 +32,11 @@ import java.util.Arrays;
  *
  * @author Kohsuke Kawaguchi
  */
-public final class EditType implements CustomExportedBean {
+public class EditTypeExt {
     private String name;
     private String description;
 
-    public EditType(String name, String description) {
+    public EditTypeExt(String name, String description) {
         this.name = name;
         this.description = description;
     }
@@ -55,9 +53,9 @@ public final class EditType implements CustomExportedBean {
         return name;
     }
 
-    public static final EditType ADD = new EditType("add","The file was added");
-    public static final EditType EDIT = new EditType("edit","The file was modified");
-    public static final EditType DELETE = new EditType("delete","The file was removed");
+    public static final EditTypeExt ADD = new EditTypeExt("add","The file was added");
+    public static final EditTypeExt EDIT = new EditTypeExt("edit","The file was modified");
+    public static final EditTypeExt DELETE = new EditTypeExt("delete","The file was removed");
 
-    public static final List<EditType> ALL = Collections.unmodifiableList(Arrays.asList(ADD,EDIT,DELETE));
+    public static final List<EditTypeExt> ALL = Collections.unmodifiableList(Arrays.asList(ADD,EDIT,DELETE));
 }

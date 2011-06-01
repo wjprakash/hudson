@@ -24,7 +24,7 @@
 package hudson.model;
 
 import hudson.Extension;
-import hudson.Util;
+import hudson.UtilExt;
 import hudson.model.Action;
 import hudson.model.AllViewExt;
 import hudson.model.DescriptorExt.FormException;
@@ -181,7 +181,7 @@ public class MyViewsProperty extends UserPropertyExt implements ViewGroup, Actio
     public FormValidation doViewExistsCheck(@QueryParameter String value, @QueryParameter boolean exists) {
         checkPermission(View.CREATE);
 
-        String view = Util.fixEmpty(value);
+        String view = UtilExt.fixEmpty(value);
         if (view == null) return FormValidation.ok();
         if (exists) {
         	return (getView(view)!=null) ?

@@ -5,7 +5,7 @@
  */
 package hudson.security.csrf;
 
-import hudson.Util;
+import hudson.UtilExt;
 import hudson.model.DescriptorExt;
 
 /**
@@ -43,7 +43,7 @@ public abstract class CrumbIssuerDescriptor<T extends CrumbIssuer> extends Descr
      * @param salt
      */
     public void setCrumbSalt(String salt) {
-        if (Util.fixEmptyAndTrim(salt) == null) {
+        if (UtilExt.fixEmptyAndTrim(salt) == null) {
             crumbSalt = "hudson.crumb";
         } else {
             crumbSalt = salt;
@@ -66,7 +66,7 @@ public abstract class CrumbIssuerDescriptor<T extends CrumbIssuer> extends Descr
      * @param requestField
      */
     public void setCrumbRequestField(String requestField) {
-        if (Util.fixEmptyAndTrim(requestField) == null) {
+        if (UtilExt.fixEmptyAndTrim(requestField) == null) {
             crumbRequestField = ".crumb";
         } else {
             crumbRequestField = requestField;

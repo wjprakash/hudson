@@ -23,7 +23,7 @@
  */
 package hudson.matrix;
 
-import hudson.Util;
+import hudson.UtilExt;
 import hudson.model.DescriptorExt.FormException;
 import hudson.model.HudsonExt;
 import hudson.model.ItemGroup;
@@ -87,13 +87,13 @@ public class MatrixProject extends MatrixProjectExt{
         JSONObject json = req.getSubmittedForm();
 
         if(req.getParameter("hasCombinationFilter")!=null) {
-            this.combinationFilter = Util.nullify(req.getParameter("combinationFilter"));
+            this.combinationFilter = UtilExt.nullify(req.getParameter("combinationFilter"));
         } else {
             this.combinationFilter = null;
         }
         
         if (req.getParameter("hasTouchStoneCombinationFilter")!=null) {
-            this.touchStoneCombinationFilter = Util.nullify(req.getParameter("touchStoneCombinationFilter"));
+            this.touchStoneCombinationFilter = UtilExt.nullify(req.getParameter("touchStoneCombinationFilter"));
             String touchStoneResultCondition = req.getParameter("touchStoneResultCondition");
             this.touchStoneResultCondition = ResultExt.fromString(touchStoneResultCondition);
         } else {

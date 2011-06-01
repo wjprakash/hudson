@@ -55,7 +55,7 @@ public class SCMS {
      */
     public static SCMExt parseSCM(StaplerRequest req, AbstractProjectExt target) throws FormException, ServletException {
         String scm = req.getParameter("scm");
-        if(scm==null)   return new NullSCM();
+        if(scm==null)   return new NullSCMExt();
 
         int scmidx = Integer.parseInt(scm);
         SCMDescriptor<?> d = SCMExt._for(target).get(scmidx);

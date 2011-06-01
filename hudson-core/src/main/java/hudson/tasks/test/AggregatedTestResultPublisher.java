@@ -27,8 +27,8 @@ import hudson.model.AbstractBuildExt;
 import hudson.model.AbstractProjectExt;
 import hudson.Extension;
 import hudson.Launcher;
-import hudson.Util;
-import static hudson.Util.fixNull;
+import hudson.UtilExt;
+import static hudson.UtilExt.fixNull;
 import hudson.model.BuildListener;
 import hudson.model.FingerprintExt.RangeSet;
 import hudson.model.HudsonExt;
@@ -69,7 +69,7 @@ public class AggregatedTestResultPublisher extends Recorder {
     public final String jobs;
 
     public AggregatedTestResultPublisher(String jobs) {
-        this.jobs = Util.fixEmptyAndTrim(jobs);
+        this.jobs = UtilExt.fixEmptyAndTrim(jobs);
     }
 
     public boolean perform(AbstractBuildExt<?,?> build, Launcher launcher, BuildListener listener) throws InterruptedException, IOException {
@@ -132,7 +132,7 @@ public class AggregatedTestResultPublisher extends Recorder {
          */
         public Collection<AbstractProjectExt> getJobs() {
             List<AbstractProjectExt> r = new ArrayList<AbstractProjectExt>();
-            for (String job : Util.tokenize(jobs,",")) {
+            for (String job : UtilExt.tokenize(jobs,",")) {
                 AbstractProjectExt j = HudsonExt.getInstance().getItemByFullName(job.trim(), AbstractProjectExt.class);
                 if(j!=null)
                     r.add(j);
@@ -298,7 +298,7 @@ public class AggregatedTestResultPublisher extends Recorder {
             // Require CONFIGURE permission on this project
             if(!project.hasPermission(ItemExt.CONFIGURE))  return FormValidation.ok();
 
-            for (String name : Util.tokenize(fixNull(value), ",")) {
+            for (String name : UtilExt.tokenize(fixNull(value), ",")) {
                 name = name.trim();
                 if(HudsonExt.getInstance().getItemByFullName(name)==null)
                     return FormValidation.error(hudson.tasks.Messages.BuildTrigger_NoSuchProject(name,AbstractProjectExt.findNearest(name).getName()));

@@ -23,7 +23,7 @@
  */
 package hudson.logging;
 
-import hudson.Util;
+import hudson.UtilExt;
 import hudson.XmlFile;
 import hudson.model.HudsonExt;
 import java.io.IOException;
@@ -76,7 +76,7 @@ public class LogRecorder extends LogRecorderExt {
             getParent().logRecorders.remove(name);
             this.name = newName;
             getParent().logRecorders.put(name,this);
-            redirect = "../" + Util.rawEncode(newName) + '/';
+            redirect = "../" + UtilExt.rawEncode(newName) + '/';
         }
 
         List<Target> newTargets = req.bindJSONToList(Target.class, src.get("targets"));

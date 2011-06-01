@@ -25,7 +25,7 @@ package hudson.slaves;
 
 import hudson.model.DescriptorExt;
 import hudson.model.TaskListener;
-import hudson.Util;
+import hudson.UtilExt;
 import hudson.Extension;
 import org.kohsuke.stapler.DataBoundConstructor;
 
@@ -57,8 +57,8 @@ public class JNLPLauncher extends ComputerLauncher {
 
     @DataBoundConstructor
     public JNLPLauncher(String tunnel, String vmargs) {
-        this.tunnel = Util.fixEmptyAndTrim(tunnel);
-        this.vmargs = Util.fixEmptyAndTrim(vmargs);
+        this.tunnel = UtilExt.fixEmptyAndTrim(tunnel);
+        this.vmargs = UtilExt.fixEmptyAndTrim(vmargs);
     }
 
     public JNLPLauncher() {

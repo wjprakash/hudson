@@ -24,12 +24,12 @@
 package hudson.model;
 
 import hudson.model.QueueExt.Executable;
-import hudson.Util;
+import hudson.UtilExt;
 import hudson.FilePathExt;
 import hudson.model.queue.Executables;
 import hudson.model.queue.SubTask;
 import hudson.model.queue.Tasks;
-import hudson.model.queue.WorkUnit;
+import hudson.model.queue.WorkUnitExt;
 import hudson.util.TimeUnit2;
 import hudson.util.InterceptingProxy;
 import hudson.security.ACL;
@@ -64,7 +64,7 @@ public class ExecutorExt extends Thread implements ModelObject {
      * {@link Queue.Executable} being executed right now, or null if the executor is idle.
      */
     protected volatile QueueExt.Executable executable;
-    private volatile WorkUnit workUnit;
+    private volatile WorkUnitExt workUnit;
     private Throwable causeOfDeath;
     private boolean induceDeath;
 
@@ -178,7 +178,7 @@ public class ExecutorExt extends Thread implements ModelObject {
         return HudsonExt.getInstance() != null && !HudsonExt.getInstance().isTerminating();
     }
 
-    protected WorkUnit grabJob() throws InterruptedException {
+    protected WorkUnitExt grabJob() throws InterruptedException {
         return queue.pop();
     }
 
@@ -199,7 +199,7 @@ public class ExecutorExt extends Thread implements ModelObject {
      * @return
      *      null if the executor is idle.
      */
-    public WorkUnit getCurrentWorkUnit() {
+    public WorkUnitExt getCurrentWorkUnit() {
         return workUnit;
     }
 
@@ -320,7 +320,7 @@ public class ExecutorExt extends Thread implements ModelObject {
      *      string like "3 minutes" "1 day" etc.
      */
     public String getTimestampString() {
-        return Util.getPastTimeString(getElapsedTime());
+        return UtilExt.getPastTimeString(getElapsedTime());
     }
 
     /**
@@ -343,7 +343,7 @@ public class ExecutorExt extends Thread implements ModelObject {
             return Messages.Executor_NotAvailable();
         }
 
-        return Util.getTimeSpanString(eta);
+        return UtilExt.getTimeSpanString(eta);
     }
 
     /**

@@ -308,7 +308,7 @@ public final class TcpSlaveAgentListener extends Thread {
         private String generateCookie() {
             byte[] cookie = new byte[32];
             new SecureRandom().nextBytes(cookie);
-            return Util.toHexString(cookie);
+            return UtilExt.toHexString(cookie);
         }
 
         private Channel jnlpConnect(SlaveComputer computer) throws InterruptedException, IOException {

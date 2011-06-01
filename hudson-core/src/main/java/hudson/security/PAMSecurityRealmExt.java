@@ -27,7 +27,7 @@ import groovy.lang.Binding;
 import hudson.FunctionsExt;
 import hudson.model.DescriptorExt;
 import hudson.model.HudsonExt;
-import hudson.Util;
+import hudson.UtilExt;
 import hudson.Extension;
 import hudson.util.FormValidation;
 import hudson.util.jna.NativeAccessException;
@@ -61,7 +61,7 @@ public class PAMSecurityRealmExt extends SecurityRealmExt {
     public final String serviceName;
 
     public PAMSecurityRealmExt(String serviceName) {
-        serviceName = Util.fixEmptyAndTrim(serviceName);
+        serviceName = UtilExt.fixEmptyAndTrim(serviceName);
         if (serviceName == null) {
             serviceName = "sshd"; // use sshd as the default
         }

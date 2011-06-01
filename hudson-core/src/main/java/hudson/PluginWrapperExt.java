@@ -410,7 +410,7 @@ public class PluginWrapperExt implements Comparable<PluginWrapperExt> {
                 missingDependencies.add(d.toString());
         }
         if (!missingDependencies.isEmpty())
-            throw new IOException("Dependency "+Util.join(missingDependencies, ", ")+" doesn't exist");
+            throw new IOException("Dependency "+UtilExt.join(missingDependencies, ", ")+" doesn't exist");
 
         // add the optional dependencies that exists
         for (Dependency d : optionalDependencies) {

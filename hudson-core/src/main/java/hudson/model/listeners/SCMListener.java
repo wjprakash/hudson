@@ -27,7 +27,7 @@ import hudson.model.AbstractBuildExt;
 import hudson.model.Action;
 import hudson.model.BuildListener;
 import hudson.model.HudsonExt;
-import hudson.scm.ChangeLogSet;
+import hudson.scm.ChangeLogSetExt;
 import hudson.scm.SCMExt;
 import hudson.ExtensionPoint;
 
@@ -85,7 +85,7 @@ public abstract class SCMListener implements ExtensionPoint {
      *      If any exception is thrown from this method, it will be recorded
      *      and causes the build to fail. 
      */
-    public void onChangeLogParsed(AbstractBuildExt<?,?> build, BuildListener listener, ChangeLogSet<?> changelog) throws Exception {
+    public void onChangeLogParsed(AbstractBuildExt<?,?> build, BuildListener listener, ChangeLogSetExt<?> changelog) throws Exception {
     }
 
     /**

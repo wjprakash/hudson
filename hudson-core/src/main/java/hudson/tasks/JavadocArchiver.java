@@ -25,7 +25,7 @@ package hudson.tasks;
 
 import hudson.FilePathExt;
 import hudson.Launcher;
-import hudson.Util;
+import hudson.UtilExt;
 import hudson.Extension;
 import hudson.EnvVars;
 import hudson.model.*;
@@ -105,7 +105,7 @@ public class JavadocArchiver extends Recorder {
                 return true;
             }
         } catch (IOException e) {
-            Util.displayIOException(e,listener);
+            UtilExt.displayIOException(e,listener);
             e.printStackTrace(listener.fatalError(Messages.JavadocArchiver_UnableToCopy(javadoc,target)));
             build.setResult(ResultExt.FAILURE);
              return true;

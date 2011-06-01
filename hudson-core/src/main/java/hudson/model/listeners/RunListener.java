@@ -28,7 +28,7 @@ import hudson.ExtensionListView;
 import hudson.Extension;
 import hudson.DescriptorExtensionListExt;
 import hudson.ExtensionList;
-import hudson.scm.RepositoryBrowser;
+import hudson.scm.RepositoryBrowserExt;
 import hudson.model.RunExt;
 import hudson.model.TaskListener;
 import hudson.model.DescriptorExt;

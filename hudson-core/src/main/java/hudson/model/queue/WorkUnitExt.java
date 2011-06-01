@@ -24,10 +24,9 @@
 package hudson.model.queue;
 
 import hudson.model.ExecutorExt;
-import hudson.model.QueueExt;
 import hudson.model.QueueExt.Executable;
 import hudson.model.QueueExt.Task;
-import org.kohsuke.stapler.export.ExportedBean;
+import java.util.Queue;
 
 /**
  * Represents a unit of hand-over to {@link ExecutorExt} from {@link Queue}.
@@ -35,21 +34,19 @@ import org.kohsuke.stapler.export.ExportedBean;
  * @author Kohsuke Kawaguchi
  * @since 1.377
  */
-@ExportedBean
-public final class WorkUnit {
+public class WorkUnitExt {
+
     /**
      * Task to be executed.
      */
     public final SubTask work;
-
     /**
      * Shared context among {@link WorkUnit}s.
      */
     public final WorkUnitContext context;
-
     private volatile ExecutorExt executor;
 
-    WorkUnit(WorkUnitContext context, SubTask work) {
+    WorkUnitExt(WorkUnitContext context, SubTask work) {
         this.context = context;
         this.work = work;
     }
@@ -72,7 +69,7 @@ public final class WorkUnit {
      * If the execution has already started, return the current executable.
      */
     public Executable getExecutable() {
-        return executor!=null ? executor.getCurrentExecutable() : null;
+        return executor != null ? executor.getCurrentExecutable() : null;
     }
 
     /**
@@ -80,6 +77,6 @@ public final class WorkUnit {
      * represented by {@link Task} itself.
      */
     public boolean isMainWork() {
-        return context.task==work;
+        return context.task == work;
     }
 }

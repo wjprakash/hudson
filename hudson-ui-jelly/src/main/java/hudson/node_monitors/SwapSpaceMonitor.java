@@ -23,14 +23,9 @@
  */
 package hudson.node_monitors;
 
-import hudson.Util;
 import hudson.Extension;
+import hudson.Util;
 import hudson.model.ComputerExt;
-import hudson.model.HudsonExt;
-import hudson.remoting.Callable;
-import hudson.util.jna.NativeAccessException;
-import hudson.util.jna.NativeFunction;
-import hudson.util.jna.NativeUtils;
 import hudson.util.jna.NativeSystemMemory;
 import net.sf.json.JSONObject;
 
@@ -46,80 +41,43 @@ import java.io.IOException;
  * @author Kohsuke Kawaguchi
  * @sine 1.233
  */
-public class SwapSpaceMonitor extends NodeMonitor {
+public class SwapSpaceMonitor extends SwapSpaceMonitorExt {
+
     /**
      * Returns the HTML representation of the space.
      */
     public String toHtml(NativeSystemMemory usage) {
-        if(usage.getAvailableSwapSpace() == -1)
+        if (usage.getAvailableSwapSpace() == -1) {
             return "N/A";
+        }
 
         long free = usage.getAvailableSwapSpace();
-        free/=1024L;   // convert to KB
-        free/=1024L;   // convert to MB
-        if(free>256 || usage.getTotalSwapSpace() < usage.getAvailableSwapSpace() * 5)
-            return free+"MB"; // if we have more than 256MB free or less than 80% filled up, it's OK
-
+        free /= 1024L;   // convert to KB
+        free /= 1024L;   // convert to MB
+        if (free > 256 || usage.getTotalSwapSpace() < usage.getAvailableSwapSpace() * 5) {
+            return free + "MB"; // if we have more than 256MB free or less than 80% filled up, it's OK
+        }
         // Otherwise considered dangerously low.
-        return Util.wrapToErrorSpan(free+"MB");
+        return Util.wrapToErrorSpan(free + "MB");
     }
-
-    public long toMB(NativeSystemMemory usage) {
-        if(usage.getAvailableSwapSpace() == -1)
-            return -1;
-
-        long free = usage.getAvailableSwapSpace();
-        free/=1024L;   // convert to KB
-        free/=1024L;   // convert to MB
-        return free;
-    }
-
-    @Override
-    public String getColumnCaption() {
-        // Hide this column from non-admins
-        return HudsonExt.getInstance().hasPermission(HudsonExt.ADMINISTER) ? super.getColumnCaption() : null;
-    }
-
     @Extension
     public static final AbstractNodeMonitorDescriptor<NativeSystemMemory> DESCRIPTOR = new AbstractNodeMonitorDescriptor<NativeSystemMemory>() {
+
+        @Override
         protected NativeSystemMemory monitor(ComputerExt c) throws IOException, InterruptedException {
             return c.getChannel().call(new MonitorTask());
         }
 
+        @Override
         public String getDisplayName() {
             return Messages.SwapSpaceMonitor_DisplayName();
         }
 
         @Override
-        public NodeMonitor newInstance(StaplerRequest req, JSONObject formData) throws FormException {
+        public NodeMonitorExt newInstance(StaplerRequest req, JSONObject formData) throws FormException {
             return new SwapSpaceMonitor();
         }
     };
-
-    /**
-     * Obtains the string that represents the architecture.
-     */
-    private static class MonitorTask implements Callable<NativeSystemMemory, IOException> {
-
-        private static final long serialVersionUID = 1L;
-        private static boolean warned = false;
-
-        public NativeSystemMemory call() throws IOException {
-
-            try {
-                return new MemoryUsage(NativeUtils.getInstance().getSystemMemory());
-            } catch (NativeAccessException exc) {
-                if (!warned) {
-                    // report the problem just once, and avoid filling up the log with the same error. see HUDSON-2194.
-                    warned = true;
-                    throw new IOException(exc);
-                } else {
-                    return null;
-                }
-            }
-
-        }
-    }
 
     /**
      * Memory Usage.
@@ -128,44 +86,46 @@ public class SwapSpaceMonitor extends NodeMonitor {
      * {@link MemoryUsage} + stapler annotations.
      */
     @ExportedBean
-    public static class MemoryUsage implements NativeSystemMemory{
-        
-        NativeSystemMemory systemMemory;
-        
+    public static class MemoryUsage extends SwapSpaceMonitorExt.MemoryUsage {
+
         public MemoryUsage(NativeSystemMemory mem) {
-            systemMemory = mem; 
+            super(mem);
         }
 
         /**
          * Total physical memory of the system, in bytes.
          */
         @Exported
+        @Override
         public long getTotalPhysicalMemory() {
-            return systemMemory.getTotalPhysicalMemory();
+            return super.getTotalPhysicalMemory();
         }
 
         /**
          * Of the total physical memory of the system, available bytes.
          */
         @Exported
+        @Override
         public long getAvailablePhysicalMemory() {
-            return systemMemory.getAvailablePhysicalMemory();
+            return super.getAvailablePhysicalMemory();
         }
 
         /**
          * Total number of swap space in bytes.
          */
         @Exported
+        @Override
         public long getTotalSwapSpace() {
-            return systemMemory.getTotalSwapSpace();
+            return super.getTotalSwapSpace();
         }
 
         /**
          * Available swap space in bytes.
          */
         @Exported
+        @Override
         public long getAvailableSwapSpace() {
-            return systemMemory.getAvailableSwapSpace();
+            return super.getAvailableSwapSpace();
         }
     }
 }

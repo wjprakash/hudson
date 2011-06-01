@@ -35,6 +35,6 @@ import hudson.model.DescriptorExt;
  * @author Kohsuke Kawaguchi
  * @since 1.373
  */
-public abstract class LabelAtomPropertyDescriptor extends DescriptorExt<LabelAtomProperty> {
+public abstract class LabelAtomPropertyDescriptor extends DescriptorExt<LabelAtomPropertyExt> {
 
 }

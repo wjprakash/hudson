@@ -23,7 +23,7 @@
  */
 package hudson.model;
 
-import hudson.Util;
+import hudson.UtilExt;
 import hudson.diagnosis.OldDataMonitorExt;
 import hudson.util.KeyedDataStorage;
 
@@ -67,7 +67,7 @@ public final class FingerprintMap extends KeyedDataStorage<FingerprintExt,Finger
      *      an owner-less build.
      */
     public FingerprintExt getOrCreate(AbstractBuildExt build, String fileName, byte[] md5sum) throws IOException {
-        return getOrCreate(build,fileName, Util.toHexString(md5sum));
+        return getOrCreate(build,fileName, UtilExt.toHexString(md5sum));
     }
 
     public FingerprintExt getOrCreate(AbstractBuildExt build, String fileName, String md5sum) throws IOException {

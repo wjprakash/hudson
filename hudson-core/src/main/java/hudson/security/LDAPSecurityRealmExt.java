@@ -25,9 +25,9 @@ package hudson.security;
 
 import groovy.lang.Binding;
 import hudson.Extension;
-import static hudson.Util.fixNull;
-import static hudson.Util.fixEmptyAndTrim;
-import static hudson.Util.fixEmpty;
+import static hudson.UtilExt.fixNull;
+import static hudson.UtilExt.fixEmptyAndTrim;
+import static hudson.UtilExt.fixEmpty;
 import hudson.model.DescriptorExt;
 import hudson.model.HudsonExt;
 import hudson.model.UserExt;

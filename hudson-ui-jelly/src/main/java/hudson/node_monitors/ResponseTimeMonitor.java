@@ -23,12 +23,10 @@
  */
 package hudson.node_monitors;
 
-import hudson.Util;
 import hudson.Extension;
-import hudson.model.DescriptorExt.FormException;
-import hudson.slaves.OfflineCause;
+import hudson.Util;
+import hudson.model.Descriptor.FormException;
 import hudson.model.ComputerExt;
-import hudson.remoting.Callable;
 import hudson.remoting.Future;
 import hudson.util.TimeUnit2;
 import hudson.util.IOException2;
@@ -48,9 +46,13 @@ import org.kohsuke.stapler.export.ExportedBean;
  *
  * @author Kohsuke Kawaguchi
  */
-public class ResponseTimeMonitor extends NodeMonitor {
+public class ResponseTimeMonitor extends ResponseTimeMonitorExt {
+    
+    private static final Logger LOGGER = Logger.getLogger(ResponseTimeMonitor.class.getName());
+    
     @Extension
     public static final AbstractNodeMonitorDescriptor<Data> DESCRIPTOR = new AbstractNodeMonitorDescriptor<Data>() {
+        @Override
         protected Data monitor(ComputerExt c) throws IOException, InterruptedException {
             Data old = get(c);
             Data d;
@@ -79,12 +81,13 @@ public class ResponseTimeMonitor extends NodeMonitor {
             return d;
         }
 
+        @Override
         public String getDisplayName() {
             return Messages.ResponseTimeMonitor_DisplayName();
         }
 
         @Override
-        public NodeMonitor newInstance(StaplerRequest req, JSONObject formData) throws FormException {
+        public NodeMonitorExt newInstance(StaplerRequest req, JSONObject formData) throws FormException {
             return new ResponseTimeMonitor();
         }
     };
@@ -93,50 +96,24 @@ public class ResponseTimeMonitor extends NodeMonitor {
      * Immutable representation of the monitoring data.
      */
     @ExportedBean
-    public static final class Data extends OfflineCause {
-        /**
-         * Record of the past 5 times. -1 if time out. Otherwise in milliseconds.
-         * Old ones first.
-         */
-        private final long[] past5;
-
+    public static final class Data extends ResponseTimeMonitorExt.Data {
+        
         private Data(Data old, long newDataPoint) {
-            if(old==null)
-                past5 = new long[] {newDataPoint};
-            else {
-                past5 = new long[Math.min(5,old.past5.length+1)];
-                int copyLen = past5.length - 1;
-                System.arraycopy(old.past5, old.past5.length-copyLen, this.past5, 0, copyLen);
-                past5[past5.length-1] = newDataPoint;
-            }
+             super(old, newDataPoint);
         }
 
-        /**
-         * Computes the recurrence of the time out
-         */
-        private int failureCount() {
-            int cnt=0;
-            for(int i=past5.length-1; i>=0 && past5[i]<0; i--, cnt++)
-                ;
-            return cnt;
-        }
+        
 
         /**
          * Computes the average response time, by taking the time out into account.
          */
         @Exported
+        @Override
         public long getAverage() {
-            long total=0;
-            for (long l : past5) {
-                if(l<0)     total += TIMEOUT;
-                else        total += l;
-            }
-            return total/past5.length;
+           return super.getAverage();
         }
 
-        public boolean hasTooManyTimeouts() {
-            return failureCount()>=5;
-        }
+        
 
         /**
          * HTML rendering of the data
@@ -155,19 +132,4 @@ public class ResponseTimeMonitor extends NodeMonitor {
             return getAverage()+"ms";
         }
     }
-
-    private static class NoopTask implements Callable<String,RuntimeException> {
-        public String call() {
-            return null;
-        }
-
-        private static final long serialVersionUID = 1L;
-    }
-
-    /**
-     * Time out interval in milliseconds.
-     */
-    private static final long TIMEOUT = 5000;
-
-    private static final Logger LOGGER = Logger.getLogger(ResponseTimeMonitor.class.getName());
 }

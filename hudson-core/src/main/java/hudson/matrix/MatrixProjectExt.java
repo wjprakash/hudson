@@ -25,7 +25,7 @@ package hudson.matrix;
 
 import hudson.CopyOnWrite;
 import hudson.Extension;
-import hudson.Util;
+import hudson.UtilExt;
 import hudson.XmlFile;
 import hudson.model.AbstractProjectExt;
 import hudson.model.Action;
@@ -462,7 +462,7 @@ public class MatrixProjectExt extends AbstractProjectExt<MatrixProjectExt,Matrix
     public File getRootDirFor(Combination combination) {
         File f = getConfigurationsDir();
         for (Entry<String, String> e : combination.entrySet())
-            f = new File(f,"axis-"+e.getKey()+'/'+Util.rawEncode(e.getValue()));
+            f = new File(f,"axis-"+e.getKey()+'/'+UtilExt.rawEncode(e.getValue()));
         f.getParentFile().mkdirs();
         return f;
     }
@@ -498,7 +498,7 @@ public class MatrixProjectExt extends AbstractProjectExt<MatrixProjectExt,Matrix
     public Set<LabelExt> getLabels() {
         Set<LabelExt> r = new HashSet<LabelExt>();
         for (Combination c : axes.subList(LabelAxis.class).list())
-            r.add(HudsonExt.getInstance().getLabel(Util.join(c.values(),"&&")));
+            r.add(HudsonExt.getInstance().getLabel(UtilExt.join(c.values(),"&&")));
         return r;
     }
 

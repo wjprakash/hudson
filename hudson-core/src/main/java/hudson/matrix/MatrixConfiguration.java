@@ -23,7 +23,7 @@
  */
 package hudson.matrix;
 
-import hudson.Util;
+import hudson.UtilExt;
 import hudson.util.DescribableList;
 import hudson.model.AbstractBuildExt;
 import hudson.model.CauseExt;
@@ -194,8 +194,8 @@ public class MatrixConfiguration extends ProjectExt<MatrixConfiguration,MatrixRu
     @Override
     public LabelExt getAssignedLabel() {
         // combine all the label axes by &&.
-        String expr = Util.join(combination.values(getParent().getAxes().subList(LabelAxis.class)), "&&");
-        return HudsonExt.getInstance().getLabel(Util.fixEmpty(expr));
+        String expr = UtilExt.join(combination.values(getParent().getAxes().subList(LabelAxis.class)), "&&");
+        return HudsonExt.getInstance().getLabel(UtilExt.fixEmpty(expr));
     }
 
     @Override

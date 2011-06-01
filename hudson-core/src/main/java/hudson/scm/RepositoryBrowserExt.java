@@ -34,7 +34,6 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.net.URL;
 import java.net.MalformedURLException;
-import org.kohsuke.stapler.export.ExportedBean;
 
 /**
  * Connects HudsonExt to repository browsers like ViewCVS or FishEye,
@@ -55,8 +54,7 @@ import org.kohsuke.stapler.export.ExportedBean;
  * @since 1.89
  * @see RepositoryBrowsers
  */
-@ExportedBean
-public abstract class RepositoryBrowser<E extends ChangeLogSet.Entry> extends AbstractDescribableImpl<RepositoryBrowser<?>> implements ExtensionPoint, Serializable {
+public abstract class RepositoryBrowserExt<E extends ChangeLogSetExt.Entry> extends AbstractDescribableImpl<RepositoryBrowserExt<?>> implements ExtensionPoint, Serializable {
     /**
      * Determines the link to the given change set.
      *
@@ -98,8 +96,8 @@ public abstract class RepositoryBrowser<E extends ChangeLogSet.Entry> extends Ab
     /**
      * Returns all the registered {@link RepositoryBrowser} descriptors.
      */
-    public static DescriptorExtensionListExt<RepositoryBrowser<?>,DescriptorExt<RepositoryBrowser<?>>> all() {
-        return (DescriptorExtensionListExt)HudsonExt.getInstance().getDescriptorList(RepositoryBrowser.class);
+    public static DescriptorExtensionListExt<RepositoryBrowserExt<?>,DescriptorExt<RepositoryBrowserExt<?>>> all() {
+        return (DescriptorExtensionListExt)HudsonExt.getInstance().getDescriptorList(RepositoryBrowserExt.class);
     }
 
     private static final long serialVersionUID = 1L;

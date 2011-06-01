@@ -25,7 +25,7 @@ package hudson.matrix;
 
 import hudson.DescriptorExtensionListExt;
 import hudson.ExtensionPoint;
-import hudson.Util;
+import hudson.UtilExt;
 import hudson.model.AbstractDescribableImpl;
 import hudson.model.HudsonExt;
 import hudson.util.QuotedStringTokenizer;
@@ -86,7 +86,7 @@ public class AxisExt extends AbstractDescribableImpl<AxisExt> implements Compara
     @DataBoundConstructor
     public AxisExt(String name, String valueString) {
         this.name = name;
-        this.values = new ArrayList<String>(Arrays.asList(Util.tokenize(valueString)));
+        this.values = new ArrayList<String>(Arrays.asList(UtilExt.tokenize(valueString)));
     }
 
     /**
@@ -149,7 +149,7 @@ public class AxisExt extends AbstractDescribableImpl<AxisExt> implements Compara
 
     @Override
     public String toString() {
-        return new StringBuilder().append(name).append("={").append(Util.join(values,",")).append('}').toString();
+        return new StringBuilder().append(name).append("={").append(UtilExt.join(values,",")).append('}').toString();
     }
 
     /**

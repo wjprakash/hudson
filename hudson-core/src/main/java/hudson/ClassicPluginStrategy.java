@@ -169,7 +169,7 @@ public class ClassicPluginStrategy implements PluginStrategy {
         for (DetachedPlugin detached : DETACHED_LIST)
             detached.fix(atts,optionalDependencies);
 
-        ClassLoader dependencyLoader = new DependencyClassLoader(getBaseClassLoader(atts), archive, Util.join(dependencies,optionalDependencies));
+        ClassLoader dependencyLoader = new DependencyClassLoader(getBaseClassLoader(atts), archive, UtilExt.join(dependencies,optionalDependencies));
 
         return new PluginWrapperExt(pluginManager, archive, manifest, baseResourceURL,
                 createClassLoader(paths, dependencyLoader, atts), disableFile, dependencies, optionalDependencies);
@@ -380,7 +380,7 @@ public class ClassicPluginStrategy implements PluginStrategy {
             return; // no need to expand
 
         // delete the contents so that old files won't interfere with new files
-        Util.deleteContentsRecursive(destDir);
+        UtilExt.deleteContentsRecursive(destDir);
 
         try {
             Expand e = new Expand();

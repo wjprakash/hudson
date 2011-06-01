@@ -28,7 +28,7 @@ import hudson.AbortException;
 import hudson.BulkChange;
 import hudson.ExtensionList;
 import hudson.ExtensionPoint;
-import hudson.Util;
+import hudson.UtilExt;
 import hudson.XmlFile;
 import hudson.init.Initializer;
 import static hudson.init.InitMilestone.JOB_LOADED;
@@ -45,7 +45,7 @@ import hudson.model.queue.MappingWorksheet.Mapping;
 import hudson.model.queue.QueueSorter;
 import hudson.model.queue.QueueTaskDispatcher;
 import hudson.model.queue.Tasks;
-import hudson.model.queue.WorkUnit;
+import hudson.model.queue.WorkUnitExt;
 import hudson.model.NodeExt.ModeExt;
 import hudson.model.listeners.SaveableListener;
 import hudson.model.queue.CauseOfBlockage;
@@ -170,14 +170,14 @@ public class QueueExt extends ResourceController implements Saveable {
          * The work unit that this {@link ExecutorExt} is going to handle.
          * (Or null, in which case event is used to trigger a queue maintenance.)
          */
-        private WorkUnit workUnit;
+        private WorkUnitExt workUnit;
 
         private JobOffer(ExecutorExt executor) {
             this.executor = executor;
         }
 
         @Override
-        protected void set(WorkUnit p) {
+        protected void set(WorkUnitExt p) {
             assert this.workUnit == null;
             this.workUnit = p;
             event.signal();
@@ -459,7 +459,7 @@ public class QueueExt extends ResourceController implements Saveable {
             for (QueueAction action : item.getActions(QueueAction.class)) {
                 shouldScheduleItem |= action.shouldSchedule(actions);
             }
-            for (QueueAction action : Util.filter(actions, QueueAction.class)) {
+            for (QueueAction action : UtilExt.filter(actions, QueueAction.class)) {
                 shouldScheduleItem |= action.shouldSchedule(item.getActions());
             }
             if (!shouldScheduleItem) {
@@ -480,13 +480,13 @@ public class QueueExt extends ResourceController implements Saveable {
 
         // but let the actions affect the existing stuff.
         for (Item item : duplicatesInQueue) {
-            for (FoldableAction a : Util.filter(actions, FoldableAction.class)) {
+            for (FoldableAction a : UtilExt.filter(actions, FoldableAction.class)) {
                 a.foldIntoExisting(item, p, actions);
             }
         }
 
         boolean queueUpdated = false;
-        for (WaitingItem wi : Util.filter(duplicatesInQueue, WaitingItem.class)) {
+        for (WaitingItem wi : UtilExt.filter(duplicatesInQueue, WaitingItem.class)) {
             if (quietPeriod <= 0) {
                 // the user really wants to build now, and they mean NOW.
                 // so let's pull in the timestamp if we can.
@@ -763,7 +763,7 @@ public class QueueExt extends ResourceController implements Saveable {
      * <p>
      * This method blocks until a next project becomes buildable.
      */
-    public synchronized WorkUnit pop() throws InterruptedException {
+    public synchronized WorkUnitExt pop() throws InterruptedException {
         final ExecutorExt exec = ExecutorExt.currentExecutor();
 
         try {
@@ -1400,7 +1400,7 @@ public class QueueExt extends ResourceController implements Saveable {
         public CauseOfBlockage getCauseOfBlockage() {
             long diff = timestamp.getTimeInMillis() - System.currentTimeMillis();
             if (diff > 0) {
-                return CauseOfBlockage.fromMessage(Messages._Queue_InQuietPeriod(Util.getTimeSpanString(diff)));
+                return CauseOfBlockage.fromMessage(Messages._Queue_InQuietPeriod(UtilExt.getTimeSpanString(diff)));
             } else {
                 return CauseOfBlockage.fromMessage(Messages._Queue_Unknown());
             }

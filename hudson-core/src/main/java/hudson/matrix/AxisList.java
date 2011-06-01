@@ -24,7 +24,7 @@
 package hudson.matrix;
 
 import com.thoughtworks.xstream.XStream;
-import hudson.Util;
+import hudson.UtilExt;
 import hudson.model.LabelExt;
 import hudson.util.RobustCollectionConverter;
 
@@ -65,7 +65,7 @@ public class AxisList extends ArrayList<AxisExt> {
      * Creates a subset of the list that only contains the type assignable to the specified type.
      */
     public AxisList subList(Class<? extends AxisExt> subType) {
-        return new AxisList(Util.filter(this,subType));
+        return new AxisList(UtilExt.filter(this,subType));
     }
 
     @Override

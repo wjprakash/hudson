@@ -24,11 +24,9 @@
 package hudson.scm;
 
 import hudson.MarkupText;
-import hudson.Util;
+import hudson.UtilExt;
 import hudson.model.AbstractBuildExt;
 import hudson.model.UserExt;
-import org.kohsuke.stapler.export.Exported;
-import org.kohsuke.stapler.export.ExportedBean;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -48,15 +46,14 @@ import java.util.List;
  *
  * @author Kohsuke Kawaguchi
  */
-@ExportedBean(defaultVisibility=999)
-public abstract class ChangeLogSet<T extends ChangeLogSet.Entry> implements Iterable<T> {
+public abstract class ChangeLogSetExt<T extends ChangeLogSetExt.Entry> implements Iterable<T> {
 
     /**
      * {@link AbstractBuildExt} whose change log this object represents.
      */
     public final AbstractBuildExt<?,?> build;
 
-    protected ChangeLogSet(AbstractBuildExt<?, ?> build) {
+    protected ChangeLogSetExt(AbstractBuildExt<?, ?> build) {
         this.build = build;
     }
 
@@ -69,8 +66,7 @@ public abstract class ChangeLogSet<T extends ChangeLogSet.Entry> implements Iter
      * All changes in this change set. 
      */
     // method for the remote API.
-    @Exported
-    public final Object[] getItems() {
+    public Object[] getItems() {
         List<T> r = new ArrayList<T>();
         for (T t : this)
             r.add(t);
@@ -82,7 +78,6 @@ public abstract class ChangeLogSet<T extends ChangeLogSet.Entry> implements Iter
      * @return a short token, such as the SCM's main CLI executable name
      * @since 1.284
      */
-    @Exported
     public String getKind() {
         return null;
     }
@@ -90,22 +85,21 @@ public abstract class ChangeLogSet<T extends ChangeLogSet.Entry> implements Iter
     /**
      * Constant instance that represents no changes.
      */
-    public static ChangeLogSet<? extends ChangeLogSet.Entry> createEmpty(AbstractBuildExt build) {
+    public static ChangeLogSetExt<? extends ChangeLogSetExt.Entry> createEmpty(AbstractBuildExt build) {
         return new EmptyChangeLogSet(build);
     }
 
-    @ExportedBean(defaultVisibility=999)
     public static abstract class Entry {
-        private ChangeLogSet parent;
+        private ChangeLogSetExt parent;
 
-        public ChangeLogSet getParent() {
+        public ChangeLogSetExt getParent() {
             return parent;
         }
 
         /**
          * Should be invoked before a {@link ChangeLogSet} is exposed to public.
          */
-        protected void setParent(ChangeLogSet parent) {
+        protected void setParent(ChangeLogSetExt parent) {
             this.parent = parent;
         }
 
@@ -156,7 +150,7 @@ public abstract class ChangeLogSet<T extends ChangeLogSet.Entry> implements Iter
          */
         public Collection<? extends AffectedFile> getAffectedFiles() {
 	        String scm = "this SCM";
-	        ChangeLogSet parent = getParent();
+	        ChangeLogSetExt parent = getParent();
 	        if ( null != parent ) {
 		        String kind = parent.getKind();
 		        if ( null != kind && kind.trim().length() > 0 ) scm = kind;
@@ -179,7 +173,7 @@ public abstract class ChangeLogSet<T extends ChangeLogSet.Entry> implements Iter
          * Message escaped for HTML
          */
         public String getMsgEscaped() {
-            return Util.escape(getMsg());
+            return UtilExt.escape(getMsg());
         }
     }
     
@@ -206,6 +200,6 @@ public abstract class ChangeLogSet<T extends ChangeLogSet.Entry> implements Iter
         /**
          * Return whether the file is new/modified/deleted
          */
-        EditType getEditType();
+        EditTypeExt getEditType();
     }
 }

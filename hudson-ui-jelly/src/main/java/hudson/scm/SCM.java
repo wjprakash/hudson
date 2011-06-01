@@ -83,7 +83,7 @@ public abstract class SCM extends SCMExt {
      */
     @Exported(name="browser")
     @Override
-    public final RepositoryBrowser<?> getEffectiveBrowser() {
+    public final RepositoryBrowserExt<?> getEffectiveBrowser() {
          return super.getEffectiveBrowser();
     }
 

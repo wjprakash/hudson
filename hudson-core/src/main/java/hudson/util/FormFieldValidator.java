@@ -23,11 +23,11 @@
  */
 package hudson.util;
 
-import static hudson.Util.fixEmpty;
+import static hudson.UtilExt.fixEmpty;
 import hudson.EnvVars;
 import hudson.FilePathExt;
 import hudson.ProxyConfiguration;
-import hudson.Util;
+import hudson.UtilExt;
 import hudson.tasks.JavadocArchiver;
 import hudson.model.AbstractProjectExt;
 import hudson.model.HudsonExt;
@@ -146,7 +146,7 @@ public abstract class FormFieldValidator {
      * Gets the parameter as a file.
      */
     protected final File getFileParameter(String paramName) {
-        return new File(Util.fixNull(request.getParameter(paramName)));
+        return new File(UtilExt.fixNull(request.getParameter(paramName)));
     }
 
     /**
@@ -172,15 +172,15 @@ public abstract class FormFieldValidator {
      *      can be used as <tt>ok()</tt>.
      */
     public void error(String message) throws IOException, ServletException {
-        errorWithMarkup(message==null?null:Util.escape(message));
+        errorWithMarkup(message==null?null:UtilExt.escape(message));
     }
 
     public void warning(String message) throws IOException, ServletException {
-        warningWithMarkup(message==null?null:Util.escape(message));
+        warningWithMarkup(message==null?null:UtilExt.escape(message));
     }
 
     public void ok(String message) throws IOException, ServletException {
-        okWithMarkup(message==null?null:Util.escape(message));
+        okWithMarkup(message==null?null:UtilExt.escape(message));
     }
 
     /**
@@ -536,7 +536,7 @@ public abstract class FormFieldValidator {
                 String tokenizedPath = "";
                 String delimiter = null;
                 if(path!=null) {
-                    for (String _dir : Util.tokenize(path.replace("\\", "\\\\"),File.pathSeparator)) {
+                    for (String _dir : UtilExt.tokenize(path.replace("\\", "\\\\"),File.pathSeparator)) {
                         if (delimiter == null) {
                           delimiter = ", ";
                         }

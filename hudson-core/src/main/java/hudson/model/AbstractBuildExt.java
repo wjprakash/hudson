@@ -27,7 +27,7 @@ import hudson.AbortException;
 import hudson.EnvVars;
 import hudson.FunctionsExt;
 import hudson.Launcher;
-import hudson.Util;
+import hudson.UtilExt;
 import hudson.FilePathExt;
 import hudson.console.ExpandableDetailsNote;
 import hudson.slaves.WorkspaceList;
@@ -38,8 +38,8 @@ import hudson.model.FingerprintExt.BuildPtr;
 import hudson.model.FingerprintExt.RangeSet;
 import hudson.model.listeners.SCMListener;
 import hudson.scm.ChangeLogParser;
-import hudson.scm.ChangeLogSet;
-import hudson.scm.ChangeLogSet.Entry;
+import hudson.scm.ChangeLogSetExt;
+import hudson.scm.ChangeLogSetExt.Entry;
 import hudson.scm.SCMExt;
 import hudson.scm.NullChangeLogParser;
 import hudson.tasks.BuildStep;
@@ -115,7 +115,7 @@ public abstract class AbstractBuildExt<P extends AbstractProjectExt<P,R>,R exten
     /**
      * Changes in this build.
      */
-    private volatile transient ChangeLogSet<? extends Entry> changeSet;
+    private volatile transient ChangeLogSetExt<? extends Entry> changeSet;
 
     /**
      * Cumulative list of people who contributed to the build problem.
@@ -295,7 +295,7 @@ public abstract class AbstractBuildExt<P extends AbstractProjectExt<P,R>,R exten
      * @since 1.191
      */
     public boolean hasParticipant(UserExt user) {
-        for (ChangeLogSet.Entry e : getChangeSet())
+        for (ChangeLogSetExt.Entry e : getChangeSet())
             if (e.getAuthor()==user)
                 return true;
         return false;
@@ -339,7 +339,7 @@ public abstract class AbstractBuildExt<P extends AbstractProjectExt<P,R>,R exten
     }
 
     private void createSymlink(TaskListener listener, String name) throws InterruptedException {
-        Util.createSymlink(getProject().getBuildDir(),"builds/"+getId(),"../"+name,listener);
+        UtilExt.createSymlink(getProject().getBuildDir(),"builds/"+getId(),"../"+name,listener);
     }
 
     protected abstract class AbstractRunner extends Runner {
@@ -630,7 +630,7 @@ public abstract class AbstractBuildExt<P extends AbstractProjectExt<P,R>,R exten
      * @return never null.
      */
     @Exported
-    public ChangeLogSet<? extends Entry> getChangeSet() {
+    public ChangeLogSetExt<? extends Entry> getChangeSet() {
         if (scm==null) {
             // for historical reason, null means CVS.
             try {
@@ -656,7 +656,7 @@ public abstract class AbstractBuildExt<P extends AbstractProjectExt<P,R>,R exten
                 // set a dummy value so that it'll work the next time. the exception will
                 // be still reported, giving the plugin developer an opportunity to fix it.
                 if (changeSet==null)
-                    changeSet=ChangeLogSet.createEmpty(this);
+                    changeSet=ChangeLogSetExt.createEmpty(this);
             }
         return changeSet;
     }
@@ -669,10 +669,10 @@ public abstract class AbstractBuildExt<P extends AbstractProjectExt<P,R>,R exten
         return changelogFile.exists();
     }
 
-    private ChangeLogSet<? extends Entry> calcChangeSet() {
+    private ChangeLogSetExt<? extends Entry> calcChangeSet() {
         File changelogFile = new File(getRootDir(), "changelog.xml");
         if (!changelogFile.exists())
-            return ChangeLogSet.createEmpty(this);
+            return ChangeLogSetExt.createEmpty(this);
 
         try {
             return scm.parse(this,changelogFile);
@@ -681,7 +681,7 @@ public abstract class AbstractBuildExt<P extends AbstractProjectExt<P,R>,R exten
         } catch (SAXException e) {
             e.printStackTrace();
         }
-        return ChangeLogSet.createEmpty(this);
+        return ChangeLogSetExt.createEmpty(this);
     }
 
     @Override
@@ -709,7 +709,7 @@ public abstract class AbstractBuildExt<P extends AbstractProjectExt<P,R>,R exten
             for (Environment e : buildEnvironments)
                 e.buildEnvVars(env);
 
-        for (EnvironmentContributingAction a : Util.filter(getActions(),EnvironmentContributingAction.class))
+        for (EnvironmentContributingAction a : UtilExt.filter(getActions(),EnvironmentContributingAction.class))
             a.buildEnvVars(this,env);
 
         EnvVars.resolve(env);

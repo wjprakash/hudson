@@ -37,9 +37,6 @@ import hudson.util.DescriptorList;
 
 import java.util.List;
 
-import org.kohsuke.stapler.export.Exported;
-import org.kohsuke.stapler.export.ExportedBean;
-
 /**
  * Extension point for managing and monitoring {@link NodeExt}s.
  *
@@ -64,8 +61,7 @@ import org.kohsuke.stapler.export.ExportedBean;
  * @author Kohsuke Kawaguchi
  * @since 1.123
  */
-@ExportedBean
-public abstract class NodeMonitor implements ExtensionPoint, Describable<NodeMonitor> {
+public abstract class NodeMonitorExt implements ExtensionPoint, Describable<NodeMonitorExt> {
     private volatile boolean ignored;
 
     /**
@@ -74,13 +70,13 @@ public abstract class NodeMonitor implements ExtensionPoint, Describable<NodeMon
      * @return
      *      null to not render a column. The convention is to use capitalization like "Foo Bar Zot".
      */
-    @Exported
+  
     public String getColumnCaption() {
         return getDescriptor().getDisplayName();
     }
 
-    public AbstractNodeMonitorDescriptor<?> getDescriptor() {
-        return (AbstractNodeMonitorDescriptor<?>)HudsonExt.getInstance().getDescriptorOrDie(getClass());
+    public AbstractNodeMonitorDescriptorExt<?> getDescriptor() {
+        return (AbstractNodeMonitorDescriptorExt<?>)HudsonExt.getInstance().getDescriptorOrDie(getClass());
     }
 
     public Object data(ComputerExt c) {
@@ -105,7 +101,7 @@ public abstract class NodeMonitor implements ExtensionPoint, Describable<NodeMon
      * Obtains all the instances of {@link NodeMonitor}s that are alive.
      * @since 1.187
      */
-    public static List<NodeMonitor> getAll() {
+    public static List<NodeMonitorExt> getAll() {
         return ComputerSetExt.getMonitors().toList();
     }
 
@@ -135,12 +131,12 @@ public abstract class NodeMonitor implements ExtensionPoint, Describable<NodeMon
      * @deprecated as of 1.286.
      *      Use {@link #all()} for read access and {@link Extension} for registration.
      */
-    public static final DescriptorList<NodeMonitor> LIST = new DescriptorList<NodeMonitor>(NodeMonitor.class);
+    public static final DescriptorList<NodeMonitorExt> LIST = new DescriptorList<NodeMonitorExt>(NodeMonitorExt.class);
 
     /**
      * Returns all the registered {@link NodeMonitor} descriptors.
      */
-    public static DescriptorExtensionListExt<NodeMonitor,DescriptorExt<NodeMonitor>> all() {
-        return HudsonExt.getInstance().<NodeMonitor,DescriptorExt<NodeMonitor>>getDescriptorList(NodeMonitor.class);
+    public static DescriptorExtensionListExt<NodeMonitorExt,DescriptorExt<NodeMonitorExt>> all() {
+        return HudsonExt.getInstance().<NodeMonitorExt,DescriptorExt<NodeMonitorExt>>getDescriptorList(NodeMonitorExt.class);
     }
 }

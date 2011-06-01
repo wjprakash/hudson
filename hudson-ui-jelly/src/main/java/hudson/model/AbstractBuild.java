@@ -24,8 +24,8 @@
 package hudson.model;
 
 import hudson.Functions;
-import hudson.scm.ChangeLogSet;
-import hudson.scm.ChangeLogSet.Entry;
+import hudson.scm.ChangeLogSetExt;
+import hudson.scm.ChangeLogSetExt.Entry;
 import java.io.IOException;
 import java.util.Set;
 import javax.servlet.ServletException;
@@ -85,7 +85,7 @@ public abstract class AbstractBuild extends AbstractBuildExt{
      */
     @Exported
     @Override
-    public ChangeLogSet<? extends Entry> getChangeSet() {
+    public ChangeLogSetExt<? extends Entry> getChangeSet() {
         return super.getChangeSet();
     }
     

@@ -24,9 +24,9 @@
 package hudson.model;
 
 import hudson.PluginWrapperExt;
-import hudson.Util;
+import hudson.UtilExt;
 import hudson.Extension;
-import hudson.node_monitors.ArchitectureMonitor.DescriptorImpl;
+import hudson.node_monitors.ArchitectureMonitorExt.DescriptorImpl;
 import hudson.util.Secret;
 import static hudson.util.TimeUnit2.DAYS;
 import net.sf.json.JSONObject;
@@ -104,7 +104,7 @@ public class UsageStatistics extends PageDecorator {
         try {
             if (key == null) {
                 KeyFactory keyFactory = KeyFactory.getInstance("RSA");
-                key = keyFactory.generatePublic(new X509EncodedKeySpec(Util.fromHexString(keyImage)));
+                key = keyFactory.generatePublic(new X509EncodedKeySpec(UtilExt.fromHexString(keyImage)));
             }
 
             Cipher cipher = Secret.getCipher("RSA");
@@ -123,7 +123,7 @@ public class UsageStatistics extends PageDecorator {
 
         JSONObject o = new JSONObject();
         o.put("stat", 1);
-        o.put("install", Util.getDigestOf(h.getSecretKey()));
+        o.put("install", UtilExt.getDigestOf(h.getSecretKey()));
         o.put("version", HudsonExt.VERSION);
 
         List<JSONObject> nodes = new ArrayList<JSONObject>();

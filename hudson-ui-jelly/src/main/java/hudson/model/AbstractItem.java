@@ -25,7 +25,7 @@ package hudson.model;
 
 import org.kohsuke.stapler.WebMethod;
 import hudson.Functions;
-import hudson.Util;
+import hudson.UtilExt;
 import hudson.XmlFile;
 import hudson.cli.declarative.CLIMethod;
 import hudson.util.AtomicFileWriter;
@@ -96,7 +96,7 @@ public abstract class AbstractItem extends AbstractItemExt implements HttpDeleta
         if (request == null) {
             throw new IllegalStateException("Not processing a HTTP request");
         }
-        return Util.encode(HudsonExt.getInstance().getRootUrl() + getUrl());
+        return UtilExt.encode(HudsonExt.getInstance().getRootUrl() + getUrl());
     }
 
     /**

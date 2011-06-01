@@ -27,7 +27,7 @@ import com.infradna.tool.bridge_method_injector.WithBridgeMethods;
 import com.thoughtworks.xstream.XStream;
 import hudson.CopyOnWrite;
 import hudson.FunctionsExt;
-import hudson.Util;
+import hudson.UtilExt;
 import hudson.XmlFile;
 import hudson.BulkChange;
 import hudson.model.listeners.SaveableListener;
@@ -144,11 +144,11 @@ public class UserExt extends AbstractModelObjectExt implements AccessControlled,
     }
 
     public String getUrl() {
-        return "user/"+Util.rawEncode(id);
+        return "user/"+UtilExt.rawEncode(id);
     }
 
     public String getSearchUrl() {
-        return "/user/"+Util.rawEncode(id);
+        return "/user/"+UtilExt.rawEncode(id);
     }
 
     /**
@@ -166,7 +166,7 @@ public class UserExt extends AbstractModelObjectExt implements AccessControlled,
      * Sets the human readable name of thie user.
      */
     public void setFullName(String name) {
-        if(Util.fixEmptyAndTrim(name)==null)    name=id;
+        if(UtilExt.fixEmptyAndTrim(name)==null)    name=id;
         this.fullName = name;
     }
 
@@ -384,7 +384,7 @@ public class UserExt extends AbstractModelObjectExt implements AccessControlled,
     public synchronized void delete() throws IOException {
         synchronized (byName) {
             byName.remove(id);
-            Util.deleteRecursive(new File(getRootDir(), id));
+            UtilExt.deleteRecursive(new File(getRootDir(), id));
         }
     }
 

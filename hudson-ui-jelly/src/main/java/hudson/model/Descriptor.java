@@ -24,8 +24,8 @@
 package hudson.model;
 
 import hudson.RelativePath;
-import hudson.Util;
-import static hudson.Util.singleQuote;
+import hudson.UtilExt;
+import static hudson.UtilExt.singleQuote;
 import hudson.util.ReflectionUtils;
 import hudson.util.ReflectionUtils.Parameter;
 import hudson.views.ListViewColumn;
@@ -216,7 +216,7 @@ public abstract class Descriptor<T extends Describable<T>> extends DescriptorExt
         List<String> depends = buildFillDependencies(method, new ArrayList<String>());
 
         if (!depends.isEmpty()) {
-            attributes.put("fillDependsOn", Util.join(depends, " "));
+            attributes.put("fillDependsOn", UtilExt.join(depends, " "));
         }
         attributes.put("fillUrl", String.format("%s/%s/fill%sItems", getCurrentDescriptorByNameUrl(), getDescriptorUrl(), capitalizedFieldName));
     }
@@ -408,7 +408,7 @@ public abstract class Descriptor<T extends Describable<T>> extends DescriptorExt
                 // TODO: generalize macro expansion and perhaps even support JEXL
                 rsp.setContentType("text/html;charset=UTF-8");
                 String literal = IOUtils.toString(in, "UTF-8");
-                rsp.getWriter().println(Util.replaceMacro(literal, Collections.singletonMap("rootURL", req.getContextPath())));
+                rsp.getWriter().println(UtilExt.replaceMacro(literal, Collections.singletonMap("rootURL", req.getContextPath())));
                 in.close();
                 return;
             }

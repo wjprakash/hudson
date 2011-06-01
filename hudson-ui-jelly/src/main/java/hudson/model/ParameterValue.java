@@ -25,7 +25,7 @@
 package hudson.model;
 
 import hudson.EnvVars;
-import hudson.Util;
+import hudson.UtilExt;
 import hudson.slaves.OfflineCause;
 import hudson.tasks.BuildWrapper;
 import hudson.tasks.Builder;
@@ -126,7 +126,7 @@ public abstract class ParameterValue implements Serializable {
      *      Use {@link #buildEnvVars(AbstractBuildExt, EnvVars)} instead.
      */
     public void buildEnvVars(AbstractBuildExt<?,?> build, Map<String,String> env) {
-        if (env instanceof EnvVars && Util.isOverridden(ParameterValue.class,getClass(),"buildEnvVars", AbstractBuildExt.class,EnvVars.class))
+        if (env instanceof EnvVars && UtilExt.isOverridden(ParameterValue.class,getClass(),"buildEnvVars", AbstractBuildExt.class,EnvVars.class))
             // if the subtype already derives buildEnvVars(AbstractBuildExt,Map), then delegate to it
             buildEnvVars(build,(EnvVars)env);
 

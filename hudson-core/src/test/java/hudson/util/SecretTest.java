@@ -27,7 +27,7 @@ import junit.framework.TestCase;
 
 import java.security.SecureRandom;
 
-import hudson.Util;
+import hudson.UtilExt;
 import hudson.model.HudsonExt;
 
 /**
@@ -38,7 +38,7 @@ public class SecretTest extends TestCase {
         SecureRandom sr = new SecureRandom();
         byte[] random = new byte[32];
         sr.nextBytes(random);
-        Secret.SECRET = Util.toHexString(random);
+        Secret.SECRET = UtilExt.toHexString(random);
 
     }
 

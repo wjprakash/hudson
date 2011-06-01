@@ -23,7 +23,7 @@
  */
 package hudson.util;
 
-import hudson.Util;
+import hudson.UtilExt;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -138,7 +138,7 @@ public class CompressedFile {
                     InputStream in = read();
                     OutputStream out = new GZIPOutputStream(new FileOutputStream(gz));
                     try {
-                        Util.copyStream(in,out);
+                        UtilExt.copyStream(in,out);
                     } finally {
                         in.close();
                         out.close();

@@ -23,7 +23,7 @@
  */
 package hudson.matrix;
 
-import hudson.Util;
+import hudson.UtilExt;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -111,7 +111,7 @@ public final class Combination extends TreeMap<String,String> implements Compara
      * true.
      */
     public boolean evalGroovyExpression(AxisList axes, String expression) {
-        if(Util.fixEmptyAndTrim(expression)==null)
+        if(UtilExt.fixEmptyAndTrim(expression)==null)
             return true;
 
         Binding binding = new Binding();
@@ -199,7 +199,7 @@ public final class Combination extends TreeMap<String,String> implements Compara
      * Gets the 8 character-wide hash code for this combination
      */
     public String digest() {
-        return Util.getDigestOf(toString());
+        return UtilExt.getDigestOf(toString());
     }
 
     /**

@@ -26,7 +26,7 @@ package hudson.cli.declarative;
 import hudson.Extension;
 import hudson.ExtensionComponent;
 import hudson.ExtensionFinder;
-import hudson.Util;
+import hudson.UtilExt;
 import hudson.cli.CLICommand;
 import hudson.cli.CloneableCLICommand;
 import hudson.model.HudsonExt;
@@ -74,7 +74,7 @@ public class CLIRegisterer extends ExtensionFinder {
      * Finds a resolved method annotated with {@link CLIResolver}.
      */
     private Method findResolver(Class type) throws IOException {
-        List<Method> resolvers = Util.filter(Index.list(CLIResolver.class, HudsonExt.getInstance().getPluginManager().uberClassLoader), Method.class);
+        List<Method> resolvers = UtilExt.filter(Index.list(CLIResolver.class, HudsonExt.getInstance().getPluginManager().uberClassLoader), Method.class);
         for ( ; type!=null; type=type.getSuperclass())
             for (Method m : resolvers)
                 if (m.getReturnType()==type)
@@ -87,7 +87,7 @@ public class CLIRegisterer extends ExtensionFinder {
         List<ExtensionComponent<CLICommand>> r = new ArrayList<ExtensionComponent<CLICommand>>();
 
         try {
-            for ( final Method m : Util.filter(Index.list(CLIMethod.class, hudson.getPluginManager().uberClassLoader),Method.class)) {
+            for ( final Method m : UtilExt.filter(Index.list(CLIMethod.class, hudson.getPluginManager().uberClassLoader),Method.class)) {
                 try {
                     // command name
                     final String name = m.getAnnotation(CLIMethod.class).name();

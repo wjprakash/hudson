@@ -23,7 +23,7 @@
  */
 package hudson.matrix;
 
-import hudson.Util;
+import hudson.UtilExt;
 import hudson.model.AbstractBuildExt;
 import hudson.model.AbstractProjectExt;
 import hudson.model.BuildListener;
@@ -88,7 +88,7 @@ public class MatrixBuildExt extends AbstractBuildExt<MatrixProjectExt,MatrixBuil
         }
 
         public String getShortUrl() {
-            return Util.rawEncode(combination.toString());
+            return UtilExt.rawEncode(combination.toString());
         }
 
         public String getTooltip() {

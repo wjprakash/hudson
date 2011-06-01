@@ -21,48 +21,32 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package hudson.node_monitors;
+package hudson.scm;
 
-import hudson.model.ComputerExt;
-import hudson.model.DescriptorExt.FormException;
-import hudson.remoting.Callable;
-import hudson.Extension;
-import net.sf.json.JSONObject;
+import hudson.model.AbstractBuildExt;
 import org.kohsuke.stapler.StaplerRequest;
+import org.kohsuke.stapler.StaplerResponse;
 
+import javax.servlet.ServletException;
 import java.io.IOException;
 
 /**
- * Discovers the architecture of the system to display in the slave list page.
+ * Common part of {@link CVSSCM.TagAction} and {@link SubversionTagAction}.
+ *
+ * <p>
+ * This class implements the action that tags the modules. Derived classes
+ * need to provide <tt>tagForm.jelly</tt> view that displays a form for
+ * letting user start tagging.
  *
  * @author Kohsuke Kawaguchi
  */
-public class ArchitectureMonitor extends NodeMonitor {
-    @Extension
-    public static final class DescriptorImpl extends AbstractNodeMonitorDescriptor<String> {
-        protected String monitor(ComputerExt c) throws IOException, InterruptedException {
-            return c.getChannel().call(new GetArchTask());
-        }
-
-        public String getDisplayName() {
-            return Messages.ArchitectureMonitor_DisplayName();
-        }
-
-        public NodeMonitor newInstance(StaplerRequest req, JSONObject formData) throws FormException {
-            return new ArchitectureMonitor();
-        }
+public abstract class AbstractScmTagAction extends AbstractScmTagActionExt {
+   
+    protected AbstractScmTagAction(AbstractBuildExt build) {
+        super(build);
     }
-
-    /**
-     * Obtains the string that represents the architecture.
-     */
-    private static class GetArchTask implements Callable<String,RuntimeException> {
-        public String call() {
-            String os = System.getProperty("os.name");
-            String arch = System.getProperty("os.arch");
-            return os+" ("+arch+')';
-        }
-
-        private static final long serialVersionUID = 1L;
+    
+    public void doIndex(StaplerRequest req, StaplerResponse rsp) throws IOException, ServletException {
+        req.getView(this,chooseAction()).forward(req,rsp);
     }
 }

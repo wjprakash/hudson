@@ -25,7 +25,7 @@ package hudson.slaves;
 
 import antlr.ANTLRException;
 import hudson.Extension;
-import static hudson.Util.fixNull;
+import static hudson.UtilExt.fixNull;
 import hudson.model.ComputerExt;
 import hudson.model.DescriptorExt;
 import hudson.scheduler.CronTabList;

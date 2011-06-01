@@ -63,7 +63,7 @@ public class LocalPluginManager extends PluginManagerExt {
 
         Set<String> names = new HashSet<String>();
 
-        for( String path : Util.fixNull((Set<String>)hudson.servletContext.getResourcePaths("/WEB-INF/plugins"))) {
+        for( String path : UtilExt.fixNull((Set<String>)hudson.servletContext.getResourcePaths("/WEB-INF/plugins"))) {
             String fileName = path.substring(path.lastIndexOf('/')+1);
             if(fileName.length()==0) {
                 // see http://www.nabble.com/404-Not-Found-error-when-clicking-on-help-td24508544.html

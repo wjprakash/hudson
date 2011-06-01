@@ -25,7 +25,7 @@ package hudson.tasks;
 
 import hudson.FilePathExt;
 import hudson.FunctionsExt;
-import hudson.Util;
+import hudson.UtilExt;
 import hudson.Extension;
 import hudson.model.AbstractProjectExt;
 import hudson.util.FormValidation;
@@ -92,7 +92,7 @@ public class Shell extends CommandInterpreter {
             int end = command.indexOf('\n');
             if(end<0)   end=command.length();
             List<String> args = new ArrayList<String>();
-            args.addAll(Arrays.asList(Util.tokenize(command.substring(0,end).trim())));
+            args.addAll(Arrays.asList(UtilExt.tokenize(command.substring(0,end).trim())));
             args.add(script.getRemote());
             args.set(0,args.get(0).substring(2));   // trim off "#!"
             return args.toArray(new String[args.size()]);
@@ -139,7 +139,7 @@ public class Shell extends CommandInterpreter {
         }
 
         public void setShell(String shell) {
-            this.shell = Util.fixEmptyAndTrim(shell);
+            this.shell = UtilExt.fixEmptyAndTrim(shell);
             save();
         }
 

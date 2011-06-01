@@ -1,6 +1,6 @@
 package hudson.util;
 
-import hudson.Util;
+import hudson.UtilExt;
 import hudson.model.TaskListener;
 import org.apache.tools.ant.DirectoryScanner;
 import org.apache.tools.ant.types.FileSet;
@@ -10,7 +10,7 @@ import java.io.FileFilter;
 import java.io.IOException;
 import java.io.Serializable;
 
-import static hudson.Util.fixEmpty;
+import static hudson.UtilExt.fixEmpty;
 
 /**
  * Visits a directory and its contents and pass them to the {@link FileVisitor}.
@@ -33,7 +33,7 @@ public abstract class DirScanner implements Serializable {
         private void scan(File f, String path, FileVisitor visitor) throws IOException {
             if (f.canRead()) {
                 if (visitor.understandsSymlink()) {
-                    String target = Util.resolveSymlink(f, TaskListener.NULL);
+                    String target = UtilExt.resolveSymlink(f, TaskListener.NULL);
                     if (target != null) {
                         visitor.visitSymlink(f, target, path + f.getName());
                         return;
@@ -90,7 +90,7 @@ public abstract class DirScanner implements Serializable {
                 return;
             }
 
-            FileSet fs = Util.createFileSet(dir,includes,excludes);
+            FileSet fs = UtilExt.createFileSet(dir,includes,excludes);
 
             if(dir.exists()) {
                 DirectoryScanner ds = fs.getDirectoryScanner(new org.apache.tools.ant.Project());

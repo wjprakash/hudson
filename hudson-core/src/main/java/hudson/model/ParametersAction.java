@@ -23,7 +23,7 @@
  */
 package hudson.model;
 
-import hudson.Util;
+import hudson.UtilExt;
 import hudson.EnvVars;
 import hudson.diagnosis.OldDataMonitorExt;
 import hudson.model.QueueExt.QueueAction;
@@ -83,7 +83,7 @@ public class ParametersAction implements Action, Iterable<ParameterValueExt>, Qu
      * Performs a variable subsitution to the given text and return it.
      */
     public String substitute(AbstractBuildExt<?,?> build, String text) {
-        return Util.replaceMacro(text,createVariableResolver(build));
+        return UtilExt.replaceMacro(text,createVariableResolver(build));
     }
 
     /**
@@ -135,7 +135,7 @@ public class ParametersAction implements Action, Iterable<ParameterValueExt>, Qu
      * Allow an other build of the same project to be scheduled, if it has other parameters.
      */
     public boolean shouldSchedule(List<Action> actions) {
-        List<ParametersAction> others = Util.filter(actions, ParametersAction.class);
+        List<ParametersAction> others = UtilExt.filter(actions, ParametersAction.class);
         if (others.isEmpty()) {
             return !parameters.isEmpty();
         } else {

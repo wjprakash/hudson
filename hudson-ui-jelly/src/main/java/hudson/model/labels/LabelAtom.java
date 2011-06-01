@@ -47,7 +47,7 @@ public class LabelAtom extends LabelAtomExt {
 
     @Exported
     @Override
-    public List<LabelAtomProperty> getPropertiesList() {
+    public List<LabelAtomPropertyExt> getPropertiesList() {
         return super.getPropertiesList();
     }
 

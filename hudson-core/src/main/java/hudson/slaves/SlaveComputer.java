@@ -34,7 +34,7 @@ import hudson.util.RingBufferLogHandler;
 import hudson.util.Futures;
 import hudson.FilePathExt;
 import hudson.lifecycle.WindowsSlaveInstaller;
-import hudson.Util;
+import hudson.UtilExt;
 import hudson.AbortException;
 import hudson.remoting.Launcher;
 import static hudson.slaves.SlaveComputer.LogHolder.SLAVE_LOG_HANDLER;
@@ -197,7 +197,7 @@ public class SlaveComputer extends ComputerExt {
                         taskListener.error(e.getMessage());
                         throw e;
                     } catch (IOException e) {
-                        Util.displayIOException(e,taskListener);
+                        UtilExt.displayIOException(e,taskListener);
                         e.printStackTrace(taskListener.error(Messages.ComputerLauncher_unexpectedError()));
                         throw e;
                     } catch (InterruptedException e) {
@@ -390,7 +390,7 @@ public class SlaveComputer extends ComputerExt {
         if (channel!=null) {
             //does nothing in case computer is already disconnected
             checkPermission(HudsonExt.ADMINISTER);
-            offlineMessage = Util.fixEmptyAndTrim(offlineMessage);
+            offlineMessage = UtilExt.fixEmptyAndTrim(offlineMessage);
             disconnect(OfflineCause.create(Messages._SlaveComputer_DisconnectedBy(
                     HudsonExt.getAuthentication().getName(),
                     offlineMessage!=null ? " : " + offlineMessage : "")

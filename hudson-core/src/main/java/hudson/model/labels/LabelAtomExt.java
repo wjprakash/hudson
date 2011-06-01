@@ -57,8 +57,8 @@ import java.util.logging.Logger;
  */
 public class LabelAtomExt extends LabelExt implements Saveable {
 
-    protected DescribableList<LabelAtomProperty, LabelAtomPropertyDescriptor> properties =
-            new DescribableList<LabelAtomProperty, LabelAtomPropertyDescriptor>(this);
+    protected DescribableList<LabelAtomPropertyExt, LabelAtomPropertyDescriptor> properties =
+            new DescribableList<LabelAtomPropertyExt, LabelAtomPropertyDescriptor>(this);
     @CopyOnWrite
     protected transient volatile List<Action> transientActions = new Vector<Action>();
 
@@ -117,7 +117,7 @@ public class LabelAtomExt extends LabelExt implements Saveable {
             });
         }
 
-        for (LabelAtomProperty p : properties) {
+        for (LabelAtomPropertyExt p : properties) {
             ta.addAll(p.getActions(this));
         }
 
@@ -127,11 +127,11 @@ public class LabelAtomExt extends LabelExt implements Saveable {
     /**
      * Properties associated with this label.
      */
-    public DescribableList<LabelAtomProperty, LabelAtomPropertyDescriptor> getProperties() {
+    public DescribableList<LabelAtomPropertyExt, LabelAtomPropertyDescriptor> getProperties() {
         return properties;
     }
 
-    public List<LabelAtomProperty> getPropertiesList() {
+    public List<LabelAtomPropertyExt> getPropertiesList() {
         return properties.toList();
     }
 
@@ -179,7 +179,7 @@ public class LabelAtomExt extends LabelExt implements Saveable {
      * on this label.
      */
     public List<LabelAtomPropertyDescriptor> getApplicablePropertyDescriptors() {
-        return LabelAtomProperty.all();
+        return LabelAtomPropertyExt.all();
     }
 
     /**

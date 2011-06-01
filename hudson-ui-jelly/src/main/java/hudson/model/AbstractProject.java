@@ -27,15 +27,15 @@ import antlr.ANTLRException;
 import com.sun.jdi.connect.Connector.Argument;
 import hudson.FeedAdapter;
 import hudson.FilePathExt;
-import hudson.Util;
+import hudson.UtilExt;
 import hudson.cli.declarative.CLIMethod;
 import hudson.cli.declarative.CLIResolver;
 import hudson.model.CauseExt.RemoteCause;
 import hudson.model.CauseExt.UserCause;
 import hudson.model.Descriptor.FormException;
 import hudson.model.DescriptorExt.FormException;
-import hudson.scm.ChangeLogSet;
-import hudson.scm.ChangeLogSet.Entry;
+import hudson.scm.ChangeLogSetExt;
+import hudson.scm.ChangeLogSetExt.Entry;
 import hudson.scm.SCMExt;
 import hudson.scm.SCMS;
 import hudson.tasks.BuildTrigger;
@@ -299,7 +299,7 @@ public abstract class AbstractProject extends AbstractProjectExt{
         blockBuildWhenUpstreamBuilding = req.getParameter("blockBuildWhenUpstreamBuilding")!=null;
 
         if(req.getParameter("hasSlaveAffinity")!=null) {
-            assignedNode = Util.fixEmptyAndTrim(req.getParameter("_.assignedLabelString"));
+            assignedNode = UtilExt.fixEmptyAndTrim(req.getParameter("_.assignedLabelString"));
         } else {
             assignedNode = null;
         }
@@ -412,7 +412,7 @@ public abstract class AbstractProject extends AbstractProjectExt{
      */
     public void doRssChangelog(  StaplerRequest req, StaplerResponse rsp  ) throws IOException, ServletException {
         class FeedItem {
-            ChangeLogSet.Entry e;
+            ChangeLogSetExt.Entry e;
             int idx;
 
             public FeedItem(Entry e, int idx) {
@@ -429,7 +429,7 @@ public abstract class AbstractProject extends AbstractProjectExt{
 
         for(R r=getLastBuild(); r!=null; r=r.getPreviousBuild()) {
             int idx=0;
-            for( ChangeLogSet.Entry e : r.getChangeSet())
+            for( ChangeLogSetExt.Entry e : r.getChangeSet())
                 entries.add(new FeedItem(e,idx++));
         }
 
@@ -481,7 +481,7 @@ public abstract class AbstractProject extends AbstractProjectExt{
     
     public static abstract class AbstractProjectDescriptor extends AbstractProjectDescriptorExt {
         public FormValidation doCheckAssignedLabelString(@QueryParameter String value) {
-            if (Util.fixEmpty(value)==null)
+            if (UtilExt.fixEmpty(value)==null)
                 return FormValidation.ok(); // nothing typed yet
             try {
                 LabelExt.parseExpression(value);

@@ -29,7 +29,7 @@ import hudson.ExtensionListView;
 import hudson.Extension;
 import hudson.ExtensionList;
 import hudson.util.CopyOnWriteList;
-import hudson.scm.ChangeLogSet.Entry;
+import hudson.scm.ChangeLogSetExt.Entry;
 import hudson.model.AbstractBuildExt;
 import hudson.model.HudsonExt;
 

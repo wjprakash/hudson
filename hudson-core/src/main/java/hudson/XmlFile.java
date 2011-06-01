@@ -213,7 +213,7 @@ public final class XmlFile {
     public void writeRawTo(Writer w) throws IOException {
         Reader r = readRaw();
         try {
-            Util.copyStream(r,w);
+            UtilExt.copyStream(r,w);
         } finally {
             r.close();
         }

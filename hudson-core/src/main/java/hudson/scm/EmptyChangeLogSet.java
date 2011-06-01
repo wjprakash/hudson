@@ -10,7 +10,7 @@ import java.util.Iterator;
  *
  * @author Kohsuke Kawaguchi
  */
-final class EmptyChangeLogSet extends ChangeLogSet<ChangeLogSet.Entry> {
+final class EmptyChangeLogSet extends ChangeLogSetExt<ChangeLogSetExt.Entry> {
     /*package*/ EmptyChangeLogSet(AbstractBuildExt<?, ?> build) {
         super(build);
     }
