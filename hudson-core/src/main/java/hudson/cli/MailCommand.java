@@ -23,7 +23,7 @@
  */
 package hudson.cli;
 
-import hudson.tasks.Mailer;
+import hudson.tasks.MailerExt;
 import hudson.Extension;
 import hudson.model.HudsonExt;
 import hudson.model.ItemExt;
@@ -47,7 +47,7 @@ public class MailCommand extends CLICommand {
 
     protected int run() throws Exception {
         HudsonExt.getInstance().checkPermission(ItemExt.CONFIGURE);
-        Transport.send(new MimeMessage(Mailer.descriptor().createSession(),stdin));
+        Transport.send(new MimeMessage(MailerExt.descriptor().createSession(),stdin));
         return 0;
     }
 }

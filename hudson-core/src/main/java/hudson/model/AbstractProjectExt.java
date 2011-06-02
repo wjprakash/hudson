@@ -54,10 +54,10 @@ import hudson.security.Permission;
 import hudson.slaves.WorkspaceList;
 import hudson.tasks.BuildStep;
 import hudson.tasks.BuildStepDescriptor;
-import hudson.tasks.BuildTrigger;
+import hudson.tasks.BuildTriggerExt;
 import hudson.tasks.BuildWrapperDescriptor;
 import hudson.tasks.Publisher;
-import hudson.triggers.SCMTrigger;
+import hudson.triggers.SCMTriggerExt;
 import hudson.triggers.Trigger;
 import hudson.triggers.TriggerDescriptor;
 import hudson.util.DescribableList;
@@ -715,7 +715,7 @@ public abstract class AbstractProjectExt<P extends AbstractProjectExt<P,R>,R ext
      */
     public boolean schedulePolling() {
         if(isDisabled())    return false;
-        SCMTrigger scmt = getTrigger(SCMTrigger.class);
+        SCMTriggerExt scmt = getTrigger(SCMTriggerExt.class);
         if(scmt==null)      return false;
         scmt.run();
         return true;
@@ -1316,7 +1316,7 @@ public abstract class AbstractProjectExt<P extends AbstractProjectExt<P,R>,R ext
     public final List<AbstractProjectExt> getBuildTriggerUpstreamProjects() {
         ArrayList<AbstractProjectExt> result = new ArrayList<AbstractProjectExt>();
         for (AbstractProjectExt<?,?> ap : getUpstreamProjects()) {
-            BuildTrigger buildTrigger = ap.getPublishersList().get(BuildTrigger.class);
+            BuildTriggerExt buildTrigger = ap.getPublishersList().get(BuildTriggerExt.class);
             if (buildTrigger != null)
                 if (buildTrigger.getChildProjects().contains(this))
                     result.add(ap);

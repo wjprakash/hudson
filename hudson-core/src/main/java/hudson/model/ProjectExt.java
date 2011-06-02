@@ -28,11 +28,11 @@ import hudson.diagnosis.OldDataMonitorExt;
 import hudson.tasks.BuildStep;
 import hudson.tasks.BuildWrapper;
 import hudson.tasks.Builder;
-import hudson.tasks.Fingerprinter;
+import hudson.tasks.FingerprinterExt;
 import hudson.tasks.Publisher;
-import hudson.tasks.Maven;
-import hudson.tasks.Maven.ProjectWithMaven;
-import hudson.tasks.Maven.MavenInstallation;
+import hudson.tasks.MavenExt;
+import hudson.tasks.MavenExt.ProjectWithMaven;
+import hudson.tasks.MavenExt.MavenInstallation;
 import hudson.triggers.Trigger;
 import hudson.util.DescribableList;
 
@@ -165,11 +165,11 @@ public abstract class ProjectExt<P extends ProjectExt<P,B>,B extends Build<P,B>>
 
     @Override
     public boolean isFingerprintConfigured() {
-        return getPublishersList().get(Fingerprinter.class)!=null;
+        return getPublishersList().get(FingerprinterExt.class)!=null;
     }
 
     public MavenInstallation inferMavenInstallation() {
-        Maven m = getBuildersList().get(Maven.class);
+        MavenExt m = getBuildersList().get(MavenExt.class);
         if (m!=null)    return m.getMaven();
         return null;
     }

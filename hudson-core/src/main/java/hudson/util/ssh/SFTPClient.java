@@ -26,6 +26,7 @@ public class SFTPClient extends SFTPv3Client {
     /**
      * Checks if the given path exists.
      */
+    @Override
     public boolean exists(String path) throws IOException {
         return _stat(path)!=null;
     }
@@ -33,6 +34,7 @@ public class SFTPClient extends SFTPv3Client {
     /**
      * Graceful {@link #stat(String)} that returns null if the path doesn't exist.
      */
+    @Override
     public SFTPv3FileAttributes _stat(String path) throws IOException {
         try {
             return stat(path);
@@ -48,6 +50,7 @@ public class SFTPClient extends SFTPv3Client {
     /**
      * Makes sure that the directory exists, by creating it if necessary.
      */
+    @Override
     public void mkdirs(String path, int posixPermission) throws IOException {
         SFTPv3FileAttributes atts = _stat(path);
         if (atts!=null && atts.isDirectory())
@@ -67,6 +70,7 @@ public class SFTPClient extends SFTPv3Client {
     /**
      * Creates a new file and writes to it.
      */
+    @Override
     public OutputStream writeToFile(String path) throws IOException {
         final SFTPv3FileHandle h = createFile(path);
         return new OutputStream() {
@@ -88,6 +92,7 @@ public class SFTPClient extends SFTPv3Client {
         };
     }
 
+    @Override
     public InputStream read(String file) throws IOException {
         final SFTPv3FileHandle h = openFileRO(file);
         return new InputStream() {
@@ -121,6 +126,7 @@ public class SFTPClient extends SFTPv3Client {
         };
     }
 
+    @Override
     public void chmod(String path, int permissions) throws IOException {
         SFTPv3FileAttributes atts = new SFTPv3FileAttributes();
         atts.permissions = permissions;

@@ -57,7 +57,7 @@ import hudson.security.AccessControlled;
 import hudson.security.Permission;
 import hudson.security.PermissionGroup;
 import hudson.util.DescriptorList;
-import hudson.util.RunList;
+import hudson.util.RunListExt;
 import hudson.widgets.Widget;
 
 import java.io.IOException;
@@ -644,15 +644,15 @@ public abstract class View extends AbstractModelObjectExt implements AccessContr
         rss(req, rsp, " failed builds", getBuilds().failureOnly());
     }
     
-    public RunList getBuilds() {
-        return new RunList(this);
+    public RunListExt getBuilds() {
+        return new RunListExt(this);
     }
     
     public BuildTimelineWidgetExt getTimeline() {
         return new BuildTimelineWidgetExt(getBuilds());
     }
 
-    private void rss(StaplerRequest req, StaplerResponse rsp, String suffix, RunList runs) throws IOException, ServletException {
+    private void rss(StaplerRequest req, StaplerResponse rsp, String suffix, RunListExt runs) throws IOException, ServletException {
         RSS.forwardToRss(getDisplayName()+ suffix, getUrl(),
             runs.newBuilds(), RunExt.FEED_ADAPTER, req, rsp );
     }

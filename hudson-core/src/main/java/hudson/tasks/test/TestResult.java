@@ -40,14 +40,14 @@ import static java.util.Collections.emptyList;
  *
  * @sine 1.343
  */
-public abstract class TestResult extends TestObject {
+public abstract class TestResult extends TestObjectExt {
 
     /**
      * If the concept of a parent action is important to a subclass, then it should
      * provide a non-noop implementation of this method. 
      * @param action
      */
-    public void setParentAction(AbstractTestResultAction action) {
+    public void setParentAction(AbstractTestResultActionExt action) {
     }
 
     /**
@@ -56,7 +56,7 @@ public abstract class TestResult extends TestObject {
      * 
      * @return
      */
-    public AbstractTestResultAction getParentAction() {
+    public AbstractTestResultActionExt getParentAction() {
         return getOwner().getTestResultAction();
     }
     
@@ -72,7 +72,7 @@ public abstract class TestResult extends TestObject {
      * Sets the parent test result
      * @param parent
      */
-    public void setParent(TestObject parent) {
+    public void setParent(TestObjectExt parent) {
     }
 
     /**
@@ -140,7 +140,7 @@ public abstract class TestResult extends TestObject {
             b = b.getPreviousBuild();
             if(b==null)
                 return null;
-            AbstractTestResultAction r = b.getAction(getParentAction().getClass());
+            AbstractTestResultActionExt r = b.getAction(getParentAction().getClass());
             if(r!=null) {
                 TestResult result = r.findCorrespondingResult(this.getId());
                 if (result!=null)
@@ -155,9 +155,9 @@ public abstract class TestResult extends TestObject {
      * @return null if no such counter part exists.
      */
     public TestResult getResultInBuild(AbstractBuildExt<?,?> build) {
-        AbstractTestResultAction tra = build.getAction(getParentAction().getClass());
+        AbstractTestResultActionExt tra = build.getAction(getParentAction().getClass());
         if (tra == null) {
-            tra = build.getAction(AbstractTestResultAction.class);
+            tra = build.getAction(AbstractTestResultActionExt.class);
         }
         return (tra == null) ? null : tra.findCorrespondingResult(this.getId());
     }

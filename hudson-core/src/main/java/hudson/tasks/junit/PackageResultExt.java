@@ -1,0 +1,291 @@
+/*
+ * The MIT License
+ * 
+ * Copyright (c) 2004-2009, Sun Microsystems, Inc., Kohsuke Kawaguchi, Daniel Dyer, id:cactusman, Tom Huybrechts, Yahoo!, Inc.
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+package hudson.tasks.junit;
+
+import hudson.model.AbstractBuildExt;
+import hudson.tasks.test.MetaTabulatedResult;
+import hudson.tasks.test.TestResult;
+
+import java.util.*;
+
+/**
+ * Cumulative test result for a package.
+ *
+ * @author Kohsuke Kawaguchi
+ */
+public class PackageResultExt extends MetaTabulatedResult implements Comparable<PackageResultExt> {
+
+    private final String packageName;
+    /**
+     * All {@link ClassResult}s keyed by their short name.
+     */
+    private final Map<String, ClassResultExt> classes = new TreeMap<String, ClassResultExt>();
+    private int passCount, failCount, skipCount;
+    private final hudson.tasks.junit.TestResultExt parent;
+    private float duration;
+
+    PackageResultExt(hudson.tasks.junit.TestResultExt parent, String packageName) {
+        this.packageName = packageName;
+        this.parent = parent;
+    }
+
+    @Override
+    public AbstractBuildExt<?, ?> getOwner() {
+        return (parent == null ? null : parent.getOwner());
+    }
+
+    public hudson.tasks.junit.TestResultExt getParent() {
+        return parent;
+    }
+
+    @Override
+    public String getName() {
+        return packageName;
+    }
+
+    @Override
+    public String getSafeName() {
+        Collection<PackageResultExt> siblings = (parent == null ? Collections.EMPTY_LIST : parent.getChildren());
+        return uniquifyName(
+                siblings,
+                safe(getName()));
+    }
+
+    @Override
+    public TestResult findCorrespondingResult(String id) {
+        String myID = safe(getName());
+        int base = id.indexOf(myID);
+        String className;
+        String subId = null;
+        if (base > 0) {
+            int classNameStart = base + myID.length() + 1;
+            className = id.substring(classNameStart);
+        } else {
+            className = id;
+        }
+        int classNameEnd = className.indexOf('/');
+        if (classNameEnd > 0) {
+            subId = className.substring(classNameEnd + 1);
+            if (subId.length() == 0) {
+                subId = null;
+            }
+            className = className.substring(0, classNameEnd);
+        }
+
+        ClassResultExt child = getClassResult(className);
+        if (child != null) {
+            if (subId != null) {
+                return child.findCorrespondingResult(subId);
+            } else {
+                return child;
+            }
+        }
+
+        return null;
+    }
+
+    @Override
+    public String getTitle() {
+        return Messages.PackageResult_getTitle(getName());
+    }
+
+    @Override
+    public String getChildTitle() {
+        return Messages.PackageResult_getChildTitle();
+    }
+
+    // TODO: wait until stapler 1.60 to do this @Exported
+    @Override
+    public float getDuration() {
+        return duration;
+    }
+
+    @Override
+    public int getPassCount() {
+        return passCount;
+    }
+
+    @Override
+    public int getFailCount() {
+        return failCount;
+    }
+
+    @Override
+    public int getSkipCount() {
+        return skipCount;
+    }
+
+    public ClassResultExt getClassResult(String name) {
+        return classes.get(name);
+    }
+
+    public Collection<ClassResultExt> getChildren() {
+        return classes.values();
+    }
+
+    /**
+     * Whether this test result has children.
+     */
+    @Override
+    public boolean hasChildren() {
+        int totalTests = passCount + failCount + skipCount;
+        return (totalTests != 0);
+    }
+
+    /**
+     * Returns a list of the failed cases, in no particular
+     * sort order
+     * @return
+     */
+    public List<CaseResultExt> getFailedTests() {
+        List<CaseResultExt> r = new ArrayList<CaseResultExt>();
+        for (ClassResultExt clr : classes.values()) {
+            for (CaseResultExt cr : clr.getChildren()) {
+                if (!cr.isPassed() && !cr.isSkipped()) {
+                    r.add(cr);
+                }
+            }
+        }
+        return r;
+    }
+
+    /**
+     * Returns a list of the failed cases, sorted by age.
+     * @return
+     */
+    public List<CaseResultExt> getFailedTestsSortedByAge() {
+        List<CaseResultExt> failedTests = getFailedTests();
+        Collections.sort(failedTests, CaseResultExt.BY_AGE);
+        return failedTests;
+    }
+
+    /**
+     * Gets the "children" of this test result that passed
+     *
+     * @return the children of this test result, if any, or an empty collection
+     */
+    @Override
+    public Collection<? extends hudson.tasks.test.TestResult> getPassedTests() {
+        List<CaseResultExt> r = new ArrayList<CaseResultExt>();
+        for (ClassResultExt clr : classes.values()) {
+            for (CaseResultExt cr : clr.getChildren()) {
+                if (cr.isPassed()) {
+                    r.add(cr);
+                }
+            }
+        }
+        Collections.sort(r, CaseResultExt.BY_AGE);
+        return r;
+    }
+
+    /**
+     * Gets the "children" of this test result that were skipped
+     *
+     * @return the children of this test result, if any, or an empty list
+     */
+    @Override
+    public Collection<? extends TestResult> getSkippedTests() {
+        List<CaseResultExt> r = new ArrayList<CaseResultExt>();
+        for (ClassResultExt clr : classes.values()) {
+            for (CaseResultExt cr : clr.getChildren()) {
+                if (cr.isSkipped()) {
+                    r.add(cr);
+                }
+            }
+        }
+        Collections.sort(r, CaseResultExt.BY_AGE);
+        return r;
+    }
+
+//    /**
+//     * If this test failed, then return the build number
+//     * when this test started failing.
+//     */
+//    @Override
+//    TODO: implement! public int getFailedSince() {
+//        return 0;  // (FIXME: generated)
+//    }
+//    /**
+//     * If this test failed, then return the run
+//     * when this test started failing.
+//     */
+//    TODO: implement! @Override
+//    public Run<?, ?> getFailedSinceRun() {
+//        return null;  // (FIXME: generated)
+//    }
+    /**
+     * @return true if every test was not skipped and every test did not fail, false otherwise.
+     */
+    @Override
+    public boolean isPassed() {
+        return (failCount == 0 && skipCount == 0);
+    }
+
+    void add(CaseResultExt r) {
+        String n = r.getSimpleName(), sn = safe(n);
+        ClassResultExt c = getClassResult(sn);
+        if (c == null) {
+            classes.put(sn, c = new ClassResultExt(this, n));
+        }
+        c.add(r);
+        duration += r.getDuration();
+    }
+
+    /**
+     * Recount my children
+     */
+    @Override
+    public void tally() {
+        passCount = 0;
+        failCount = 0;
+        skipCount = 0;
+        duration = 0;
+
+        for (ClassResultExt cr : classes.values()) {
+            cr.tally();
+            passCount += cr.getPassCount();
+            failCount += cr.getFailCount();
+            skipCount += cr.getSkipCount();
+            duration += cr.getDuration();
+        }
+    }
+
+    void freeze() {
+        passCount = failCount = skipCount = 0;
+        for (ClassResultExt cr : classes.values()) {
+            cr.freeze();
+            passCount += cr.getPassCount();
+            failCount += cr.getFailCount();
+            skipCount += cr.getSkipCount();
+        }
+    }
+
+    public int compareTo(PackageResultExt that) {
+        return this.packageName.compareTo(that.packageName);
+    }
+
+    public String getDisplayName() {
+        return packageName;
+    }
+}

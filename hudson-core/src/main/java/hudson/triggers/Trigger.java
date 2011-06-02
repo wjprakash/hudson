@@ -45,7 +45,7 @@ import hudson.model.TopLevelItem;
 import hudson.model.TopLevelItemDescriptor;
 import hudson.scheduler.CronTab;
 import hudson.scheduler.CronTabList;
-import hudson.util.DoubleLaunchChecker;
+import hudson.util.DoubleLaunchCheckerExt;
 
 import java.io.InvalidObjectException;
 import java.io.ObjectStreamException;
@@ -212,7 +212,7 @@ public abstract class Trigger<J extends ItemExt> implements Describable<Trigger<
         HudsonExt inst = HudsonExt.getInstance();
 
         // Are we using synchronous polling?
-        SCMTrigger.DescriptorImpl scmd = inst.getDescriptorByType(SCMTrigger.DescriptorImpl.class);
+        SCMTriggerExt.DescriptorImpl scmd = inst.getDescriptorByType(SCMTriggerExt.DescriptorImpl.class);
         if (scmd.synchronousPolling) {
             LOGGER.fine("using synchronous polling");
 
@@ -225,7 +225,7 @@ public abstract class Trigger<J extends ItemExt> implements Describable<Trigger<
                 previousSynchronousPolling = scmd.getExecutor().submit(new DependencyRunner(new ProjectRunnable() {
                     public void run(AbstractProjectExt p) {
                         for (Trigger t : (Collection<Trigger>) p.getTriggers().values()) {
-                            if (t instanceof SCMTrigger) {
+                            if (t instanceof SCMTriggerExt) {
                                 LOGGER.fine("synchronously triggering SCMTrigger for project " + t.job.getName());
                                 t.run();
                             }
@@ -240,7 +240,7 @@ public abstract class Trigger<J extends ItemExt> implements Describable<Trigger<
         // Process all triggers, except SCMTriggers when synchronousPolling is set
         for (AbstractProjectExt<?,?> p : inst.getAllItems(AbstractProjectExt.class)) {
             for (Trigger t : p.getTriggers().values()) {
-                if (! (t instanceof SCMTrigger && scmd.synchronousPolling)) {
+                if (! (t instanceof SCMTriggerExt && scmd.synchronousPolling)) {
                     LOGGER.fine("cron checking "+p.getName());
 
                     if (t.tabs.check(cal)) {
@@ -272,7 +272,7 @@ public abstract class Trigger<J extends ItemExt> implements Describable<Trigger<
 
     @Initializer(after=JOB_LOADED)
     public static void init() {
-        new DoubleLaunchChecker().schedule();
+        new DoubleLaunchCheckerExt().schedule();
 
         // start all PeridocWorks
         for(PeriodicWork p : PeriodicWork.all())

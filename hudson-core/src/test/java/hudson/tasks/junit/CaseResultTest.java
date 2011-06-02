@@ -46,9 +46,9 @@ public class CaseResultTest extends TestCase {
                 }
             });
             locale.set(Locale.GERMANY);
-            assertEquals("Erfolg", CaseResult.Status.PASSED.getMessage());
+            assertEquals("Erfolg", CaseResultExt.Status.PASSED.getMessage());
             locale.set(Locale.US);
-            assertEquals("Passed", CaseResult.Status.PASSED.getMessage());
+            assertEquals("Passed", CaseResultExt.Status.PASSED.getMessage());
         } finally {
             LocaleProvider.setProvider(old);
         }

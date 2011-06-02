@@ -39,7 +39,7 @@ import static java.util.Collections.emptyList;
  * Acts as if it passed, has no children, and has no failed or skipped tests.
  */
 public class SimpleCaseResult extends TestResult {
-    protected AbstractTestResultAction parentAction;
+    protected AbstractTestResultActionExt parentAction;
     protected final List<SimpleCaseResult> listOnlyContainingThisObject = new ArrayList<SimpleCaseResult>(1);
     protected float duration = 1.0f;
     private static final Logger LOGGER = Logger.getLogger(SimpleCaseResult.class.getName());
@@ -58,17 +58,17 @@ public class SimpleCaseResult extends TestResult {
      * @param parentAction
      */
     @Override
-    public void setParentAction(AbstractTestResultAction parentAction) {
+    public void setParentAction(AbstractTestResultActionExt parentAction) {
         this.parentAction = parentAction;
     }
 
     @Override
-    public AbstractTestResultAction getParentAction() {
+    public AbstractTestResultActionExt getParentAction() {
         return this.parentAction;
     }
 
     @Override
-    public TestObject getParent() {
+    public TestObjectExt getParent() {
         return null;
     }
     

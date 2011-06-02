@@ -69,52 +69,18 @@ public class FilePath extends FilePathExt {
         super(base, rel);
     }
 
-    /**
-     * Shortcut for {@link #validateFileMask(String)} in case the left-hand side can be null.
-     */
-    public static FormValidation validateFileMask(FilePath pathOrNull, String value) throws IOException {
-        if (pathOrNull == null) {
-            return FormValidation.ok();
-        }
-        return pathOrNull.validateFileMask(value);
-    }
-
-    /**
-     * Short for {@code validateFileMask(value,true)} 
-     */
-    public FormValidation validateFileMask(String value) throws IOException {
-        return validateFileMask(value, true);
-    }
-
+   
     /**
      * Checks the GLOB-style file mask. See {@link #validateAntFileMask(String)}.
      * Requires configure permission on ancestor AbstractProjectExt object in request.
      * @since 1.294
      */
+    @Override
     public FormValidation validateFileMask(String value, boolean errorIfNotExist) throws IOException {
         AbstractProjectExt subject = Stapler.getCurrentRequest().findAncestorObject(AbstractProjectExt.class);
         subject.checkPermission(ItemExt.CONFIGURE);
 
-        value = UtilExt.fixEmpty(value);
-        if (value == null) {
-            return FormValidation.ok();
-        }
-
-        try {
-            if (!exists()) // no workspace. can't check
-            {
-                return FormValidation.ok();
-            }
-
-            String msg = validateAntFileMask(value);
-            if (errorIfNotExist) {
-                return FormValidation.error(msg);
-            } else {
-                return FormValidation.warning(msg);
-            }
-        } catch (InterruptedException e) {
-            return FormValidation.ok();
-        }
+        return super.validateFileMask(value, errorIfNotExist);
     }
 
     /**
@@ -129,7 +95,7 @@ public class FilePath extends FilePathExt {
      *      If true, we expect the relative path to point to a file.
      *      Otherwise, the relative path is expected to be pointing to a directory.
      */
-    public FormValidation validateRelativePath(String value, boolean errorIfNotExist, boolean expectingFile) throws IOException {
+    public static FormValidation validateRelativePath(FilePathExt file, String value, boolean errorIfNotExist, boolean expectingFile) throws IOException {
         AbstractProjectExt subject = Stapler.getCurrentRequest().findAncestorObject(AbstractProjectExt.class);
         subject.checkPermission(ItemExt.CONFIGURE);
 
@@ -146,12 +112,12 @@ public class FilePath extends FilePathExt {
         }
 
         try {
-            if (!exists()) // no base directory. can't check
+            if (!file.exists()) // no base directory. can't check
             {
                 return FormValidation.ok();
             }
 
-            FilePathExt path = child(value);
+            FilePathExt path = file.child(value);
             if (path.exists()) {
                 if (expectingFile) {
                     if (!path.isDirectory()) {
@@ -183,11 +149,11 @@ public class FilePath extends FilePathExt {
     /**
      * A convenience method over {@link #validateRelativePath(String, boolean, boolean)}.
      */
-    public FormValidation validateRelativeDirectory(String value, boolean errorIfNotExist) throws IOException {
-        return validateRelativePath(value, errorIfNotExist, false);
+    public static FormValidation validateRelativeDirectory(FilePathExt file, String value, boolean errorIfNotExist) throws IOException {
+        return validateRelativePath(file, value, errorIfNotExist, false);
     }
 
-    public FormValidation validateRelativeDirectory(String value) throws IOException {
-        return validateRelativeDirectory(value, true);
+    public static FormValidation validateRelativeDirectory(FilePathExt dir, String value) throws IOException {
+        return validateRelativeDirectory(dir, value, true);
     }
 }

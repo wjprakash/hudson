@@ -23,7 +23,6 @@
  */
 package hudson.slaves;
 
-import hudson.model.DescriptorExt.FormException;
 import hudson.model.HudsonExt;
 import hudson.model.SlaveExt;
 import hudson.model.TaskListener;
@@ -42,16 +41,16 @@ import java.util.logging.Logger;
  * @since 1.382
  */
 public abstract class AbstractCloudSlave extends SlaveExt {
-    public AbstractCloudSlave(String name, String nodeDescription, String remoteFS, String numExecutors, ModeExt mode, String labelString, ComputerLauncher launcher, RetentionStrategy retentionStrategy, List<? extends NodeProperty<?>> nodeProperties) throws FormException, IOException {
+    public AbstractCloudSlave(String name, String nodeDescription, String remoteFS, String numExecutors, ModeExt mode, String labelString, ComputerLauncher launcher, RetentionStrategyExt retentionStrategy, List<? extends NodeProperty<?>> nodeProperties) throws IOException {
         super(name, nodeDescription, remoteFS, numExecutors, mode, labelString, launcher, retentionStrategy, nodeProperties);
     }
 
-    public AbstractCloudSlave(String name, String nodeDescription, String remoteFS, int numExecutors, ModeExt mode, String labelString, ComputerLauncher launcher, RetentionStrategy retentionStrategy, List<? extends NodeProperty<?>> nodeProperties) throws FormException, IOException {
+    public AbstractCloudSlave(String name, String nodeDescription, String remoteFS, int numExecutors, ModeExt mode, String labelString, ComputerLauncher launcher, RetentionStrategyExt retentionStrategy, List<? extends NodeProperty<?>> nodeProperties) throws IOException {
         super(name, nodeDescription, remoteFS, numExecutors, mode, labelString, launcher, retentionStrategy, nodeProperties);
     }
 
     @Override
-    public abstract AbstractCloudComputer createComputer();
+    public abstract AbstractCloudComputerExt createComputer();
 
     /**
      * Releases and removes this slave.

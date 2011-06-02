@@ -27,9 +27,9 @@ import hudson.util.TimeUnit2;
 import hudson.Extension;
 import hudson.model.PeriodicWork;
 import hudson.util.ColorPalette;
-import hudson.util.graph.MultiStageTimeSeries;
-import hudson.util.graph.MultiStageTimeSeries.TimeScale;
-import hudson.util.graph.MultiStageTimeSeries.TrendChart;
+import hudson.util.graph.MultiStageTimeSeriesExt;
+import hudson.util.graph.MultiStageTimeSeriesExt.TimeScale;
+import hudson.util.graph.MultiStageTimeSeriesExt.TrendChartExt;
 
 import java.lang.management.MemoryPoolMXBean;
 import java.lang.management.MemoryType;
@@ -57,11 +57,11 @@ public final class MemoryUsageMonitor extends PeriodicWork {
          * Trend of the memory usage, after GCs.
          * So this shows the accurate snapshot of the footprint of live objects.
          */
-        public final MultiStageTimeSeries used = new MultiStageTimeSeries(Messages._MemoryUsageMonitor_USED(), ColorPalette.RED, 0,0);
+        public final MultiStageTimeSeriesExt used = new MultiStageTimeSeriesExt(Messages._MemoryUsageMonitor_USED(), ColorPalette.RED, 0,0);
         /**
          * Trend of the maximum memory size, after GCs.
          */
-        public final MultiStageTimeSeries max = new MultiStageTimeSeries(Messages._MemoryUsageMonitor_TOTAL(), ColorPalette.BLUE, 0,0);
+        public final MultiStageTimeSeriesExt max = new MultiStageTimeSeriesExt(Messages._MemoryUsageMonitor_TOTAL(), ColorPalette.BLUE, 0,0);
 
         private MemoryGroup(List<MemoryPoolMXBean> pools, MemoryType type) {
             for (MemoryPoolMXBean pool : pools) {
@@ -99,8 +99,8 @@ public final class MemoryUsageMonitor extends PeriodicWork {
         /**
          * Generates the memory usage statistics graph.
          */
-        public TrendChart doGraph(@QueryParameter String type) throws IOException {
-            return MultiStageTimeSeries.createTrendChart(TimeScale.parse(type),used,max);
+        public TrendChartExt doGraph(@QueryParameter String type) throws IOException {
+            return MultiStageTimeSeriesExt.createTrendChart(TimeScale.parse(type),used,max);
         }
     }
 

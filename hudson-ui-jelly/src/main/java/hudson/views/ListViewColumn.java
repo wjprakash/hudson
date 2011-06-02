@@ -32,7 +32,6 @@ import hudson.model.Descriptor.FormException;
 import hudson.model.HudsonExt;
 import hudson.model.ItemExt;
 import hudson.model.ItemGroup;
-import hudson.model.ListViewExt;
 import hudson.model.View;
 import hudson.util.DescriptorList;
 import org.kohsuke.stapler.export.Exported;

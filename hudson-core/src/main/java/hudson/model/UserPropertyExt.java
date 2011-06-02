@@ -26,7 +26,7 @@ package hudson.model;
 import hudson.ExtensionPoint;
 import hudson.PluginExt;
 import hudson.DescriptorExtensionListExt;
-import hudson.tasks.Mailer.UserProperty;
+import hudson.tasks.MailerExt.UserProperty;
 
 
 /**

@@ -43,7 +43,7 @@ import hudson.model.CauseExt.LegacyCodeCause;
 import hudson.scm.SCMExt;
 import hudson.tasks.BuildWrapper;
 import hudson.tasks.Builder;
-import hudson.tasks.LogRotator;
+import hudson.tasks.LogRotatorExt;
 import hudson.tasks.Publisher;
 
 import java.io.IOException;
@@ -247,8 +247,8 @@ public class MatrixConfiguration extends ProjectExt<MatrixConfiguration,MatrixRu
     }
 
     @Override
-    public LogRotator getLogRotator() {
-        LogRotator lr = getParent().getLogRotator();
+    public LogRotatorExt getLogRotator() {
+        LogRotatorExt lr = getParent().getLogRotator();
         return new LinkedLogRotator(lr != null ? lr.getArtifactDaysToKeep() : -1,
                                     lr != null ? lr.getArtifactNumToKeep() : -1);
     }
@@ -278,7 +278,7 @@ public class MatrixConfiguration extends ProjectExt<MatrixConfiguration,MatrixRu
      *      Value is controlled by {@link MatrixProjectExt}.
      */
     @Override
-    public void setLogRotator(LogRotator logRotator) {
+    public void setLogRotator(LogRotatorExt logRotator) {
         throw new UnsupportedOperationException();
     }
 

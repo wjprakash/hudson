@@ -69,7 +69,7 @@ public class JUnitParser extends TestResultParser {
     }
 
     @Override
-    public TestResult parse(String testResultLocations,
+    public TestResultExt parse(String testResultLocations,
                                        AbstractBuildExt build, Launcher launcher,
                                        TaskListener listener)
             throws InterruptedException, IOException
@@ -80,12 +80,12 @@ public class JUnitParser extends TestResultParser {
         // [BUG 3123310] TODO - Test Result Refactor: review and fix TestDataPublisher/TestAction subsystem]
         // also get code that deals with testDataPublishers from JUnitResultArchiver.perform
         
-        TestResult testResult = build.getWorkspace().act( new ParseResultCallable(testResultLocations, buildTime, timeOnMaster, keepLongStdio));
+        TestResultExt testResult = build.getWorkspace().act( new ParseResultCallable(testResultLocations, buildTime, timeOnMaster, keepLongStdio));
         return testResult;        
     }
 
     private static final class ParseResultCallable implements
-            FilePathExt.FileCallable<TestResult> {
+            FilePathExt.FileCallable<TestResultExt> {
         private final long buildTime;
         private final String testResults;
         private final long nowMaster;
@@ -98,7 +98,7 @@ public class JUnitParser extends TestResultParser {
             this.keepLongStdio = keepLongStdio;
         }
 
-        public TestResult invoke(File ws, VirtualChannel channel) throws IOException {
+        public TestResultExt invoke(File ws, VirtualChannel channel) throws IOException {
             final long nowSlave = System.currentTimeMillis();
 
             FileSet fs = UtilExt.createFileSet(ws, testResults);
@@ -111,7 +111,7 @@ public class JUnitParser extends TestResultParser {
                 throw new AbortException(Messages.JUnitResultArchiver_NoTestReportFound());
             }
 
-            TestResult result = new TestResult(buildTime + (nowSlave - nowMaster), ds, keepLongStdio);
+            TestResultExt result = new TestResultExt(buildTime + (nowSlave - nowMaster), ds, keepLongStdio);
             result.tally();
             return result; 
         }

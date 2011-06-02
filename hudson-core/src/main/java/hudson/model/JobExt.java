@@ -38,12 +38,12 @@ import hudson.search.SearchIndexBuilder;
 import hudson.search.SearchItem;
 import hudson.search.SearchItems;
 import hudson.security.ACL;
-import hudson.tasks.LogRotator;
+import hudson.tasks.LogRotatorExt;
 import hudson.util.ColorPalette;
 import hudson.util.CopyOnWriteList;
 import hudson.util.graph.DataSet;
 import hudson.util.IOException2;
-import hudson.util.RunList;
+import hudson.util.RunListExt;
 import hudson.util.TextFile;
 import hudson.util.graph.ChartLabel;
 import hudson.util.graph.Graph;
@@ -94,7 +94,7 @@ public abstract class JobExt<JobT extends JobExt<JobT, RunT>, RunT extends RunEx
      * is saved once.
      */
     private transient volatile boolean holdOffBuildUntilSave;
-    protected volatile LogRotator logRotator;
+    protected volatile LogRotatorExt logRotator;
     /**
      * Not all plugins are good at calculating their health report quickly.
      * These fields are used to cache the health reports to speed up rendering
@@ -264,11 +264,11 @@ public abstract class JobExt<JobT extends JobExt<JobT, RunT>, RunT extends RunEx
     /**
      * Returns the log rotator for this job, or null if none.
      */
-    public LogRotator getLogRotator() {
+    public LogRotatorExt getLogRotator() {
         return logRotator;
     }
 
-    public void setLogRotator(LogRotator logRotator) {
+    public void setLogRotator(LogRotatorExt logRotator) {
         this.logRotator = logRotator;
     }
 
@@ -276,7 +276,7 @@ public abstract class JobExt<JobT extends JobExt<JobT, RunT>, RunT extends RunEx
      * Perform log rotation.
      */
     public void logRotate() throws IOException, InterruptedException {
-        LogRotator lr = getLogRotator();
+        LogRotatorExt lr = getLogRotator();
         if (lr != null) {
             lr.perform(this);
         }
@@ -454,8 +454,8 @@ public abstract class JobExt<JobT extends JobExt<JobT, RunT>, RunT extends RunEx
      * @return never null. The first entry is the latest build.
      */
     @WithBridgeMethods(List.class)
-    public RunList<RunT> getBuilds() {
-        return RunList.fromRuns(_getRuns().values());
+    public RunListExt<RunT> getBuilds() {
+        return RunListExt.fromRuns(_getRuns().values());
     }
 
     /**
@@ -512,7 +512,7 @@ public abstract class JobExt<JobT extends JobExt<JobT, RunT>, RunT extends RunEx
      *      as of 1.372. Should just do {@code getBuilds().byTimestamp(s,e)} to avoid code bloat in {@link JobExt}.
      */
     @WithBridgeMethods(List.class)
-    public RunList<RunT> getBuildsByTimestamp(long start, long end) {
+    public RunListExt<RunT> getBuildsByTimestamp(long start, long end) {
         return getBuilds().byTimestamp(start, end);
     }
 

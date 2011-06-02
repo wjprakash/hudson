@@ -33,9 +33,9 @@ import hudson.remoting.VirtualChannel;
 import hudson.security.Permission;
 import hudson.security.PermissionGroup;
 import hudson.slaves.ComputerLauncher;
-import hudson.slaves.OfflineCause;
-import hudson.util.RemotingDiagnostics;
-import hudson.util.RunList;
+import hudson.slaves.OfflineCauseExt;
+import hudson.util.RemotingDiagnosticsExt;
+import hudson.util.RunListExt;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 import org.kohsuke.stapler.QueryParameter;
@@ -101,7 +101,7 @@ public  abstract class Computer extends ComputerExt {
      *      null if the system was put offline without given a cause.
      */
     @Exported
-    public OfflineCause getOfflineCause() {
+    public OfflineCauseExt getOfflineCause() {
         return super.getOfflineCause();
     }
 
@@ -243,7 +243,7 @@ public  abstract class Computer extends ComputerExt {
     public void doRssFailed( StaplerRequest req, StaplerResponse rsp ) throws IOException, ServletException {
         rss(req, rsp, " failed builds", getBuilds().failureOnly());
     }
-    private void rss(StaplerRequest req, StaplerResponse rsp, String suffix, RunList runs) throws IOException, ServletException {
+    private void rss(StaplerRequest req, StaplerResponse rsp, String suffix, RunListExt runs) throws IOException, ServletException {
         RSS.forwardToRss(getDisplayName()+ suffix, getUrl(),
             runs.newBuilds(), RunExt.FEED_ADAPTER, req, rsp );
     }
@@ -253,7 +253,7 @@ public  abstract class Computer extends ComputerExt {
         if(!temporarilyOffline) {
             offlineMessage = UtilExt.fixEmptyAndTrim(offlineMessage);
             setTemporarilyOffline(!temporarilyOffline,
-                    OfflineCause.create(hudson.slaves.Messages._SlaveComputer_DisconnectedBy(
+                    OfflineCauseExt.create(hudson.slaves.Messages._SlaveComputer_DisconnectedBy(
                         HudsonExt.getAuthentication().getName(),
                         offlineMessage!=null ? " : " + offlineMessage : "")));
         } else {
@@ -313,7 +313,7 @@ public  abstract class Computer extends ComputerExt {
         if(text!=null) {
             try {
                 req.setAttribute("output",
-                RemotingDiagnostics.executeGroovy(text,getChannel()));
+                RemotingDiagnosticsExt.executeGroovy(text,getChannel()));
             } catch (InterruptedException e) {
                 throw new ServletException(e);
             }

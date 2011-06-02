@@ -40,7 +40,7 @@ import hudson.security.Permission;
 import hudson.slaves.NodeDescriptorExt;
 import hudson.slaves.NodeProperty;
 import hudson.slaves.NodePropertyDescriptor;
-import hudson.util.ClockDifference;
+import hudson.util.ClockDifferenceExt;
 import hudson.util.DescribableList;
 import hudson.util.EnumConverter;
 import hudson.util.TagCloud;
@@ -321,7 +321,7 @@ public abstract class NodeExt extends AbstractModelObjectExt implements Describa
      * @throws InterruptedException
      *      if the operation is aborted.
      */
-    public abstract ClockDifference getClockDifference() throws IOException, InterruptedException;
+    public abstract ClockDifferenceExt getClockDifference() throws IOException, InterruptedException;
 
     /**
      * Constants that control how HudsonExt allocates jobs to slaves.

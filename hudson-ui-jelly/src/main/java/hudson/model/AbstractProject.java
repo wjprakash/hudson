@@ -38,8 +38,8 @@ import hudson.scm.ChangeLogSetExt;
 import hudson.scm.ChangeLogSetExt.Entry;
 import hudson.scm.SCMExt;
 import hudson.scm.SCMS;
-import hudson.tasks.BuildTrigger;
-import hudson.tasks.Mailer;
+import hudson.tasks.BuildTriggerExt;
+import hudson.tasks.MailerExt;
 import hudson.tasks.Publisher;
 import hudson.triggers.Trigger;
 import hudson.util.DescribableList;
@@ -111,7 +111,7 @@ public abstract class AbstractProject extends AbstractProjectExt{
             synchronized(p) {
                 // does 'p' include us in its BuildTrigger? 
                 DescribableList<Publisher,DescriptorExt<Publisher>> pl = p.getPublishersList();
-                BuildTrigger trigger = pl.get(BuildTrigger.class);
+                BuildTriggerExt trigger = pl.get(BuildTriggerExt.class);
                 List<AbstractProjectExt> newChildProjects = trigger == null ? new ArrayList<AbstractProjectExt>():trigger.getChildProjects();
                 if(isUpstream) {
                     if(!newChildProjects.contains(this))
@@ -121,14 +121,14 @@ public abstract class AbstractProject extends AbstractProjectExt{
                 }
 
                 if(newChildProjects.isEmpty()) {
-                    pl.remove(BuildTrigger.class);
+                    pl.remove(BuildTriggerExt.class);
                 } else {
                     // here, we just need to replace the old one with the new one,
                     // but there was a regression (we don't know when it started) that put multiple BuildTriggers
                     // into the list.
                     // for us not to lose the data, we need to merge them all.
-                    List<BuildTrigger> existingList = pl.getAll(BuildTrigger.class);
-                    BuildTrigger existing;
+                    List<BuildTriggerExt> existingList = pl.getAll(BuildTriggerExt.class);
+                    BuildTriggerExt existing;
                     switch (existingList.size()) {
                     case 0:
                         existing = null;
@@ -137,18 +137,18 @@ public abstract class AbstractProject extends AbstractProjectExt{
                         existing = existingList.get(0);
                         break;
                     default:
-                        pl.removeAll(BuildTrigger.class);
+                        pl.removeAll(BuildTriggerExt.class);
                         Set<AbstractProjectExt> combinedChildren = new HashSet<AbstractProjectExt>();
-                        for (BuildTrigger bt : existingList)
+                        for (BuildTriggerExt bt : existingList)
                             combinedChildren.addAll(bt.getChildProjects());
-                        existing = new BuildTrigger(new ArrayList<AbstractProjectExt>(combinedChildren),existingList.get(0).getThreshold());
+                        existing = new BuildTriggerExt(new ArrayList<AbstractProjectExt>(combinedChildren),existingList.get(0).getThreshold());
                         pl.add(existing);
                         break;
                     }
 
                     if(existing!=null && existing.hasSame(newChildProjects))
                         continue;   // no need to touch
-                    pl.replace(new BuildTrigger(newChildProjects,
+                    pl.replace(new BuildTriggerExt(newChildProjects,
                         existing==null?ResultExt.SUCCESS:existing.getThreshold()));
                 }
             }
@@ -461,7 +461,7 @@ public abstract class AbstractProject extends AbstractProjectExt{
                 }
 
                 public String getEntryAuthor(FeedItem entry) {
-                    return Mailer.descriptor().getAdminAddress();
+                    return MailerExt.descriptor().getAdminAddress();
                 }
             },
             req, rsp );

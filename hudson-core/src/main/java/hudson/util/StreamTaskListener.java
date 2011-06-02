@@ -28,7 +28,6 @@ import hudson.console.ConsoleNote;
 import hudson.console.HudsonExceptionNote;
 import hudson.model.TaskListener;
 import hudson.remoting.RemoteOutputStream;
-import org.kohsuke.stapler.framework.io.WriterOutputStream;
 
 import java.io.Closeable;
 import java.io.File;

@@ -25,7 +25,7 @@ package hudson.node_monitors;
 
 import hudson.model.ComputerExt;
 import hudson.model.NodeExt;
-import hudson.util.ClockDifference;
+import hudson.util.ClockDifferenceExt;
 import hudson.Extension;
 import org.kohsuke.stapler.StaplerRequest;
 
@@ -43,9 +43,9 @@ import net.sf.json.JSONObject;
 public class ClockMonitor extends ClockMonitorExt {
      
     @Extension
-    public static final AbstractNodeMonitorDescriptor<ClockDifference> DESCRIPTOR = new AbstractNodeMonitorDescriptor<ClockDifference>() {
+    public static final AbstractNodeMonitorDescriptor<ClockDifferenceExt> DESCRIPTOR = new AbstractNodeMonitorDescriptor<ClockDifferenceExt>() {
         @Override
-        protected ClockDifference monitor(ComputerExt c) throws IOException, InterruptedException {
+        protected ClockDifferenceExt monitor(ComputerExt c) throws IOException, InterruptedException {
             NodeExt n = c.getNode();
             if(n==null) return null;
             return n.getClockDifference();

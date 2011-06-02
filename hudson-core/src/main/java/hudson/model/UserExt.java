@@ -34,7 +34,7 @@ import hudson.model.listeners.SaveableListener;
 import hudson.security.ACL;
 import hudson.security.AccessControlled;
 import hudson.security.Permission;
-import hudson.util.RunList;
+import hudson.util.RunListExt;
 import hudson.util.XStream2;
 
 import org.acegisecurity.Authentication;
@@ -327,13 +327,13 @@ public class UserExt extends AbstractModelObjectExt implements AccessControlled,
      * TODO: do we need some index for this?
      */
     @WithBridgeMethods(List.class)
-    public RunList getBuilds() {
+    public RunListExt getBuilds() {
         List<AbstractBuildExt> r = new ArrayList<AbstractBuildExt>();
         for (AbstractProjectExt<?,?> p : HudsonExt.getInstance().getAllItems(AbstractProjectExt.class))
             for (AbstractBuildExt<?,?> b : p.getBuilds())
                 if(b.hasParticipant(this))
                     r.add(b);
-        return RunList.fromRuns(r);
+        return RunListExt.fromRuns(r);
     }
 
     /**

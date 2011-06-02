@@ -31,16 +31,16 @@ import hudson.diagnosis.OldDataMonitorExt;
 import hudson.model.Descriptor.FormException;
 import hudson.remoting.Callable;
 import hudson.remoting.VirtualChannel;
-import hudson.slaves.CommandLauncher;
+import hudson.slaves.CommandLauncherExt;
 import hudson.slaves.ComputerLauncher;
-import hudson.slaves.DumbSlave;
-import hudson.slaves.JNLPLauncher;
+import hudson.slaves.DumbSlaveExt;
+import hudson.slaves.JNLPLauncherExt;
 import hudson.slaves.NodeDescriptorExt;
 import hudson.slaves.NodeProperty;
 import hudson.slaves.NodePropertyDescriptor;
-import hudson.slaves.RetentionStrategy;
-import hudson.slaves.SlaveComputer;
-import hudson.util.ClockDifference;
+import hudson.slaves.RetentionStrategyExt;
+import hudson.slaves.SlaveComputerExt;
+import hudson.util.ClockDifferenceExt;
 import hudson.util.DescribableList;
 import hudson.util.FormValidation;
 
@@ -88,7 +88,7 @@ public abstract class Slave extends SlaveExt {
 
     @DataBoundConstructor
     public Slave(String name, String nodeDescription, String remoteFS, String numExecutors,
-                 ModeExt mode, String labelString, ComputerLauncher launcher, RetentionStrategy retentionStrategy, List<? extends NodeProperty<?>> nodeProperties) throws FormException, IOException {
+                 ModeExt mode, String labelString, ComputerLauncher launcher, RetentionStrategyExt retentionStrategy, List<? extends NodeProperty<?>> nodeProperties) throws FormException, IOException {
         this(name,nodeDescription,remoteFS,UtilExt.tryParseNumber(numExecutors, 1).intValue(),mode,labelString,launcher,retentionStrategy, nodeProperties);
     }
 
@@ -97,12 +97,12 @@ public abstract class Slave extends SlaveExt {
      */
     @Deprecated
     public Slave(String name, String nodeDescription, String remoteFS, int numExecutors,
-            ModeExt mode, String labelString, ComputerLauncher launcher, RetentionStrategy retentionStrategy) throws FormException, IOException {
+            ModeExt mode, String labelString, ComputerLauncher launcher, RetentionStrategyExt retentionStrategy) throws FormException, IOException {
     	this(name, nodeDescription, remoteFS, numExecutors, mode, labelString, launcher, retentionStrategy, new ArrayList());
     }
     
     public Slave(String name, String nodeDescription, String remoteFS, int numExecutors,
-                 ModeExt mode, String labelString, ComputerLauncher launcher, RetentionStrategy retentionStrategy, List<? extends NodeProperty<?>> nodeProperties) throws FormException, IOException {
+                 ModeExt mode, String labelString, ComputerLauncher launcher, RetentionStrategyExt retentionStrategy, List<? extends NodeProperty<?>> nodeProperties) throws FormException, IOException {
         super(name, nodeDescription, remoteFS, numExecutors, mode, labelString, launcher, retentionStrategy, nodeProperties);
 
         if (name.equals(""))

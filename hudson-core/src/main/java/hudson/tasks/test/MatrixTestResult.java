@@ -37,7 +37,7 @@ import hudson.model.Action;
  *
  * @author Kohsuke Kawaguchi
  */
-public class MatrixTestResult extends AggregatedTestResultAction {
+public class MatrixTestResult extends AggregatedTestResultActionExt {
     public MatrixTestResult(MatrixBuildExt owner) {
         super(owner);
     }
@@ -46,7 +46,7 @@ public class MatrixTestResult extends AggregatedTestResultAction {
      * Use the configuration name.
      */
     @Override
-    protected String getChildName(AbstractTestResultAction tr) {
+    protected String getChildName(AbstractTestResultActionExt tr) {
         return tr.owner.getProject().getName();
     }
 

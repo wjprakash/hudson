@@ -26,7 +26,7 @@ package hudson.model;
 
 import hudson.EnvVars;
 import hudson.UtilExt;
-import hudson.slaves.OfflineCause;
+import hudson.slaves.OfflineCauseExt;
 import hudson.tasks.BuildWrapper;
 import hudson.tasks.Builder;
 import hudson.util.VariableResolver;

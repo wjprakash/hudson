@@ -37,6 +37,7 @@ import hudson.cli.CLICommand;
 import hudson.cli.CliEntryPoint;
 import hudson.cli.CliManagerImpl;
 import hudson.cli.declarative.CLIMethod;
+import hudson.cli.declarative.CLIResolver;
 import hudson.lifecycle.RestartNotSupportedException;
 import hudson.model.Descriptor.FormException;
 import hudson.remoting.Channel;
@@ -51,18 +52,19 @@ import hudson.security.SecurityRealmExt;
 import hudson.security.csrf.CrumbIssuer;
 import hudson.slaves.Cloud;
 import hudson.slaves.NodeProperty;
-import hudson.slaves.RetentionStrategy;
-import hudson.tasks.Mailer;
+import hudson.slaves.RetentionStrategyExt;
+import hudson.tasks.MailerExt;
 import hudson.util.FormValidation;
 import hudson.util.Futures;
 import hudson.util.HudsonIsLoading;
 import hudson.util.HudsonIsRestarting;
 import hudson.util.MultipartFormDataParser;
-import hudson.util.RemotingDiagnostics;
+import hudson.util.RemotingDiagnosticsExt;
 import hudson.views.DefaultMyViewsTabBar;
 import hudson.views.DefaultViewsTabBar;
 import hudson.views.MyViewsTabBar;
 import hudson.views.ViewsTabBar;
+import hudson.widgets.Widget;
 import net.sf.json.JSONObject;
 import org.acegisecurity.AccessDeniedException;
 import org.acegisecurity.context.SecurityContextHolder;
@@ -105,11 +107,14 @@ import java.net.URL;
 import java.nio.charset.Charset;
 import java.text.NumberFormat;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Future;
 import java.util.logging.Level;
 import static java.util.logging.Level.SEVERE;
@@ -142,12 +147,32 @@ public final class Hudson extends HudsonExt implements ItemGroup<TopLevelItem>, 
      */
     @Exported
     public transient final OverallLoadStatisticsExt overallLoad = new OverallLoadStatisticsExt();
+    
+     /**
+     * {@link View}s.
+     */
+    private final CopyOnWriteArrayList<View> views = new CopyOnWriteArrayList<View>();
 
+
+    /**
+     * Widgets on HudsonExt.
+     */
+    private transient final List<Widget> widgets = getExtensionList(Widget.class);
+    
+    /**
+     * The sole instance.
+     */
+    private static Hudson theInstance;
 
     /**
      * {@link AdjunctManager}
      */
     private transient final AdjunctManager adjuncts = null;
+    
+    @CLIResolver
+    public static Hudson getInstance() {
+        return theInstance;
+    }
 
     /**
      * Code that handles {@link ItemGroup} work.
@@ -195,6 +220,57 @@ public final class Hudson extends HudsonExt implements ItemGroup<TopLevelItem>, 
     public Hudson(File root, ServletContext context, PluginManagerExt pluginManager) throws IOException, InterruptedException, ReactorException {
     	 super(root, context, pluginManager);
     }
+    
+     public View.People getPeople() {
+        return new View.People(this);
+    }
+
+    /**
+     * Does this {@link View} has any associated user information recorded?
+     */
+    public boolean hasPeople() {
+        return View.People.isApplicable(items.values());
+    }
+
+public synchronized View getView(String name) {
+        for (View v : views) {
+            if(v.getViewName().equals(name))
+                return v;
+        }
+        if (name != null && !name.equals(primaryView)) {
+            // Fallback to subview of primary view if it is a ViewGroup
+            View pv = getPrimaryView();
+            if (pv instanceof ViewGroup)
+                return ((ViewGroup)pv).getView(name);
+        }
+        return null;
+    }
+
+    /**
+     * Gets the read-only list of all {@link View}s.
+     */
+    public synchronized Collection<View> getViews() {
+        List<View> copy = new ArrayList<View>(views);
+        Collections.sort(copy, View.SORTER);
+        return copy;
+    }
+
+    public void addView(View v) throws IOException {
+        v.owner = this;
+        views.add(v);
+        save();
+    }
+
+    public boolean canDelete(View view) {
+        return !view.isDefault();  // Cannot delete primary view
+    }
+
+    public synchronized void deleteView(View view) throws IOException {
+        if (views.size() <= 1)
+            throw new IllegalStateException("Cannot delete last view");
+        views.remove(view);
+        save();
+    }
 
      public ViewsTabBar getViewsTabBar() {
         return viewsTabBar;
@@ -225,7 +301,78 @@ public final class Hudson extends HudsonExt implements ItemGroup<TopLevelItem>, 
      */
     @Exported
     public synchronized Collection<View> getViews() {
-        return super.getViews();
+        List<View> copy = new ArrayList<View>(views);
+        Collections.sort(copy, View.SORTER);
+        return copy;
+    }
+    
+    /**
+     * Called by {@link JobExt#renameTo(String)} to update relevant data structure.
+     * assumed to be synchronized on HudsonExt by the caller.
+     */
+    @Override
+    public void onRenamed(TopLevelItem job, String oldName, String newName) throws IOException {
+        
+        super.onRenamed(job, oldName, newName);
+         
+        for (View v : views)
+            v.onJobRenamed(job, oldName, newName);
+        save();
+    }
+    
+    /**
+     * Called in response to {@link JobExt#doDoDelete(StaplerRequest, StaplerResponse)}
+     */
+    @Override
+        public void onDeleted(TopLevelItem item) throws IOException {
+        super.onDeleted(item);
+        for (View v : views)
+            v.onJobRenamed(item, item.getName(), null);
+        save();
+    }
+    
+     /**
+     * Returns the primary {@link View} that renders the top-page of HudsonExt.
+     */
+    public View getPrimaryView() {
+        View v = getView(primaryView);
+        if(v==null) // fallback
+            v = views.get(0);
+        return v;
+    }
+    
+     public void onViewRenamed(View view, String oldName, String newName) {
+        // implementation of HudsonExt is immune to view name change.
+    }
+
+    
+    /**
+     * Gets the absolute URL of Hudson,
+     * such as "http://localhost/hudson/".
+     *
+     * <p>
+     * This method first tries to use the manually configured value, then
+     * fall back to {@link StaplerRequest#getRootPath()}.
+     * It is done in this order so that it can work correctly even in the face
+     * of a reverse proxy.
+     *
+     * @return
+     *      This method returns null if this parameter is not configured by the user.
+     *      The caller must gracefully deal with this situation.
+     *      The returned URL will always have the trailing '/'.
+     * @since 1.66
+     * @see Descriptor#getCheckUrl(String)
+     * @see #getRootUrlFromRequest()
+     */
+    public String getRootUrl() {
+        // for compatibility. the actual data is stored in Mailer
+        String url = MailerExt.descriptor().getUrl();
+        if(url!=null)   return url;
+
+        StaplerRequest req = Stapler.getCurrentRequest();
+        if(req!=null)
+            return getRootUrlFromRequest();
+        return null;
     }
 
     /**
@@ -240,34 +387,7 @@ public final class Hudson extends HudsonExt implements ItemGroup<TopLevelItem>, 
         return "job";
     }
 
-    /**
-     * Gets the absolute URL of HudsonExt,
-     * such as "http://localhost/hudson/".
-     *
-     * <p>
-     * This method first tries to use the manually configured value, then
-     * fall back to {@link StaplerRequest#getRootPath()}.
-     * It is done in this order so that it can work correctly even in the face
-     * of a reverse proxy.
-     *
-     * @return
-     *      This method returns null if this parameter is not configured by the user.
-     *      The caller must gracefully deal with this situation.
-     *      The returned URL will always have the trailing '/'.
-     * @since 1.66
-     * @see DescriptorExt#getCheckUrl(String)
-     * @see #getRootUrlFromRequest()
-     */
-    public String getRootUrl() {
-        // for compatibility. the actual data is stored in Mailer
-        String url = Mailer.descriptor().getUrl();
-        if(url!=null)   return url;
-
-        StaplerRequest req = Stapler.getCurrentRequest();
-        if(req!=null)
-            return getRootUrlFromRequest();
-        return null;
-    }
+    
 
     /**
      * Gets the absolute URL of HudsonExt top page, such as "http://localhost/hudson/".
@@ -833,7 +953,7 @@ public final class Hudson extends HudsonExt implements ItemGroup<TopLevelItem>, 
         if (text != null) {
             try {
                 req.setAttribute("output",
-                        RemotingDiagnostics.executeGroovy(text, MasterComputer.localChannel));
+                        RemotingDiagnosticsExt.executeGroovy(text, MasterComputer.localChannel));
             } catch (InterruptedException e) {
                 throw new ServletException(e);
             }
@@ -1105,8 +1225,8 @@ public final class Hudson extends HudsonExt implements ItemGroup<TopLevelItem>, 
             return "computer/(master)/";
         }
 
-        public RetentionStrategy getRetentionStrategy() {
-            return RetentionStrategy.NOOP;
+        public RetentionStrategyExt getRetentionStrategy() {
+            return RetentionStrategyExt.NOOP;
         }
 
         /**

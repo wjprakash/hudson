@@ -23,7 +23,7 @@
  */
 package hudson.model;
 
-import hudson.tasks.test.TestResultProjectAction;
+import hudson.tasks.test.TestResultProjectActionExt;
 
 /**
  * Object that contributes additional information, behaviors, and UIs to {@link ModelObject}

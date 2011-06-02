@@ -53,7 +53,7 @@ public class TestResultAggregator extends MatrixAggregator {
 
     @Override
     public boolean endRun(MatrixRunExt run) throws InterruptedException, IOException {
-        AbstractTestResultAction atr = run.getAction(AbstractTestResultAction.class);
+        AbstractTestResultActionExt atr = run.getAction(AbstractTestResultActionExt.class);
         if(atr!=null)   result.add(atr);
         return true;
     }

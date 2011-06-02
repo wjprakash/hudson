@@ -23,7 +23,7 @@
  */
 package hudson.model;
 
-import hudson.util.RunList;
+import hudson.util.RunListExt;
 
 import java.util.Date;
 
@@ -39,9 +39,9 @@ import java.util.Date;
 public class BuildTimelineWidgetExt {
 
      
-    protected final RunList<?> builds;
+    protected final RunListExt<?> builds;
 
-    public BuildTimelineWidgetExt(RunList<?> builds) {
+    public BuildTimelineWidgetExt(RunListExt<?> builds) {
         this.builds = builds;
     }
 

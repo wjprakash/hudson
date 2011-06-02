@@ -93,7 +93,7 @@ public class Graph {
         }
     }
     
-    public void setMultiStageTimeSeries(List<MultiStageTimeSeries> multiStageTimeSeries) {
+    public void setMultiStageTimeSeries(List<MultiStageTimeSeriesExt> multiStageTimeSeries) {
         if (graphSupport != null) {
             graphSupport.setMultiStageTimeSeries(multiStageTimeSeries);
         }

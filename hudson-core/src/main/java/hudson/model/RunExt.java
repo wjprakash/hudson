@@ -47,10 +47,10 @@ import hudson.security.ACL;
 import hudson.security.AccessControlled;
 import hudson.security.Permission;
 import hudson.security.PermissionGroup;
-import hudson.tasks.LogRotator;
+import hudson.tasks.LogRotatorExt;
 import hudson.tasks.BuildWrapper;
 import hudson.tasks.BuildStep;
-import hudson.tasks.test.AbstractTestResultAction;
+import hudson.tasks.test.AbstractTestResultActionExt;
 import hudson.util.IOException2;
 import hudson.util.LogTaskListener;
 import hudson.util.XStream2;
@@ -1507,8 +1507,8 @@ public abstract class RunExt <JobT extends JobExt<JobT,RunT>,RunT extends RunExt
 
         if(getResult()==ResultExt.UNSTABLE) {
             if(((RunExt)this) instanceof AbstractBuildExt) {
-                AbstractTestResultAction trN = ((AbstractBuildExt)(RunExt)this).getTestResultAction();
-                AbstractTestResultAction trP = prev==null ? null : ((AbstractBuildExt) prev).getTestResultAction();
+                AbstractTestResultActionExt trN = ((AbstractBuildExt)(RunExt)this).getTestResultAction();
+                AbstractTestResultActionExt trP = prev==null ? null : ((AbstractBuildExt) prev).getTestResultAction();
                 if(trP==null) {
                     if(trN!=null && trN.getFailCount()>0)
                         return new Summary(false, Messages.Run_Summary_TestFailures(trN.getFailCount()));

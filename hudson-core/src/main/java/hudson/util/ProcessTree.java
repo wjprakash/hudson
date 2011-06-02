@@ -29,7 +29,7 @@ import hudson.model.HudsonExt;
 import hudson.remoting.Callable;
 import hudson.remoting.Channel;
 import hudson.remoting.VirtualChannel;
-import hudson.slaves.SlaveComputer;
+import hudson.slaves.SlaveComputerExt;
 import hudson.util.ProcessTree.OSProcess;
 
 import hudson.util.ProcessTreeRemoting.IOSProcess;
@@ -152,7 +152,7 @@ public abstract class ProcessTree implements Iterable<OSProcess>, IProcessTree, 
     /*package*/ final List<ProcessKiller> getKillers() throws InterruptedException {
         if (killers==null)
             try {
-                killers = SlaveComputer.getChannelToMaster().call(new Callable<List<ProcessKiller>, IOException>() {
+                killers = SlaveComputerExt.getChannelToMaster().call(new Callable<List<ProcessKiller>, IOException>() {
                     public List<ProcessKiller> call() throws IOException {
                         return new ArrayList<ProcessKiller>(ProcessKiller.all());
                     }

@@ -56,17 +56,17 @@ public class MavenConsoleAnnotator extends LineTransformationOutputStream {
         // we need more support for conveniently putting annotations in the middle of the line, not just at the beginning
         // we also need the ability for an extension point to have notes hook into the processing
 
-        Matcher m = MavenMojoNote.PATTERN.matcher(line);
+        Matcher m = MavenMojoNoteExt.PATTERN.matcher(line);
         if (m.matches())
-            new MavenMojoNote().encodeTo(out);
+            new MavenMojoNoteExt().encodeTo(out);
 
-        m = MavenWarningNote.PATTERN.matcher(line);
+        m = MavenWarningNoteExt.PATTERN.matcher(line);
         if (m.find())
-            new MavenWarningNote().encodeTo(out);
+            new MavenWarningNoteExt().encodeTo(out);
 
-        m = MavenErrorNote.PATTERN.matcher(line);
+        m = MavenErrorNoteExt.PATTERN.matcher(line);
         if (m.find())
-            new MavenErrorNote().encodeTo(out);
+            new MavenErrorNoteExt().encodeTo(out);
 
         out.write(b,0,len);
     }

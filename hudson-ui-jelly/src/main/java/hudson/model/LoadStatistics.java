@@ -25,9 +25,9 @@ package hudson.model;
 
 import hudson.Extension;
 import hudson.util.ColorPalette;
-import hudson.util.graph.MultiStageTimeSeries;
-import hudson.util.graph.MultiStageTimeSeries.TimeScale;
-import hudson.util.graph.MultiStageTimeSeries.TrendChart;
+import hudson.util.graph.MultiStageTimeSeriesExt;
+import hudson.util.graph.MultiStageTimeSeriesExt.TimeScale;
+import hudson.util.graph.MultiStageTimeSeriesExt.TrendChartExt;
 import java.awt.Color;
 import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.export.ExportedBean;
@@ -56,19 +56,19 @@ public abstract class LoadStatistics extends LoadStatisticsExt{
      * Number of busy executors and how it changes over time.
      */
     @Exported
-    public final MultiStageTimeSeries busyExecutors = null;
+    public final MultiStageTimeSeriesExt busyExecutors = null;
 
     /**
      * Number of total executors and how it changes over time.
      */
     @Exported
-    public final MultiStageTimeSeries totalExecutors = null;
+    public final MultiStageTimeSeriesExt totalExecutors = null;
 
     /**
      * Number of {@link Queue.BuildableItem}s that can run on any node in this node set but blocked.
      */
     @Exported
-    public final MultiStageTimeSeries queueLength = null;
+    public final MultiStageTimeSeriesExt queueLength = null;
 
     protected LoadStatistics(int initialTotalExecutors, int initialBusyExecutors) {
          super(initialTotalExecutors, initialBusyExecutors);
@@ -81,7 +81,7 @@ public abstract class LoadStatistics extends LoadStatisticsExt{
     /**
      * Generates the load statistics graph.
      */
-    public TrendChart doGraph(@QueryParameter String type) throws IOException {
+    public TrendChartExt doGraph(@QueryParameter String type) throws IOException {
         return createTrendChart(TimeScale.parse(type));
     }
 

@@ -36,14 +36,14 @@ import static java.util.logging.Level.*;
  * @author Kohsuke Kawaguchi
  * @since 1.382
  */
-public class CloudRetentionStrategy extends RetentionStrategy<AbstractCloudComputer> {
+public class CloudRetentionStrategy extends RetentionStrategyExt<AbstractCloudComputerExt> {
     private int idleMinutes;
 
     public CloudRetentionStrategy(int idleMinutes) {
         this.idleMinutes = idleMinutes;
     }
 
-    public synchronized long check(AbstractCloudComputer c) {
+    public synchronized long check(AbstractCloudComputerExt c) {
         if (c.isIdle() && !disabled) {
             final long idleMilliseconds = System.currentTimeMillis() - c.getIdleStartMilliseconds();
             if (idleMilliseconds > MINUTES.toMillis(idleMinutes)) {
@@ -64,7 +64,7 @@ public class CloudRetentionStrategy extends RetentionStrategy<AbstractCloudCompu
      * Try to connect to it ASAP.
      */
     @Override
-    public void start(AbstractCloudComputer c) {
+    public void start(AbstractCloudComputerExt c) {
         c.connect(false);
     }
 

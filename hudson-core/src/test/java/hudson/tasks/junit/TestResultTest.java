@@ -52,7 +52,7 @@ public class TestResultTest extends TestCase {
      */
     public void testXmlCompatibility() throws Exception {
         XmlFile xmlFile = new XmlFile(XSTREAM, getDataFile("junitResult.xml"));
-        TestResult result = (TestResult)xmlFile.read();
+        TestResultExt result = (TestResultExt)xmlFile.read();
 
         // Regenerate the transient data
         result.tally();
@@ -63,15 +63,15 @@ public class TestResultTest extends TestCase {
         // XStream seems to produce some weird rounding errors...
         assertEquals(0.576, result.getDuration(), 0.0001);
 
-        Collection<SuiteResult> suites = result.getSuites();
+        Collection<SuiteResultExt> suites = result.getSuites();
         assertEquals(6, suites.size());
 
-        List<CaseResult> failedTests = result.getFailedTests();
+        List<CaseResultExt> failedTests = result.getFailedTests();
         assertEquals(1, failedTests.size());
 
-        SuiteResult failedSuite = result.getSuite("broken");
+        SuiteResultExt failedSuite = result.getSuite("broken");
         assertNotNull(failedSuite);
-        CaseResult failedCase = failedSuite.getCase("becomeUglier");
+        CaseResultExt failedCase = failedSuite.getCase("becomeUglier");
         assertNotNull(failedCase);
         assertFalse(failedCase.isSkipped());
         assertFalse(failedCase.isPassed());
@@ -81,9 +81,9 @@ public class TestResultTest extends TestCase {
     private static final XStream XSTREAM = new XStream2();
 
     static {
-        XSTREAM.alias("result",TestResult.class);
-        XSTREAM.alias("suite",SuiteResult.class);
-        XSTREAM.alias("case",CaseResult.class);
+        XSTREAM.alias("result",TestResultExt.class);
+        XSTREAM.alias("suite",SuiteResultExt.class);
+        XSTREAM.alias("case",CaseResultExt.class);
         XSTREAM.registerConverter(new StringConverter2(),100);
     }
 }

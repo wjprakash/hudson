@@ -25,9 +25,9 @@ package hudson.model;
 
 import hudson.Extension;
 import hudson.util.ColorPalette;
-import hudson.util.graph.MultiStageTimeSeries;
-import hudson.util.graph.MultiStageTimeSeries.TimeScale;
-import hudson.util.graph.MultiStageTimeSeries.TrendChart;
+import hudson.util.graph.MultiStageTimeSeriesExt;
+import hudson.util.graph.MultiStageTimeSeriesExt.TimeScale;
+import hudson.util.graph.MultiStageTimeSeriesExt.TrendChartExt;
 
 import java.util.List;
 
@@ -49,24 +49,24 @@ public abstract class LoadStatisticsExt {
     /**
      * Number of busy executors and how it changes over time.
      */
-    public final MultiStageTimeSeries busyExecutors;
+    public final MultiStageTimeSeriesExt busyExecutors;
 
     /**
      * Number of total executors and how it changes over time.
      */
-    public final MultiStageTimeSeries totalExecutors;
+    public final MultiStageTimeSeriesExt totalExecutors;
 
     /**
      * Number of {@link Queue.BuildableItem}s that can run on any node in this node set but blocked.
      */
-    public final MultiStageTimeSeries queueLength;
+    public final MultiStageTimeSeriesExt queueLength;
 
     protected LoadStatisticsExt(int initialTotalExecutors, int initialBusyExecutors) {
-        this.totalExecutors = new MultiStageTimeSeries(
+        this.totalExecutors = new MultiStageTimeSeriesExt(
                 Messages._LoadStatistics_Legends_TotalExecutors(), ColorPalette.BLUE, initialTotalExecutors,DECAY);
-        this.busyExecutors = new MultiStageTimeSeries(
+        this.busyExecutors = new MultiStageTimeSeriesExt(
                 Messages._LoadStatistics_Legends_BusyExecutors(), ColorPalette.RED, initialBusyExecutors,DECAY);
-        this.queueLength = new MultiStageTimeSeries(
+        this.queueLength = new MultiStageTimeSeriesExt(
                 Messages._LoadStatistics_Legends_QueueLength(),ColorPalette.GREY, 0, DECAY);
     }
 
@@ -93,8 +93,8 @@ public abstract class LoadStatisticsExt {
      * Creates {@link CategoryDataset} which then becomes the basis
      * of the load statistics graph.
      */
-    public TrendChart createTrendChart(TimeScale timeScale) {
-        return MultiStageTimeSeries.createTrendChart(timeScale, totalExecutors, busyExecutors, queueLength);
+    public TrendChartExt createTrendChart(TimeScale timeScale) {
+        return MultiStageTimeSeriesExt.createTrendChart(timeScale, totalExecutors, busyExecutors, queueLength);
     }
 
 

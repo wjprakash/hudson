@@ -32,8 +32,8 @@ import hudson.Extension;
 import hudson.model.Descriptor.FormException;
 import hudson.model.PermalinkProjectAction.Permalink;
 import hudson.search.QuickSilver;
-import hudson.tasks.LogRotator;
-import hudson.util.RunList;
+import hudson.tasks.LogRotatorExt;
+import hudson.util.RunListExt;
 import hudson.widgets.Widget;
 
 import java.io.IOException;
@@ -130,7 +130,7 @@ public abstract class Job<JobT extends Job<JobT, RunT>, RunT extends RunExt<JobT
     @Exported
     @WithBridgeMethods(List.class)
     @Override
-    public RunList<RunT> getBuilds() {
+    public RunListExt<RunT> getBuilds() {
         return super.getBuilds();
     }
 
@@ -290,7 +290,7 @@ public abstract class Job<JobT extends Job<JobT, RunT>, RunT extends RunExt<JobT
             JSONObject json = req.getSubmittedForm();
 
             if (req.getParameter("logrotate") != null) {
-                logRotator = LogRotator.DESCRIPTOR.newInstance(req, json.getJSONObject("logrotate"));
+                logRotator = LogRotatorExt.DESCRIPTOR.newInstance(req, json.getJSONObject("logrotate"));
             } else {
                 logRotator = null;
             }
@@ -413,7 +413,7 @@ public abstract class Job<JobT extends Job<JobT, RunT>, RunT extends RunExt<JobT
     }
 
     private void rss(StaplerRequest req, StaplerResponse rsp, String suffix,
-            RunList runs) throws IOException, ServletException {
+            RunListExt runs) throws IOException, ServletException {
         RSS.forwardToRss(getDisplayName() + suffix, getUrl(), runs.newBuilds(),
                 RunExt.FEED_ADAPTER, req, rsp);
     }

@@ -1738,7 +1738,51 @@ public class FilePathExt implements Serializable {
         });
     }
 
-     
+    /**
+     * Shortcut for {@link #validateFileMask(String)} in case the left-hand side can be null.
+     */
+    public static FormValidation validateFileMask(FilePathExt pathOrNull, String value) throws IOException {
+        if (pathOrNull == null) {
+            return FormValidation.ok();
+        }
+        return pathOrNull.validateFileMask(value);
+    }
+
+    /**
+     * Short for {@code validateFileMask(value,true)} 
+     */
+    public FormValidation validateFileMask(String value) throws IOException {
+        return validateFileMask(value, true);
+    }
+
+    /**
+     * Checks the GLOB-style file mask. See {@link #validateAntFileMask(String)}.
+     * Requires configure permission on ancestor AbstractProjectExt object in request.
+     * @since 1.294
+     */
+    public FormValidation validateFileMask(String value, boolean errorIfNotExist) throws IOException {
+         
+        value = UtilExt.fixEmpty(value);
+        if (value == null) {
+            return FormValidation.ok();
+        }
+
+        try {
+            if (!exists()) // no workspace. can't check
+            {
+                return FormValidation.ok();
+            }
+
+            String msg = validateAntFileMask(value);
+            if (errorIfNotExist) {
+                return FormValidation.error(msg);
+            } else {
+                return FormValidation.warning(msg);
+            }
+        } catch (InterruptedException e) {
+            return FormValidation.ok();
+        }
+    }
 
     @Deprecated @Override
     public String toString() {

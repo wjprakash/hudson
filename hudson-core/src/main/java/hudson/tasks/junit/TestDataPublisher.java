@@ -50,9 +50,9 @@ public abstract class TestDataPublisher extends AbstractDescribableImpl<TestData
      * @return
      *      can be null to indicate that there's nothing to contribute for this test result.
      */
-	public abstract TestResultAction.Data getTestData(
+	public abstract TestResultActionExt.Data getTestData(
 			AbstractBuildExt<?, ?> build, Launcher launcher,
-			BuildListener listener, TestResult testResult) throws IOException, InterruptedException;
+			BuildListener listener, TestResultExt testResult) throws IOException, InterruptedException;
 
 	public static DescriptorExtensionListExt<TestDataPublisher, DescriptorExt<TestDataPublisher>> all() {
 		return HudsonExt.getInstance().<TestDataPublisher, DescriptorExt<TestDataPublisher>>getDescriptorList(TestDataPublisher.class);

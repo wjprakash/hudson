@@ -45,11 +45,11 @@ import hudson.scm.NullChangeLogParser;
 import hudson.tasks.BuildStep;
 import hudson.tasks.BuildWrapper;
 import hudson.tasks.Builder;
-import hudson.tasks.Fingerprinter.FingerprintAction;
+import hudson.tasks.FingerprinterExt.FingerprintAction;
 import hudson.tasks.Publisher;
 import hudson.tasks.BuildStepMonitor;
-import hudson.tasks.BuildTrigger;
-import hudson.tasks.test.AbstractTestResultAction;
+import hudson.tasks.BuildTriggerExt;
+import hudson.tasks.test.AbstractTestResultActionExt;
 import hudson.util.AdaptedIterator;
 import hudson.util.Iterators;
 import hudson.util.LogTaskListener;
@@ -549,7 +549,7 @@ public abstract class AbstractBuildExt<P extends AbstractProjectExt<P,R>,R exten
         }
 
         public void cleanUp(BuildListener listener) throws Exception {
-            BuildTrigger.execute(AbstractBuildExt.this, listener);
+            BuildTriggerExt.execute(AbstractBuildExt.this, listener);
             buildEnvironments = null;
         }
 
@@ -797,8 +797,8 @@ public abstract class AbstractBuildExt<P extends AbstractProjectExt<P,R>,R exten
     /**
      * Gets {@link AbstractTestResultAction} associated with this build if any.
      */
-    public AbstractTestResultAction getTestResultAction() {
-        return getAction(AbstractTestResultAction.class);
+    public AbstractTestResultActionExt getTestResultAction() {
+        return getAction(AbstractTestResultActionExt.class);
     }
 
     /**

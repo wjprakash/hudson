@@ -26,7 +26,7 @@ package hudson.model;
 import hudson.tasks.BuildStep;
 import hudson.tasks.Recorder;
 import hudson.tasks.Builder;
-import hudson.tasks.junit.JUnitResultArchiver;
+import hudson.tasks.junit.JUnitResultArchiverExt;
 import hudson.scm.SCMExt;
 
 /**

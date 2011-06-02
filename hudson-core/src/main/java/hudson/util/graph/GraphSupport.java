@@ -57,7 +57,7 @@ public abstract class GraphSupport extends AbstractDescribableImpl<GraphSupport>
     abstract public void setXAxisLabel(String xLabel);
     abstract public void setYAxisLabel(String yLabel);
     abstract public void setData(DataSet data);
-    abstract public void setMultiStageTimeSeries(List<MultiStageTimeSeries> multiStageTimeSeries);
+    abstract public void setMultiStageTimeSeries(List<MultiStageTimeSeriesExt> multiStageTimeSeries);
     abstract public BufferedImage render(int width, int height);
     abstract public String getImageMap(String id, int width, int height);
 

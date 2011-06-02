@@ -52,17 +52,17 @@ public abstract class DelegatingComputerLauncher extends ComputerLauncher {
     }
 
     @Override
-    public void launch(SlaveComputer computer, TaskListener listener) throws IOException, InterruptedException {
+    public void launch(SlaveComputerExt computer, TaskListener listener) throws IOException, InterruptedException {
         getLauncher().launch(computer, listener);
     }
 
     @Override
-    public void afterDisconnect(SlaveComputer computer, TaskListener listener) {
+    public void afterDisconnect(SlaveComputerExt computer, TaskListener listener) {
         getLauncher().afterDisconnect(computer, listener);
     }
 
     @Override
-    public void beforeDisconnect(SlaveComputer computer, TaskListener listener) {
+    public void beforeDisconnect(SlaveComputerExt computer, TaskListener listener) {
         getLauncher().beforeDisconnect(computer, listener);
     }
 

@@ -31,7 +31,7 @@ import hudson.UtilExt;
 import hudson.diagnosis.OldDataMonitorExt;
 import hudson.model.*;
 import hudson.security.FederatedLoginService.FederatedIdentity;
-import hudson.tasks.Mailer;
+import hudson.tasks.MailerExt;
 import hudson.util.Protector;
 import hudson.util.Scrambler;
 import hudson.util.XStream2;
@@ -72,6 +72,7 @@ public class HudsonPrivateSecurityRealm extends HudsonPrivateSecurityRealmExt {
         super(allowsSignup, enableCaptcha, captchaSupport);
     }
 
+    
     /**
      * Show the sign up page with the data from the identity.
      */
@@ -231,7 +232,7 @@ public class HudsonPrivateSecurityRealm extends HudsonPrivateSecurityRealmExt {
 
         // register the user
         UserExt user = createAccount(si.username, si.password1);
-        user.addProperty(new Mailer.UserProperty(si.email));
+        user.addProperty(new MailerExt.UserProperty(si.email));
         user.setFullName(si.fullname);
         user.save();
         return user;
@@ -262,21 +263,21 @@ public class HudsonPrivateSecurityRealm extends HudsonPrivateSecurityRealmExt {
      * is sent to the hidden input field by using {@link Protector}, so that
      * the same password can be retained but without leaking information to the browser.
      */
-    public static final class Details extends UserPropertyExt implements InvalidatableUserDetails {
+    public static final class Details extends HudsonPrivateSecurityRealmExt.Details {
 
-        /**
-         * Hashed password.
-         */
-        private /*almost final*/ String passwordHash;
-        /**
-         * @deprecated Scrambled password.
-         * Field kept here to load old (pre 1.283) user records,
-         * but now marked transient so field is no longer saved.
-         */
+        
         private transient String password;
 
         private Details(String passwordHash) {
-            this.passwordHash = passwordHash;
+            super(passwordHash);
+        }
+
+       
+
+        @Override
+        public String getProtectedPassword() {
+            // put session Id in it to prevent a replay attack.
+            return Protector.protect(Stapler.getCurrentRequest().getSession().getId() + ':' + getPassword());
         }
 
         static Details fromHashedPassword(String hashed) {
@@ -284,65 +285,7 @@ public class HudsonPrivateSecurityRealm extends HudsonPrivateSecurityRealmExt {
         }
 
         static Details fromPlainPassword(String rawPassword) {
-            return new Details(PASSWORD_ENCODER.encodePassword(rawPassword, null));
-        }
-
-        public GrantedAuthority[] getAuthorities() {
-            // TODO
-            return TEST_AUTHORITY;
-        }
-
-        public String getPassword() {
-            return passwordHash;
-        }
-
-        public String getProtectedPassword() {
-            // put session Id in it to prevent a replay attack.
-            return Protector.protect(Stapler.getCurrentRequest().getSession().getId() + ':' + getPassword());
-        }
-
-        public String getUsername() {
-            return user.getId();
-        }
-
-        /*package*/ UserExt getUser() {
-            return user;
-        }
-
-        public boolean isAccountNonExpired() {
-            return true;
-        }
-
-        public boolean isAccountNonLocked() {
-            return true;
-        }
-
-        public boolean isCredentialsNonExpired() {
-            return true;
-        }
-
-        public boolean isEnabled() {
-            return true;
-        }
-
-        public boolean isInvalid() {
-            return user == null;
-        }
-
-        public static class ConverterImpl extends XStream2.PassthruConverter<Details> {
-
-            public ConverterImpl(XStream2 xstream) {
-                super(xstream);
-            }
-
-            @Override
-            protected void callback(Details d, UnmarshallingContext context) {
-                // Convert to hashed password and report to monitor if we load old data
-                if (d.password != null && d.passwordHash == null) {
-                    d.passwordHash = PASSWORD_ENCODER.encodePassword(Scrambler.descramble(d.password), null);
-                    OldDataMonitorExt.report(context, "1.283");
-                }
-            }
+            return new Details(PASSWORD_ENCODER.encodePassword(rawPassword,null));
         }
 
         @Extension
@@ -373,11 +316,6 @@ public class HudsonPrivateSecurityRealm extends HudsonPrivateSecurityRealmExt {
                     }
                 }
                 return Details.fromPlainPassword(UtilExt.fixNull(pwd));
-            }
-
-            @Override
-            public boolean isEnabled() {
-                return HudsonExt.getInstance().getSecurityRealm() instanceof HudsonPrivateSecurityRealm;
             }
 
             public UserPropertyExt newInstance(UserExt user) {

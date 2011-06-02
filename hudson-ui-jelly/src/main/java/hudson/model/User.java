@@ -25,7 +25,7 @@ package hudson.model;
 
 import hudson.FeedAdapter;
 import hudson.model.Descriptor.FormException;
-import hudson.util.RunList;
+import hudson.util.RunListExt;
 import net.sf.json.JSONObject;
 
 import org.kohsuke.stapler.StaplerRequest;
@@ -183,11 +183,11 @@ public class User extends UserExt {
     }
 
     public void doRssAll(StaplerRequest req, StaplerResponse rsp) throws IOException, ServletException {
-        rss(req, rsp, " all builds", RunList.fromRuns(getBuilds()), Run.FEED_ADAPTER);
+        rss(req, rsp, " all builds", RunListExt.fromRuns(getBuilds()), Run.FEED_ADAPTER);
     }
 
     public void doRssFailed(StaplerRequest req, StaplerResponse rsp) throws IOException, ServletException {
-        rss(req, rsp, " regression builds", RunList.fromRuns(getBuilds()).regressionOnly(), Run.FEED_ADAPTER);
+        rss(req, rsp, " regression builds", RunListExt.fromRuns(getBuilds()).regressionOnly(), Run.FEED_ADAPTER);
     }
 
     public void doRssLatest(StaplerRequest req, StaplerResponse rsp) throws IOException, ServletException {
@@ -203,10 +203,10 @@ public class User extends UserExt {
                 }
             }
         }
-        rss(req, rsp, " latest build", RunList.fromRuns(lastBuilds), Run.FEED_ADAPTER_LATEST);
+        rss(req, rsp, " latest build", RunListExt.fromRuns(lastBuilds), Run.FEED_ADAPTER_LATEST);
     }
 
-    private void rss(StaplerRequest req, StaplerResponse rsp, String suffix, RunList runs, FeedAdapter adapter)
+    private void rss(StaplerRequest req, StaplerResponse rsp, String suffix, RunListExt runs, FeedAdapter adapter)
             throws IOException, ServletException {
         RSS.forwardToRss(getDisplayName()+ suffix, getUrl(), runs.newBuilds(), adapter, req, rsp);
     }

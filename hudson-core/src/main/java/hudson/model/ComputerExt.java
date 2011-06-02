@@ -37,17 +37,17 @@ import hudson.security.AccessControlled;
 import hudson.security.Permission;
 import hudson.security.PermissionGroup;
 import hudson.slaves.ComputerLauncher;
-import hudson.slaves.RetentionStrategy;
+import hudson.slaves.RetentionStrategyExt;
 import hudson.slaves.WorkspaceList;
-import hudson.slaves.OfflineCause;
-import hudson.slaves.OfflineCause.ByCLI;
+import hudson.slaves.OfflineCauseExt;
+import hudson.slaves.OfflineCauseExt.ByCLI;
 import hudson.tasks.BuildWrapper;
 import hudson.tasks.Publisher;
 import hudson.util.DaemonThreadFactory;
 import hudson.util.ExceptionCatchingThreadFactory;
-import hudson.util.RemotingDiagnostics;
-import hudson.util.RemotingDiagnostics.HeapDump;
-import hudson.util.RunList;
+import hudson.util.RemotingDiagnosticsExt;
+import hudson.util.RemotingDiagnosticsExt.HeapDumpExt;
+import hudson.util.RunListExt;
 import hudson.util.Futures;
 import org.kohsuke.args4j.Option;
 
@@ -108,7 +108,7 @@ public /*transient*/ abstract class ComputerExt extends ActionableExt implements
     /**
      * Contains info about reason behind computer being offline.
      */
-    protected volatile OfflineCause offlineCause;
+    protected volatile OfflineCauseExt offlineCause;
     
     private long connectTime = 0;
 
@@ -177,7 +177,7 @@ public /*transient*/ abstract class ComputerExt extends ActionableExt implements
      * @return
      *      null if the system was put offline without given a cause.
      */
-    public OfflineCause getOfflineCause() {
+    public OfflineCauseExt getOfflineCause() {
         return offlineCause;
     }
 
@@ -288,7 +288,7 @@ public /*transient*/ abstract class ComputerExt extends ActionableExt implements
      * @see #connect(boolean)
      * @since 1.320
      */
-    public Future<?> disconnect(OfflineCause cause) {
+    public Future<?> disconnect(OfflineCauseExt cause) {
         offlineCause = cause;
         if (UtilExt.isOverridden(ComputerExt.class,getClass(),"disconnect"))
             return disconnect();    // legacy subtypes that extend disconnect().
@@ -304,7 +304,7 @@ public /*transient*/ abstract class ComputerExt extends ActionableExt implements
      *      Use {@link #disconnect(OfflineCause)} and specify the cause.
      */
     public Future<?> disconnect() {
-        if (UtilExt.isOverridden(ComputerExt.class,getClass(),"disconnect",OfflineCause.class))
+        if (UtilExt.isOverridden(ComputerExt.class,getClass(),"disconnect",OfflineCauseExt.class))
             // if the subtype already derives disconnect(OfflineCause), delegate to it
             return disconnect(null);
 
@@ -473,7 +473,7 @@ public /*transient*/ abstract class ComputerExt extends ActionableExt implements
      *      If the first argument is true, specify the reason why the node is being put
      *      offline. 
      */
-    public void setTemporarilyOffline(boolean temporarilyOffline, OfflineCause cause) {
+    public void setTemporarilyOffline(boolean temporarilyOffline, OfflineCauseExt cause) {
         offlineCause = temporarilyOffline ? cause : null;
         this.temporarilyOffline = temporarilyOffline;
         HudsonExt.getInstance().getQueue().scheduleMaintenance();
@@ -512,8 +512,8 @@ public /*transient*/ abstract class ComputerExt extends ActionableExt implements
         return getNode().getSelfLabel().getTiedJobs();
     }
 
-    public RunList getBuilds() {
-    	return new RunList(HudsonExt.getInstance().getAllItems(JobExt.class)).node(getNode());
+    public RunListExt getBuilds() {
+    	return new RunListExt(HudsonExt.getInstance().getAllItems(JobExt.class)).node(getNode());
     }
 
     /**
@@ -688,7 +688,7 @@ public /*transient*/ abstract class ComputerExt extends ActionableExt implements
      *      never null. This method return {@code RetentionStrategy<? super T>} where
      *      {@code T=this.getClass()}.
      */
-    public abstract RetentionStrategy getRetentionStrategy();
+    public abstract RetentionStrategyExt getRetentionStrategy();
 
     /**
      * Expose monitoring data for the remote API.
@@ -705,7 +705,7 @@ public /*transient*/ abstract class ComputerExt extends ActionableExt implements
      * If this is the master, it returns the system property of the master computer.
      */
     public Map<Object,Object> getSystemProperties() throws IOException, InterruptedException {
-        return RemotingDiagnostics.getSystemProperties(getChannel());
+        return RemotingDiagnosticsExt.getSystemProperties(getChannel());
     }
 
     /**
@@ -730,14 +730,14 @@ public /*transient*/ abstract class ComputerExt extends ActionableExt implements
      *      key is the thread name, and the value is the pre-formatted dump.
      */
     public Map<String,String> getThreadDump() throws IOException, InterruptedException {
-        return RemotingDiagnostics.getThreadDump(getChannel());
+        return RemotingDiagnosticsExt.getThreadDump(getChannel());
     }
 
     /**
      * Obtains the heap dump.
      */
-    public HeapDump getHeapDump() throws IOException {
-        return new HeapDump(this,getChannel());
+    public HeapDumpExt getHeapDump() throws IOException {
+        return new HeapDumpExt(this,getChannel());
     }
 
     /**

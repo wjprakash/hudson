@@ -25,8 +25,8 @@ package hudson;
 
 import hudson.model.HudsonExt;
 import hudson.model.ComputerExt;
-import hudson.slaves.OfflineCause;
-import hudson.slaves.SlaveComputer;
+import hudson.slaves.OfflineCauseExt;
+import hudson.slaves.SlaveComputerExt;
 import hudson.remoting.Channel;
 import hudson.remoting.SocketOutputStream;
 import hudson.remoting.SocketInputStream;
@@ -231,7 +231,7 @@ public final class TcpSlaveAgentListener extends Thread {
             }
 
             final String nodeName = in.readUTF();
-            SlaveComputer computer = (SlaveComputer) HudsonExt.getInstance().getComputer(nodeName);
+            SlaveComputerExt computer = (SlaveComputerExt) HudsonExt.getInstance().getComputer(nodeName);
             if(computer==null) {
                 error(out, "No such slave: "+nodeName);
                 return;
@@ -260,7 +260,7 @@ public final class TcpSlaveAgentListener extends Thread {
             }
 
             final String nodeName = request.getProperty("Node-Name");
-            SlaveComputer computer = (SlaveComputer) HudsonExt.getInstance().getComputer(nodeName);
+            SlaveComputerExt computer = (SlaveComputerExt) HudsonExt.getInstance().getComputer(nodeName);
             if(computer==null) {
                 error(out, "No such slave: "+nodeName);
                 return;
@@ -311,7 +311,7 @@ public final class TcpSlaveAgentListener extends Thread {
             return UtilExt.toHexString(cookie);
         }
 
-        private Channel jnlpConnect(SlaveComputer computer) throws InterruptedException, IOException {
+        private Channel jnlpConnect(SlaveComputerExt computer) throws InterruptedException, IOException {
             final String nodeName = computer.getName();
             final OutputStream log = computer.openLogFile();
             PrintWriter logw = new PrintWriter(log,true);
@@ -358,7 +358,7 @@ public final class TcpSlaveAgentListener extends Thread {
     /**
      * Connection terminated because we are reconnected from the current peer.
      */
-    public static class ConnectionFromCurrentPeer extends OfflineCause {
+    public static class ConnectionFromCurrentPeer extends OfflineCauseExt {
         public String toString() {
             return "The current peer is reconnecting";
         }

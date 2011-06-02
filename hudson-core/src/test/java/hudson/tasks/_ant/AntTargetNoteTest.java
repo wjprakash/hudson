@@ -16,13 +16,13 @@ public class AntTargetNoteTest {
 
     @Before
     public void setUp() {
-        enabled = AntTargetNote.ENABLED;
+        enabled = AntTargetNoteExt.ENABLED;
     }
 
     @After
     public void tearDown() {
         // Restore the original setting.
-        AntTargetNote.ENABLED = enabled;
+        AntTargetNoteExt.ENABLED = enabled;
     }
 
     @Test
@@ -38,13 +38,13 @@ public class AntTargetNoteTest {
 
     @Test
     public void testDisabled() {
-        AntTargetNote.ENABLED = false;
+        AntTargetNoteExt.ENABLED = false;
         assertEquals("TARGET:", annotate("TARGET:"));
     }
 
     private String annotate(String text) {
         MarkupText markupText = new MarkupText(text);
-        new AntTargetNote().annotate(new Object(), markupText, 0);
+        new AntTargetNoteExt().annotate(new Object(), markupText, 0);
         return markupText.toString(true);
     }
 }

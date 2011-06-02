@@ -29,7 +29,7 @@ import hudson.model.ManagementLink;
 import hudson.model.ModelObject;
 import hudson.model.UserExt;
 import hudson.model.UserPropertyExt;
-import hudson.tasks.Mailer.UserProperty;
+import hudson.tasks.MailerExt.UserProperty;
 import org.acegisecurity.userdetails.User;
 import hudson.security.captcha.CaptchaSupport;
 import com.thoughtworks.xstream.converters.UnmarshallingContext;
@@ -259,7 +259,7 @@ public class HudsonPrivateSecurityRealmExt extends AbstractPasswordBasedSecurity
      * is sent to the hidden input field by using {@link Protector}, so that
      * the same password can be retained but without leaking information to the browser.
      */
-    public static final class Details extends UserPropertyExt implements InvalidatableUserDetails {
+    public static class Details extends UserPropertyExt implements InvalidatableUserDetails {
         /**
          * Hashed password.
          */
@@ -272,7 +272,7 @@ public class HudsonPrivateSecurityRealmExt extends AbstractPasswordBasedSecurity
          */
         private transient String password;
 
-        private Details(String passwordHash) {
+        protected Details(String passwordHash) {
             this.passwordHash = passwordHash;
         }
 
@@ -292,10 +292,16 @@ public class HudsonPrivateSecurityRealmExt extends AbstractPasswordBasedSecurity
         public String getPassword() {
             return passwordHash;
         }
-
+        
         public String getProtectedPassword() {
+            return protectPassword("");
             // put session Id in it to prevent a replay attack.
-            return Protector.protect(Stapler.getCurrentRequest().getSession().getId()+':'+getPassword());
+            //return Protector.protect(Stapler.getCurrentRequest().getSession().getId() + ':' + getPassword());
+        }
+
+        protected String protectPassword(String sessionId) {
+            // put session Id in it to prevent a replay attack.
+            return Protector.protect( sessionId + ':' + getPassword());
         }
 
         public String getUsername() {

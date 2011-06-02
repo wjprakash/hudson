@@ -25,7 +25,7 @@ package hudson.node_monitors;
 
 import hudson.model.ComputerExt;
 import hudson.model.NodeExt;
-import hudson.util.ClockDifference;
+import hudson.util.ClockDifferenceExt;
 import hudson.Extension;
 
 import java.io.IOException;
@@ -39,13 +39,13 @@ import java.io.IOException;
  * @since 1.123
  */
 public class ClockMonitorExt extends NodeMonitorExt {
-    public ClockDifference getDifferenceFor(ComputerExt c) {
+    public ClockDifferenceExt getDifferenceFor(ComputerExt c) {
         return DESCRIPTOR.get(c);
     }
 
     @Extension
-    public static final AbstractNodeMonitorDescriptorExt<ClockDifference> DESCRIPTOR = new AbstractNodeMonitorDescriptorExt<ClockDifference>() {
-        protected ClockDifference monitor(ComputerExt c) throws IOException, InterruptedException {
+    public static final AbstractNodeMonitorDescriptorExt<ClockDifferenceExt> DESCRIPTOR = new AbstractNodeMonitorDescriptorExt<ClockDifferenceExt>() {
+        protected ClockDifferenceExt monitor(ComputerExt c) throws IOException, InterruptedException {
             NodeExt n = c.getNode();
             if(n==null) return null;
             return n.getClockDifference();

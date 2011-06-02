@@ -51,7 +51,7 @@ import hudson.slaves.Cloud;
 import hudson.slaves.ComputerLauncher;
 import hudson.slaves.NodeProperty;
 import hudson.slaves.NodePropertyDescriptor;
-import hudson.slaves.RetentionStrategy;
+import hudson.slaves.RetentionStrategyExt;
 import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.BuildWrapper;
 import hudson.tasks.BuildWrappers;
@@ -496,8 +496,8 @@ public class FunctionsExt {
         return HudsonExt.getInstance().<ComputerLauncher,DescriptorExt<ComputerLauncher>>getDescriptorList(ComputerLauncher.class);
     }
 
-    public static List<DescriptorExt<RetentionStrategy<?>>> getRetentionStrategyDescriptors() {
-        return RetentionStrategy.all();
+    public static List<DescriptorExt<RetentionStrategyExt<?>>> getRetentionStrategyDescriptors() {
+        return RetentionStrategyExt.all();
     }
 
     public static List<ParameterDescriptorExt> getParameterDescriptors() {

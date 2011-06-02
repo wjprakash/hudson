@@ -27,7 +27,7 @@ package hudson.model;
 import hudson.model.labels.LabelAtomExt;
 import hudson.node_monitors.NodeMonitorExt;
 import hudson.slaves.NodeDescriptorExt;
-import hudson.util.ClockDifference;
+import hudson.util.ClockDifferenceExt;
 import hudson.util.EnumConverter;
 
 import java.io.IOException;
@@ -113,7 +113,7 @@ public abstract class Node extends NodeExt{
      * @throws InterruptedException
      *      if the operation is aborted.
      */
-    public abstract ClockDifference getClockDifference() throws IOException, InterruptedException;
+    public abstract ClockDifferenceExt getClockDifference() throws IOException, InterruptedException;
 
     /**
      * Constants that control how HudsonExt allocates jobs to slaves.

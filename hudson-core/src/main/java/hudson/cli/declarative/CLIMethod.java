@@ -24,7 +24,7 @@
 package hudson.cli.declarative;
 
 import hudson.cli.CLICommand;
-import hudson.util.ListBoxModel.Option;
+import hudson.util.ListBoxModelExt.OptionExt;
 import org.jvnet.hudson.annotation_indexer.Indexed;
 import org.kohsuke.args4j.Argument;
 

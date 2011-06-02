@@ -24,7 +24,7 @@
 package hudson.node_monitors;
 
 import hudson.Extension;
-import hudson.slaves.OfflineCause;
+import hudson.slaves.OfflineCauseExt;
 import hudson.model.ComputerExt;
 import hudson.remoting.Callable;
 import hudson.remoting.Future;
@@ -81,7 +81,7 @@ public class ResponseTimeMonitorExt extends NodeMonitorExt {
     /**
      * Immutable representation of the monitoring data.
      */
-    public static  class Data extends OfflineCause {
+    public static  class Data extends OfflineCauseExt {
         /**
          * Record of the past 5 times. -1 if time out. Otherwise in milliseconds.
          * Old ones first.

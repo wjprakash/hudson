@@ -31,7 +31,7 @@ import hudson.model.ComputerSetExt;
 import hudson.model.AdministrativeMonitorExt;
 import hudson.triggers.Trigger;
 import hudson.triggers.SafeTimerTask;
-import hudson.slaves.OfflineCause;
+import hudson.slaves.OfflineCauseExt;
 
 import java.io.IOException;
 import java.util.Date;
@@ -137,7 +137,7 @@ public abstract class   AbstractNodeMonitorDescriptorExt<T> extends DescriptorEx
      *      if the node was actually taken offline by this act (as opposed to us deciding not to do it,
      *      or the computer already marked offline.)
      */
-    protected boolean markOffline(ComputerExt c, OfflineCause oc) {
+    protected boolean markOffline(ComputerExt c, OfflineCauseExt oc) {
         if(isIgnored() || c.isTemporarilyOffline()) return false; // noop
 
         c.setTemporarilyOffline(true, oc);

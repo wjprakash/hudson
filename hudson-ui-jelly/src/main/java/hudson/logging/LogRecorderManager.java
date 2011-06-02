@@ -27,7 +27,7 @@ import hudson.FeedAdapter;
 import hudson.FunctionsExt;
 import hudson.model.HudsonExt;
 import hudson.model.RSS;
-import hudson.tasks.Mailer;
+import hudson.tasks.MailerExt;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -122,7 +122,7 @@ public class LogRecorderManager extends LogRecorderManagerExt{
             }
 
             public String getEntryAuthor(LogRecord entry) {
-                return Mailer.descriptor().getAdminAddress();
+                return MailerExt.descriptor().getAdminAddress();
             }
         },req,rsp);
     }

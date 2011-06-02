@@ -27,8 +27,8 @@ import hudson.ExtensionPoint;
 import hudson.ExtensionList;
 import hudson.Extension;
 import hudson.ExtensionPoint.LegacyInstancesAreScopedToHudson;
-import hudson.triggers.SCMTrigger;
-import hudson.triggers.TimerTrigger;
+import hudson.triggers.SCMTriggerExt;
+import hudson.triggers.TimerTriggerExt;
 
 import java.util.Set;
 import java.io.IOException;

@@ -81,14 +81,14 @@ import hudson.security.SecurityRealmExt;
 import hudson.security.csrf.CrumbIssuer;
 import hudson.slaves.Cloud;
 import hudson.slaves.ComputerListener;
-import hudson.slaves.DumbSlave;
+import hudson.slaves.DumbSlaveExt;
 import hudson.slaves.NodeDescriptorExt;
 import hudson.slaves.NodeList;
 import hudson.slaves.NodeProperty;
 import hudson.slaves.NodePropertyDescriptor;
 import hudson.slaves.NodeProvisioner;
-import hudson.slaves.OfflineCause;
-import hudson.slaves.RetentionStrategy;
+import hudson.slaves.OfflineCauseExt;
+import hudson.slaves.RetentionStrategyExt;
 import hudson.tasks.BuildWrapper;
 import hudson.tasks.Builder;
 import hudson.tasks.Publisher;
@@ -96,7 +96,7 @@ import hudson.triggers.Trigger;
 import hudson.triggers.TriggerDescriptor;
 import hudson.util.AdministrativeError;
 import hudson.util.CaseInsensitiveComparator;
-import hudson.util.ClockDifference;
+import hudson.util.ClockDifferenceExt;
 import hudson.util.CopyOnWriteList;
 import hudson.util.CopyOnWriteMap;
 import hudson.util.DaemonThreadFactory;
@@ -105,7 +105,7 @@ import hudson.util.Futures;
 import hudson.util.HudsonIsRestarting;
 import hudson.util.Iterators;
 import hudson.util.Memoizer;
-import hudson.util.RemotingDiagnostics.HeapDump;
+import hudson.util.RemotingDiagnosticsExt.HeapDumpExt;
 import hudson.util.StreamTaskListener;
 import hudson.util.TextFile;
 import hudson.util.VersionNumber;
@@ -367,11 +367,7 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, ViewG
      */
     /*package*/ int scmCheckoutRetryCount;
 
-    /**
-     * {@link View}s.
-     */
-    private final CopyOnWriteArrayList<View> views = new CopyOnWriteArrayList<View>();
-
+    
     /**
      * Name of the primary view.
      * <p>
@@ -468,11 +464,6 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, ViewG
     public transient final List<AdministrativeMonitorExt> administrativeMonitors = getExtensionList(AdministrativeMonitorExt.class);
 
     /*package*/ final CopyOnWriteArraySet<String> disabledAdministrativeMonitors = new CopyOnWriteArraySet<String>();
-
-    /**
-     * Widgets on HudsonExt.
-     */
-    private transient final List<Widget> widgets = getExtensionList(Widget.class);
 
 
     /**
@@ -752,17 +743,7 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, ViewG
         save();
     }
 
-    public View.People getPeople() {
-        return new View.People(this);
-    }
-
-    /**
-     * Does this {@link View} has any associated user information recorded?
-     */
-    public boolean hasPeople() {
-        return View.People.isApplicable(items.values());
-    }
-
+    
 
     /**
      * Returns a secret key that survives across container start/stop.
@@ -826,8 +807,8 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, ViewG
     /**
      * Gets the retention strategy descriptor by name. Primarily used for making them web-visible.
      */
-    public DescriptorExt<RetentionStrategy<?>> getRetentionStrategy(String shortClassName) {
-        return findDescriptor(shortClassName, RetentionStrategy.all());
+    public DescriptorExt<RetentionStrategyExt<?>> getRetentionStrategy(String shortClassName) {
+        return findDescriptor(shortClassName, RetentionStrategyExt.all());
     }
 
     /**
@@ -1096,7 +1077,7 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, ViewG
             if(n.getNumExecutors()>0) {
                 computers.put(n,c=n.createComputer());
                 if (!n.holdOffLaunchUntilSave && AUTOMATIC_SLAVE_LAUNCH) {
-                    RetentionStrategy retentionStrategy = c.getRetentionStrategy();
+                    RetentionStrategyExt retentionStrategy = c.getRetentionStrategy();
                     if (retentionStrategy != null) {
                         // if there is a retention strategy, it is responsible for deciding to start the computer
                         retentionStrategy.start(c);
@@ -1241,46 +1222,7 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, ViewG
         return names;
     }
 
-    public synchronized View getView(String name) {
-        for (View v : views) {
-            if(v.getViewName().equals(name))
-                return v;
-        }
-        if (name != null && !name.equals(primaryView)) {
-            // Fallback to subview of primary view if it is a ViewGroup
-            View pv = getPrimaryView();
-            if (pv instanceof ViewGroup)
-                return ((ViewGroup)pv).getView(name);
-        }
-        return null;
-    }
-
-    /**
-     * Gets the read-only list of all {@link View}s.
-     */
-    public synchronized Collection<View> getViews() {
-        List<View> copy = new ArrayList<View>(views);
-        Collections.sort(copy, View.SORTER);
-        return copy;
-    }
-
-    public void addView(View v) throws IOException {
-        v.owner = this;
-        views.add(v);
-        save();
-    }
-
-    public boolean canDelete(View view) {
-        return !view.isDefault();  // Cannot delete primary view
-    }
-
-    public synchronized void deleteView(View view) throws IOException {
-        if (views.size() <= 1)
-            throw new IllegalStateException("Cannot delete last view");
-        views.remove(view);
-        save();
-    }
-
+     
 
     /**
      * Returns true if the current running HudsonExt is upgraded from a version earlier than the specified version.
@@ -1514,7 +1456,7 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, ViewG
     public synchronized void removeNode(NodeExt n) throws IOException {
         ComputerExt c = n.toComputer();
         if (c!=null)
-            c.disconnect(OfflineCause.create(Messages._Hudson_NodeBeingRemoved()));
+            c.disconnect(OfflineCauseExt.create(Messages._Hudson_NodeBeingRemoved()));
 
         ArrayList<NodeExt> nl = new ArrayList<NodeExt>(this.slaves);
         nl.remove(n);
@@ -1612,10 +1554,7 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, ViewG
         return "";
     }
 
-    public void onViewRenamed(View view, String oldName, String newName) {
-        // implementation of HudsonExt is immune to view name change.
-    }
-
+    
     @Override
     public SearchIndexBuilder makeSearchIndex() {
         return super.makeSearchIndex()
@@ -1637,15 +1576,7 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, ViewG
             });
     }
 
-    /**
-     * Returns the primary {@link View} that renders the top-page of HudsonExt.
-     */
-    public View getPrimaryView() {
-        View v = getView(primaryView);
-        if(v==null) // fallback
-            v = views.get(0);
-        return v;
-    }
+    
 
     public String getUrlChildPrefix() {
         return "job";
@@ -1669,8 +1600,8 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, ViewG
         return new FilePathExt((VirtualChannel)null,absolutePath);
     }
 
-    public ClockDifference getClockDifference() {
-        return ClockDifference.ZERO;
+    public ClockDifferenceExt getClockDifference() {
+        return ClockDifferenceExt.ZERO;
     }
 
     /**
@@ -1989,10 +1920,6 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, ViewG
     public void onRenamed(TopLevelItem job, String oldName, String newName) throws IOException {
         items.remove(oldName);
         items.put(newName,job);
-
-        for (View v : views)
-            v.onJobRenamed(job, oldName, newName);
-        save();
     }
 
     /**
@@ -2003,8 +1930,6 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, ViewG
             l.onDeleted(item);
 
         items.remove(item.getName());
-        for (View v : views)
-            v.onJobRenamed(item, item.getName(), null);
         save();
     }
 
@@ -2337,8 +2262,8 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, ViewG
     /**
      * Obtains the heap dump.
      */
-    public HeapDump getHeapDump() throws IOException {
-        return new HeapDump(this,MasterComputer.localChannel);
+    public HeapDumpExt getHeapDump() throws IOException {
+        return new HeapDumpExt(this,MasterComputer.localChannel);
     }
 
     /**
@@ -2554,8 +2479,8 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, ViewG
             return "computer/(master)/";
         }
 
-        public RetentionStrategy getRetentionStrategy() {
-            return RetentionStrategy.NOOP;
+        public RetentionStrategyExt getRetentionStrategy() {
+            return RetentionStrategyExt.NOOP;
         }
 
          
@@ -2770,7 +2695,7 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, ViewG
 
     static {
         XSTREAM.alias("hudson",HudsonExt.class);
-        XSTREAM.alias("slave", DumbSlave.class);
+        XSTREAM.alias("slave", DumbSlaveExt.class);
         XSTREAM.alias("jdk",JDKExt.class);
         // for backward compatibility with <1.75, recognize the tag name "view" as well.
         XSTREAM.alias("view", ListViewExt.class);

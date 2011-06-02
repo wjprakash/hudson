@@ -47,8 +47,8 @@ public class SuiteResultTest extends TestCase {
         return new File(SuiteResultTest.class.getResource(name).toURI());
     }
 
-    private SuiteResult parseOne(File file) throws Exception {
-        List<SuiteResult> results = SuiteResult.parse(file, false);
+    private SuiteResultExt parseOne(File file) throws Exception {
+        List<SuiteResultExt> results = SuiteResultExt.parse(file, false);
         assertEquals(1,results.size());
         return results.get(0);
     }
@@ -58,9 +58,9 @@ public class SuiteResultTest extends TestCase {
      * http://issues.hudson-ci.org/browse/HUDSON-1233
      */
     public void testIssue1233() throws Exception {
-        SuiteResult result = parseOne(getDataFile("junit-report-1233.xml"));
+        SuiteResultExt result = parseOne(getDataFile("junit-report-1233.xml"));
         
-        List<CaseResult> cases = result.getCases();
+        List<CaseResultExt> cases = result.getCases();
         assertEquals("Class name is incorrect", "test.foo.bar.DefaultIntegrationTest", cases.get(0).getClassName());
         assertEquals("Class name is incorrect", "test.foo.bar.BundleResolverIntegrationTest", cases.get(1).getClassName());
         assertEquals("Class name is incorrect", "test.foo.bar.BundleResolverIntegrationTest", cases.get(2).getClassName());
@@ -73,10 +73,10 @@ public class SuiteResultTest extends TestCase {
      * http://issues.hudson-ci.org/browse/HUDSON-1463
      */
     public void testIssue1463() throws Exception {
-        SuiteResult result = parseOne(getDataFile("junit-report-1463.xml"));
+        SuiteResultExt result = parseOne(getDataFile("junit-report-1463.xml"));
 
-        List<CaseResult> cases = result.getCases();
-        for (CaseResult caseResult : cases) {
+        List<CaseResultExt> cases = result.getCases();
+        for (CaseResultExt caseResult : cases) {
             assertEquals("Test class name is incorrect in " + caseResult.getDisplayName(), "WLI-FI-Tests-Fake", caseResult.getClassName());            
         }
         assertEquals("Test name is incorrect", "IF_importTradeConfirmationToDwh", cases.get(0).getName());
@@ -93,11 +93,11 @@ public class SuiteResultTest extends TestCase {
      * http://issues.hudson-ci.org/browse/HUDSON-1472
      */
     public void testIssue1472() throws Exception {
-        List<SuiteResult> results = SuiteResult.parse(getDataFile("junit-report-1472.xml"), false);
+        List<SuiteResultExt> results = SuiteResultExt.parse(getDataFile("junit-report-1472.xml"), false);
         assertTrue(results.size()>20); // lots of data here
 
-        SuiteResult sr0 = results.get(0);
-        SuiteResult sr1 = results.get(1);
+        SuiteResultExt sr0 = results.get(0);
+        SuiteResultExt sr1 = results.get(1);
         assertEquals("make_test.t_basic_lint_t",sr0.getName());
         assertEquals("make_test.t_basic_meta_t",sr1.getName());
         assertTrue(!sr0.getStdout().equals(sr1.getStdout()));
@@ -108,30 +108,30 @@ public class SuiteResultTest extends TestCase {
      * http://issues.hudson-ci.org/browse/HUDSON-2874
      */
     public void testIssue2874() throws Exception {
-        SuiteResult result = parseOne(getDataFile("junit-report-2874.xml"));
+        SuiteResultExt result = parseOne(getDataFile("junit-report-2874.xml"));
 
         assertEquals("test suite name", "DummyTest", result.getName());
     }
 
     public void testErrorDetails() throws Exception {
-        SuiteResult result = parseOne(getDataFile("junit-report-errror-details.xml"));
+        SuiteResultExt result = parseOne(getDataFile("junit-report-errror-details.xml"));
 
-        List<CaseResult> cases = result.getCases();
-        for (CaseResult caseResult : cases) {
+        List<CaseResultExt> cases = result.getCases();
+        for (CaseResultExt caseResult : cases) {
             assertEquals("Test class name is incorrect in " + caseResult.getDisplayName(), "some.package.somewhere.WhooHoo", caseResult.getClassName());
         }
         assertEquals("this normally has the string like, expected mullet, but got bream", cases.get(0).getErrorDetails());
     }
 
     public void testSuiteResultPersistence() throws Exception {
-        SuiteResult source = parseOne(getDataFile("junit-report-1233.xml"));
+        SuiteResultExt source = parseOne(getDataFile("junit-report-1233.xml"));
 
         File dest = File.createTempFile("testSuiteResultPersistence", ".xml");
         try {
             XmlFile xmlFile = new XmlFile(dest);
             xmlFile.write(source);
 
-            SuiteResult result = (SuiteResult)xmlFile.read();
+            SuiteResultExt result = (SuiteResultExt)xmlFile.read();
             assertNotNull(result);
 
             assertEquals(source.getName(), result.getName());
@@ -170,7 +170,7 @@ public class SuiteResultTest extends TestCase {
             } finally {
                 w.close();
             }
-            SuiteResult sr = parseOne(data);
+            SuiteResultExt sr = parseOne(data);
             assertEquals(sr.getStderr(), 1028, sr.getStderr().length());
         } finally {
             data.delete();

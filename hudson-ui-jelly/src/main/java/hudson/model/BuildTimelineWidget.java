@@ -24,7 +24,7 @@
 package hudson.model;
 
 import hudson.Functions;
-import hudson.util.RunList;
+import hudson.util.RunListExt;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import net.sf.json.JsonConfig;
@@ -53,7 +53,7 @@ import org.kohsuke.stapler.QueryParameter;
 public class BuildTimelineWidget extends BuildTimelineWidgetExt{
 
 
-    public BuildTimelineWidget(RunList<?> builds) {
+    public BuildTimelineWidget(RunListExt<?> builds) {
         super(builds);
     }
 

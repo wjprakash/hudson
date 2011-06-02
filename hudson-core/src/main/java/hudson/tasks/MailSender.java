@@ -210,7 +210,7 @@ public class MailSender {
     }
 
     private void appendUrl(String url, StringBuilder buf) {
-        String baseUrl = Mailer.descriptor().getUrl();
+        String baseUrl = MailerExt.descriptor().getUrl();
         if (baseUrl != null)
             buf.append(Messages.MailSender_Link(baseUrl, url)).append("\n\n");
     }
@@ -251,7 +251,7 @@ public class MailSender {
 
             String workspaceUrl = null, artifactUrl = null;
             Pattern wsPattern = null;
-            String baseUrl = Mailer.descriptor().getUrl();
+            String baseUrl = MailerExt.descriptor().getUrl();
             if (baseUrl != null) {
                 // Hyperlink local file paths to the repository workspace or build artifacts.
                 // Note that it is possible for a failure mail to refer to a file using a workspace
@@ -301,11 +301,11 @@ public class MailSender {
     }
 
     private MimeMessage createEmptyMail(AbstractBuildExt<?, ?> build, BuildListener listener) throws MessagingException {
-        MimeMessage msg = new MimeMessage(Mailer.descriptor().createSession());
+        MimeMessage msg = new MimeMessage(MailerExt.descriptor().createSession());
         // TODO: I'd like to put the URL to the page in here,
         // but how do I obtain that?
         msg.setContent("", "text/plain");
-        msg.setFrom(new InternetAddress(Mailer.descriptor().getAdminAddress()));
+        msg.setFrom(new InternetAddress(MailerExt.descriptor().getAdminAddress()));
         msg.setSentDate(new Date());
 
         Set<InternetAddress> rcp = new LinkedHashSet<InternetAddress>();
@@ -380,7 +380,7 @@ public class MailSender {
     private Set<InternetAddress> buildCulpritList(BuildListener listener, Set<UserExt> culprits) throws AddressException {
         Set<InternetAddress> r = new HashSet<InternetAddress>();
         for (UserExt a : culprits) {
-            String adrs = UtilExt.fixEmpty(a.getProperty(Mailer.UserProperty.class).getAddress());
+            String adrs = UtilExt.fixEmpty(a.getProperty(MailerExt.UserProperty.class).getAddress());
             if(debug)
                 listener.getLogger().println("  User "+a.getId()+" -> "+adrs);
             if (adrs != null)

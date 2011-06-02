@@ -1,0 +1,152 @@
+/*
+ * The MIT License
+ * 
+ * Copyright (c) 2004-2009, Sun Microsystems, Inc., Kohsuke Kawaguchi
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+package hudson.util;
+
+import hudson.model.HudsonExt;
+import hudson.triggers.SafeTimerTask;
+import hudson.triggers.Trigger;
+import org.apache.commons.io.FileUtils;
+
+import javax.servlet.ServletContext;
+import java.io.File;
+import java.io.IOException;
+import java.util.Random;
+import java.util.logging.Logger;
+import java.util.logging.Level;
+import java.lang.management.ManagementFactory;
+import java.lang.reflect.Method;
+
+/**
+ * Makes sure that no other HudsonExt uses our <tt>HUDSON_HOME</tt> directory,
+ * to forestall the problem of running multiple instances of HudsonExt that point to the same data directory.
+ *
+ * <p>
+ * This set up error occasionally happens especialy when the user is trying to reassign the context path of the app,
+ * and it results in a hard-to-diagnose error, so we actively check this.
+ *
+ * <p>
+ * The mechanism is simple. This class occasionally updates a known file inside the hudson home directory,
+ * and whenever it does so, it monitors the timestamp of the file to make sure no one else is updating
+ * this file. In this way, while we cannot detect the problem right away, within a reasonable time frame
+ * we can detect the collision.
+ *
+ * <p>
+ * More traditional way of doing this is to use a lock file with PID in it, but unfortunately in Java,
+ * there's no reliabe way to obtain PID.
+ *
+ * @author Kohsuke Kawaguchi
+ * @since 1.178
+ */
+public class DoubleLaunchCheckerExt {
+    /**
+     * The timestamp of the owner file when we updated it for the last time.
+     * 0 to indicate that there was no update before.
+     */
+    private long lastWriteTime = 0L;
+
+    /**
+     * Once the error is reported, the user can choose to ignore and proceed anyway,
+     * in which case the flag is set to true.
+     */
+    protected boolean ignore = false;
+
+    private final Random random = new Random();
+
+    public final File home;
+
+    /**
+     * ID string of the other HudsonExt that we are colliding with. 
+     * Can be null.
+     */
+    private String collidingId;
+
+    public DoubleLaunchCheckerExt() {
+        home = HudsonExt.getInstance().getRootDir();
+    }
+
+    protected void execute() {
+        File timestampFile = new File(home,".owner");
+
+        long t = timestampFile.lastModified();
+        if(t!=0 && lastWriteTime!=0 && t!=lastWriteTime && !ignore) {
+            try {
+                collidingId = FileUtils.readFileToString(timestampFile);
+            } catch (IOException e) {
+                LOGGER.log(Level.SEVERE, "Failed to read collision file", e);
+            }
+            // we noticed that someone else have updated this file.
+            // switch GUI to display this error.
+            HudsonExt.getInstance().servletContext.setAttribute("app",this);
+            LOGGER.severe("Collision detected. timestamp="+t+", expected="+lastWriteTime);
+            // we need to continue updating this file, so that the other HudsonExt would notice the problem, too.
+        }
+
+        try {
+            FileUtils.writeStringToFile(timestampFile, getId());
+            lastWriteTime = timestampFile.lastModified();
+        } catch (IOException e) {
+            // if failed to write, err on the safe side and assume things are OK.
+            lastWriteTime=0;
+        }
+
+        schedule();
+    }
+
+    /**
+     * Figures out a string that identifies this instance of HudsonExt.
+     */
+    public String getId() {
+        HudsonExt h = HudsonExt.getInstance();
+
+        // in servlet 2.5, we can get the context path
+        String contextPath="";
+        try {
+            Method m = ServletContext.class.getMethod("getContextPath");
+            contextPath=" contextPath=\""+m.invoke(h.servletContext)+"\"";
+        } catch (Exception e) {
+            // maybe running with Servlet 2.4
+        }
+
+        return h.hashCode()+contextPath+" at "+ManagementFactory.getRuntimeMXBean().getName();
+    }
+
+    public String getCollidingId() {
+        return collidingId;
+    }
+
+    /**
+     * Schedules the next execution.
+     */
+    public void schedule() {
+        // randomize the scheduling so that multiple HudsonExt instances will write at the file at different time
+        long MINUTE = 1000*60;
+        Trigger.timer.schedule(new SafeTimerTask() {
+            protected void doRun() {
+                execute();
+            }
+        },(random.nextInt(30)+60)*MINUTE);
+    }
+
+    private static final Logger LOGGER = Logger.getLogger(DoubleLaunchCheckerExt.class.getName());
+}

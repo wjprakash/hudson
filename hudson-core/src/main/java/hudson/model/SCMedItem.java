@@ -25,7 +25,7 @@ package hudson.model;
 
 import hudson.scm.PollingResult;
 import hudson.scm.SCMExt;
-import hudson.triggers.SCMTrigger;
+import hudson.triggers.SCMTriggerExt;
 
 /**
  * {@link Item}s that has associated SCM.

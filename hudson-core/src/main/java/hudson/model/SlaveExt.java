@@ -30,15 +30,15 @@ import hudson.Launcher.RemoteLauncher;
 import hudson.diagnosis.OldDataMonitorExt;
 import hudson.remoting.Callable;
 import hudson.remoting.VirtualChannel;
-import hudson.slaves.CommandLauncher;
+import hudson.slaves.CommandLauncherExt;
 import hudson.slaves.ComputerLauncher;
-import hudson.slaves.DumbSlave;
-import hudson.slaves.JNLPLauncher;
+import hudson.slaves.DumbSlaveExt;
+import hudson.slaves.JNLPLauncherExt;
 import hudson.slaves.NodeProperty;
 import hudson.slaves.NodePropertyDescriptor;
-import hudson.slaves.RetentionStrategy;
-import hudson.slaves.SlaveComputer;
-import hudson.util.ClockDifference;
+import hudson.slaves.RetentionStrategyExt;
+import hudson.slaves.SlaveComputerExt;
+import hudson.util.ClockDifferenceExt;
 import hudson.util.DescribableList;
 
 import java.io.File;
@@ -93,7 +93,7 @@ public abstract class SlaveExt extends NodeExt implements Serializable {
     /**
      * Slave availablility strategy.
      */
-    private RetentionStrategy retentionStrategy;
+    private RetentionStrategyExt retentionStrategy;
     /**
      * The starter that will startup this slave.
      */
@@ -109,7 +109,7 @@ public abstract class SlaveExt extends NodeExt implements Serializable {
     private transient volatile Set<LabelExt> labels;
 
     public SlaveExt(String name, String nodeDescription, String remoteFS, String numExecutors,
-            ModeExt mode, String labelString, ComputerLauncher launcher, RetentionStrategy retentionStrategy, List<? extends NodeProperty<?>> nodeProperties) throws IOException {
+            ModeExt mode, String labelString, ComputerLauncher launcher, RetentionStrategyExt retentionStrategy, List<? extends NodeProperty<?>> nodeProperties) throws IOException {
         this(name, nodeDescription, remoteFS, UtilExt.tryParseNumber(numExecutors, 1).intValue(), mode, labelString, launcher, retentionStrategy, nodeProperties);
     }
 
@@ -118,12 +118,12 @@ public abstract class SlaveExt extends NodeExt implements Serializable {
      */
     @Deprecated
     public SlaveExt(String name, String nodeDescription, String remoteFS, int numExecutors,
-            ModeExt mode, String labelString, ComputerLauncher launcher, RetentionStrategy retentionStrategy) throws IOException {
+            ModeExt mode, String labelString, ComputerLauncher launcher, RetentionStrategyExt retentionStrategy) throws IOException {
         this(name, nodeDescription, remoteFS, numExecutors, mode, labelString, launcher, retentionStrategy, new ArrayList());
     }
 
     public SlaveExt(String name, String nodeDescription, String remoteFS, int numExecutors,
-            ModeExt mode, String labelString, ComputerLauncher launcher, RetentionStrategy retentionStrategy, List<? extends NodeProperty<?>> nodeProperties) throws IOException {
+            ModeExt mode, String labelString, ComputerLauncher launcher, RetentionStrategyExt retentionStrategy, List<? extends NodeProperty<?>> nodeProperties) throws IOException {
         this.name = name;
         this.description = nodeDescription;
         this.numExecutors = numExecutors;
@@ -139,7 +139,7 @@ public abstract class SlaveExt extends NodeExt implements Serializable {
     }
 
     public ComputerLauncher getLauncher() {
-        return launcher == null ? new JNLPLauncher() : launcher;
+        return launcher == null ? new JNLPLauncherExt() : launcher;
     }
 
     public void setLauncher(ComputerLauncher launcher) {
@@ -178,11 +178,11 @@ public abstract class SlaveExt extends NodeExt implements Serializable {
         return nodeProperties;
     }
 
-    public RetentionStrategy getRetentionStrategy() {
-        return retentionStrategy == null ? RetentionStrategy.Always.INSTANCE : retentionStrategy;
+    public RetentionStrategyExt getRetentionStrategy() {
+        return retentionStrategy == null ? RetentionStrategyExt.Always.INSTANCE : retentionStrategy;
     }
 
-    public void setRetentionStrategy(RetentionStrategy availabilityStrategy) {
+    public void setRetentionStrategy(RetentionStrategyExt availabilityStrategy) {
         this.retentionStrategy = availabilityStrategy;
     }
 
@@ -190,7 +190,7 @@ public abstract class SlaveExt extends NodeExt implements Serializable {
         return UtilExt.fixNull(label).trim();
     }
 
-    public ClockDifference getClockDifference() throws IOException, InterruptedException {
+    public ClockDifferenceExt getClockDifference() throws IOException, InterruptedException {
         VirtualChannel channel = getChannel();
         if (channel == null) {
             throw new IOException(getNodeName() + " is offline");
@@ -200,11 +200,11 @@ public abstract class SlaveExt extends NodeExt implements Serializable {
         long slaveTime = channel.call(new GetSystemTime());
         long endTime = System.currentTimeMillis();
 
-        return new ClockDifference((startTime + endTime) / 2 - slaveTime);
+        return new ClockDifferenceExt((startTime + endTime) / 2 - slaveTime);
     }
 
     public ComputerExt createComputer() {
-        return new SlaveComputer(this);
+        return new SlaveComputerExt(this);
     }
 
     public FilePathExt getWorkspaceFor(TopLevelItem item) {
@@ -268,15 +268,15 @@ public abstract class SlaveExt extends NodeExt implements Serializable {
     }
 
     public Launcher createLauncher(TaskListener listener) {
-        SlaveComputer c = getComputer();
+        SlaveComputerExt c = getComputer();
         return new RemoteLauncher(listener, c.getChannel(), c.isUnix()).decorateFor(this);
     }
 
     /**
      * Gets the corresponding computer object.
      */
-    public SlaveComputer getComputer() {
-        return (SlaveComputer) toComputer();
+    public SlaveComputerExt getComputer() {
+        return (SlaveComputerExt) toComputer();
     }
 
     @Override
@@ -314,8 +314,8 @@ public abstract class SlaveExt extends NodeExt implements Serializable {
         }
         if (launcher == null) {
             launcher = (agentCommand == null || agentCommand.trim().length() == 0)
-                    ? new JNLPLauncher()
-                    : new CommandLauncher(agentCommand);
+                    ? new JNLPLauncherExt()
+                    : new CommandLauncherExt(agentCommand);
         }
         if (nodeProperties == null) {
             nodeProperties = new DescribableList<NodeProperty<?>, NodePropertyDescriptor>(HudsonExt.getInstance());

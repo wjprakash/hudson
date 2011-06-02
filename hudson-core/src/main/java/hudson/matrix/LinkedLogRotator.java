@@ -24,7 +24,7 @@
 package hudson.matrix;
 
 import hudson.model.JobExt;
-import hudson.tasks.LogRotator;
+import hudson.tasks.LogRotatorExt;
 
 import java.io.IOException;
 
@@ -39,7 +39,7 @@ import java.io.IOException;
  *
  * @author Kohsuke Kawaguchi
  */
-final class LinkedLogRotator extends LogRotator {
+final class LinkedLogRotator extends LogRotatorExt {
     LinkedLogRotator(int artifactDaysToKeep, int artifactNumToKeep) {
         super(-1, -1, artifactDaysToKeep, artifactNumToKeep);
     }

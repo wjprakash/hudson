@@ -34,7 +34,7 @@ import hudson.XmlFile;
 import hudson.Launcher;
 import hudson.FilePathExt;
 import hudson.model.labels.LabelAtomExt;
-import hudson.util.ClockDifference;
+import hudson.util.ClockDifferenceExt;
 import hudson.util.DescribableList;
 
 import java.io.File;
@@ -92,7 +92,7 @@ public class NodeListTest extends TestCase {
             throw new UnsupportedOperationException();
         }
 
-        public ClockDifference getClockDifference() throws IOException, InterruptedException {
+        public ClockDifferenceExt getClockDifference() throws IOException, InterruptedException {
             throw new UnsupportedOperationException();
         }
 

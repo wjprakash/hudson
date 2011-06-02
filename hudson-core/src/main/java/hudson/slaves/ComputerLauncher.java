@@ -80,7 +80,7 @@ public abstract class ComputerLauncher extends AbstractDescribableImpl<ComputerL
      *      a failure and the stack trace is reported into the listener. This handling is just so that the implementation
      *      of this method doesn't have to dilligently catch those exceptions.
      */
-    public void launch(SlaveComputer computer, TaskListener listener) throws IOException , InterruptedException {
+    public void launch(SlaveComputerExt computer, TaskListener listener) throws IOException , InterruptedException {
         // to remain compatible with the legacy implementation that overrides the old signature
         launch(computer,cast(listener));
     }
@@ -89,7 +89,7 @@ public abstract class ComputerLauncher extends AbstractDescribableImpl<ComputerL
      * @deprecated as of 1.304
      *  Use {@link #launch(SlaveComputer, TaskListener)}
      */
-    public void launch(SlaveComputer computer, StreamTaskListener listener) throws IOException , InterruptedException {
+    public void launch(SlaveComputerExt computer, StreamTaskListener listener) throws IOException , InterruptedException {
         throw new UnsupportedOperationException(getClass()+" must implement the launch method");
     }
 
@@ -104,7 +104,7 @@ public abstract class ComputerLauncher extends AbstractDescribableImpl<ComputerL
      * that the corresponding {@link SlaveComputer} exists for the duration of the
      * operation.
      */
-    public void afterDisconnect(SlaveComputer computer, TaskListener listener) {
+    public void afterDisconnect(SlaveComputerExt computer, TaskListener listener) {
         // to remain compatible with the legacy implementation that overrides the old signature
         afterDisconnect(computer,cast(listener));
     }
@@ -113,7 +113,7 @@ public abstract class ComputerLauncher extends AbstractDescribableImpl<ComputerL
      * @deprecated as of 1.304
      *  Use {@link #afterDisconnect(SlaveComputer, TaskListener)}
      */
-    public void afterDisconnect(SlaveComputer computer, StreamTaskListener listener) {
+    public void afterDisconnect(SlaveComputerExt computer, StreamTaskListener listener) {
     }
 
     /**
@@ -130,7 +130,7 @@ public abstract class ComputerLauncher extends AbstractDescribableImpl<ComputerL
      * that the corresponding {@link SlaveComputer} exists for the duration of the
      * operation.
      */
-    public void beforeDisconnect(SlaveComputer computer, TaskListener listener) {
+    public void beforeDisconnect(SlaveComputerExt computer, TaskListener listener) {
         // to remain compatible with the legacy implementation that overrides the old signature
         beforeDisconnect(computer,cast(listener));
     }
@@ -139,7 +139,7 @@ public abstract class ComputerLauncher extends AbstractDescribableImpl<ComputerL
      * @deprecated as of 1.304
      *  Use {@link #beforeDisconnect(SlaveComputer, TaskListener)} 
      */
-    public void beforeDisconnect(SlaveComputer computer, StreamTaskListener listener) {
+    public void beforeDisconnect(SlaveComputerExt computer, StreamTaskListener listener) {
     }
 
     private StreamTaskListener cast(TaskListener listener) {

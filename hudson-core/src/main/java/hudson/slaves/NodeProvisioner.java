@@ -30,8 +30,8 @@ import hudson.model.LabelExt;
 import hudson.model.PeriodicWork;
 import static hudson.model.LoadStatisticsExt.DECAY;
 import hudson.Extension;
-import hudson.util.graph.MultiStageTimeSeries;
-import hudson.util.graph.MultiStageTimeSeries.TimeScale;
+import hudson.util.graph.MultiStageTimeSeriesExt;
+import hudson.util.graph.MultiStageTimeSeriesExt.TimeScale;
 
 import java.awt.Color;
 import java.util.concurrent.Future;
@@ -93,8 +93,8 @@ public class NodeProvisioner {
      * This is used to filter out high-frequency components from the planned capacity, so that
      * the comparison with other low-frequency only variables won't leave spikes.
      */
-    private final MultiStageTimeSeries plannedCapacitiesEMA =
-            new MultiStageTimeSeries(Messages._NodeProvisioner_EmptyString(),Color.WHITE,0,DECAY);
+    private final MultiStageTimeSeriesExt plannedCapacitiesEMA =
+            new MultiStageTimeSeriesExt(Messages._NodeProvisioner_EmptyString(),Color.WHITE,0,DECAY);
 
     public NodeProvisioner(LabelExt label, LoadStatisticsExt loadStatistics) {
         this.label = label;

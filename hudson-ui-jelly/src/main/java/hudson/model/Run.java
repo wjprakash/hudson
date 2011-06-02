@@ -33,8 +33,8 @@ import hudson.FeedAdapter;
 import hudson.FilePathExt;
 import hudson.model.Descriptor.FormException;
 import hudson.model.listeners.RunListener;
-import hudson.tasks.LogRotator;
-import hudson.tasks.Mailer;
+import hudson.tasks.LogRotatorExt;
+import hudson.tasks.MailerExt;
 import hudson.util.FlushProofOutputStream;
 
 import java.io.File;
@@ -410,7 +410,7 @@ public abstract class Run<JobT extends JobExt<JobT, RunT>, RunT extends Run<JobT
         }
 
         public String getEntryAuthor(Run entry) {
-            return Mailer.descriptor().getAdminAddress();
+            return MailerExt.descriptor().getAdminAddress();
         }
     }
 

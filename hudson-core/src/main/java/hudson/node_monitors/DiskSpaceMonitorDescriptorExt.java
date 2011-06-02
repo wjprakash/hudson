@@ -26,7 +26,7 @@ package hudson.node_monitors;
 import hudson.FilePathExt.FileCallable;
 import hudson.model.ComputerExt;
 import hudson.remoting.VirtualChannel;
-import hudson.slaves.OfflineCause;
+import hudson.slaves.OfflineCauseExt;
 import hudson.node_monitors.DiskSpaceMonitorDescriptorExt.DiskSpace;
 import org.jvnet.animal_sniffer.IgnoreJRERequirement;
 
@@ -47,7 +47,7 @@ import java.util.Locale;
     /**
      * Value object that represents the disk space.
      */
-    public static class DiskSpace extends OfflineCause implements Serializable {
+    public static class DiskSpace extends OfflineCauseExt implements Serializable {
 
         public final long size;
         protected boolean triggered;

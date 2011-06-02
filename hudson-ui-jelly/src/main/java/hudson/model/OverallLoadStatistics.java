@@ -23,7 +23,7 @@
  */
 package hudson.model;
 
-import hudson.util.graph.MultiStageTimeSeries;
+import hudson.util.graph.MultiStageTimeSeriesExt;
 
 /**
  * {@link LoadStatistics} for the entire system (the master and all the slaves combined.)
@@ -38,7 +38,7 @@ import hudson.util.graph.MultiStageTimeSeries;
  */
 public class OverallLoadStatistics extends OverallLoadStatisticsExt {
      
-    public MultiStageTimeSeries getTotalQueueLength(){
+    public MultiStageTimeSeriesExt getTotalQueueLength(){
         return totalQueueLength;
     }
 

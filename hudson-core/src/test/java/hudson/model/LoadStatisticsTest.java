@@ -24,7 +24,7 @@
 package hudson.model;
 
 import hudson.util.graph.Graph;
-import hudson.util.graph.MultiStageTimeSeries.TimeScale;
+import hudson.util.graph.MultiStageTimeSeriesExt.TimeScale;
 import junit.framework.TestCase;
 
 import org.apache.commons.io.IOUtils;

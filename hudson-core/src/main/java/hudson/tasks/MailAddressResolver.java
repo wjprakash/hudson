@@ -29,8 +29,6 @@ import hudson.ExtensionListView;
 import hudson.ExtensionPoint;
 import hudson.model.HudsonExt;
 import hudson.model.UserExt;
-import hudson.model.UserPropertyExt;
-import hudson.scm.SCMExt;
 
 import java.util.List;
 import java.util.logging.Logger;
@@ -110,7 +108,7 @@ public abstract class MailAddressResolver implements ExtensionPoint {
             // this already looks like an e-mail ID
             return u.getFullName();
 
-        String ds = Mailer.descriptor().getDefaultSuffix();
+        String ds = MailerExt.descriptor().getDefaultSuffix();
         if(ds!=null) {
             // another common pattern is "DOMAIN\person" in Windows. Only
             // do this when this full name is not manually set. see HUDSON-5164
