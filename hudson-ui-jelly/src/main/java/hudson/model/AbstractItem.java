@@ -71,10 +71,12 @@ public abstract class AbstractItem extends AbstractItemExt implements HttpDeleta
     }
 
     @Exported
+    @Override
     public String getDescription() {
         return super.getDescription();
     }
 
+    @Override
     public final String getUrl() {
         // try to stick to the current view if possible
         StaplerRequest req = Stapler.getCurrentRequest();
@@ -107,6 +109,13 @@ public abstract class AbstractItem extends AbstractItemExt implements HttpDeleta
 
         setDescription(req.getParameter("description"));
         rsp.sendRedirect(".");  // go to the top page
+    }
+
+    /**
+     * Remote API access.
+     */
+    public final Api getApi() {
+        return new Api(this);
     }
 
     /**

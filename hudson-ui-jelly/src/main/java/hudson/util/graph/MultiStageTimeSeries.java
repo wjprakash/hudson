@@ -25,7 +25,7 @@ package hudson.util.graph;
 
 import hudson.model.Api;
 import hudson.model.Messages;
-import hudson.model.TimeSeries;
+import hudson.model.TimeSeriesExt;
 import java.awt.Color;
 import java.io.IOException;
 
@@ -55,17 +55,17 @@ public class MultiStageTimeSeries extends MultiStageTimeSeriesExt{
     }
 
     @Exported
-    public TimeSeries getHour() {
+    public TimeSeriesExt getHour() {
         return hour;
     }
 
     @Exported
-    public TimeSeries getSec10() {
+    public TimeSeriesExt getSec10() {
         return sec10;
     }
 
     @Exported
-    public TimeSeries getMin() {
+    public TimeSeriesExt getMin() {
         return min;
     }
 

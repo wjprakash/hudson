@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.List;
+import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.StaplerRequest;
 
 /**
@@ -40,6 +41,16 @@ public class Axis extends AxisExt{
 
     public Axis(String name, String... values) {
         this(name,Arrays.asList(values));        
+    }
+    
+    /**
+     * Used to build {@link AxisExt} from form.
+     *
+     * AxisExt with empty values need to be removed later.
+     */
+    @DataBoundConstructor
+    public Axis(String name, String valueString) {
+         super(name, valueString);
     }
     
     /**

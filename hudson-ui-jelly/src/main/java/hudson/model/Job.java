@@ -34,12 +34,15 @@ import hudson.model.PermalinkProjectAction.Permalink;
 import hudson.search.QuickSilver;
 import hudson.tasks.LogRotatorExt;
 import hudson.util.RunListExt;
+import hudson.widgets.HistoryWidget;
+import hudson.widgets.HistoryWidget.Adapter;
 import hudson.widgets.Widget;
 
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.PrintWriter;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.ServletException;
@@ -266,7 +269,43 @@ public abstract class Job<JobT extends Job<JobT, RunT>, RunT extends RunExt<JobT
          return super.getBuildHealthReports();
     }
 
-    
+    public List<Widget> getWidgets() {
+        ArrayList<Widget> r = new ArrayList<Widget>();
+        r.add(createHistoryWidget());
+        return r;
+    }
+
+    protected HistoryWidget createHistoryWidget() {
+        return new HistoryWidget<JobExt, RunT>(this, getBuilds(), HISTORY_ADAPTER);
+    }
+    protected static final HistoryWidget.Adapter<RunExt> HISTORY_ADAPTER = new Adapter<RunExt>() {
+
+        public int compare(RunExt record, String key) {
+            try {
+                int k = Integer.parseInt(key);
+                return record.getNumber() - k;
+            } catch (NumberFormatException nfe) {
+                return String.valueOf(record.getNumber()).compareTo(key);
+            }
+        }
+
+        public String getKey(RunExt record) {
+            return String.valueOf(record.getNumber());
+        }
+
+        public boolean isBuilding(RunExt record) {
+            return record.isBuilding();
+        }
+
+        public String getNextKey(String key) {
+            try {
+                int k = Integer.parseInt(key);
+                return String.valueOf(k + 1);
+            } catch (NumberFormatException nfe) {
+                return "-unable to determine next key-";
+            }
+        }
+    };
 
     //
     //

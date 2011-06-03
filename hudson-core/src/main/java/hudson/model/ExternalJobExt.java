@@ -36,7 +36,7 @@ import java.io.IOException;
  *
  * @author Kohsuke Kawaguchi
  */
-public class ExternalJobExt extends ViewJob<ExternalJobExt,ExternalRun> implements TopLevelItem {
+public class ExternalJobExt extends ViewJobExt<ExternalJobExt,ExternalRun> implements TopLevelItem {
     public ExternalJobExt(String name) {
         this(HudsonExt.getInstance(),name);
     }
@@ -80,12 +80,12 @@ public class ExternalJobExt extends ViewJob<ExternalJobExt,ExternalRun> implemen
         return run;
     }
 
-    public TopLevelItemDescriptor getDescriptor() {
+    public TopLevelItemDescriptorExt getDescriptor() {
         return DESCRIPTOR;
     }
 
     @Extension
-    public static final TopLevelItemDescriptor DESCRIPTOR = new DescriptorImpl();
+    public static final TopLevelItemDescriptorExt DESCRIPTOR = new DescriptorImpl();
 
     @Override
     public String getPronoun() {
@@ -100,7 +100,7 @@ public class ExternalJobExt extends ViewJob<ExternalJobExt,ExternalRun> implemen
 //        throw new UnsupportedOperationException("Not supported yet.");
 //    }
 
-    public static final class DescriptorImpl extends TopLevelItemDescriptor {
+    public static final class DescriptorImpl extends TopLevelItemDescriptorExt {
         public String getDisplayName() {
             return Messages.ExternalJob_DisplayName();
         }

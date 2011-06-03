@@ -31,7 +31,7 @@ import hudson.Extension;
  * @author Kohsuke Kawaguchi
  */
 @Extension
-public class DefaultAxisDescriptor extends AxisDescriptor {
+public class DefaultAxisDescriptor extends AxisDescriptorExt {
     public DefaultAxisDescriptor() {
         super(AxisExt.class);
     }

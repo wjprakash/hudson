@@ -155,7 +155,7 @@ public class UsageStatistics extends PageDecorator {
 
         JSONObject jobs = new JSONObject();
         List<TopLevelItem> items = h.getItems();
-        for (TopLevelItemDescriptor d : Items.all()) {
+        for (TopLevelItemDescriptorExt d : Items.all()) {
             int cnt = 0;
             for (TopLevelItem item : items) {
                 if (item.getDescriptor() == d) {

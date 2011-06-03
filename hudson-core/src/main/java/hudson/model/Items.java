@@ -55,16 +55,16 @@ public class Items {
      * @deprecated as of 1.286
      *      Use {@link #all()} for read access and {@link Extension} for registration.
      */
-    public static final List<TopLevelItemDescriptor> LIST = (List)new DescriptorList<TopLevelItem>(TopLevelItem.class);
+    public static final List<TopLevelItemDescriptorExt> LIST = (List)new DescriptorList<TopLevelItem>(TopLevelItem.class);
 
     /**
      * Returns all the registered {@link TopLevelItemDescriptor}s.
      */
-    public static DescriptorExtensionListExt<TopLevelItem,TopLevelItemDescriptor> all() {
-        return HudsonExt.getInstance().<TopLevelItem,TopLevelItemDescriptor>getDescriptorList(TopLevelItem.class);
+    public static DescriptorExtensionListExt<TopLevelItem,TopLevelItemDescriptorExt> all() {
+        return HudsonExt.getInstance().<TopLevelItem,TopLevelItemDescriptorExt>getDescriptorList(TopLevelItem.class);
     }
 
-    public static TopLevelItemDescriptor getDescriptor(String fqcn) {
+    public static TopLevelItemDescriptorExt getDescriptor(String fqcn) {
         return DescriptorExt.find(all(),fqcn);
     }
 

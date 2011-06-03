@@ -23,45 +23,26 @@
  */
 package hudson.matrix;
 
-import hudson.UtilExt;
-import hudson.model.DescriptorExt;
-import hudson.model.FailureExt;
-import hudson.model.HudsonExt;
-import hudson.util.FormValidation;
-import org.kohsuke.stapler.QueryParameter;
+import org.kohsuke.stapler.DataBoundConstructor;
+
+import java.util.List;
 
 /**
- * {@link DescriptorExt} for {@link AxisExt}
+ * {@link AxisExt} that selects available JDKs.
  *
  * @author Kohsuke Kawaguchi
  */
-public abstract class AxisDescriptor extends DescriptorExt<AxisExt> {
-    protected AxisDescriptor(Class<? extends AxisExt> clazz) {
-        super(clazz);
-    }
-
-    protected AxisDescriptor() {
-    }
-
+public class JDKAxis extends JDKAxisExt {
     /**
-     * Return false if the user shouldn't be able to create thie axis from the UI.
+     * JDK axis was used to be stored as a plain "AxisExt" with the name "jdk",
+     * so it cannot be configured by any other name.
      */
-    public boolean isInstantiable() {
-        return true;
+    public JDKAxis(List<String> values) {
+        super(values);
     }
 
-    /**
-     * Makes sure that the given name is good as a axis name.
-     */
-    public FormValidation doCheckName(@QueryParameter String value) {
-        if(UtilExt.fixEmpty(value)==null)
-            return FormValidation.ok();
-
-        try {
-            HudsonExt.checkGoodName(value);
-            return FormValidation.ok();
-        } catch (FailureExt e) {
-            return FormValidation.error(e.getMessage());
-        }
+    @DataBoundConstructor
+    public JDKAxis(String[] values) {
+        super(values);
     }
 }

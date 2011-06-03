@@ -112,6 +112,8 @@ public abstract class RunExt <JobT extends JobExt<JobT,RunT>,RunT extends RunExt
         extends ActionableExt implements ExtensionPoint, Comparable<RunT>, AccessControlled, PersistenceRoot, DescriptorByNameOwner {
 
     protected transient final JobT project;
+    
+    protected String url;
 
     /**
      * Build number.
@@ -254,6 +256,15 @@ public abstract class RunExt <JobT extends JobExt<JobT,RunT>,RunT extends RunExt
         this.result = ResultExt.FAILURE;  // defensive measure. value should be overwritten by unmarshal, but just in case the saved data is inconsistent
         getDataFile().unmarshal(this); // load the rest of the data
     }
+    
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
 
     /**
      * Called after the build is loaded and the object is added to the build list.

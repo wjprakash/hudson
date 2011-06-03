@@ -27,11 +27,9 @@ package hudson.model;
 import hudson.UtilExt;
 import hudson.cli.declarative.CLIMethod;
 import hudson.console.AnnotatedLargeText;
-import hudson.model.DescriptorExt.FormException;
+import hudson.model.Descriptor.FormException;
 import hudson.remoting.Channel;
 import hudson.remoting.VirtualChannel;
-import hudson.security.Permission;
-import hudson.security.PermissionGroup;
 import hudson.slaves.ComputerLauncher;
 import hudson.slaves.OfflineCauseExt;
 import hudson.util.RemotingDiagnosticsExt;
@@ -51,7 +49,6 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Logger;
 import java.nio.charset.Charset;
 
 /**

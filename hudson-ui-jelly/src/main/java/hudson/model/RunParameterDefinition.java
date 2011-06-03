@@ -29,66 +29,35 @@ import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.export.Exported;
 import hudson.Extension;
-import hudson.cli.CLICommand;
 
-import java.io.IOException;
+import hudson.model.Descriptor.FormException;
 
-public class RunParameterDefinition extends SimpleParameterDefinitionExt {
-
-    private final String projectName;
+public class RunParameterDefinition extends RunParameterDefinitionExt {
 
     @DataBoundConstructor
     public RunParameterDefinition(String name, String projectName, String description) {
-        super(name, description);
-        this.projectName = projectName;
+        super(name, projectName, description);
+       
     }
 
     @Exported
+    @Override
     public String getProjectName() {
-        return projectName;
-    }
-
-    public JobExt getProject() {
-        return (JobExt) HudsonExt.getInstance().getItem(projectName);
+        return super.getProjectName();
     }
 
     @Extension
-    public static class DescriptorImpl extends ParameterDescriptorExt {
-        @Override
-        public String getDisplayName() {
-            return Messages.RunParameterDefinition_DisplayName();
-        }
-
-        @Override
-        public String getHelpFile() {
-            return "/help/parameter/run.html";
-        }
-
-        @Override
+    public static class DescriptorImpl extends DescriptorImplExt {
+         
         public ParameterDefinitionExt newInstance(StaplerRequest req, JSONObject formData) throws FormException {
             return req.bindJSON(RunParameterDefinition.class, formData);
         }
     }
 
-    @Override
-    public ParameterValueExt getDefaultParameterValue() {
-        RunExt<?,?> lastBuild = getProject().getLastBuild();
-        if (lastBuild != null) {
-        	return createValue(lastBuild.getExternalizableId());
-        } else {
-        	return null;
-        }
-    }
-
-    @Override
     public ParameterValueExt createValue(StaplerRequest req, JSONObject jo) {
-        RunParameterValue value = req.bindJSON(RunParameterValue.class, jo);
+        RunParameterValueExt value = req.bindJSON(RunParameterValueExt.class, jo);
         value.setDescription(getDescription());
         return value;
-    }
-
-    public RunParameterValue createValue(String value) {
-        return new RunParameterValue(getName(), value, getDescription());
     }
 
 }

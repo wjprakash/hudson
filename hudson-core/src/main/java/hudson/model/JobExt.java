@@ -47,9 +47,6 @@ import hudson.util.RunListExt;
 import hudson.util.TextFile;
 import hudson.util.graph.ChartLabel;
 import hudson.util.graph.Graph;
-import hudson.widgets.HistoryWidget;
-import hudson.widgets.Widget;
-import hudson.widgets.HistoryWidget.Adapter;
 
 import java.awt.Color;
 import java.io.File;
@@ -396,44 +393,6 @@ public abstract class JobExt<JobT extends JobExt<JobT, RunT>, RunT extends RunEx
         }
         return r;
     }
-
-    public List<Widget> getWidgets() {
-        ArrayList<Widget> r = new ArrayList<Widget>();
-        r.add(createHistoryWidget());
-        return r;
-    }
-
-    protected HistoryWidget createHistoryWidget() {
-        return new HistoryWidget<JobExt, RunT>(this, getBuilds(), HISTORY_ADAPTER);
-    }
-    protected static final HistoryWidget.Adapter<RunExt> HISTORY_ADAPTER = new Adapter<RunExt>() {
-
-        public int compare(RunExt record, String key) {
-            try {
-                int k = Integer.parseInt(key);
-                return record.getNumber() - k;
-            } catch (NumberFormatException nfe) {
-                return String.valueOf(record.getNumber()).compareTo(key);
-            }
-        }
-
-        public String getKey(RunExt record) {
-            return String.valueOf(record.getNumber());
-        }
-
-        public boolean isBuilding(RunExt record) {
-            return record.isBuilding();
-        }
-
-        public String getNextKey(String key) {
-            try {
-                int k = Integer.parseInt(key);
-                return String.valueOf(k + 1);
-            } catch (NumberFormatException nfe) {
-                return "-unable to determine next key-";
-            }
-        }
-    };
 
     /**
      * Renames a job.

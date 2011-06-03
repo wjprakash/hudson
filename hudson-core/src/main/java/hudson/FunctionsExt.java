@@ -61,8 +61,6 @@ import hudson.scm.SCMExt;
 import hudson.scm.SCMDescriptor;
 import hudson.security.captcha.CaptchaSupport;
 import hudson.util.Secret;
-import hudson.views.MyViewsTabBar;
-import hudson.views.ViewsTabBar;
 import org.acegisecurity.providers.anonymous.AnonymousAuthenticationToken;
 import org.apache.commons.jelly.JellyContext;
 import org.apache.commons.jelly.JellyTagException;
@@ -504,17 +502,11 @@ public class FunctionsExt {
         return ParameterDefinitionExt.all();
     }
 
-    public static List<DescriptorExt<ViewsTabBar>> getViewsTabBarDescriptors() {
-        return ViewsTabBar.all();
-    }
-    
+   
     public static List<DescriptorExt<CaptchaSupport>> getCaptchaSupportDescriptors() {
         return CaptchaSupport.all();
     }
 
-    public static List<DescriptorExt<MyViewsTabBar>> getMyViewsTabBarDescriptors() {
-        return MyViewsTabBar.all();
-    }
 
     public static List<NodePropertyDescriptor> getNodePropertyDescriptors(Class<? extends NodeExt> clazz) {
         List<NodePropertyDescriptor> result = new ArrayList<NodePropertyDescriptor>();
@@ -527,20 +519,7 @@ public class FunctionsExt {
         return result;
     }
 
-    /**
-     * Gets all the descriptors sorted by their inheritance tree of {@link Describable}
-     * so that descriptors of similar types come nearby.
-     */
-    public static Collection<hudson.model.Descriptor> getSortedDescriptorsForGlobalConfig() {
-        Map<String,DescriptorExt> r = new TreeMap<String, DescriptorExt>();
-        for (DescriptorExt<?> d : HudsonExt.getInstance().getExtensionList(DescriptorExt.class)) {
-            if (d.getGlobalConfigPage()==null)  continue;
-            r.put(buildSuperclassHierarchy(d.clazz, new StringBuilder()).toString(),d);
-        }
-        return r.values();
-    }
-
-    private static StringBuilder buildSuperclassHierarchy(Class c, StringBuilder buf) {
+    protected static StringBuilder buildSuperclassHierarchy(Class c, StringBuilder buf) {
         Class sc = c.getSuperclass();
         if (sc!=null)   buildSuperclassHierarchy(sc,buf).append(':');
         return buf.append(c.getName());
@@ -888,21 +867,6 @@ public class FunctionsExt {
         return System.getProperty(key);
     }
 
-    
-
-    /**
-     * Determines the form validation check URL. See textbox.jelly
-     */
-    public String getCheckUrl(String userDefined, Object descriptor, String field) {
-        if(userDefined!=null || field==null)   return userDefined;
-        if (descriptor instanceof DescriptorExt) {
-            DescriptorExt d = (DescriptorExt) descriptor;
-            return d.getCheckUrl(field);
-        }
-        return null;
-    }
-
-     
 
     public <T> List<T> singletonList(T t) {
         return Collections.singletonList(t);

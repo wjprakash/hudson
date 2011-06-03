@@ -138,7 +138,7 @@ public abstract class ConsoleAnnotator<T> implements Serializable {
      */
     public static <T> List<ConsoleAnnotator<T>> _for(T context) {
         List<ConsoleAnnotator<T>> r  = new ArrayList<ConsoleAnnotator<T>>();
-        for (ConsoleAnnotatorFactory f : ConsoleAnnotatorFactory.all()) {
+        for (ConsoleAnnotatorFactoryExt f : ConsoleAnnotatorFactoryExt.all()) {
             if (f.type().isInstance(context)) {
                 ConsoleAnnotator ca = f.newInstance(context);
                 if (ca!=null)

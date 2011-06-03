@@ -30,8 +30,7 @@ import hudson.model.QueueExt.QueueAction;
 import hudson.tasks.BuildStep;
 import hudson.tasks.BuildWrapper;
 import hudson.util.VariableResolver;
-import org.kohsuke.stapler.export.Exported;
-import org.kohsuke.stapler.export.ExportedBean;
+
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -49,8 +48,7 @@ import java.util.Set;
  * were used for what build. It is also attached to the queue item to remember parameter
  * that were specified when scheduling.
  */
-@ExportedBean
-public class ParametersAction implements Action, Iterable<ParameterValueExt>, QueueAction, EnvironmentContributingAction {
+public class ParametersActionExt implements Action, Iterable<ParameterValueExt>, QueueAction, EnvironmentContributingAction {
 
     private final List<ParameterValueExt> parameters;
 
@@ -59,11 +57,11 @@ public class ParametersAction implements Action, Iterable<ParameterValueExt>, Qu
      */
     private transient AbstractBuildExt<?, ?> build;
 
-    public ParametersAction(List<ParameterValueExt> parameters) {
+    public ParametersActionExt(List<ParameterValueExt> parameters) {
         this.parameters = parameters;
     }
     
-    public ParametersAction(ParameterValueExt... parameters) {
+    public ParametersActionExt(ParameterValueExt... parameters) {
         this(Arrays.asList(parameters));
     }
 
@@ -107,7 +105,6 @@ public class ParametersAction implements Action, Iterable<ParameterValueExt>, Qu
         return parameters.iterator();
     }
 
-    @Exported(visibility=2)
     public List<ParameterValueExt> getParameters() {
         return Collections.unmodifiableList(parameters);
     }
@@ -135,13 +132,13 @@ public class ParametersAction implements Action, Iterable<ParameterValueExt>, Qu
      * Allow an other build of the same project to be scheduled, if it has other parameters.
      */
     public boolean shouldSchedule(List<Action> actions) {
-        List<ParametersAction> others = UtilExt.filter(actions, ParametersAction.class);
+        List<ParametersActionExt> others = UtilExt.filter(actions, ParametersActionExt.class);
         if (others.isEmpty()) {
             return !parameters.isEmpty();
         } else {
             // I don't think we need multiple ParametersActions, but let's be defensive
             Set<ParameterValueExt> params = new HashSet<ParameterValueExt>();
-            for (ParametersAction other: others) {
+            for (ParametersActionExt other: others) {
                 params.addAll(other.parameters);
             }
             return !params.equals(new HashSet<ParameterValueExt>(this.parameters));

@@ -64,6 +64,12 @@ public abstract class AbstractItemExt extends ActionableExt implements ItemExt, 
     protected volatile String description;
 
     private transient ItemGroup parent;
+    
+    /**
+     * The URL representation of this object (Stapler Relic)
+     */
+    protected transient String url;
+
 
     protected AbstractItemExt(ItemGroup parent, String name) {
         this.parent = parent;
@@ -124,6 +130,14 @@ public abstract class AbstractItemExt extends ActionableExt implements ItemExt, 
      */
     protected void doSetName(String name) {
         this.name = name;
+    }
+    
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
     }
 
     /**
@@ -282,13 +296,6 @@ public abstract class AbstractItemExt extends ActionableExt implements ItemExt, 
 
     public String getSearchUrl() {
         return getShortUrl();
-    }
-
-    /**
-     * Remote API access.
-     */
-    public final Api getApi() {
-        return new Api(this);
     }
 
     /**

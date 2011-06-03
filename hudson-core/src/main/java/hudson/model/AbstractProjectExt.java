@@ -654,8 +654,8 @@ public abstract class AbstractProjectExt<P extends AbstractProjectExt<P,R>,R ext
             return null;
 
         List<Action> queueActions = new ArrayList<Action>(actions);
-        if (isParameterized() && UtilExt.filter(queueActions, ParametersAction.class).isEmpty()) {
-            queueActions.add(new ParametersAction(getDefaultParametersValues()));
+        if (isParameterized() && UtilExt.filter(queueActions, ParametersActionExt.class).isEmpty()) {
+            queueActions.add(new ParametersActionExt(getDefaultParametersValues()));
         }
 
         if (c != null) {
@@ -669,7 +669,7 @@ public abstract class AbstractProjectExt<P extends AbstractProjectExt<P,R>,R ext
     }
 
     private List<ParameterValueExt> getDefaultParametersValues() {
-        ParametersDefinitionProperty paramDefProp = getProperty(ParametersDefinitionProperty.class);
+        ParametersDefinitionPropertyExt paramDefProp = getProperty(ParametersDefinitionPropertyExt.class);
         ArrayList<ParameterValueExt> defValues = new ArrayList<ParameterValueExt>();
         
         /*
@@ -1395,7 +1395,7 @@ public abstract class AbstractProjectExt<P extends AbstractProjectExt<P,R>,R ext
     }
 
     public boolean isParameterized() {
-        return getProperty(ParametersDefinitionProperty.class) != null;
+        return getProperty(ParametersDefinitionPropertyExt.class) != null;
     }
 
     public boolean cleanWorkspace() throws IOException, InterruptedException{
@@ -1418,7 +1418,7 @@ public abstract class AbstractProjectExt<P extends AbstractProjectExt<P,R>,R ext
      *
      * @since 1.294
      */
-    public static abstract class AbstractProjectDescriptorExt extends TopLevelItemDescriptor {
+    public static abstract class AbstractProjectDescriptorExt extends TopLevelItemDescriptorExt {
         /**
          * {@link AbstractProjectExt} subtypes can override this method to veto some {@link DescriptorExt}s
          * from showing up on their configuration screen. This is often useful when you are building

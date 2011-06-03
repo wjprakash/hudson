@@ -35,7 +35,7 @@ import hudson.model.ItemExt;
 import hudson.model.ItemGroup;
 import hudson.model.JDKExt;
 import hudson.model.LabelExt;
-import hudson.model.ParametersAction;
+import hudson.model.ParametersActionExt;
 import hudson.model.ProjectExt;
 import hudson.model.SCMedItem;
 import hudson.model.QueueExt.NonBlockingTask;
@@ -194,7 +194,7 @@ public class MatrixConfiguration extends ProjectExt<MatrixConfiguration,MatrixRu
     @Override
     public LabelExt getAssignedLabel() {
         // combine all the label axes by &&.
-        String expr = UtilExt.join(combination.values(getParent().getAxes().subList(LabelAxis.class)), "&&");
+        String expr = UtilExt.join(combination.values(getParent().getAxes().subList(LabelAxisExt.class)), "&&");
         return HudsonExt.getInstance().getLabel(UtilExt.fixEmpty(expr));
     }
 
@@ -307,7 +307,7 @@ public class MatrixConfiguration extends ProjectExt<MatrixConfiguration,MatrixRu
 	 * @deprecated
 	 *    Use {@link #scheduleBuild(ParametersAction, CauseExt)}.  Since 1.283
 	 */
-    public boolean scheduleBuild(ParametersAction parameters) {
+    public boolean scheduleBuild(ParametersActionExt parameters) {
     	return scheduleBuild(parameters, new LegacyCodeCause());
     }
 
@@ -316,7 +316,11 @@ public class MatrixConfiguration extends ProjectExt<MatrixConfiguration,MatrixRu
      * @param parameters
      *      Can be null.
      */
-    public boolean scheduleBuild(ParametersAction parameters, CauseExt c) {
+    public boolean scheduleBuild(ParametersActionExt parameters, CauseExt c) {
         return HudsonExt.getInstance().getQueue().schedule(this, getQuietPeriod(), parameters, new CauseActionExt(c))!=null;
+    }
+
+    public String getUrl() {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 }

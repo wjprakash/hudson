@@ -25,7 +25,6 @@ package hudson.model;
 
 import hudson.util.StreamTaskListener;
 import hudson.util.NullStream;
-import hudson.util.FormValidation;
 import hudson.Launcher;
 import hudson.Extension;
 import hudson.EnvVars;

@@ -25,7 +25,7 @@ package hudson.tasks._maven;
 
 import hudson.Extension;
 
-import hudson.console.ConsoleAnnotationDescriptor;
+import hudson.console.ConsoleAnnotationDescriptorExt;
 
 /**
  * Marks the warning messages from Maven.
@@ -38,7 +38,7 @@ public class MavenWarningNote extends MavenWarningNoteExt {
     }
 
     @Extension
-    public static final class DescriptorImpl extends ConsoleAnnotationDescriptor {
+    public static final class DescriptorImpl extends ConsoleAnnotationDescriptorExt {
         @Override
         public String getDisplayName() {
             return "Maven Warnings";

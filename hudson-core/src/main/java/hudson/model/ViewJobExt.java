@@ -23,15 +23,11 @@
  */
 package hudson.model;
 
-import org.kohsuke.stapler.StaplerRequest;
-import org.kohsuke.stapler.StaplerResponse;
 
-import javax.servlet.ServletException;
 import java.io.IOException;
 import java.util.LinkedHashSet;
 import java.util.SortedMap;
 
-import hudson.model.DescriptorExt.FormException;
 
 /**
  * {@link JobExt} that monitors activities that happen outside HudsonExt,
@@ -42,14 +38,14 @@ import hudson.model.DescriptorExt.FormException;
  *
  * @author Kohsuke Kawaguchi
  */
-public abstract class ViewJob<JobT extends ViewJob<JobT,RunT>, RunT extends RunExt<JobT,RunT>>
+public abstract class ViewJobExt<JobT extends ViewJobExt<JobT,RunT>, RunT extends RunExt<JobT,RunT>>
     extends JobExt<JobT,RunT> {
 
     /**
      * We occasionally update the list of {@link RunExt}s from a file system.
      * The next scheduled update time.
      */
-    private transient long nextUpdate = 0;
+    protected transient long nextUpdate = 0;
 
     /**
      * All {@link RunExt}s. Copy-on-write semantics.
@@ -70,7 +66,7 @@ public abstract class ViewJob<JobT extends ViewJob<JobT,RunT>, RunT extends RunE
      * This is a set, so no {@link ExternalJob}s are scheduled twice, yet
      * it's order is predictable, avoiding starvation.
      */
-    private static final LinkedHashSet<ViewJob> reloadQueue = new LinkedHashSet<ViewJob>();
+    private static final LinkedHashSet<ViewJobExt> reloadQueue = new LinkedHashSet<ViewJobExt>();
     /*package*/ static final Thread reloadThread = new ReloadThread();
     static {
         reloadThread.start();
@@ -79,11 +75,11 @@ public abstract class ViewJob<JobT extends ViewJob<JobT,RunT>, RunT extends RunE
     /**
      * @deprecated as of 1.390
      */
-    protected ViewJob(HudsonExt parent, String name) {
+    protected ViewJobExt(HudsonExt parent, String name) {
         super(parent,name);
     }
 
-    protected ViewJob(ItemGroup parent, String name) {
+    protected ViewJobExt(ItemGroup parent, String name) {
         super(parent,name);
     }
 
@@ -146,14 +142,6 @@ public abstract class ViewJob<JobT extends ViewJob<JobT,RunT>, RunT extends RunE
      */
     protected abstract void reload();
 
-    @Override
-    protected void submit( StaplerRequest req, StaplerResponse rsp ) throws IOException, ServletException, FormException {
-        super.submit(req,rsp);
-        // make sure to reload to reflect this config change.
-        nextUpdate = 0;
-    }
-
-
     /**
      * Thread that reloads the {@link RunExt}s.
      */
@@ -162,7 +150,7 @@ public abstract class ViewJob<JobT extends ViewJob<JobT,RunT>, RunT extends RunE
             setName("ViewJob reload thread");
         }
 
-        private ViewJob getNext() throws InterruptedException {
+        private ViewJobExt getNext() throws InterruptedException {
             synchronized(reloadQueue) {
                 // reload operations might eat InterruptException,
                 // so check the status every so often
@@ -170,7 +158,7 @@ public abstract class ViewJob<JobT extends ViewJob<JobT,RunT>, RunT extends RunE
                     reloadQueue.wait(60*1000);
                 if(terminating())
                     throw new InterruptedException();   // terminate now
-                ViewJob job = reloadQueue.iterator().next();
+                ViewJobExt job = reloadQueue.iterator().next();
                 reloadQueue.remove(job);
                 return job;
             }
@@ -207,5 +195,5 @@ public abstract class ViewJob<JobT extends ViewJob<JobT,RunT>, RunT extends RunE
      * when explicitly requested.
      * 
      */
-    public static boolean reloadPeriodically = Boolean.getBoolean(ViewJob.class.getName()+".reloadPeriodically");
+    public static boolean reloadPeriodically = Boolean.getBoolean(ViewJobExt.class.getName()+".reloadPeriodically");
 }

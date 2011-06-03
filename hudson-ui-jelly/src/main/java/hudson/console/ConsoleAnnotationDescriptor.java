@@ -23,9 +23,6 @@
  */
 package hudson.console;
 
-import hudson.ExtensionPoint;
-import hudson.model.DescriptorExt;
-import hudson.model.HudsonExt;
 import hudson.util.TimeUnit2;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
@@ -33,8 +30,6 @@ import org.kohsuke.stapler.WebMethod;
 
 import javax.servlet.ServletException;
 import java.io.IOException;
-import java.net.URL;
-import javax.jws.WebMethod;
 
 /**
  * DescriptorExt for {@link ConsoleNote}.
@@ -42,38 +37,15 @@ import javax.jws.WebMethod;
  * @author Kohsuke Kawaguchi
  * @since 1.349
  */
-public abstract class ConsoleAnnotationDescriptor extends DescriptorExt<ConsoleNote<?>> implements ExtensionPoint {
+public abstract class ConsoleAnnotationDescriptor extends ConsoleAnnotationDescriptorExt{
     public ConsoleAnnotationDescriptor(Class<? extends ConsoleNote<?>> clazz) {
         super(clazz);
     }
 
     public ConsoleAnnotationDescriptor() {
+        super();
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * Users use this name to enable/disable annotations.
-     */
-    public abstract String getDisplayName();
-
-    /**
-     * Returns true if this descriptor has a JavaScript to be inserted on applicable console page.
-     */
-    public boolean hasScript() {
-        return hasResource("/script.js") !=null;
-    }
-
-    /**
-     * Returns true if this descriptor has a stylesheet to be inserted on applicable console page.
-     */
-    public boolean hasStylesheet() {
-        return hasResource("/style.css") !=null;
-    }
-
-    private URL hasResource(String name) {
-        return clazz.getClassLoader().getResource(clazz.getName().replace('.','/').replace('$','/')+ name);
-    }
 
     @WebMethod(name="script.js")
     public void doScriptJs(StaplerRequest req, StaplerResponse rsp) throws IOException, ServletException {
@@ -85,10 +57,4 @@ public abstract class ConsoleAnnotationDescriptor extends DescriptorExt<ConsoleN
         rsp.serveFile(req, hasResource("/style.css"), TimeUnit2.DAYS.toMillis(1));
     }
 
-    /**
-     * Returns all the registered {@link ConsoleAnnotationDescriptor} descriptors.
-     */
-    public static DescriptorExtensionList<ConsoleNote<?>,ConsoleAnnotationDescriptor> all() {
-        return (DescriptorExtensionList)HudsonExt.getInstance().getDescriptorList(ConsoleNote.class);
-    }
 }

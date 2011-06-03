@@ -27,10 +27,7 @@ package hudson.model;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
-import java.util.AbstractList;
 
 import javax.servlet.ServletException;
 
@@ -43,6 +40,7 @@ import org.kohsuke.stapler.export.Exported;
 import org.kohsuke.stapler.export.ExportedBean;
 
 import hudson.Extension;
+import hudson.model.Descriptor.FormException;
 
 /**
  * Keeps a list of the parameters defined for a project.
@@ -52,52 +50,24 @@ import hudson.Extension;
  * a form to enter build parameters. 
  */
 @ExportedBean(defaultVisibility=2)
-public class ParametersDefinitionProperty extends JobPropertyExt<AbstractProjectExt<?, ?>>
-        implements Action {
+public class ParametersDefinitionProperty extends ParametersDefinitionPropertyExt{
 
-    private final List<ParameterDefinitionExt> parameterDefinitions;
-
+  
     public ParametersDefinitionProperty(List<ParameterDefinitionExt> parameterDefinitions) {
-        this.parameterDefinitions = parameterDefinitions;
+        super(parameterDefinitions);
     }
 
     public ParametersDefinitionProperty(ParameterDefinitionExt... parameterDefinitions) {
-        this.parameterDefinitions = Arrays.asList(parameterDefinitions);
+       this(Arrays.asList(parameterDefinitions));
     }
     
-    public AbstractProjectExt<?,?> getOwner() {
-        return owner;
-    }
-
+    
     @Exported
     public List<ParameterDefinitionExt> getParameterDefinitions() {
-        return parameterDefinitions;
+        return super.getParameterDefinitions();
     }
 
-    /**
-     * Gets the names of all the parameter definitions.
-     */
-    public List<String> getParameterDefinitionNames() {
-        return new AbstractList<String>() {
-            public String get(int index) {
-                return parameterDefinitions.get(index).getName();
-            }
-
-            public int size() {
-                return parameterDefinitions.size();
-            }
-        };
-    }
-
-    @Override
-    public Collection<Action> getJobActions(AbstractProjectExt<?, ?> job) {
-        return Collections.<Action>singleton(this);
-    }
-
-    public AbstractProjectExt<?, ?> getProject() {
-        return (AbstractProjectExt<?, ?>) owner;
-    }
-
+     
     /**
      * Interprets the form submission and schedules a build for a parameterized job.
      *
@@ -128,7 +98,7 @@ public class ParametersDefinitionProperty extends JobPropertyExt<AbstractProject
         }
 
     	HudsonExt.getInstance().getQueue().schedule(
-                owner, owner.getDelay(req), new ParametersAction(values), new CauseActionExt(new CauseExt.UserCause()));
+                owner, owner.getDelay(req), new ParametersActionExt(values), new CauseActionExt(new CauseExt.UserCause()));
 
         // send the user back to the job top page.
         rsp.sendRedirect(".");
@@ -146,30 +116,16 @@ public class ParametersDefinitionProperty extends JobPropertyExt<AbstractProject
         }
 
     	HudsonExt.getInstance().getQueue().schedule(
-                owner, owner.getDelay(req), new ParametersAction(values), owner.getBuildCause(req));
+                owner, owner.getDelay(req), new ParametersActionExt(values), owner.getBuildCause(req));
 
         // send the user back to the job top page.
         rsp.sendRedirect(".");
     }
 
-    /**
-     * Gets the {@link ParameterDefinitionExt} of the given name, if any.
-     */
-    public ParameterDefinitionExt getParameterDefinition(String name) {
-        for (ParameterDefinitionExt pd : parameterDefinitions)
-            if (pd.getName().equals(name))
-                return pd;
-        return null;
-    }
-
+    
     @Extension
-    public static class DescriptorImpl extends JobPropertyDescriptorExt {
-        @Override
-        public boolean isApplicable(Class<? extends JobExt> jobType) {
-            return AbstractProjectExt.class.isAssignableFrom(jobType);
-        }
-
-        @Override
+    public static class DescriptorImpl extends DescriptorImplExt {
+        
         public JobPropertyExt<?> newInstance(StaplerRequest req,
                                           JSONObject formData) throws FormException {
             if (formData.isNullObject()) {
@@ -182,7 +138,7 @@ public class ParametersDefinitionProperty extends JobPropertyExt<AbstractProject
             	return null;
             }
             
-            List<ParameterDefinitionExt> parameterDefinitions = DescriptorExt.newInstancesFromHeteroList(
+            List<ParameterDefinitionExt> parameterDefinitions = Descriptor.newInstancesFromHeteroList(
                     req, parameterized, "parameter", ParameterDefinitionExt.all());
             if(parameterDefinitions.isEmpty())
                 return null;
@@ -190,21 +146,6 @@ public class ParametersDefinitionProperty extends JobPropertyExt<AbstractProject
             return new ParametersDefinitionProperty(parameterDefinitions);
         }
 
-        @Override
-        public String getDisplayName() {
-            return Messages.ParametersDefinitionProperty_DisplayName();
-        }
-    }
 
-    public String getDisplayName() {
-        return null;
-    }
-
-    public String getIconFileName() {
-        return null;
-    }
-
-    public String getUrlName() {
-        return null;
     }
 }

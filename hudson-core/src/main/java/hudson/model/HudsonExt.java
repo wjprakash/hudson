@@ -28,7 +28,6 @@ package hudson.model;
 import antlr.ANTLRException;
 import com.thoughtworks.xstream.XStream;
 import hudson.BulkChange;
-import hudson.DNSMultiCast;
 import hudson.DescriptorExtensionListExt;
 import hudson.Extension;
 import hudson.ExtensionList;
@@ -102,7 +101,6 @@ import hudson.util.CopyOnWriteMap;
 import hudson.util.DaemonThreadFactory;
 import hudson.util.DescribableList;
 import hudson.util.Futures;
-import hudson.util.HudsonIsRestarting;
 import hudson.util.Iterators;
 import hudson.util.Memoizer;
 import hudson.util.RemotingDiagnosticsExt.HeapDumpExt;
@@ -111,7 +109,6 @@ import hudson.util.TextFile;
 import hudson.util.VersionNumber;
 import hudson.util.XStream2;
 import hudson.util.Service;
-import hudson.widgets.Widget;
 import org.acegisecurity.AccessDeniedException;
 import org.acegisecurity.AcegiSecurityException;
 import org.acegisecurity.Authentication;
@@ -136,6 +133,7 @@ import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 
 import static hudson.init.InitMilestone.*;
+import hudson.tasks.MailerExt;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
@@ -187,19 +185,17 @@ import java.util.regex.Pattern;
  *
  * @author Kohsuke Kawaguchi
  */
-public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, ViewGroup, AccessControlled, DescriptorByNameOwner {
-    private transient final QueueExt queue;
+public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, AccessControlled, DescriptorByNameOwner {
 
+    private transient final QueueExt queue;
     /**
      * Stores various objects scoped to {@link HudsonExt}.
      */
     public transient final Lookup lookup = new Lookup();
-
     /**
      * {@link ComputerExt}s in this HudsonExt system. Read-only.
      */
-    private transient final Map<NodeExt,ComputerExt> computers = new CopyOnWriteMap.Hash<NodeExt,ComputerExt>();
-
+    protected transient final Map<NodeExt, ComputerExt> computers = new CopyOnWriteMap.Hash<NodeExt, ComputerExt>();
     /**
      * We update this field to the current version of HudsonExt whenever we save {@code config.xml}.
      * This can be used to detect when an upgrade happens from one version to next.
@@ -213,17 +209,14 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, ViewG
      */
     // this field needs to be at the very top so that other components can look at this value even during unmarshalling
     protected String version = "1.0";
-
     /**
      * Number of executors of the master node.
      */
     protected int numExecutors = 2;
-
     /**
      * JobExt allocation strategy.
      */
     protected ModeExt mode = ModeExt.NORMAL;
-
     /**
      * False to enable anyone to do anything.
      * Left as a field so that we can still read old data that uses this flag.
@@ -232,7 +225,6 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, ViewG
      * @see #securityRealm
      */
     protected Boolean useSecurity;
-
     /**
      * Controls how the
      * <a href="http://en.wikipedia.org/wiki/Authorization">authorization</a>
@@ -243,7 +235,6 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, ViewG
      * Never null.
      */
     protected volatile AuthorizationStrategyExt authorizationStrategy = AuthorizationStrategyExt.UNSECURED;
-
     /**
      * Controls a part of the
      * <a href="http://en.wikipedia.org/wiki/Authentication">authentication</a>
@@ -260,67 +251,60 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, ViewG
      * @see #setSecurityRealm(SecurityRealm)
      */
     protected volatile SecurityRealmExt securityRealm = SecurityRealmExt.NO_AUTHENTICATION;
-
     /**
      * Message displayed in the top page.
      */
     protected String systemMessage;
-
     protected MarkupFormatter markupFormatter;
-
     /**
      * Root directory of the system.
      */
     public transient final File root;
-
     /**
      * Where are we in the initialization?
      */
     private transient volatile InitMilestone initLevel = InitMilestone.STARTED;
-
     /**
      * All {@link ItemExt}s keyed by their {@link ItemExt#getName() name}s.
      */
-    /*package*/ transient final Map<String,TopLevelItem> items = new CopyOnWriteMap.Tree<String,TopLevelItem>(CaseInsensitiveComparator.INSTANCE);
-
+    /*package*/ transient final Map<String, TopLevelItem> items = new CopyOnWriteMap.Tree<String, TopLevelItem>(CaseInsensitiveComparator.INSTANCE);
     /**
      * The sole instance.
      */
     private static HudsonExt theInstance;
-
     protected transient volatile boolean isQuietingDown;
     private transient volatile boolean terminating;
-
     protected List<JDKExt> jdks = new ArrayList<JDKExt>();
-
     private transient volatile DependencyGraph dependencyGraph;
-
-    
-
     /**
      * All {@link ExtensionList} keyed by their {@link ExtensionList#extensionType}.
      */
-    private transient final Memoizer<Class,ExtensionList> extensionLists = new Memoizer<Class,ExtensionList>() {
+    private transient final Memoizer<Class, ExtensionList> extensionLists = new Memoizer<Class, ExtensionList>() {
+
         public ExtensionList compute(Class key) {
-            return ExtensionList.create(HudsonExt.this,key);
+            return ExtensionList.create(HudsonExt.this, key);
         }
     };
-
     /**
      * All {@link DescriptorExtensionListExt} keyed by their {@link DescriptorExtensionListExt#describableType}.
      */
-    private transient final Memoizer<Class,DescriptorExtensionListExt> descriptorLists = new Memoizer<Class,DescriptorExtensionListExt>() {
+    private transient final Memoizer<Class, DescriptorExtensionListExt> descriptorLists = new Memoizer<Class, DescriptorExtensionListExt>() {
+
         public DescriptorExtensionListExt compute(Class key) {
-            return DescriptorExtensionListExt.createDescriptorList(HudsonExt.this,key);
+            return DescriptorExtensionListExt.createDescriptorList(HudsonExt.this, key);
         }
     };
-
     /**
      * Active {@link Cloud}s.
      */
     public final CloudList clouds = new CloudList(this);
+    /**
+     * Root URL to be used by Hudson
+     */
+    private String rootUrl;
 
-    public static class CloudList extends DescribableList<Cloud,DescriptorExt<Cloud>> {
+    public static class CloudList extends DescribableList<Cloud, DescriptorExt<Cloud>> {
+
         public CloudList(HudsonExt h) {
             super(h);
         }
@@ -329,9 +313,11 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, ViewG
         }
 
         public Cloud getByName(String name) {
-            for (Cloud c : this)
-                if (c.name.equals(name))
+            for (Cloud c : this) {
+                if (c.name.equals(name)) {
                     return c;
+                }
+            }
             return null;
         }
 
@@ -341,7 +327,6 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, ViewG
             HudsonExt.getInstance().trimLabels();
         }
     }
-
     /**
      * Set of installed cluster nodes.
      * <p>
@@ -354,20 +339,16 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, ViewG
      * prevents us from renaming.
      */
     private volatile NodeList slaves;
-
     /**
      * Quiet period.
      *
      * This is {@link Integer} so that we can initialize it to '5' for upgrading users.
      */
     /*package*/ Integer quietPeriod;
-
     /**
      * Global default for {@link AbstractProjectExt#getScmCheckoutRetryCount()}
      */
     /*package*/ int scmCheckoutRetryCount;
-
-    
     /**
      * Name of the primary view.
      * <p>
@@ -375,87 +356,67 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, ViewG
      * @since 1.269
      */
     protected volatile String primaryView;
-
     private transient final FingerprintMap fingerprintMap = new FingerprintMap();
-
     /**
      * Loaded plugins.
      */
     public transient final PluginManagerExt pluginManager;
-
     public transient volatile TcpSlaveAgentListener tcpSlaveAgentListener;
-
     private transient UDPBroadcastThread udpBroadcastThread;
-
-    private transient DNSMultiCast dnsMultiCast;
-
     /**
      * List of registered {@link ItemListener}s.
      * @deprecated as of 1.286
      */
     private transient final CopyOnWriteList<ItemListener> itemListeners = ExtensionListView.createCopyOnWriteList(ItemListener.class);
-
     /**
      * List of registered {@link SCMListener}s.
      */
     private transient final CopyOnWriteList<SCMListener> scmListeners = new CopyOnWriteList<SCMListener>();
-
     /**
      * List of registered {@link ComputerListener}s.
      * @deprecated as of 1.286
      */
     private transient final CopyOnWriteList<ComputerListener> computerListeners = ExtensionListView.createCopyOnWriteList(ComputerListener.class);
-
     /**
      * TCP slave agent port.
      * 0 for random, -1 to disable.
      */
-    protected int slaveAgentPort =0;
-
+    protected int slaveAgentPort = 0;
     /**
      * Whitespace-separated labels assigned to the master as a {@link NodeExt}.
      */
-    protected String label="";
-
+    protected String label = "";
     /**
      * {@link hudson.security.csrf.CrumbIssuer}
      */
     private volatile CrumbIssuer crumbIssuer;
-
     /**
      * All labels known to HudsonExt. This allows us to reuse the same label instances
      * as much as possible, even though that's not a strict requirement.
      */
-    private transient final ConcurrentHashMap<String,LabelExt> labels = new ConcurrentHashMap<String,LabelExt>();
-
+    private transient final ConcurrentHashMap<String, LabelExt> labels = new ConcurrentHashMap<String, LabelExt>();
     /**
      * Load statistics of the entire system.
      */
     public transient final OverallLoadStatisticsExt overallLoad = new OverallLoadStatisticsExt();
-
     /**
      * {@link NodeProvisioner} that reacts to {@link OverallLoadStatistics}.
      */
-    public transient final NodeProvisioner overallNodeProvisioner = new NodeProvisioner(null,overallLoad);
-
+    public transient final NodeProvisioner overallNodeProvisioner = new NodeProvisioner(null, overallLoad);
     public transient final ServletContext servletContext;
-
     /**
      * Transient action list. Useful for adding navigation items to the navigation bar
      * on the left.
      */
     private transient final List<Action> actions = new CopyOnWriteArrayList<Action>();
-
     /**
      * List of master node properties
      */
-    private DescribableList<NodeProperty<?>,NodePropertyDescriptor> nodeProperties = new DescribableList<NodeProperty<?>,NodePropertyDescriptor>(this);
-
+    private DescribableList<NodeProperty<?>, NodePropertyDescriptor> nodeProperties = new DescribableList<NodeProperty<?>, NodePropertyDescriptor>(this);
     /**
      * List of global properties
      */
-    protected DescribableList<NodeProperty<?>,NodePropertyDescriptor> globalNodeProperties = new DescribableList<NodeProperty<?>,NodePropertyDescriptor>(this);
-
+    protected DescribableList<NodeProperty<?>, NodePropertyDescriptor> globalNodeProperties = new DescribableList<NodeProperty<?>, NodePropertyDescriptor>(this);
     /**
      * {@link AdministrativeMonitorExt}s installed on this system.
      *
@@ -464,15 +425,14 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, ViewG
     public transient final List<AdministrativeMonitorExt> administrativeMonitors = getExtensionList(AdministrativeMonitorExt.class);
 
     /*package*/ final CopyOnWriteArraySet<String> disabledAdministrativeMonitors = new CopyOnWriteArraySet<String>();
-
-
     /**
      * Code that handles {@link ItemGroup} work.
      */
-    private transient final ItemGroupMixInExt itemGroupMixIn = new ItemGroupMixInExt(this,this) {
+    private transient final ItemGroupMixInExt itemGroupMixIn = new ItemGroupMixInExt(this, this) {
+
         @Override
         protected void add(TopLevelItem item) {
-            items.put(item.getName(),item);
+            items.put(item.getName(), item);
         }
 
         @Override
@@ -485,33 +445,28 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, ViewG
     public static HudsonExt getInstance() {
         return theInstance;
     }
-
     /**
      * Secrete key generated once and used for a long time, beyond
      * container start/stop. Persisted outside <tt>config.xml</tt> to avoid
      * accidental exposure.
      */
     private transient final String secretKey;
-
     private transient final UpdateCenterExt updateCenter = new UpdateCenterExt();
-
     /**
      * True if the user opted out from the statistics tracking. We'll never send anything if this is true.
      */
     protected Boolean noUsageStatistics;
-
     /**
      * HTTP proxy configuration.
      */
     public transient volatile ProxyConfiguration proxy;
-
     /**
      * Bound to "/log".
      */
     private transient final LogRecorderManagerExt log = new LogRecorderManagerExt();
 
     public HudsonExt(File root, ServletContext context) throws IOException, InterruptedException, ReactorException {
-        this(root,context,null);
+        this(root, context, null);
     }
 
     /**
@@ -519,34 +474,35 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, ViewG
      *      If non-null, use existing plugin manager.  create a new one.
      */
     public HudsonExt(File root, ServletContext context, PluginManagerExt pluginManager) throws IOException, InterruptedException, ReactorException {
-    	// As hudson is starting, grant this process full control
-    	SecurityContextHolder.getContext().setAuthentication(ACL.SYSTEM);
+        // As hudson is starting, grant this process full control
+        SecurityContextHolder.getContext().setAuthentication(ACL.SYSTEM);
         try {
             this.root = root;
             this.servletContext = context;
             computeVersion(context);
-            if(theInstance!=null)
+            if (theInstance != null) {
                 throw new IllegalStateException("second instance");
+            }
             theInstance = this;
 
             // doing this early allows InitStrategy to set environment upfront
             final InitStrategy is = InitStrategy.get(Thread.currentThread().getContextClassLoader());
 
             Trigger.timer = new Timer("Hudson cron thread");
-            queue = new QueueExt(CONSISTENT_HASH?LoadBalancer.CONSISTENT_HASH:LoadBalancer.DEFAULT);
+            queue = new QueueExt(CONSISTENT_HASH ? LoadBalancer.CONSISTENT_HASH : LoadBalancer.DEFAULT);
 
             try {
                 dependencyGraph = DependencyGraph.EMPTY;
             } catch (InternalError e) {
-                if(e.getMessage().contains("window server")) {
-                    throw new Error("Looks like the server runs without X. Please specify -Djava.awt.headless=true as JVM option",e);
+                if (e.getMessage().contains("window server")) {
+                    throw new Error("Looks like the server runs without X. Please specify -Djava.awt.headless=true as JVM option", e);
                 }
                 throw e;
             }
 
             // get or create the secret
-            TextFile secretFile = new TextFile(new File(HudsonExt.getInstance().getRootDir(),"secret.key"));
-            if(secretFile.exists()) {
+            TextFile secretFile = new TextFile(new File(HudsonExt.getInstance().getRootDir(), "secret.key"));
+            if (secretFile.exists()) {
                 secretKey = secretFile.readTrim();
             } else {
                 SecureRandom sr = new SecureRandom();
@@ -562,50 +518,56 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, ViewG
                 LOGGER.log(SEVERE, "Failed to load proxy configuration", e);
             }
 
-            if (pluginManager==null)
+            if (pluginManager == null) {
                 pluginManager = new LocalPluginManager(this);
+            }
             this.pluginManager = pluginManager;
-            
+
             // initialization consists of ...
-            executeReactor( is,
-                    pluginManager.initTasks(is),    // loading and preparing plugins
-                    loadTasks(),                    // load jobs
-                    InitMilestone.ordering()        // forced ordering among key milestones
-            );
+            executeReactor(is,
+                    pluginManager.initTasks(is), // loading and preparing plugins
+                    loadTasks(), // load jobs
+                    InitMilestone.ordering() // forced ordering among key milestones
+                    );
 
-            if(KILL_AFTER_LOAD)
+            if (KILL_AFTER_LOAD) {
                 System.exit(0);
+            }
 
-            if(slaveAgentPort!=-1) {
+            if (slaveAgentPort != -1) {
                 try {
                     tcpSlaveAgentListener = new TcpSlaveAgentListener(slaveAgentPort);
                 } catch (BindException e) {
-                    new AdministrativeError(getClass().getName()+".tcpBind",
+                    new AdministrativeError(getClass().getName() + ".tcpBind",
                             "Failed to listen to incoming slave connection",
-                            "Failed to listen to incoming slave connection. <a href='configure'>Change the port number</a> to solve the problem.",e);
+                            "Failed to listen to incoming slave connection. <a href='configure'>Change the port number</a> to solve the problem.", e);
                 }
-            } else
+            } else {
                 tcpSlaveAgentListener = null;
+            }
 
             try {
                 udpBroadcastThread = new UDPBroadcastThread(this);
                 udpBroadcastThread.start();
             } catch (IOException e) {
-                LOGGER.log(Level.WARNING, "Faild to broadcast over UDP",e);
+                LOGGER.log(Level.WARNING, "Faild to broadcast over UDP", e);
             }
-            dnsMultiCast = new DNSMultiCast(this);
+
 
             updateComputerList();
 
             {// master is online now
                 ComputerExt c = toComputer();
-                if(c!=null)
-                    for (ComputerListener cl : ComputerListener.all())
-                        cl.onOnline(c,StreamTaskListener.fromStdout());
+                if (c != null) {
+                    for (ComputerListener cl : ComputerListener.all()) {
+                        cl.onOnline(c, StreamTaskListener.fromStdout());
+                    }
+                }
             }
 
-            for (ItemListener l : ItemListener.all())
+            for (ItemListener l : ItemListener.all()) {
                 l.onLoaded();
+            }
         } finally {
             SecurityContextHolder.clearContext();
         }
@@ -619,26 +581,31 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, ViewG
      */
     private void executeReactor(final InitStrategy is, TaskBuilder... builders) throws IOException, InterruptedException, ReactorException {
         Reactor reactor = new Reactor(builders) {
+
             /**
              * Sets the thread name to the task for better diagnostics.
              */
             @Override
             protected void runTask(Task task) throws Exception {
-                if (is!=null && is.skipInitTask(task))  return;
+                if (is != null && is.skipInitTask(task)) {
+                    return;
+                }
 
                 SecurityContextHolder.getContext().setAuthentication(ACL.SYSTEM);   // full access in the initialization thread
                 String taskName = task.getDisplayName();
 
                 Thread t = Thread.currentThread();
                 String name = t.getName();
-                if (taskName !=null)
+                if (taskName != null) {
                     t.setName(taskName);
+                }
                 try {
                     long start = System.currentTimeMillis();
                     super.runTask(task);
-                    if(LOG_STARTUP_PERFORMANCE)
+                    if (LOG_STARTUP_PERFORMANCE) {
                         LOGGER.info(String.format("Took %dms for %s by %s",
-                                System.currentTimeMillis()-start, taskName, name));
+                                System.currentTimeMillis() - start, taskName, name));
+                    }
                 } finally {
                     t.setName(name);
                     SecurityContextHolder.clearContext();
@@ -647,13 +614,14 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, ViewG
         };
 
         ExecutorService es;
-        if (PARALLEL_LOAD)
+        if (PARALLEL_LOAD) {
             es = new ThreadPoolExecutor(
-                TWICE_CPU_NUM, TWICE_CPU_NUM, 5L, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(), new DaemonThreadFactory());
-        else
+                    TWICE_CPU_NUM, TWICE_CPU_NUM, 5L, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(), new DaemonThreadFactory());
+        } else {
             es = Executors.newSingleThreadExecutor(new DaemonThreadFactory());
+        }
         try {
-            reactor.execute(es,buildReactorListener());
+            reactor.execute(es, buildReactorListener());
         } finally {
             es.shutdownNow();   // upon a successful return the executor queue should be empty. Upon an exception, we want to cancel all pending tasks
         }
@@ -669,28 +637,30 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, ViewG
     private ReactorListener buildReactorListener() throws IOException {
         List<ReactorListener> r = (List) Service.loadInstances(Thread.currentThread().getContextClassLoader(), InitReactorListener.class);
         r.add(new ReactorListener() {
-            final Level level = Level.parse(System.getProperty(HudsonExt.class.getName()+".initLogLevel","FINE"));
+
+            final Level level = Level.parse(System.getProperty(HudsonExt.class.getName() + ".initLogLevel", "FINE"));
+
             public void onTaskStarted(Task t) {
-                LOGGER.log(level,"Started "+t.getDisplayName());
+                LOGGER.log(level, "Started " + t.getDisplayName());
             }
 
             public void onTaskCompleted(Task t) {
-                LOGGER.log(level,"Completed "+t.getDisplayName());
+                LOGGER.log(level, "Completed " + t.getDisplayName());
             }
 
             public void onTaskFailed(Task t, Throwable err, boolean fatal) {
-                LOGGER.log(SEVERE, "Failed "+t.getDisplayName(),err);
+                LOGGER.log(SEVERE, "Failed " + t.getDisplayName(), err);
             }
 
             public void onAttained(Milestone milestone) {
                 Level lv = level;
-                String s = "Attained "+milestone.toString();
+                String s = "Attained " + milestone.toString();
                 if (milestone instanceof InitMilestone) {
                     lv = Level.INFO; // noteworthy milestones --- at least while we debug problems further
-                    initLevel = (InitMilestone)milestone;
+                    initLevel = (InitMilestone) milestone;
                     s = initLevel.toString();
                 }
-                LOGGER.log(lv,s);
+                LOGGER.log(lv, s);
             }
         });
         return new ReactorListener.Aggregator(r);
@@ -709,7 +679,8 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, ViewG
      *
      * @deprecated
      */
-    @Deprecated @Override
+    @Deprecated
+    @Override
     public String getNodeName() {
         return "";
     }
@@ -735,15 +706,13 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, ViewG
     }
 
     public boolean isUsageStatisticsCollected() {
-        return noUsageStatistics==null || !noUsageStatistics;
+        return noUsageStatistics == null || !noUsageStatistics;
     }
 
     public void setNoUsageStatistics(Boolean noUsageStatistics) throws IOException {
         this.noUsageStatistics = noUsageStatistics;
         save();
     }
-
-    
 
     /**
      * Returns a secret key that survives across container start/stop.
@@ -766,14 +735,14 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, ViewG
      * Gets the SCM descriptor by name. Primarily used for making them web-visible.
      */
     public DescriptorExt<SCMExt> getScm(String shortClassName) {
-        return findDescriptor(shortClassName,SCMExt.all());
+        return findDescriptor(shortClassName, SCMExt.all());
     }
 
     /**
      * Gets the repository browser descriptor by name. Primarily used for making them web-visible.
      */
     public DescriptorExt<RepositoryBrowserExt<?>> getRepositoryBrowser(String shortClassName) {
-        return findDescriptor(shortClassName,RepositoryBrowserExt.all());
+        return findDescriptor(shortClassName, RepositoryBrowserExt.all());
     }
 
     /**
@@ -831,12 +800,14 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, ViewG
      */
     public DescriptorExt getDescriptor(String id) {
         // legacy descriptors that are reigstered manually doesn't show up in getExtensionList, so check them explicitly.
-        for( DescriptorExt d : Iterators.sequence(getExtensionList(DescriptorExt.class),DescriptorExtensionListExt.listLegacyInstances()) ) {
+        for (DescriptorExt d : Iterators.sequence(getExtensionList(DescriptorExt.class), DescriptorExtensionListExt.listLegacyInstances())) {
             String name = d.getId();
-            if(name.equals(id))
+            if (name.equals(id)) {
                 return d;
-            if(name.substring(name.lastIndexOf('.')+1).equals(id))
+            }
+            if (name.substring(name.lastIndexOf('.') + 1).equals(id)) {
                 return d;
+            }
         }
         return null;
     }
@@ -855,9 +826,11 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, ViewG
      * you'll get the same instance that this method returns.
      */
     public DescriptorExt getDescriptor(Class<? extends Describable> type) {
-        for( DescriptorExt d : getExtensionList(DescriptorExt.class) )
-            if(d.clazz==type)
+        for (DescriptorExt d : getExtensionList(DescriptorExt.class)) {
+            if (d.clazz == type) {
                 return d;
+            }
+        }
         return null;
     }
 
@@ -870,8 +843,9 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, ViewG
      */
     public DescriptorExt getDescriptorOrDie(Class<? extends Describable> type) {
         DescriptorExt d = getDescriptor(type);
-        if (d==null)
-            throw new AssertionError(type+" is missing its descriptor");
+        if (d == null) {
+            throw new AssertionError(type + " is missing its descriptor");
+        }
         return d;
     }
 
@@ -879,9 +853,11 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, ViewG
      * Gets the {@link DescriptorExt} instance in the current HudsonExt by its type.
      */
     public <T extends DescriptorExt> T getDescriptorByType(Class<T> type) {
-        for( DescriptorExt d : getExtensionList(DescriptorExt.class) )
-            if(d.getClass()==type)
+        for (DescriptorExt d : getExtensionList(DescriptorExt.class)) {
+            if (d.getClass() == type) {
                 return type.cast(d);
+            }
+        }
         return null;
     }
 
@@ -889,18 +865,18 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, ViewG
      * Gets the {@link SecurityRealm} descriptors by name. Primarily used for making them web-visible.
      */
     public DescriptorExt<SecurityRealmExt> getSecurityRealms(String shortClassName) {
-        return findDescriptor(shortClassName,SecurityRealmExt.all());
+        return findDescriptor(shortClassName, SecurityRealmExt.all());
     }
 
     /**
      * Finds a descriptor that has the specified name.
      */
-    private <T extends Describable<T>>
-    DescriptorExt<T> findDescriptor(String shortClassName, Collection<? extends DescriptorExt<T>> descriptors) {
-        String name = '.'+shortClassName;
+    private <T extends Describable<T>> DescriptorExt<T> findDescriptor(String shortClassName, Collection<? extends DescriptorExt<T>> descriptors) {
+        String name = '.' + shortClassName;
         for (DescriptorExt<T> d : descriptors) {
-            if(d.clazz.getName().endsWith(name))
+            if (d.clazz.getName().endsWith(name)) {
                 return d;
+            }
         }
         return null;
     }
@@ -941,7 +917,9 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, ViewG
      */
     public PluginExt getPlugin(String shortName) {
         PluginWrapperExt p = pluginManager.getPlugin(shortName);
-        if(p==null)     return null;
+        if (p == null) {
+            return null;
+        }
         return p.getPlugin();
     }
 
@@ -960,7 +938,9 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, ViewG
     @SuppressWarnings("unchecked")
     public <P extends PluginExt> P getPlugin(Class<P> clazz) {
         PluginWrapperExt p = pluginManager.getPlugin(clazz);
-        if(p==null)     return null;
+        if (p == null) {
+            return null;
+        }
         return (P) p.getPlugin();
     }
 
@@ -973,8 +953,8 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, ViewG
      */
     public <P extends PluginExt> List<P> getPlugins(Class<P> clazz) {
         List<P> result = new ArrayList<P>();
-        for (PluginWrapperExt w: pluginManager.getPlugins(clazz)) {
-            result.add((P)w.getPlugin());
+        for (PluginWrapperExt w : pluginManager.getPlugins(clazz)) {
+            result.add((P) w.getPlugin());
         }
         return Collections.unmodifiableList(result);
     }
@@ -994,7 +974,7 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, ViewG
      * @since 1.391
      */
     public MarkupFormatter getMarkupFormatter() {
-        return markupFormatter!=null ? markupFormatter : RawHtmlMarkupFormatterExt.INSTANCE;
+        return markupFormatter != null ? markupFormatter : RawHtmlMarkupFormatterExt.INSTANCE;
     }
 
     /**
@@ -1016,8 +996,9 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, ViewG
 
     public FederatedLoginService getFederatedLoginService(String name) {
         for (FederatedLoginService fls : FederatedLoginService.all()) {
-            if (fls.getUrlName().equals(name))
+            if (fls.getUrlName().equals(name)) {
                 return fls;
+            }
         }
         return null;
     }
@@ -1029,7 +1010,6 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, ViewG
     public Launcher createLauncher(TaskListener listener) {
         return new LocalLauncher(listener).decorateFor(this);
     }
-
     private final transient Object updateComputerLock = new Object();
 
     /**
@@ -1040,20 +1020,22 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, ViewG
      * so that we won't upset {@link Executor}s running in it.
      */
     protected void updateComputerList() throws IOException {
-        synchronized(updateComputerLock) {// just so that we don't have two code updating computer list at the same time
-            Map<String,ComputerExt> byName = new HashMap<String,ComputerExt>();
+        synchronized (updateComputerLock) {// just so that we don't have two code updating computer list at the same time
+            Map<String, ComputerExt> byName = new HashMap<String, ComputerExt>();
             for (ComputerExt c : computers.values()) {
-                if(c.getNode()==null)
+                if (c.getNode() == null) {
                     continue;   // this computer is gone
-                byName.put(c.getNode().getNodeName(),c);
+                }
+                byName.put(c.getNode().getNodeName(), c);
             }
 
             Set<ComputerExt> old = new HashSet<ComputerExt>(computers.values());
             Set<ComputerExt> used = new HashSet<ComputerExt>();
 
             updateComputer(this, byName, used);
-            for (NodeExt s : getNodes())
+            for (NodeExt s : getNodes()) {
                 updateComputer(s, byName, used);
+            }
 
             // find out what computers are removed, and kill off all executors.
             // when all executors exit, it will be removed from the computers map.
@@ -1064,18 +1046,19 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, ViewG
             }
         }
         getQueue().scheduleMaintenance();
-        for (ComputerListener cl : ComputerListener.all())
+        for (ComputerListener cl : ComputerListener.all()) {
             cl.onConfigurationChange();
+        }
     }
 
-    private void updateComputer(NodeExt n, Map<String,ComputerExt> byNameMap, Set<ComputerExt> used) {
+    private void updateComputer(NodeExt n, Map<String, ComputerExt> byNameMap, Set<ComputerExt> used) {
         ComputerExt c;
         c = byNameMap.get(n.getNodeName());
-        if (c!=null) {
+        if (c != null) {
             c.setNode(n); // reuse
         } else {
-            if(n.getNumExecutors()>0) {
-                computers.put(n,c=n.createComputer());
+            if (n.getNumExecutors() > 0) {
+                computers.put(n, c = n.createComputer());
                 if (!n.holdOffLaunchUntilSave && AUTOMATIC_SLAVE_LAUNCH) {
                     RetentionStrategyExt retentionStrategy = c.getRetentionStrategy();
                     if (retentionStrategy != null) {
@@ -1137,8 +1120,9 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, ViewG
     public List<TopLevelItem> getItems() {
         List<TopLevelItem> viewableItems = new ArrayList<TopLevelItem>();
         for (TopLevelItem item : items.values()) {
-            if (item.hasPermission(ItemExt.READ))
+            if (item.hasPermission(ItemExt.READ)) {
                 viewableItems.add(item);
+            }
         }
 
         return viewableItems;
@@ -1151,7 +1135,7 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, ViewG
      *
      * @since 1.296
      */
-    public Map<String,TopLevelItem> getItemMap() {
+    public Map<String, TopLevelItem> getItemMap() {
         return Collections.unmodifiableMap(items);
     }
 
@@ -1160,9 +1144,11 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, ViewG
      */
     public <T> List<T> getItems(Class<T> type) {
         List<T> r = new ArrayList<T>();
-        for (TopLevelItem i : getItems())
-            if (type.isInstance(i))
-                 r.add(type.cast(i));
+        for (TopLevelItem i : getItems()) {
+            if (type.isInstance(i)) {
+                r.add(type.cast(i));
+            }
+        }
         return r;
     }
 
@@ -1176,15 +1162,17 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, ViewG
         Stack<ItemGroup> q = new Stack<ItemGroup>();
         q.push(this);
 
-        while(!q.isEmpty()) {
+        while (!q.isEmpty()) {
             ItemGroup<?> parent = q.pop();
             for (ItemExt i : parent.getItems()) {
-                if(type.isInstance(i)) {
-                    if (i.hasPermission(ItemExt.READ))
+                if (type.isInstance(i)) {
+                    if (i.hasPermission(ItemExt.READ)) {
                         r.add(type.cast(i));
+                    }
                 }
-                if(i instanceof ItemGroup)
-                    q.push((ItemGroup)i);
+                if (i instanceof ItemGroup) {
+                    q.push((ItemGroup) i);
+                }
             }
         }
 
@@ -1199,7 +1187,7 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, ViewG
      * no need to search recursively.
      */
     public List<ProjectExt> getProjects() {
-        return UtilExt.createSubList(items.values(),ProjectExt.class);
+        return UtilExt.createSubList(items.values(), ProjectExt.class);
     }
 
     /**
@@ -1207,8 +1195,9 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, ViewG
      */
     public Collection<String> getJobNames() {
         List<String> names = new ArrayList<String>();
-        for (JobExt j : getAllItems(JobExt.class))
+        for (JobExt j : getAllItems(JobExt.class)) {
             names.add(j.getFullName());
+        }
         return names;
     }
 
@@ -1217,12 +1206,11 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, ViewG
      */
     public Collection<String> getTopLevelItemNames() {
         List<String> names = new ArrayList<String>();
-        for (TopLevelItem j : items.values())
+        for (TopLevelItem j : items.values()) {
             names.add(j.getName());
+        }
         return names;
     }
-
-     
 
     /**
      * Returns true if the current running HudsonExt is upgraded from a version earlier than the specified version.
@@ -1252,11 +1240,17 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, ViewG
      */
     public ComputerExt[] getComputers() {
         ComputerExt[] r = computers.values().toArray(new ComputerExt[computers.size()]);
-        Arrays.sort(r,new Comparator<ComputerExt>() {
+        Arrays.sort(r, new Comparator<ComputerExt>() {
+
             final Collator collator = Collator.getInstance();
+
             public int compare(ComputerExt lhs, ComputerExt rhs) {
-                if(lhs.getNode()==HudsonExt.this)  return -1;
-                if(rhs.getNode()==HudsonExt.this)  return 1;
+                if (lhs.getNode() == HudsonExt.this) {
+                    return -1;
+                }
+                if (rhs.getNode() == HudsonExt.this) {
+                    return 1;
+                }
                 return collator.compare(lhs.getDisplayName(), rhs.getDisplayName());
             }
         });
@@ -1268,13 +1262,15 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, ViewG
     }
 
     @CLIResolver
-    public ComputerExt getComputer(@Argument(required=true,metaVar="NAME",usage="Node name") String name) {
-        if(name.equals("(master)"))
+    public ComputerExt getComputer(@Argument(required = true, metaVar = "NAME", usage = "Node name") String name) {
+        if (name.equals("(master)")) {
             name = "";
+        }
 
         for (ComputerExt c : computers.values()) {
-            if(c.getName().equals(name))
+            if (c.getName().equals(name)) {
                 return c;
+            }
         }
         return null;
     }
@@ -1287,7 +1283,6 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, ViewG
         return new ComputerSetExt();
     }
 
-
     /**
      * Gets the label that exists on this system by the name.
      *
@@ -1295,15 +1290,18 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, ViewG
      * @see LabelExt#parseExpression(String) (String)
      */
     public LabelExt getLabel(String expr) {
-        if(expr==null)  return null;
-        while(true) {
+        if (expr == null) {
+            return null;
+        }
+        while (true) {
             LabelExt l = labels.get(expr);
-            if(l!=null)
+            if (l != null) {
                 return l;
+            }
 
             // non-existent
             try {
-                labels.putIfAbsent(expr,LabelExt.parseExpression(expr));
+                labels.putIfAbsent(expr, LabelExt.parseExpression(expr));
             } catch (ANTLRException e) {
                 // laxly accept it as a single label atom for backward compatibility
                 return getLabelAtom(expr);
@@ -1315,17 +1313,21 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, ViewG
      * Returns the label atom of the given name.
      */
     public LabelAtomExt getLabelAtom(String name) {
-        if (name==null)  return null;
+        if (name == null) {
+            return null;
+        }
 
-        while(true) {
+        while (true) {
             LabelExt l = labels.get(name);
-            if(l!=null)
-                return (LabelAtomExt)l;
+            if (l != null) {
+                return (LabelAtomExt) l;
+            }
 
             // non-existent
             LabelAtomExt la = new LabelAtomExt(name);
-            if (labels.putIfAbsent(name, la)==null)
+            if (labels.putIfAbsent(name, la) == null) {
                 la.load();
+            }
         }
     }
 
@@ -1335,8 +1337,9 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, ViewG
     public Set<LabelExt> getLabels() {
         Set<LabelExt> r = new TreeSet<LabelExt>();
         for (LabelExt l : labels.values()) {
-            if(!l.isEmpty())
+            if (!l.isEmpty()) {
                 r.add(l);
+            }
         }
         return r;
     }
@@ -1344,8 +1347,9 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, ViewG
     public Set<LabelAtomExt> getLabelAtoms() {
         Set<LabelAtomExt> r = new TreeSet<LabelAtomExt>();
         for (LabelExt l : labels.values()) {
-            if(!l.isEmpty() && l instanceof LabelAtomExt)
-                r.add((LabelAtomExt)l);
+            if (!l.isEmpty() && l instanceof LabelAtomExt) {
+                r.add((LabelAtomExt) l);
+            }
         }
         return r;
     }
@@ -1360,8 +1364,9 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, ViewG
     }
 
     public List<JDKExt> getJDKs() {
-        if(jdks==null)
+        if (jdks == null) {
             jdks = new ArrayList<JDKExt>();
+        }
         return jdks;
     }
 
@@ -1369,15 +1374,18 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, ViewG
      * Gets the JDKExt installation of the given name, or returns null.
      */
     public JDKExt getJDK(String name) {
-        if(name==null) {
+        if (name == null) {
             // if only one JDKExt is configured, "default JDKExt" should mean that JDKExt.
             List<JDKExt> jdks = getJDKs();
-            if(jdks.size()==1)  return jdks.get(0);
+            if (jdks.size() == 1) {
+                return jdks.get(0);
+            }
             return null;
         }
         for (JDKExt j : getJDKs()) {
-            if(j.getName().equals(name))
+            if (j.getName().equals(name)) {
                 return j;
+            }
         }
         return null;
     }
@@ -1390,8 +1398,9 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, ViewG
      */
     public SlaveExt getSlave(String name) {
         NodeExt n = getNode(name);
-        if (n instanceof SlaveExt)
-            return (SlaveExt)n;
+        if (n instanceof SlaveExt) {
+            return (SlaveExt) n;
+        }
         return null;
     }
 
@@ -1400,8 +1409,9 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, ViewG
      */
     public NodeExt getNode(String name) {
         for (NodeExt s : getNodes()) {
-            if(s.getNodeName().equals(name))
+            if (s.getNodeName().equals(name)) {
                 return s;
+            }
         }
         return null;
     }
@@ -1418,7 +1428,7 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, ViewG
      *      Use {@link #getNodes()}. Since 1.252.
      */
     public List<SlaveExt> getSlaves() {
-        return (List)Collections.unmodifiableList(slaves);
+        return (List) Collections.unmodifiableList(slaves);
     }
 
     /**
@@ -1443,10 +1453,14 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, ViewG
      * Adds one more {@link NodeExt} to HudsonExt.
      */
     public synchronized void addNode(NodeExt n) throws IOException {
-        if(n==null)     throw new IllegalArgumentException();
+        if (n == null) {
+            throw new IllegalArgumentException();
+        }
         ArrayList<NodeExt> nl = new ArrayList<NodeExt>(this.slaves);
-        if(!nl.contains(n)) // defensive check
+        if (!nl.contains(n)) // defensive check
+        {
             nl.add(n);
+        }
         setNodes(nl);
     }
 
@@ -1455,8 +1469,9 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, ViewG
      */
     public synchronized void removeNode(NodeExt n) throws IOException {
         ComputerExt c = n.toComputer();
-        if (c!=null)
+        if (c != null) {
             c.disconnect(OfflineCauseExt.create(Messages._Hudson_NodeBeingRemoved()));
+        }
 
         ArrayList<NodeExt> nl = new ArrayList<NodeExt>(this.slaves);
         nl.remove(n);
@@ -1466,9 +1481,11 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, ViewG
     public void setNodes(List<? extends NodeExt> nodes) throws IOException {
         // make sure that all names are unique
         Set<String> names = new HashSet<String>();
-        for (NodeExt n : nodes)
-            if(!names.add(n.getNodeName()))
-                throw new IllegalArgumentException(n.getNodeName()+" is defined more than once");
+        for (NodeExt n : nodes) {
+            if (!names.add(n.getNodeName())) {
+                throw new IllegalArgumentException(n.getNodeName() + " is defined more than once");
+            }
+        }
         this.slaves = new NodeList(nodes);
         updateComputerList();
         trimLabels();
@@ -1476,11 +1493,11 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, ViewG
     }
 
     public DescribableList<NodeProperty<?>, NodePropertyDescriptor> getNodeProperties() {
-    	return nodeProperties;
+        return nodeProperties;
     }
 
     public DescribableList<NodeProperty<?>, NodePropertyDescriptor> getGlobalNodeProperties() {
-    	return globalNodeProperties;
+        return globalNodeProperties;
     }
 
     /**
@@ -1490,8 +1507,9 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, ViewG
         for (Iterator<LabelExt> itr = labels.values().iterator(); itr.hasNext();) {
             LabelExt l = itr.next();
             l.reset();
-            if(l.isEmpty())
+            if (l.isEmpty()) {
                 itr.remove();
+            }
         }
     }
 
@@ -1499,9 +1517,11 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, ViewG
      * Binds {@link AdministrativeMonitorExt}s to URL.
      */
     public AdministrativeMonitorExt getAdministrativeMonitor(String id) {
-        for (AdministrativeMonitorExt m : administrativeMonitors)
-            if(m.id.equals(id))
+        for (AdministrativeMonitorExt m : administrativeMonitors) {
+            if (m.id.equals(id)) {
                 return m;
+            }
+        }
         return null;
     }
 
@@ -1510,6 +1530,7 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, ViewG
     }
 
     public static final class DescriptorImpl extends NodeDescriptorExt {
+
         @Extension
         public static final DescriptorImpl INSTANCE = new DescriptorImpl();
 
@@ -1521,14 +1542,13 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, ViewG
         public boolean isInstantiable() {
             return false;
         }
-
     }
 
     /**
      * Gets the system default quiet period.
      */
     public int getQuietPeriod() {
-        return quietPeriod!=null ? quietPeriod : 5;
+        return quietPeriod != null ? quietPeriod : 5;
     }
 
     /**
@@ -1537,8 +1557,6 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, ViewG
     public int getScmCheckoutRetryCount() {
         return scmCheckoutRetryCount;
     }
-
-
 
     /**
      * @deprecated
@@ -1554,34 +1572,9 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, ViewG
         return "";
     }
 
-    
-    @Override
-    public SearchIndexBuilder makeSearchIndex() {
-        return super.makeSearchIndex()
-            .add("configure", "config","configure")
-            .add("manage")
-            .add("log")
-            .add(getPrimaryView().makeSearchIndex())
-            .add(new CollectionSearchIndex() {// for computers
-                protected ComputerExt get(String key) { return getComputer(key); }
-                protected Collection<ComputerExt> all() { return computers.values(); }
-            })
-            .add(new CollectionSearchIndex() {// for users
-                protected UserExt get(String key) { return UserExt.get(key,false); }
-                protected Collection<UserExt> all() { return UserExt.getAll(); }
-            })
-            .add(new CollectionSearchIndex() {// for views
-                protected View get(String key) { return getView(key); }
-                protected Collection<View> all() { return views; }
-            });
-    }
-
-    
-
     public String getUrlChildPrefix() {
         return "job";
     }
-
 
     public File getRootDir() {
         return root;
@@ -1597,7 +1590,7 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, ViewG
 
     @Override
     public FilePathExt createPath(String absolutePath) {
-        return new FilePathExt((VirtualChannel)null,absolutePath);
+        return new FilePathExt((VirtualChannel) null, absolutePath);
     }
 
     public ClockDifferenceExt getClockDifference() {
@@ -1618,7 +1611,7 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, ViewG
      * restrictions in place.
      */
     public boolean isUseSecurity() {
-        return securityRealm!=SecurityRealmExt.NO_AUTHENTICATION || authorizationStrategy!=AuthorizationStrategyExt.UNSECURED;
+        return securityRealm != SecurityRealmExt.NO_AUTHENTICATION || authorizationStrategy != AuthorizationStrategyExt.UNSECURED;
     }
 
     /**
@@ -1626,7 +1619,7 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, ViewG
      * HudsonExt from CSRF vulnerabilities.
      */
     public boolean isUseCrumbs() {
-        return crumbIssuer!=null;
+        return crumbIssuer != null;
     }
 
     /**
@@ -1637,10 +1630,12 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, ViewG
         // fix the variable so that this code works under concurrent modification to securityRealm.
         SecurityRealmExt realm = securityRealm;
 
-        if(realm==SecurityRealmExt.NO_AUTHENTICATION)
+        if (realm == SecurityRealmExt.NO_AUTHENTICATION) {
             return SecurityMode.UNSECURED;
-        if(realm instanceof LegacySecurityRealmExt)
+        }
+        if (realm instanceof LegacySecurityRealmExt) {
             return SecurityMode.LEGACY;
+        }
         return SecurityMode.SECURED;
     }
 
@@ -1653,8 +1648,9 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, ViewG
     }
 
     public void setSecurityRealm(SecurityRealmExt securityRealm) {
-        if(securityRealm==null)
-            securityRealm= SecurityRealmExt.NO_AUTHENTICATION;
+        if (securityRealm == null) {
+            securityRealm = SecurityRealmExt.NO_AUTHENTICATION;
+        }
         this.securityRealm = securityRealm;
         // reset the filters and proxies for the new SecurityRealm
         try {
@@ -1670,13 +1666,15 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, ViewG
             }
         } catch (ServletException e) {
             // for binary compatibility, this method cannot throw a checked exception
-            throw new AcegiSecurityException("Failed to configure filter",e) {};
+            throw new AcegiSecurityException("Failed to configure filter", e) {
+            };
         }
     }
 
     public void setAuthorizationStrategy(AuthorizationStrategyExt a) {
-        if (a == null)
+        if (a == null) {
             a = AuthorizationStrategyExt.UNSECURED;
+        }
         authorizationStrategy = a;
     }
 
@@ -1715,7 +1713,7 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, ViewG
      *      Can be an empty list but never null.
      */
     @SuppressWarnings({"unchecked"})
-    public <T extends Describable<T>,D extends DescriptorExt<T>> DescriptorExtensionListExt<T,D> getDescriptorList(Class<T> type) {
+    public <T extends Describable<T>, D extends DescriptorExt<T>> DescriptorExtensionListExt<T, D> getDescriptorList(Class<T> type) {
         return descriptorLists.get(type);
     }
 
@@ -1787,7 +1785,7 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, ViewG
     public TopLevelItem getJobCaseInsensitive(String name) {
         String match = FunctionsExt.toEmailSafeString(name);
         for (Entry<String, TopLevelItem> e : items.entrySet()) {
-            if(FunctionsExt.toEmailSafeString(e.getKey()).equalsIgnoreCase(match)) {
+            if (FunctionsExt.toEmailSafeString(e.getKey()).equalsIgnoreCase(match)) {
                 TopLevelItem item = e.getValue();
                 return item.hasPermission(ItemExt.READ) ? item : null;
             }
@@ -1801,9 +1799,10 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, ViewG
      * Note that the look up is case-insensitive.
      */
     public TopLevelItem getItem(String name) {
-    	TopLevelItem item = items.get(name);
-        if (item==null || !item.hasPermission(ItemExt.READ))
+        TopLevelItem item = items.get(name);
+        if (item == null || !item.hasPermission(ItemExt.READ)) {
             return null;
+        }
         return item;
     }
 
@@ -1812,7 +1811,7 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, ViewG
     }
 
     public File getRootDirFor(String name) {
-        return new File(new File(getRootDir(),"jobs"), name);
+        return new File(new File(getRootDir(), "jobs"), name);
     }
 
     /**
@@ -1825,29 +1824,31 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, ViewG
      *      or it exists but it's no an instance of the given type.
      */
     public <T extends ItemExt> T getItemByFullName(String fullName, Class<T> type) {
-        StringTokenizer tokens = new StringTokenizer(fullName,"/");
+        StringTokenizer tokens = new StringTokenizer(fullName, "/");
         ItemGroup parent = this;
 
-        if(!tokens.hasMoreTokens()) return null;    // for example, empty full name.
-
-        while(true) {
+        if (!tokens.hasMoreTokens()) {
+            return null;    // for example, empty full name.
+        }
+        while (true) {
             ItemExt item = parent.getItem(tokens.nextToken());
-            if(!tokens.hasMoreTokens()) {
-                if(type.isInstance(item))
+            if (!tokens.hasMoreTokens()) {
+                if (type.isInstance(item)) {
                     return type.cast(item);
-                else
+                } else {
                     return null;
+                }
             }
 
-            if(!(item instanceof ItemGroup))
+            if (!(item instanceof ItemGroup)) {
                 return null;    // this item can't have any children
-
+            }
             parent = (ItemGroup) item;
         }
     }
 
     public ItemExt getItemByFullName(String fullName) {
-        return getItemByFullName(fullName,ItemExt.class);
+        return getItemByFullName(fullName, ItemExt.class);
     }
 
     /**
@@ -1866,7 +1867,7 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, ViewG
      * @throws IllegalArgumentException
      *      if the project of the given name already exists.
      */
-    public synchronized TopLevelItem createProject( TopLevelItemDescriptor type, String name ) throws IOException {
+    public synchronized TopLevelItem createProject(TopLevelItemDescriptorExt type, String name) throws IOException {
         return createProject(type, name, true);
     }
 
@@ -1878,8 +1879,8 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, ViewG
      * @throws IllegalArgumentException
      *      if a project of the give name already exists.
      */
-    public synchronized TopLevelItem createProject( TopLevelItemDescriptor type, String name, boolean notify ) throws IOException {
-        return itemGroupMixIn.createProject(type,name,notify);
+    public synchronized TopLevelItem createProject(TopLevelItemDescriptorExt type, String name, boolean notify) throws IOException {
+        return itemGroupMixIn.createProject(type, name, notify);
     }
 
     /**
@@ -1891,12 +1892,14 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, ViewG
     public synchronized void putItem(TopLevelItem item) throws IOException, InterruptedException {
         String name = item.getName();
         TopLevelItem old = items.get(name);
-        if (old ==item)  return; // noop
-
+        if (old == item) {
+            return; // noop
+        }
         checkPermission(ItemExt.CREATE);
-        if (old!=null)
+        if (old != null) {
             old.delete();
-        items.put(name,item);
+        }
+        items.put(name, item);
         ItemListener.fireOnCreated(item);
     }
 
@@ -1909,8 +1912,8 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, ViewG
      * @throws IllegalArgumentException
      *      if the project of the given name already exists.
      */
-    public synchronized <T extends TopLevelItem> T createProject( Class<T> type, String name ) throws IOException {
-        return type.cast(createProject((TopLevelItemDescriptor)getDescriptor(type),name));
+    public synchronized <T extends TopLevelItem> T createProject(Class<T> type, String name) throws IOException {
+        return type.cast(createProject((TopLevelItemDescriptorExt) getDescriptor(type), name));
     }
 
     /**
@@ -1919,15 +1922,16 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, ViewG
      */
     public void onRenamed(TopLevelItem job, String oldName, String newName) throws IOException {
         items.remove(oldName);
-        items.put(newName,job);
+        items.put(newName, job);
     }
 
     /**
      * Called in response to {@link JobExt#doDoDelete(StaplerRequest, StaplerResponse)}
      */
     public void onDeleted(TopLevelItem item) throws IOException {
-        for (ItemListener l : ItemListener.all())
+        for (ItemListener l : ItemListener.all()) {
             l.onDeleted(item);
+        }
 
         items.remove(item.getName());
         save();
@@ -1938,17 +1942,20 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, ViewG
     }
 
     // if no finger print matches, display "not found page".
-    public Object getFingerprint( String md5sum ) throws IOException {
+    public Object getFingerprint(String md5sum) throws IOException {
         FingerprintExt r = fingerprintMap.get(md5sum);
-        if(r==null)     return new NoFingerprintMatch(md5sum);
-        else            return r;
+        if (r == null) {
+            return new NoFingerprintMatch(md5sum);
+        } else {
+            return r;
+        }
     }
 
     /**
      * Gets a {@link FingerprintExt} object if it exists.
      * Otherwise null.
      */
-    public FingerprintExt _getFingerprint( String md5sum ) throws IOException {
+    public FingerprintExt _getFingerprint(String md5sum) throws IOException {
         return fingerprintMap.get(md5sum);
     }
 
@@ -1956,7 +1963,7 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, ViewG
      * The file we save our configuration.
      */
     private XmlFile getConfigFile() {
-        return new XmlFile(XSTREAM, new File(root,"config.xml"));
+        return new XmlFile(XSTREAM, new File(root, "config.xml"));
     }
 
     public int getNumExecutors() {
@@ -1980,14 +1987,16 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, ViewG
         return new MasterComputer();
     }
 
-    private synchronized TaskBuilder loadTasks() throws IOException {
-        File projectsDir = new File(root,"jobs");
-        if(!projectsDir.isDirectory() && !projectsDir.mkdirs()) {
-            if(projectsDir.exists())
-                throw new IOException(projectsDir+" is not a directory");
-            throw new IOException("Unable to create "+projectsDir+"\nPermission issue? Please create this directory manually.");
+    protected synchronized TaskBuilder loadTasks() throws IOException {
+        File projectsDir = new File(root, "jobs");
+        if (!projectsDir.isDirectory() && !projectsDir.mkdirs()) {
+            if (projectsDir.exists()) {
+                throw new IOException(projectsDir + " is not a directory");
+            }
+            throw new IOException("Unable to create " + projectsDir + "\nPermission issue? Please create this directory manually.");
         }
         File[] subdirs = projectsDir.listFiles(new FileFilter() {
+
             public boolean accept(File child) {
                 return child.isDirectory() && Items.getConfigFile(child).exists();
             }
@@ -1995,20 +2004,22 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, ViewG
 
         TaskGraphBuilder g = new TaskGraphBuilder();
         Handle loadHudson = g.requires(EXTENSIONS_AUGMENTED).attains(JOB_LOADED).add("Loading global config", new Executable() {
+
             public void run(Reactor session) throws Exception {
                 XmlFile cfg = getConfigFile();
                 if (cfg.exists()) {
                     // reset some data that may not exist in the disk file
                     // so that we can take a proper compensation action later.
                     primaryView = null;
-                    views.clear();
 
                     // load from disk
                     cfg.unmarshal(HudsonExt.this);
                 }
 
                 // if we are loading old data that doesn't have this field
-                if (slaves == null) slaves = new NodeList();
+                if (slaves == null) {
+                    slaves = new NodeList();
+                }
 
                 clouds.setOwner(HudsonExt.this);
                 items.clear();
@@ -2016,7 +2027,8 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, ViewG
         });
 
         for (final File subdir : subdirs) {
-            g.requires(loadHudson).attains(JOB_LOADED).notFatal().add("Loading job "+subdir.getName(),new Executable() {
+            g.requires(loadHudson).attains(JOB_LOADED).notFatal().add("Loading job " + subdir.getName(), new Executable() {
+
                 public void run(Reactor session) throws Exception {
                     TopLevelItem item = (TopLevelItem) Items.load(HudsonExt.this, subdir);
                     items.put(item.getName(), item);
@@ -2024,44 +2036,39 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, ViewG
             });
         }
 
-        g.requires(JOB_LOADED).add("Finalizing set up",new Executable() {
+        g.requires(JOB_LOADED).add("Finalizing set up", new Executable() {
+
             public void run(Reactor session) throws Exception {
                 rebuildDependencyGraph();
 
                 {// recompute label objects - populates the labels mapping.
-                    for (NodeExt slave : slaves)
-                        // Note that not all labels are visible until the slaves have connected.
+                    for (NodeExt slave : slaves) // Note that not all labels are visible until the slaves have connected.
+                    {
                         slave.getAssignedLabels();
+                    }
                     getAssignedLabels();
                 }
 
-                // initialize views by inserting the default view if necessary
-                // this is both for clean HudsonExt and for backward compatibility.
-                if(views.size()==0 || primaryView==null) {
-                    View v = new AllViewExt(Messages.Hudson_ViewName());
-                    v.owner = HudsonExt.this;
-                    views.add(0,v);
-                    primaryView = v.getViewName();
-                }
-
                 // read in old data that doesn't have the security field set
-                if(authorizationStrategy==null) {
-                    if(useSecurity==null || !useSecurity)
+                if (authorizationStrategy == null) {
+                    if (useSecurity == null || !useSecurity) {
                         authorizationStrategy = AuthorizationStrategyExt.UNSECURED;
-                    else
+                    } else {
                         authorizationStrategy = new LegacyAuthorizationStrategyExt();
+                    }
                 }
-                if(securityRealm==null) {
-                    if(useSecurity==null || !useSecurity)
+                if (securityRealm == null) {
+                    if (useSecurity == null || !useSecurity) {
                         setSecurityRealm(SecurityRealmExt.NO_AUTHENTICATION);
-                    else
+                    } else {
                         setSecurityRealm(new LegacySecurityRealmExt());
+                    }
                 } else {
                     // force the set to proxy
                     setSecurityRealm(securityRealm);
                 }
 
-                if(useSecurity!=null && !useSecurity) {
+                if (useSecurity != null && !useSecurity) {
                     // forced reset to the unsecure mode.
                     // this works as an escape hatch for people who locked themselves out.
                     authorizationStrategy = AuthorizationStrategyExt.UNSECURED;
@@ -2072,8 +2079,11 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, ViewG
                 setCrumbIssuer(crumbIssuer);
 
                 // auto register root actions
-                for (Action a : getExtensionList(RootAction.class))
-                    if (!actions.contains(a)) actions.add(a);
+                for (Action a : getExtensionList(RootAction.class)) {
+                    if (!actions.contains(a)) {
+                        actions.add(a);
+                    }
+                }
             }
         });
 
@@ -2084,11 +2094,12 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, ViewG
      * Save the settings to a file.
      */
     public synchronized void save() throws IOException {
-        if(BulkChange.contains(this))   return;
+        if (BulkChange.contains(this)) {
+            return;
+        }
         getConfigFile().write(this);
         SaveableListener.fireOnChange(this, getConfigFile());
     }
-
 
     /**
      * Called to shut down the system.
@@ -2096,42 +2107,47 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, ViewG
     public void cleanUp() {
         Set<Future<?>> pending = new HashSet<Future<?>>();
         terminating = true;
-        for( ComputerExt c : computers.values() ) {
+        for (ComputerExt c : computers.values()) {
             c.interrupt();
             c.kill();
             pending.add(c.disconnect(null));
         }
-        if(udpBroadcastThread!=null)
+        if (udpBroadcastThread != null) {
             udpBroadcastThread.shutdown();
-        if(dnsMultiCast!=null)
-            dnsMultiCast.close();
+        }
+
         ExternalJobExt.reloadThread.interrupt();
         Trigger.timer.cancel();
         // TODO: how to wait for the completion of the last job?
         Trigger.timer = null;
-        if(tcpSlaveAgentListener!=null)
+        if (tcpSlaveAgentListener != null) {
             tcpSlaveAgentListener.shutdown();
+        }
 
-        if(pluginManager!=null) // be defensive. there could be some ugly timing related issues
+        if (pluginManager != null) // be defensive. there could be some ugly timing related issues
+        {
             pluginManager.stop();
+        }
 
-        if(getRootDir().exists())
-            // if we are aborting because we failed to create HUDSON_HOME,
-            // don't try to save. Issue #536
+        if (getRootDir().exists()) // if we are aborting because we failed to create HUDSON_HOME,
+        // don't try to save. Issue #536
+        {
             getQueue().save();
+        }
 
         threadPoolForLoad.shutdown();
-        for (Future<?> f : pending)
+        for (Future<?> f : pending) {
             try {
                 f.get(10, TimeUnit.SECONDS);    // if clean up operation didn't complete in time, we fail the test
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 break;  // someone wants us to die now. quick!
             } catch (ExecutionException e) {
-                LOGGER.log(Level.WARNING, "Failed to shut down properly",e);
+                LOGGER.log(Level.WARNING, "Failed to shut down properly", e);
             } catch (TimeoutException e) {
-                LOGGER.log(Level.WARNING, "Failed to shut down properly",e);
+                LOGGER.log(Level.WARNING, "Failed to shut down properly", e);
             }
+        }
 
         LogFactory.releaseAll();
 
@@ -2139,17 +2155,18 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, ViewG
     }
 
     public Object getDynamic(String token) {
-        for (Action a : getActions())
-            if(a.getUrlName().equals(token) || a.getUrlName().equals('/'+token))
+        for (Action a : getActions()) {
+            if (a.getUrlName().equals(token) || a.getUrlName().equals('/' + token)) {
                 return a;
-        for (Action a : getManagementLinks())
-            if(a.getUrlName().equals(token))
+            }
+        }
+        for (Action a : getManagementLinks()) {
+            if (a.getUrlName().equals(token)) {
                 return a;
+            }
+        }
         return null;
     }
-
-
- 
 
     public CrumbIssuer getCrumbIssuer() {
         return crumbIssuer;
@@ -2158,7 +2175,6 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, ViewG
     public void setCrumbIssuer(CrumbIssuer issuer) {
         crumbIssuer = issuer;
     }
-
 
     /**
      * Creates a new job from its configuration XML. The type of the job created will be determined by
@@ -2186,10 +2202,9 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, ViewG
 
     // a little more convenient overloading that assumes the caller gives us the right type
     // (or else it will fail with ClassCastException)
-    public <T extends AbstractProjectExt<?,?>> T copy(T src, String name) throws IOException {
-        return (T)copy((TopLevelItem)src,name);
+    public <T extends AbstractProjectExt<?, ?>> T copy(T src, String name) throws IOException {
+        return (T) copy((TopLevelItem) src, name);
     }
-
 
     /**
      * Check if the given name is suitable as a name
@@ -2199,16 +2214,18 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, ViewG
      *      if the given name is not good
      */
     public static void checkGoodName(String name) throws FailureExt {
-        if(name==null || name.length()==0)
+        if (name == null || name.length() == 0) {
             throw new FailureExt(Messages.Hudson_NoName());
+        }
 
-        for( int i=0; i<name.length(); i++ ) {
+        for (int i = 0; i < name.length(); i++) {
             char ch = name.charAt(i);
-            if(Character.isISOControl(ch)) {
+            if (Character.isISOControl(ch)) {
                 throw new FailureExt(Messages.Hudson_ControlCodeNotAllowed(toPrintableName(name)));
             }
-            if("?*/\\%!@#$^&|<>[]:;".indexOf(ch)!=-1)
+            if ("?*/\\%!@#$^&|<>[]:;".indexOf(ch) != -1) {
                 throw new FailureExt(Messages.Hudson_UnsafeChar(ch));
+            }
         }
 
         // looks good
@@ -2221,20 +2238,22 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, ViewG
     protected String checkJobName(String name) throws FailureExt {
         checkGoodName(name);
         name = name.trim();
-        if(getItem(name)!=null)
+        if (getItem(name) != null) {
             throw new FailureExt(Messages.Hudson_JobAlreadyExists(name));
+        }
         // looks good
         return name;
     }
 
     private static String toPrintableName(String name) {
         StringBuilder printableName = new StringBuilder();
-        for( int i=0; i<name.length(); i++ ) {
+        for (int i = 0; i < name.length(); i++) {
             char ch = name.charAt(i);
-            if(Character.isISOControl(ch))
-                printableName.append("\\u").append((int)ch).append(';');
-            else
+            if (Character.isISOControl(ch)) {
+                printableName.append("\\u").append((int) ch).append(';');
+            } else {
                 printableName.append(ch);
+            }
         }
         return printableName.toString();
     }
@@ -2246,8 +2265,6 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, ViewG
         return new SlaveExt.JnlpJar(fileName);
     }
 
-   
-
     /**
      * Reloads the configuration synchronously.
      */
@@ -2257,13 +2274,11 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, ViewG
         servletContext.setAttribute("app", this);
     }
 
-    
-
     /**
      * Obtains the heap dump.
      */
     public HeapDumpExt getHeapDump() throws IOException {
-        return new HeapDumpExt(this,MasterComputer.localChannel);
+        return new HeapDumpExt(this, MasterComputer.localChannel);
     }
 
     /**
@@ -2275,16 +2290,54 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, ViewG
 
         System.out.println("Creating artificial OutOfMemoryError situation");
         List<Object> args = new ArrayList<Object>();
-        while (true)
-            args.add(new byte[1024*1024]);
+        while (true) {
+            args.add(new byte[1024 * 1024]);
+        }
     }
-
 
     /**
      * Binds /userContent/... to $HUDSON_HOME/userContent.
      */
     public DirectoryBrowserSupportExt doUserContent() {
-        return new DirectoryBrowserSupportExt(this,getRootPath().child("userContent"),"User content","folder.gif",true);
+        return new DirectoryBrowserSupportExt(this, getRootPath().child("userContent"), "User content", "folder.gif", true);
+    }
+
+    /**
+     * Gets the absolute URL of Hudson,
+     * such as "http://localhost/hudson/".
+     *
+     * <p>
+     * This method first tries to use the manually configured value, then
+     * fall back to {@link StaplerRequest#getRootPath()}.
+     * It is done in this order so that it can work correctly even in the face
+     * of a reverse proxy.
+     *
+     * @return
+     *      This method returns null if this parameter is not configured by the user.
+     *      The caller must gracefully deal with this situation.
+     *      The returned URL will always have the trailing '/'.
+     * @since 1.66
+     * @see Descriptor#getCheckUrl(String)
+     * @see #getRootUrlFromRequest()
+     */
+    public String getRootUrl() {
+
+        // for compatibility. the actual data is stored in Mailer
+        String url = MailerExt.descriptor().getUrl();
+        if (url != null) {
+            return url;
+        }
+        //Return the root URL set else where
+        return rootUrl;
+    }
+
+    /**
+     * Set the root URL. Use this, if root URL is not explicitly set by User 
+     * via Mailer interface
+     * @param url 
+     */
+    public void setRootUrl(String url) {
+        rootUrl = url;
     }
 
     /**
@@ -2293,10 +2346,11 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, ViewG
     public void restart() throws RestartNotSupportedException {
         final Lifecycle lifecycle = Lifecycle.get();
         lifecycle.verifyRestartable(); // verify that HudsonExt is restartable
-        servletContext.setAttribute("app", new HudsonIsRestarting());
 
         new Thread("restart thread") {
+
             final String exitUser = getAuthentication().getName();
+
             @Override
             public void run() {
                 try {
@@ -2304,62 +2358,19 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, ViewG
 
                     // give some time for the browser to load the "reloading" page
                     Thread.sleep(5000);
-                    LOGGER.severe(String.format("Restarting VM as requested by %s",exitUser));
-                    for (RestartListener listener : RestartListener.all())
+                    LOGGER.severe(String.format("Restarting VM as requested by %s", exitUser));
+                    for (RestartListener listener : RestartListener.all()) {
                         listener.onRestart();
+                    }
                     lifecycle.restart();
                 } catch (InterruptedException e) {
-                    LOGGER.log(Level.WARNING, "Failed to restart Hudson",e);
+                    LOGGER.log(Level.WARNING, "Failed to restart Hudson", e);
                 } catch (IOException e) {
-                    LOGGER.log(Level.WARNING, "Failed to restart Hudson",e);
+                    LOGGER.log(Level.WARNING, "Failed to restart Hudson", e);
                 }
             }
         }.start();
     }
-
-    /**
-     * Queues up a restart to be performed once there are no builds currently running.
-     * @since 1.332
-     */
-    public void safeRestart() throws RestartNotSupportedException {
-        final Lifecycle lifecycle = Lifecycle.get();
-        lifecycle.verifyRestartable(); // verify that HudsonExt is restartable
-        // Quiet down so that we won't launch new builds.
-        isQuietingDown = true;
-
-        new Thread("safe-restart thread") {
-            final String exitUser = getAuthentication().getName();
-            @Override
-            public void run() {
-                try {
-                    SecurityContextHolder.getContext().setAuthentication(ACL.SYSTEM);
-
-                    // Wait 'til we have no active executors.
-                    doQuietDown(true, 0);
-
-                    // Make sure isQuietingDown is still true.
-                    if (isQuietingDown) {
-                        servletContext.setAttribute("app",new HudsonIsRestarting());
-                        // give some time for the browser to load the "reloading" page
-                        LOGGER.info("Restart in 10 seconds");
-                        Thread.sleep(10000);
-                        LOGGER.severe(String.format("Restarting VM as requested by %s",exitUser));
-                        for (RestartListener listener : RestartListener.all())
-                            listener.onRestart();
-                        lifecycle.restart();
-                    } else {
-                        LOGGER.info("Safe-restart mode cancelled");
-                    }
-                } catch (InterruptedException e) {
-                    LOGGER.log(Level.WARNING, "Failed to restart Hudson",e);
-                } catch (IOException e) {
-                    LOGGER.log(Level.WARNING, "Failed to restart Hudson",e);
-                }
-            }
-        }.start();
-    }
-
-    
 
     /**
      * Gets the {@link Authentication} object that represents the user
@@ -2371,21 +2382,17 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, ViewG
         // that we have filters. Looking at the stack trace, Tomcat doesn't seem to
         // run the request through filters when this is the login request.
         // see http://www.nabble.com/Matrix-authorization-problem-tp14602081p14886312.html
-        if(a==null)
+        if (a == null) {
             a = ANONYMOUS;
+        }
         return a;
     }
-
-   
-
     /**
      * Extension list that {@link #doResources(StaplerRequest, StaplerResponse)} can serve.
      * This set is mutable to allow plugins to add additional extensions.
      */
     public static final Set<String> ALLOWED_RESOURCE_EXTENSIONS = new HashSet<String>(Arrays.asList(
-        "js|css|jpeg|jpg|png|gif|html|htm".split("\\|")
-    ));
-
+            "js|css|jpeg|jpg|png|gif|html|htm".split("\\|")));
 
     /**
      * Does not check when system default encoding is "ISO-8859-1".
@@ -2399,7 +2406,7 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, ViewG
      *      Use {@link FunctionsExt#isWindows()}.
      */
     public static boolean isWindows() {
-        return File.pathSeparatorChar==';';
+        return File.pathSeparatorChar == ';';
     }
 
     public static boolean isDarwin() {
@@ -2428,25 +2435,14 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, ViewG
      */
     public UserExt getMe() {
         UserExt u = UserExt.current();
-        if (u == null)
+        if (u == null) {
             throw new AccessDeniedException("/me is not available when not logged in");
+        }
         return u;
     }
 
-    /**
-     * Gets the {@link Widget}s registered on this object.
-     *
-     * <p>
-     * Plugins who wish to contribute boxes on the side panel can add widgets
-     * by {@code getWidgets().add(new MyWidget())} from {@link PluginExt#start()}.
-     */
-    public List<Widget> getWidgets() {
-        return widgets;
-    }
-
-     
-
     public static final class MasterComputer extends ComputerExt {
+
         private MasterComputer() {
             super(HudsonExt.getInstance());
         }
@@ -2483,15 +2479,15 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, ViewG
             return RetentionStrategyExt.NOOP;
         }
 
-         
         @Override
         public boolean hasPermission(Permission permission) {
             // no one should be allowed to delete the master.
             // this hides the "delete" link from the /computer/(master) page.
-            if(permission==ComputerExt.DELETE)
+            if (permission == ComputerExt.DELETE) {
                 return false;
+            }
             // Configuration of master node requires ADMINISTER permission
-            return super.hasPermission(permission==ComputerExt.CONFIGURE ? HudsonExt.ADMINISTER : permission);
+            return super.hasPermission(permission == ComputerExt.CONFIGURE ? HudsonExt.ADMINISTER : permission);
         }
 
         @Override
@@ -2511,7 +2507,6 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, ViewG
         protected Future<?> _connect(boolean forceReconnect) {
             return Futures.precomputed(null);
         }
-
         /**
          * {@link LocalChannel} instance that can be used to execute programs locally.
          */
@@ -2524,7 +2519,6 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, ViewG
     public static <T> T lookup(Class<T> type) {
         return HudsonExt.getInstance().lookup.get(type);
     }
-
 
     /**
      * Checks if the current user (for which we are processing the current request)
@@ -2547,58 +2541,55 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, ViewG
     public static boolean isAdmin() {
         return HudsonExt.getInstance().getACL().hasPermission(ADMINISTER);
     }
-
-
     /**
      * Live view of recent {@link LogRecord}s produced by HudsonExt.
      */
     public static List<LogRecord> logRecords = Collections.emptyList(); // initialized to dummy value to avoid NPE
-
     /**
      * Thread-safe reusable {@link XStream}.
      */
     public static final XStream XSTREAM = new XStream2();
-
     private static final int TWICE_CPU_NUM = Runtime.getRuntime().availableProcessors() * 2;
-
     /**
      * Thread pool used to load configuration in parallel, to improve the start up time.
      * <p>
      * The idea here is to overlap the CPU and I/O, so we want more threads than CPU numbers.
      */
     /*package*/ transient final ExecutorService threadPoolForLoad = new ThreadPoolExecutor(
-        TWICE_CPU_NUM, TWICE_CPU_NUM,
-        5L, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(), new DaemonThreadFactory());
-
+            TWICE_CPU_NUM, TWICE_CPU_NUM,
+            5L, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(), new DaemonThreadFactory());
 
     private static void computeVersion(ServletContext context) {
         // set the version
         Properties props = new Properties();
         try {
             InputStream is = HudsonExt.class.getResourceAsStream("hudson-version.properties");
-            if(is!=null)
+            if (is != null) {
                 props.load(is);
+            }
         } catch (IOException e) {
             e.printStackTrace(); // if the version properties is missing, that's OK.
         }
         String ver = props.getProperty("version");
-        if(ver==null)   ver="?";
+        if (ver == null) {
+            ver = "?";
+        }
         VERSION = ver;
-        context.setAttribute("version",ver);
+        context.setAttribute("version", ver);
         VERSION_HASH = UtilExt.getDigestOf(ver).substring(0, 8);
 
-        if(ver.equals("?") || Boolean.getBoolean("hudson.script.noCache"))
+        if (ver.equals("?") || Boolean.getBoolean("hudson.script.noCache")) {
             RESOURCE_PATH = "";
-        else
-            RESOURCE_PATH = "/static/"+VERSION_HASH;
+        } else {
+            RESOURCE_PATH = "/static/" + VERSION_HASH;
+        }
 
-        VIEW_RESOURCE_PATH = "/resources/"+ VERSION_HASH;
+        VIEW_RESOURCE_PATH = "/resources/" + VERSION_HASH;
     }
-
     /**
      * Version number of this HudsonExt.
      */
-    public static String VERSION="?";
+    public static String VERSION = "?";
 
     /**
      * Parses {@link #VERSION} into {@link VersionNumber}, or null if it's not parseable as a version number
@@ -2611,8 +2602,9 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, ViewG
             try {
                 // for non-released version of HudsonExt, this looks like "1.345 (private-foobar), so try to approximate.
                 int idx = VERSION.indexOf(' ');
-                if (idx>0)
-                    return new VersionNumber(VERSION.substring(0,idx));
+                if (idx > 0) {
+                    return new VersionNumber(VERSION.substring(0, idx));
+                }
             } catch (NumberFormatException _) {
                 // fall through
             }
@@ -2624,12 +2616,10 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, ViewG
             return null;
         }
     }
-
     /**
      * Hash of {@link #VERSION}.
      */
     public static String VERSION_HASH;
-
     /**
      * Prefix to static resources like images and javascripts in the war file.
      * Either "" or strings like "/static/VERSION", which avoids HudsonExt to pick up
@@ -2638,7 +2628,6 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, ViewG
      * Value computed in {@link WebAppMain}.
      */
     public static String RESOURCE_PATH = "";
-
     /**
      * Prefix to resources alongside view scripts.
      * Strings like "/resources/VERSION", which avoids HudsonExt to pick up
@@ -2647,16 +2636,14 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, ViewG
      * Value computed in {@link WebAppMain}.
      */
     public static String VIEW_RESOURCE_PATH = "/resources/TBD";
-
-    public static boolean PARALLEL_LOAD = !"false".equals(System.getProperty(HudsonExt.class.getName()+".parallelLoad"));
-    public static boolean KILL_AFTER_LOAD = Boolean.getBoolean(HudsonExt.class.getName()+".killAfterLoad");
-    public static boolean LOG_STARTUP_PERFORMANCE = Boolean.getBoolean(HudsonExt.class.getName()+".logStartupPerformance");
+    public static boolean PARALLEL_LOAD = !"false".equals(System.getProperty(HudsonExt.class.getName() + ".parallelLoad"));
+    public static boolean KILL_AFTER_LOAD = Boolean.getBoolean(HudsonExt.class.getName() + ".killAfterLoad");
+    public static boolean LOG_STARTUP_PERFORMANCE = Boolean.getBoolean(HudsonExt.class.getName() + ".logStartupPerformance");
     private static final boolean CONSISTENT_HASH = true; // Boolean.getBoolean(HudsonExt.class.getName()+".consistentHash");
     /**
      * Enabled by default as of 1.337. Will keep it for a while just in case we have some serious problems.
      */
-    public static boolean FLYWEIGHT_SUPPORT = !"false".equals(System.getProperty(HudsonExt.class.getName()+".flyweightSupport"));
-
+    public static boolean FLYWEIGHT_SUPPORT = !"false".equals(System.getProperty(HudsonExt.class.getName() + ".flyweightSupport"));
     /**
      * Tentative switch to activate the concurrent build behavior.
      * When we merge this back to the trunk, this allows us to keep
@@ -2664,25 +2651,19 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, ViewG
      * @see AbstractProjectExt#isConcurrentBuild()
      */
     public static boolean CONCURRENT_BUILD = true;
-
     /**
      * Switch to enable people to use a shorter workspace name.
      */
-    private static final String WORKSPACE_DIRNAME = System.getProperty(HudsonExt.class.getName()+".workspaceDirName","workspace");
-
+    private static final String WORKSPACE_DIRNAME = System.getProperty(HudsonExt.class.getName() + ".workspaceDirName", "workspace");
     /**
      * Automatically try to launch a slave when HudsonExt is initialized or a new slave is created.
      */
     public static boolean AUTOMATIC_SLAVE_LAUNCH = true;
-
     private static final Logger LOGGER = Logger.getLogger(HudsonExt.class.getName());
-
     protected static final Pattern ICON_SIZE = Pattern.compile("\\d+x\\d+");
-
     public static final PermissionGroup PERMISSIONS = Permission.HUDSON_PERMISSIONS;
     public static final Permission ADMINISTER = Permission.HUDSON_ADMINISTER;
-    public static final Permission READ = new Permission(PERMISSIONS,"Read",Messages._Hudson_ReadPermission_Description(),Permission.READ);
-
+    public static final Permission READ = new Permission(PERMISSIONS, "Read", Messages._Hudson_ReadPermission_Description(), Permission.READ);
     /**
      * {@link Authentication} object that represents the anonymous user.
      * Because Acegi creates its own {@link AnonymousAuthenticationToken} instances, the code must not
@@ -2691,20 +2672,18 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, ViewG
      * @since 1.343
      */
     public static final Authentication ANONYMOUS = new AnonymousAuthenticationToken(
-            "anonymous","anonymous",new GrantedAuthority[]{new GrantedAuthorityImpl("anonymous")});
+            "anonymous", "anonymous", new GrantedAuthority[]{new GrantedAuthorityImpl("anonymous")});
 
     static {
-        XSTREAM.alias("hudson",HudsonExt.class);
+        XSTREAM.alias("hudson", HudsonExt.class);
         XSTREAM.alias("slave", DumbSlaveExt.class);
-        XSTREAM.alias("jdk",JDKExt.class);
-        // for backward compatibility with <1.75, recognize the tag name "view" as well.
-        XSTREAM.alias("view", ListViewExt.class);
-        XSTREAM.alias("listView", ListViewExt.class);
+        XSTREAM.alias("jdk", JDKExt.class);
+        
         // this seems to be necessary to force registration of converter early enough
         ModeExt.class.getEnumConstants();
 
         // double check that initialization order didn't do any harm
-        assert PERMISSIONS!=null;
-        assert ADMINISTER!=null;
+        assert PERMISSIONS != null;
+        assert ADMINISTER != null;
     }
 }

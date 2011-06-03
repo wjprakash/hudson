@@ -96,7 +96,7 @@ public class HudsonExceptionNote extends ConsoleNote<Object> {
     }
 
     @Extension
-    public static final class DescriptorImpl extends ConsoleAnnotationDescriptor {
+    public static final class DescriptorImpl extends ConsoleAnnotationDescriptorExt {
         @Override
         public String getDisplayName() {
             return "Exception Stack Trace";

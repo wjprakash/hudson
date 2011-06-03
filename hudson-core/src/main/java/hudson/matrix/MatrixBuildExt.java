@@ -32,7 +32,7 @@ import hudson.model.FingerprintExt;
 import hudson.model.HudsonExt;
 import hudson.model.JobPropertyExt;
 import hudson.model.NodeExt;
-import hudson.model.ParametersAction;
+import hudson.model.ParametersActionExt;
 import hudson.model.QueueExt;
 import hudson.model.ResultExt;
 import hudson.model.CauseExt.UpstreamCause;
@@ -145,7 +145,7 @@ public class MatrixBuildExt extends AbstractBuildExt<MatrixProjectExt,MatrixBuil
         return rs;
     }
 
-    private class RunnerImpl extends AbstractRunner {
+    private class RunnerImpl extends AbstractRunnerExt {
         private final List<MatrixAggregator> aggregators = new ArrayList<MatrixAggregator>();
 
         protected ResultExt doRun(BuildListener listener) throws Exception {
@@ -301,7 +301,7 @@ public class MatrixBuildExt extends AbstractBuildExt<MatrixProjectExt,MatrixBuil
 
         private void scheduleConfigurationBuild(PrintStream logger, MatrixConfiguration c) {
             logger.println(Messages.MatrixBuild_Triggering(c.getDisplayName()));
-            c.scheduleBuild(getAction(ParametersAction.class), new UpstreamCause(MatrixBuildExt.this));
+            c.scheduleBuild(getAction(ParametersActionExt.class), new UpstreamCause(MatrixBuildExt.this));
         }
 
         public void post2(BuildListener listener) throws Exception {

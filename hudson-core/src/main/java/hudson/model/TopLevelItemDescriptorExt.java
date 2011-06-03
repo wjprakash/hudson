@@ -24,15 +24,14 @@
 package hudson.model;
 
 import hudson.ExtensionList;
-import org.kohsuke.stapler.StaplerRequest;
 
 /**
  * {@link DescriptorExt} for {@link TopLevelItem}s.
  *
  * @author Kohsuke Kawaguchi
  */
-public abstract class TopLevelItemDescriptor extends DescriptorExt<TopLevelItem> {
-    protected TopLevelItemDescriptor(Class<? extends TopLevelItem> clazz) {
+public abstract class TopLevelItemDescriptorExt extends DescriptorExt<TopLevelItem> {
+    protected TopLevelItemDescriptorExt(Class<? extends TopLevelItem> clazz) {
         super(clazz);
     }
 
@@ -43,7 +42,7 @@ public abstract class TopLevelItemDescriptor extends DescriptorExt<TopLevelItem>
      *
      * @since 1.278
      */
-    protected TopLevelItemDescriptor() {
+    protected TopLevelItemDescriptorExt() {
     }
 
     /**
@@ -71,14 +70,6 @@ public abstract class TopLevelItemDescriptor extends DescriptorExt<TopLevelItem>
      */
     public abstract String getDisplayName();
 
-    /**
-     * @deprecated since 2007-01-19.
-     *      This is not a valid operation for {@link Job}s.
-     */
-    @Deprecated
-    public TopLevelItem newInstance(StaplerRequest req) throws FormException {
-        throw new UnsupportedOperationException();
-    }
 
     /**
      * Creates a new {@link TopLevelItem}.
@@ -100,7 +91,7 @@ public abstract class TopLevelItemDescriptor extends DescriptorExt<TopLevelItem>
     /**
      * Returns all the registered {@link TopLevelItem} descriptors.
      */
-    public static ExtensionList<TopLevelItemDescriptor> all() {
+    public static ExtensionList<TopLevelItemDescriptorExt> all() {
         return Items.all();
     }
 

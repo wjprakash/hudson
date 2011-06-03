@@ -26,9 +26,9 @@ package hudson.cli;
 import hudson.model.AbstractBuildExt;
 import hudson.model.AbstractProjectExt;
 import hudson.model.CauseExt;
-import hudson.model.ParametersAction;
+import hudson.model.ParametersActionExt;
 import hudson.model.ParameterValueExt;
-import hudson.model.ParametersDefinitionProperty;
+import hudson.model.ParametersDefinitionPropertyExt;
 import hudson.model.ParameterDefinitionExt;
 import hudson.Extension;
 import hudson.AbortException;
@@ -69,9 +69,9 @@ public class BuildCommand extends CLICommand {
     protected int run() throws Exception {
         job.checkPermission(ItemExt.BUILD);
 
-        ParametersAction a = null;
+        ParametersActionExt a = null;
         if (!parameters.isEmpty()) {
-            ParametersDefinitionProperty pdp = job.getProperty(ParametersDefinitionProperty.class);
+            ParametersDefinitionPropertyExt pdp = job.getProperty(ParametersDefinitionPropertyExt.class);
             if (pdp==null)
                 throw new AbortException(job.getFullDisplayName()+" is not parameterized but the -p option was specified");
 
@@ -86,7 +86,7 @@ public class BuildCommand extends CLICommand {
                 values.add(pd.createValue(this,e.getValue()));
             }
             
-            a = new ParametersAction(values);
+            a = new ParametersActionExt(values);
         }
 
         Future<? extends AbstractBuildExt> f = job.scheduleBuild2(0, new CLICause(), a);

@@ -28,14 +28,8 @@ import hudson.ExtensionList;
 import hudson.ExtensionPoint;
 import hudson.model.HudsonExt;
 import hudson.model.RunExt;
-import hudson.util.TimeUnit2;
 import org.jvnet.tiger_types.Types;
-import org.kohsuke.stapler.StaplerRequest;
-import org.kohsuke.stapler.StaplerResponse;
-import org.kohsuke.stapler.WebMethod;
 
-import javax.servlet.ServletException;
-import java.io.IOException;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.net.URL;
@@ -67,7 +61,7 @@ import java.net.URL;
  * @author Kohsuke Kawaguchi
  * @since 1.349
  */
-public abstract class ConsoleAnnotatorFactory<T> implements ExtensionPoint {
+public abstract class ConsoleAnnotatorFactoryExt<T> implements ExtensionPoint {
     /**
      * Called when a console output page is requested to create a stateful {@link ConsoleAnnotator}.
      *
@@ -105,28 +99,15 @@ public abstract class ConsoleAnnotatorFactory<T> implements ExtensionPoint {
         return getResource("/style.css") !=null;
     }
 
-    private URL getResource(String fileName) {
+    protected URL getResource(String fileName) {
         Class c = getClass();
         return c.getClassLoader().getResource(c.getName().replace('.','/').replace('$','/')+ fileName);
     }
 
     /**
-     * Serves the JavaScript file associated with this console annotator factory.
-     */
-    @WebMethod(name="script.js")
-    public void doScriptJs(StaplerRequest req, StaplerResponse rsp) throws IOException, ServletException {
-        rsp.serveFile(req, getResource("/script.js"), TimeUnit2.DAYS.toMillis(1));
-    }
-
-    @WebMethod(name="style.css")
-    public void doStyleCss(StaplerRequest req, StaplerResponse rsp) throws IOException, ServletException {
-        rsp.serveFile(req, getResource("/style.css"), TimeUnit2.DAYS.toMillis(1));
-    }
-
-    /**
      * All the registered instances.
      */
-    public static ExtensionList<ConsoleAnnotatorFactory> all() {
-        return HudsonExt.getInstance().getExtensionList(ConsoleAnnotatorFactory.class);
+    public static ExtensionList<ConsoleAnnotatorFactoryExt> all() {
+        return HudsonExt.getInstance().getExtensionList(ConsoleAnnotatorFactoryExt.class);
     }
 }

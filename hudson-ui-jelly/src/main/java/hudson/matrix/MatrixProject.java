@@ -107,7 +107,7 @@ public class MatrixProject extends MatrixProjectExt{
         }
         
         // parse system axes
-        DescribableList<AxisExt,AxisDescriptor> newAxes = new DescribableList<AxisExt,AxisDescriptor>(this);
+        DescribableList<AxisExt,AxisDescriptorExt> newAxes = new DescribableList<AxisExt,AxisDescriptorExt>(this);
         newAxes.rebuildHetero(req, json, AxisExt.all(),"axis");
         checkAxisNames(newAxes);
         this.axes = new AxisList(newAxes.toList());

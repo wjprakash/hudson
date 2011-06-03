@@ -23,9 +23,6 @@
  */
 package hudson.model;
 
-import net.sf.json.JSONObject;
-import org.kohsuke.stapler.StaplerRequest;
-import org.kohsuke.stapler.DataBoundConstructor;
 import hudson.Extension;
 import hudson.util.Secret;
 
@@ -35,31 +32,23 @@ import hudson.util.Secret;
  * @author Kohsuke Kawaguchi
  * @since 1.319
  */
-public class PasswordParameterDefinition extends SimpleParameterDefinitionExt {
+public class PasswordParameterDefinitionExt extends SimpleParameterDefinitionExt {
 
     private Secret defaultValue;
 
-    @DataBoundConstructor
-    public PasswordParameterDefinition(String name, String defaultValue, String description) {
+    public PasswordParameterDefinitionExt(String name, String defaultValue, String description) {
         super(name, description);
         this.defaultValue = Secret.fromString(defaultValue);
     }
 
     @Override
     public ParameterValueExt createValue(String value) {
-        return new PasswordParameterValue(getName(), value, getDescription());
-    }
-
-    @Override
-    public PasswordParameterValue createValue(StaplerRequest req, JSONObject jo) {
-        PasswordParameterValue value = req.bindJSON(PasswordParameterValue.class, jo);
-        value.setDescription(getDescription());
-        return value;
+        return new PasswordParameterValueExt(getName(), value, getDescription());
     }
 
     @Override
     public ParameterValueExt getDefaultParameterValue() {
-        return new PasswordParameterValue(getName(), getDefaultValue(), getDescription());
+        return new PasswordParameterValueExt(getName(), getDefaultValue(), getDescription());
     }
 
     public String getDefaultValue() {

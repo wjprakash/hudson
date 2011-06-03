@@ -24,8 +24,8 @@
 package hudson.console;
 
 import hudson.MarkupText;
+import hudson.util.io.WriterOutputStream;
 import org.apache.commons.io.output.ProxyWriter;
-import org.kohsuke.stapler.framework.io.WriterOutputStream;
 
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;

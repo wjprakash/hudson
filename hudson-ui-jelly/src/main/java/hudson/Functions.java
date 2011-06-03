@@ -24,10 +24,13 @@
  */
 package hudson;
 
-import hudson.console.ConsoleAnnotatorFactory;
-import hudson.console.ConsoleAnnotationDescriptor;
+import hudson.console.ConsoleAnnotatorFactoryExt;
+import hudson.console.ConsoleAnnotationDescriptorExt;
 import hudson.model.Action;
+import hudson.model.Describable;
+import hudson.model.Descriptor;
 import hudson.model.DescriptorExt;
+import hudson.model.Hudson;
 import hudson.model.HudsonExt;
 import hudson.model.ItemExt;
 import hudson.model.ItemGroup;
@@ -40,15 +43,19 @@ import hudson.security.Permission;
 import hudson.security.csrf.CrumbIssuer;
 import hudson.util.Area;
 import hudson.util.Iterators;
+import hudson.views.MyViewsTabBar;
+import hudson.views.ViewsTabBar;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLDecoder;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.regex.Pattern;
 import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
@@ -201,7 +208,7 @@ public class Functions extends FunctionsExt {
     public static void adminCheck(StaplerRequest req, StaplerResponse rsp, Object required, Permission permission) throws IOException, ServletException {
         // this is legacy --- all views should be eventually converted to
         // the permission based model.
-        if (required != null && !HudsonExt.adminCheck(req, rsp)) {
+        if (required != null && !Hudson.adminCheck(req, rsp)) {
             // check failed. commit the FORBIDDEN response, then abort.
             rsp.setStatus(HttpServletResponse.SC_FORBIDDEN);
             rsp.getOutputStream().close();
@@ -218,7 +225,7 @@ public class Functions extends FunctionsExt {
      * Infers the hudson installation URL from the given request.
      */
     public static String inferHudsonURL(StaplerRequest req) {
-        String rootUrl = HudsonExt.getInstance().getRootUrl();
+        String rootUrl = Hudson.getInstance().getRootUrl();
         if (rootUrl != null) // prefer the one explicitly configured, to work with load-balancer, frontend, etc.
         {
             return rootUrl;
@@ -289,6 +296,41 @@ public class Functions extends FunctionsExt {
             i = (ItemExt) ig;
         }
     }
+    
+    public static List<DescriptorExt<ViewsTabBar>> getViewsTabBarDescriptors() {
+        return ViewsTabBar.all();
+    }
+    
+    
+     /**
+     * Determines the form validation check URL. See textbox.jelly
+     */
+    public String getCheckUrl(String userDefined, Object descriptor, String field) {
+        if(userDefined!=null || field==null)   return userDefined;
+        if (descriptor instanceof Descriptor) {
+            Descriptor d = (Descriptor) descriptor;
+            return d.getCheckUrl(field);
+        }
+        return null;
+    }
+
+    /**
+     * Gets all the descriptors sorted by their inheritance tree of {@link Describable}
+     * so that descriptors of similar types come nearby.
+     */
+    public static Collection<hudson.model.DescriptorExt> getSortedDescriptorsForGlobalConfig() {
+        Map<String,DescriptorExt> r = new TreeMap<String, DescriptorExt>();
+        for (DescriptorExt<?> d : HudsonExt.getInstance().getExtensionList(DescriptorExt.class)) {
+            if (d.getGlobalConfigPage()==null)  continue;
+            r.put(buildSuperclassHierarchy(d.clazz, new StringBuilder()).toString(),d);
+        }
+        return r.values();
+    }
+    
+    
+    public static List<DescriptorExt<MyViewsTabBar>> getMyViewsTabBarDescriptors() {
+        return MyViewsTabBar.all();
+    }
 
     public static String getViewResource(Object it, String path) {
         Class clazz = it.getClass();
@@ -344,7 +386,7 @@ public class Functions extends FunctionsExt {
     public String getServerName() {
         // Try to infer this from the configured root URL.
         // This makes it work correctly when HudsonExt runs behind a reverse proxy.
-        String url = HudsonExt.getInstance().getRootUrl();
+        String url = Hudson.getInstance().getRootUrl();
         try {
             if (url != null) {
                 String host = new URL(url).getHost();
@@ -397,14 +439,14 @@ public class Functions extends FunctionsExt {
     public static String generateConsoleAnnotationScriptAndStylesheet() {
         String cp = Stapler.getCurrentRequest().getContextPath();
         StringBuilder buf = new StringBuilder();
-        for (ConsoleAnnotatorFactory f : ConsoleAnnotatorFactory.all()) {
-            String path = cp + "/extensionList/" + ConsoleAnnotatorFactory.class.getName() + "/" + f.getClass().getName();
+        for (ConsoleAnnotatorFactoryExt f : ConsoleAnnotatorFactoryExt.all()) {
+            String path = cp + "/extensionList/" + ConsoleAnnotatorFactoryExt.class.getName() + "/" + f.getClass().getName();
             if (f.hasScript())
                 buf.append("<script src='"+path+"/script.js'></script>");
             if (f.hasStylesheet())
                 buf.append("<link rel='stylesheet' type='text/css' href='"+path+"/style.css' />");
         }
-        for (ConsoleAnnotationDescriptor d : ConsoleAnnotationDescriptor.all()) {
+        for (ConsoleAnnotationDescriptorExt d : ConsoleAnnotationDescriptorExt.all()) {
             String path = cp+"/descriptor/"+d.clazz.getName();
             if (d.hasScript())
                 buf.append("<script src='"+path+"/script.js'></script>");

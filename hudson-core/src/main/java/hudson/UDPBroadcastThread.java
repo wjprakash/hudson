@@ -75,8 +75,8 @@ public class UDPBroadcastThread extends Thread {
                 TcpSlaveAgentListener tal = hudson.getTcpSlaveAgentListener();
 
                 StringBuilder rsp = new StringBuilder("<hudson>");
-                tag(rsp,"version",HudsonExt.VERSION);
-                tag(rsp,"url",hudson.getRootUrl());
+                tag(rsp,"version", HudsonExt.VERSION);
+                tag(rsp,"url", hudson.getRootUrl());
                 tag(rsp,"slave-port",tal==null?null:tal.getPort());
 
                 for (UDPBroadcastFragment f : UDPBroadcastFragment.all())

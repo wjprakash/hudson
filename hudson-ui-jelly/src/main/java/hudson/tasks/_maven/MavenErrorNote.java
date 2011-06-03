@@ -24,7 +24,7 @@
 package hudson.tasks._maven;
 
 import hudson.Extension;
-import hudson.console.ConsoleAnnotationDescriptor;
+import hudson.console.ConsoleAnnotationDescriptorExt;
 
 
 /**
@@ -36,7 +36,7 @@ public class MavenErrorNote extends MavenErrorNoteExt {
     }
 
     @Extension
-    public static final class DescriptorImpl extends ConsoleAnnotationDescriptor {
+    public static final class DescriptorImpl extends ConsoleAnnotationDescriptorExt {
         @Override
         public String getDisplayName() {
             return "Maven Errors";

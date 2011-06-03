@@ -23,19 +23,13 @@
  */
 package hudson.model;
 
-import hudson.EnvVars;
-import hudson.util.Secret;
-import hudson.util.VariableResolver;
 import org.kohsuke.stapler.DataBoundConstructor;
 
-import java.util.Locale;
 
 /**
  * @author Kohsuke Kawaguchi
  */
-public class PasswordParameterValue extends ParameterValueExt {
-
-    private final Secret value;
+public class PasswordParameterValue extends PasswordParameterValueExt {
 
     // kept for backward compatibility
     public PasswordParameterValue(String name, String value) {
@@ -44,28 +38,7 @@ public class PasswordParameterValue extends ParameterValueExt {
 
     @DataBoundConstructor
     public PasswordParameterValue(String name, String value, String description) {
-        super(name, description);
-        this.value = Secret.fromString(value);
+        super(name, value, description);
     }
-
-    @Override
-    public void buildEnvVars(AbstractBuildExt<?,?> build, EnvVars env) {
-        String v = Secret.toString(value);
-        env.put(name, v);
-        env.put(name.toUpperCase(Locale.ENGLISH),v); // backward compatibility pre 1.345
-    }
-
-    @Override
-    public VariableResolver<String> createVariableResolver(AbstractBuildExt<?, ?> build) {
-        return new VariableResolver<String>() {
-            public String resolve(String name) {
-                return PasswordParameterValue.this.name.equals(name) ? Secret.toString(value) : null;
-            }
-        };
-    }
-
-    @Override
-    public boolean isSensitive() {
-        return true;
-}
+ 
 }

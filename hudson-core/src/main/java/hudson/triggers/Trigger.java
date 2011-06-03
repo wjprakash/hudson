@@ -42,7 +42,7 @@ import hudson.model.ItemExt;
 import hudson.model.ProjectExt;
 import hudson.model.PeriodicWork;
 import hudson.model.TopLevelItem;
-import hudson.model.TopLevelItemDescriptor;
+import hudson.model.TopLevelItemDescriptorExt;
 import hudson.scheduler.CronTab;
 import hudson.scheduler.CronTabList;
 import hudson.util.DoubleLaunchCheckerExt;
@@ -302,7 +302,7 @@ public abstract class Trigger<J extends ItemExt> implements Describable<Trigger<
             if(!t.isApplicable(i))  continue;
 
             if (i instanceof TopLevelItem) {// ugly
-                TopLevelItemDescriptor tld = ((TopLevelItem) i).getDescriptor();
+                TopLevelItemDescriptorExt tld = ((TopLevelItem) i).getDescriptor();
                 // tld shouldn't be really null in contract, but we often write test Describables that
                 // doesn't have a Descriptor.
                 if(tld!=null && !tld.isApplicable(t))    continue;

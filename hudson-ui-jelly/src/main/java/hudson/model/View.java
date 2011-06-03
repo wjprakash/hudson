@@ -47,7 +47,6 @@ import hudson.model.NodeExt.ModeExt;
 import hudson.model.QueueExt;
 import hudson.model.RunExt;
 import hudson.model.TopLevelItem;
-import hudson.model.TransientViewActionFactory;
 import hudson.model.UserExt;
 import hudson.scm.ChangeLogSetExt.Entry;
 import hudson.search.CollectionSearchIndex;

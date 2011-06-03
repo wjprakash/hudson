@@ -43,5 +43,5 @@ public interface TopLevelItem extends ItemExt, ExtensionPoint, Describable<TopLe
      *
      * @see Describable#getDescriptor()
      */
-    TopLevelItemDescriptor getDescriptor();
+    TopLevelItemDescriptorExt getDescriptor();
 }

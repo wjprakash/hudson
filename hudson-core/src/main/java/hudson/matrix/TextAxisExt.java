@@ -1,7 +1,6 @@
 package hudson.matrix;
 
 import hudson.Extension;
-import org.kohsuke.stapler.DataBoundConstructor;
 
 import java.util.List;
 
@@ -10,22 +9,21 @@ import java.util.List;
  * 
  * @author Kohsuke Kawaguchi
  */
-public class TextAxis extends AxisExt {
-    public TextAxis(String name, List<String> values) {
+public class TextAxisExt extends AxisExt {
+    public TextAxisExt(String name, List<String> values) {
         super(name, values);
     }
 
-    public TextAxis(String name, String... values) {
+    public TextAxisExt(String name, String... values) {
         super(name, values);
     }
 
-    @DataBoundConstructor
-    public TextAxis(String name, String valueString) {
+    public TextAxisExt(String name, String valueString) {
         super(name, valueString);
     }
 
     @Extension
-    public static class DescriptorImpl extends AxisDescriptor {
+    public static class DescriptorImpl extends AxisDescriptorExt {
         @Override
         public String getDisplayName() {
             return Messages.TextArea_DisplayName();

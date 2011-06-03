@@ -23,60 +23,30 @@
  */
 package hudson.model;
 
-import java.util.Locale;
 
-import hudson.EnvVars;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.export.Exported;
 
-public class RunParameterValue extends ParameterValueExt {
-
-    private final String runId;
+public class RunParameterValue extends RunParameterValueExt {
 
     @DataBoundConstructor
     public RunParameterValue(String name, String runId, String description) {
-        super(name, description);
-        this.runId = runId;
+        super(name, runId, description);
     }
 
     public RunParameterValue(String name, String runId) {
-        super(name, null);
-        this.runId = runId;
+        super(name, runId);
     }
 
-    public RunExt getRun() {
-        return RunExt.fromExternalizableId(runId);
-    }
-
-    public String getRunId() {
-        return runId;
-    }
     
     @Exported
     public String getJobName() {
-    	return runId.split("#")[0];
+    	return super.getJobName();
     }
     
     @Exported
     public String getNumber() {
-    	return runId.split("#")[1];
+    	return super.getNumber();
     }
-    
-
-    /**
-     * Exposes the name/value as an environment variable.
-     */
-    @Override
-    public void buildEnvVars(AbstractBuildExt<?,?> build, EnvVars env) {
-        String value = HudsonExt.getInstance().getRootUrl() + getRun().getUrl();
-        env.put(name, value);
-        env.put(name.toUpperCase(Locale.ENGLISH),value); // backward compatibility pre 1.345
-
-    }
-    
-    @Override
-    public String getShortDescription() {
-    	return "(RunParameterValue) " + getName() + "='" + getRunId() + "'";
-    }
-
+   
 }

@@ -30,7 +30,7 @@ import junit.framework.TestCase;
  */
 public class TimeSeriesTest extends TestCase {
     public void test1() {
-        TimeSeries ts = new TimeSeries(0,1-0.1f,100);
+        TimeSeriesExt ts = new TimeSeriesExt(0,1-0.1f,100);
         float last;
         assertEquals(0f,last=ts.getLatest());
         for( int i=0; i<100; i++ ) {

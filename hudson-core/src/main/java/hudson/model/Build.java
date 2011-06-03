@@ -112,7 +112,7 @@ public abstract class Build <P extends ProjectExt<P,B>,B extends Build<P,B>>
         return new RunnerImpl();
     }
     
-    protected class RunnerImpl extends AbstractRunner {
+    protected class RunnerImpl extends AbstractRunnerExt {
         protected ResultExt doRun(BuildListener listener) throws Exception {
             if(!preBuild(listener,project.getBuilders()))
                 return FAILURE;
@@ -123,7 +123,7 @@ public abstract class Build <P extends ProjectExt<P,B>,B extends Build<P,B>>
             try {
                 List<BuildWrapper> wrappers = new ArrayList<BuildWrapper>(project.getBuildWrappers().values());
                 
-                ParametersAction parameters = getAction(ParametersAction.class);
+                ParametersActionExt parameters = getAction(ParametersActionExt.class);
                 if (parameters != null)
                     parameters.createBuildWrappers(Build.this,wrappers);
 

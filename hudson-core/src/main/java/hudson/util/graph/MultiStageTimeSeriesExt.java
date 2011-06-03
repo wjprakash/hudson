@@ -24,7 +24,7 @@
 package hudson.util.graph;
 
 import hudson.model.Messages;
-import hudson.model.TimeSeries;
+import hudson.model.TimeSeriesExt;
 import hudson.util.TimeUnit2;
 import java.awt.Color;
 
@@ -59,23 +59,23 @@ public class MultiStageTimeSeriesExt {
     /**
      * Updated every 10 seconds. Keep data up to 1 hour.
      */
-    public final TimeSeries sec10;
+    public final TimeSeriesExt sec10;
     /**
      * Updated every 1 min. Keep data up to 1 day.
      */
-    public final TimeSeries min;
+    public final TimeSeriesExt min;
     /**
      * Updated every 1 hour. Keep data up to 4 weeks.
      */
-    public final TimeSeries hour;
+    public final TimeSeriesExt hour;
     private int counter;
 
     public MultiStageTimeSeriesExt(Localizable title, Color color, float initialValue, float decay) {
         this.title = title;
         this.color = color;
-        this.sec10 = new TimeSeries(initialValue, decay, 6 * 60);
-        this.min = new TimeSeries(initialValue, decay, 60 * 24);
-        this.hour = new TimeSeries(initialValue, decay, 28 * 24);
+        this.sec10 = new TimeSeriesExt(initialValue, decay, 6 * 60);
+        this.min = new TimeSeriesExt(initialValue, decay, 60 * 24);
+        this.hour = new TimeSeriesExt(initialValue, decay, 28 * 24);
     }
 
     /**
@@ -103,7 +103,7 @@ public class MultiStageTimeSeriesExt {
     /**
      * Selects a {@link TimeSeries}.
      */
-    public TimeSeries pick(TimeScale timeScale) {
+    public TimeSeriesExt pick(TimeScale timeScale) {
         switch (timeScale) {
             case HOUR:
                 return hour;

@@ -2,6 +2,8 @@ package hudson.model;
 
 import hudson.ExtensionList;
 import hudson.ExtensionPoint;
+import hudson.model.Action;
+import hudson.model.HudsonExt;
 
 import java.util.ArrayList;
 import java.util.List;

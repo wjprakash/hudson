@@ -25,7 +25,6 @@ package hudson.model;
 
 import hudson.AbortException;
 import hudson.EnvVars;
-import hudson.FunctionsExt;
 import hudson.Launcher;
 import hudson.UtilExt;
 import hudson.FilePathExt;
@@ -54,9 +53,9 @@ import hudson.util.AdaptedIterator;
 import hudson.util.Iterators;
 import hudson.util.LogTaskListener;
 import hudson.util.VariableResolver;
+import hudson.util.export.Exported;
 import org.xml.sax.SAXException;
 
-import javax.servlet.ServletException;
 import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
@@ -73,6 +72,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.acegisecurity.userdetails.User;
 
 /**
  * Base implementation of {@link RunExt}s that build software.
@@ -93,7 +93,7 @@ public abstract class AbstractBuildExt<P extends AbstractProjectExt<P,R>,R exten
      * Name of the slave this project was built on.
      * Null or "" if built by the master. (null happens when we read old record that didn't have this information.)
      */
-    private String builtOn;
+    protected String builtOn;
 
     /**
      * The file path on the node that performed a build. Kept as a string since {@link FilePathExt} is not serializable into XML.
@@ -342,7 +342,7 @@ public abstract class AbstractBuildExt<P extends AbstractProjectExt<P,R>,R exten
         UtilExt.createSymlink(getProject().getBuildDir(),"builds/"+getId(),"../"+name,listener);
     }
 
-    protected abstract class AbstractRunner extends Runner {
+    protected abstract class AbstractRunnerExt extends Runner {
         /**
          * Since configuration can be changed while a build is in progress,
          * create a launcher once and stick to it for the entire build duration.
@@ -405,21 +405,6 @@ public abstract class AbstractBuildExt<P extends AbstractProjectExt<P,R>,R exten
 
                 ResultExt result = doRun(listener);
 
-                ComputerExt c = node.toComputer();
-                if (c==null || c.isOffline()) {
-                    // As can be seen in HUDSON-5073, when a build fails because of the slave connectivity problem,
-                    // error message doesn't point users to the slave. So let's do it here.
-                    listener.hyperlink("/computer/"+builtOn+"/log","Looks like the node went offline during the build. Check the slave log for the details.");
-
-                    // grab the end of the log file. This might not work very well if the slave already
-                    // starts reconnecting. Fixing this requires a ring buffer in slave logs.
-                    AnnotatedLargeText<ComputerExt> log = c.getLogText();
-                    StringWriter w = new StringWriter();
-                    log.writeHtmlTo(Math.max(0,c.getLogFile().length()-10240),w);
-
-                    listener.getLogger().print(ExpandableDetailsNote.encodeTo("details",w.toString()));
-                    listener.getLogger().println();
-                }
 
                 // kill run-away processes that are left
                 // use multiple environment variables so that people can escape this massacre by overriding an environment
@@ -732,7 +717,7 @@ public abstract class AbstractBuildExt<P extends AbstractProjectExt<P,R>,R exten
     public Set<String> getSensitiveBuildVariables() {
         Set<String> s = new HashSet<String>();
 
-        ParametersAction parameters = getAction(ParametersAction.class);
+        ParametersActionExt parameters = getAction(ParametersActionExt.class);
         if (parameters != null) {
             for (ParameterValueExt p : parameters) {
                 if (p.isSensitive()) {
@@ -769,7 +754,7 @@ public abstract class AbstractBuildExt<P extends AbstractProjectExt<P,R>,R exten
     public Map<String,String> getBuildVariables() {
         Map<String,String> r = new HashMap<String, String>();
 
-        ParametersAction parameters = getAction(ParametersAction.class);
+        ParametersActionExt parameters = getAction(ParametersActionExt.class);
         if (parameters!=null) {
             // this is a rather round about way of doing this...
             for (ParameterValueExt p : parameters) {

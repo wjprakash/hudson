@@ -26,7 +26,6 @@ package hudson;
 import hudson.model.DescriptorExt;
 import hudson.model.Describable;
 import hudson.model.HudsonExt;
-import hudson.model.ViewDescriptor;
 import hudson.util.AdaptedIterator;
 import hudson.util.Memoizer;
 import hudson.util.Iterators.FlattenIterator;

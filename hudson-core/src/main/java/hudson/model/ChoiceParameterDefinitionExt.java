@@ -38,19 +38,19 @@ public abstract class ChoiceParameterDefinitionExt extends SimpleParameterDefini
     }
 
     @Override
-    public StringParameterValue getDefaultParameterValue() {
-        return new StringParameterValue(getName(), choices.get(0), getDescription());
+    public StringParameterValueExt getDefaultParameterValue() {
+        return new StringParameterValueExt(getName(), choices.get(0), getDescription());
     }
 
 
-    private StringParameterValue checkValue(StringParameterValue value) {
+    private StringParameterValueExt checkValue(StringParameterValueExt value) {
         if (!choices.contains(value.value))
             throw new IllegalArgumentException("Illegal choice: " + value.value);
         return value;
     }
 
-    public StringParameterValue createValue(String value) {
-        return checkValue(new StringParameterValue(getName(), value, getDescription()));
+    public StringParameterValueExt createValue(String value) {
+        return checkValue(new StringParameterValueExt(getName(), value, getDescription()));
     }
 
     @Extension

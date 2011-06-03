@@ -1285,8 +1285,8 @@ public class QueueExt extends ResourceController implements Saveable {
         public String getParams() {
             StringBuilder s = new StringBuilder();
             for (Action action : getActions()) {
-                if (action instanceof ParametersAction) {
-                    ParametersAction pa = (ParametersAction) action;
+                if (action instanceof ParametersActionExt) {
+                    ParametersActionExt pa = (ParametersActionExt) action;
                     for (ParameterValueExt p : pa.getParameters()) {
                         s.append('\n').append(p.getShortDescription());
                     }

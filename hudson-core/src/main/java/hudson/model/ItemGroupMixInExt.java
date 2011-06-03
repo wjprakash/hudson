@@ -159,7 +159,7 @@ public abstract class ItemGroupMixInExt {
         }
     }
 
-    public synchronized TopLevelItem createProject( TopLevelItemDescriptor type, String name, boolean notify )
+    public synchronized TopLevelItem createProject( TopLevelItemDescriptorExt type, String name, boolean notify )
             throws IOException {
         acl.checkPermission(JobExt.CREATE);
 

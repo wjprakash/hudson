@@ -26,6 +26,7 @@
 package hudson.model;
 
 import hudson.BulkChange;
+import hudson.DNSMultiCast;
 import hudson.Functions;
 import hudson.markup.MarkupFormatter;
 import hudson.PluginManagerExt;
@@ -38,13 +39,16 @@ import hudson.cli.CliEntryPoint;
 import hudson.cli.CliManagerImpl;
 import hudson.cli.declarative.CLIMethod;
 import hudson.cli.declarative.CLIResolver;
+import hudson.init.InitMilestone;
+import hudson.lifecycle.Lifecycle;
 import hudson.lifecycle.RestartNotSupportedException;
 import hudson.model.Descriptor.FormException;
 import hudson.remoting.Channel;
 import hudson.remoting.LocalChannel;
 import hudson.remoting.VirtualChannel;
+import hudson.search.CollectionSearchIndex;
+import hudson.search.SearchIndexBuilder;
 import hudson.security.ACL;
-import hudson.security.AccessControlled;
 import hudson.security.AuthorizationStrategyExt;
 import hudson.security.BasicAuthenticationFilter;
 import hudson.security.Permission;
@@ -53,7 +57,6 @@ import hudson.security.csrf.CrumbIssuer;
 import hudson.slaves.Cloud;
 import hudson.slaves.NodeProperty;
 import hudson.slaves.RetentionStrategyExt;
-import hudson.tasks.MailerExt;
 import hudson.util.FormValidation;
 import hudson.util.Futures;
 import hudson.util.HudsonIsLoading;
@@ -120,6 +123,10 @@ import java.util.logging.Level;
 import static java.util.logging.Level.SEVERE;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
+import org.jvnet.hudson.reactor.Executable;
+import org.jvnet.hudson.reactor.Reactor;
+import org.jvnet.hudson.reactor.TaskBuilder;
+import org.jvnet.hudson.reactor.TaskGraphBuilder;
 
 /**
  * Root object of the system.
@@ -127,60 +134,53 @@ import java.util.logging.Logger;
  * @author Kohsuke Kawaguchi
  */
 @ExportedBean
-public final class Hudson extends HudsonExt implements ItemGroup<TopLevelItem>, StaplerProxy, StaplerFallback, ViewGroup, AccessControlled, DescriptorByNameOwner {
+public final class Hudson extends HudsonExt implements StaplerProxy, StaplerFallback, ViewGroup {
 
-     /**
+    /**
      * Currently active Views tab bar.
      */
     private volatile ViewsTabBar viewsTabBar = new DefaultViewsTabBar();
-
     /**
      * Currently active My Views tab bar.
      */
     private volatile MyViewsTabBar myViewsTabBar = new DefaultMyViewsTabBar();
-    
     private static final Logger LOGGER = Logger.getLogger(Hudson.class.getName());
-    
-    protected transient final Map<UUID,FullDuplexHttpChannel> duplexChannels = new HashMap<UUID, FullDuplexHttpChannel>();
+    protected transient final Map<UUID, FullDuplexHttpChannel> duplexChannels = new HashMap<UUID, FullDuplexHttpChannel>();
     /**
      * Load statistics of the entire system.
      */
     @Exported
     public transient final OverallLoadStatisticsExt overallLoad = new OverallLoadStatisticsExt();
-    
-     /**
+    /**
      * {@link View}s.
      */
     private final CopyOnWriteArrayList<View> views = new CopyOnWriteArrayList<View>();
-
-
     /**
      * Widgets on HudsonExt.
      */
     private transient final List<Widget> widgets = getExtensionList(Widget.class);
-    
     /**
      * The sole instance.
      */
     private static Hudson theInstance;
-
     /**
      * {@link AdjunctManager}
      */
     private transient final AdjunctManager adjuncts = null;
-    
+    private transient DNSMultiCast dnsMultiCast;
+
     @CLIResolver
     public static Hudson getInstance() {
         return theInstance;
     }
-
     /**
      * Code that handles {@link ItemGroup} work.
      */
-    private transient final ItemGroupMixIn itemGroupMixIn = new ItemGroupMixIn(this,this) {
+    private transient final ItemGroupMixIn itemGroupMixIn = new ItemGroupMixIn(this, this) {
+
         @Override
         protected void add(TopLevelItem item) {
-            items.put(item.getName(),item);
+            items.put(item.getName(), item);
         }
 
         @Override
@@ -194,12 +194,12 @@ public final class Hudson extends HudsonExt implements ItemGroup<TopLevelItem>, 
          */
         @Override
         protected String redirectAfterCreateItem(StaplerRequest req, TopLevelItem result) throws IOException {
-            String redirect = result.getUrl()+"configure";
+            String redirect = result.getUrl() + "configure";
             List<Ancestor> ancestors = req.getAncestors();
             for (int i = ancestors.size() - 1; i >= 0; i--) {
                 Object o = ancestors.get(i).getObject();
                 if (o instanceof View) {
-                    redirect = req.getContextPath() + '/' + ((View)o).getUrl() + redirect;
+                    redirect = req.getContextPath() + '/' + ((View) o).getUrl() + redirect;
                     break;
                 }
             }
@@ -207,10 +207,8 @@ public final class Hudson extends HudsonExt implements ItemGroup<TopLevelItem>, 
         }
     };
 
-   
-     
     public Hudson(File root, ServletContext context) throws IOException, InterruptedException, ReactorException {
-        this(root,context,null);
+        this(root, context, null);
     }
 
     /**
@@ -218,10 +216,11 @@ public final class Hudson extends HudsonExt implements ItemGroup<TopLevelItem>, 
      *      If non-null, use existing plugin manager.  create a new one.
      */
     public Hudson(File root, ServletContext context, PluginManagerExt pluginManager) throws IOException, InterruptedException, ReactorException {
-    	 super(root, context, pluginManager);
+        super(root, context, pluginManager);
+        dnsMultiCast = new DNSMultiCast(this);
     }
-    
-     public View.People getPeople() {
+
+    public View.People getPeople() {
         return new View.People(this);
     }
 
@@ -232,16 +231,18 @@ public final class Hudson extends HudsonExt implements ItemGroup<TopLevelItem>, 
         return View.People.isApplicable(items.values());
     }
 
-public synchronized View getView(String name) {
+    public synchronized View getView(String name) {
         for (View v : views) {
-            if(v.getViewName().equals(name))
+            if (v.getViewName().equals(name)) {
                 return v;
+            }
         }
         if (name != null && !name.equals(primaryView)) {
             // Fallback to subview of primary view if it is a ViewGroup
             View pv = getPrimaryView();
-            if (pv instanceof ViewGroup)
-                return ((ViewGroup)pv).getView(name);
+            if (pv instanceof ViewGroup) {
+                return ((ViewGroup) pv).getView(name);
+            }
         }
         return null;
     }
@@ -266,13 +267,15 @@ public synchronized View getView(String name) {
     }
 
     public synchronized void deleteView(View view) throws IOException {
-        if (views.size() <= 1)
+        if (views.size() <= 1) {
             throw new IllegalStateException("Cannot delete last view");
+        }
         views.remove(view);
         save();
     }
 
-     public ViewsTabBar getViewsTabBar() {
+    @Override
+    public ViewsTabBar getViewsTabBar() {
         return viewsTabBar;
     }
 
@@ -281,13 +284,13 @@ public synchronized View getView(String name) {
     }
 
     @Exported
+    @Override
     public int getSlaveAgentPort() {
         return super.getSlaveAgentPort();
     }
 
-     
-
     @Exported
+    @Override
     public String getDescription() {
         return super.getDescription();
     }
@@ -295,99 +298,64 @@ public synchronized View getView(String name) {
     public Api getApi() {
         return new Api(this);
     }
- 
-    /**
-     * Gets the read-only list of all {@link View}s.
-     */
-    @Exported
-    public synchronized Collection<View> getViews() {
-        List<View> copy = new ArrayList<View>(views);
-        Collections.sort(copy, View.SORTER);
-        return copy;
-    }
-    
+
     /**
      * Called by {@link JobExt#renameTo(String)} to update relevant data structure.
      * assumed to be synchronized on HudsonExt by the caller.
      */
     @Override
     public void onRenamed(TopLevelItem job, String oldName, String newName) throws IOException {
-        
+
         super.onRenamed(job, oldName, newName);
-         
-        for (View v : views)
+
+        for (View v : views) {
             v.onJobRenamed(job, oldName, newName);
+        }
         save();
     }
-    
+
     /**
      * Called in response to {@link JobExt#doDoDelete(StaplerRequest, StaplerResponse)}
      */
     @Override
-        public void onDeleted(TopLevelItem item) throws IOException {
+    public void onDeleted(TopLevelItem item) throws IOException {
         super.onDeleted(item);
-        for (View v : views)
+        for (View v : views) {
             v.onJobRenamed(item, item.getName(), null);
+        }
         save();
     }
-    
-     /**
+
+    /**
      * Returns the primary {@link View} that renders the top-page of HudsonExt.
      */
     public View getPrimaryView() {
         View v = getView(primaryView);
-        if(v==null) // fallback
+        if (v == null) // fallback
+        {
             v = views.get(0);
+        }
         return v;
     }
-    
-     public void onViewRenamed(View view, String oldName, String newName) {
+
+    public void onViewRenamed(View view, String oldName, String newName) {
         // implementation of HudsonExt is immune to view name change.
     }
 
-    
-    /**
-     * Gets the absolute URL of Hudson,
-     * such as "http://localhost/hudson/".
-     *
-     * <p>
-     * This method first tries to use the manually configured value, then
-     * fall back to {@link StaplerRequest#getRootPath()}.
-     * It is done in this order so that it can work correctly even in the face
-     * of a reverse proxy.
-     *
-     * @return
-     *      This method returns null if this parameter is not configured by the user.
-     *      The caller must gracefully deal with this situation.
-     *      The returned URL will always have the trailing '/'.
-     * @since 1.66
-     * @see Descriptor#getCheckUrl(String)
-     * @see #getRootUrlFromRequest()
-     */
+    @Override
     public String getRootUrl() {
-        // for compatibility. the actual data is stored in Mailer
-        String url = MailerExt.descriptor().getUrl();
-        if(url!=null)   return url;
+
+        String url = super.getRootUrl();
+        if (url != null) {
+            return url;
+        }
 
         StaplerRequest req = Stapler.getCurrentRequest();
-        if(req!=null)
+        if (req != null) {
             return getRootUrlFromRequest();
+        }
         return null;
     }
-
-    /**
-     * Returns the primary {@link View} that renders the top-page of HudsonExt.
-     */
-    @Exported
-    public View getPrimaryView() {
-         return super.getPrimaryView();
-    }
-
-    public String getUrlChildPrefix() {
-        return "job";
-    }
-
-    
 
     /**
      * Gets the absolute URL of HudsonExt top page, such as "http://localhost/hudson/".
@@ -404,24 +372,28 @@ public synchronized View getView(String name) {
     public String getRootUrlFromRequest() {
         StaplerRequest req = Stapler.getCurrentRequest();
         StringBuilder buf = new StringBuilder();
-        buf.append(req.getScheme()+"://");
+        buf.append(req.getScheme() + "://");
         buf.append(req.getServerName());
-        if(req.getServerPort()!=80)
+        if (req.getServerPort() != 80) {
             buf.append(':').append(req.getServerPort());
+        }
         buf.append(req.getContextPath()).append('/');
         return buf.toString();
     }
 
     public Object getDynamic(String token) {
-        for (Action a : getActions())
-            if(a.getUrlName().equals(token) || a.getUrlName().equals('/'+token))
+        for (Action a : getActions()) {
+            if (a.getUrlName().equals(token) || a.getUrlName().equals('/' + token)) {
                 return a;
-        for (Action a : getManagementLinks())
-            if(a.getUrlName().equals(token))
+            }
+        }
+        for (Action a : getManagementLinks()) {
+            if (a.getUrlName().equals(token)) {
                 return a;
+            }
+        }
         return null;
     }
-
 
 //
 //
@@ -431,7 +403,7 @@ public synchronized View getView(String name) {
     /**
      * Accepts submission from the configuration page.
      */
-    public synchronized void doConfigSubmit( StaplerRequest req, StaplerResponse rsp ) throws IOException, ServletException, FormException {
+    public synchronized void doConfigSubmit(StaplerRequest req, StaplerResponse rsp) throws IOException, ServletException, FormException {
         BulkChange bc = new BulkChange(this);
         try {
             checkPermission(ADMINISTER);
@@ -444,11 +416,11 @@ public synchronized View getView(String name) {
             if (json.has("use_security")) {
                 useSecurity = true;
                 JSONObject security = json.getJSONObject("use_security");
-                setSecurityRealm(SecurityRealmExt.all().newInstanceFromRadioList(security,"realm"));
+                setSecurityRealm(SecurityRealmExt.all().newInstanceFromRadioList(security, "realm"));
                 setAuthorizationStrategy(AuthorizationStrategyExt.all().newInstanceFromRadioList(security, "authorization"));
 
                 if (security.has("markupFormatter")) {
-                    markupFormatter = req.bindJSON(MarkupFormatter.class,security.getJSONObject("markupFormatter"));
+                    markupFormatter = req.bindJSON(MarkupFormatter.class, security.getJSONObject("markupFormatter"));
                 } else {
                     markupFormatter = null;
                 }
@@ -460,20 +432,20 @@ public synchronized View getView(String name) {
             }
 
             if (json.has("csrf")) {
-            	JSONObject csrf = json.getJSONObject("csrf");
+                JSONObject csrf = json.getJSONObject("csrf");
                 setCrumbIssuer(CrumbIssuer.all().newInstanceFromRadioList(csrf, "issuer"));
             } else {
-            	setCrumbIssuer(null);
+                setCrumbIssuer(null);
             }
 
             if (json.has("viewsTabBar")) {
-                viewsTabBar = req.bindJSON(ViewsTabBar.class,json.getJSONObject("viewsTabBar"));
+                viewsTabBar = req.bindJSON(ViewsTabBar.class, json.getJSONObject("viewsTabBar"));
             } else {
                 viewsTabBar = new DefaultViewsTabBar();
             }
 
             if (json.has("myViewsTabBar")) {
-                myViewsTabBar = req.bindJSON(MyViewsTabBar.class,json.getJSONObject("myViewsTabBar"));
+                myViewsTabBar = req.bindJSON(MyViewsTabBar.class, json.getJSONObject("myViewsTabBar"));
             } else {
                 myViewsTabBar = new DefaultMyViewsTabBar();
             }
@@ -484,40 +456,42 @@ public synchronized View getView(String name) {
 
             {
                 String v = req.getParameter("slaveAgentPortType");
-                if(!isUseSecurity() || v==null || v.equals("random"))
+                if (!isUseSecurity() || v == null || v.equals("random")) {
                     slaveAgentPort = 0;
-                else
-                if(v.equals("disable"))
+                } else if (v.equals("disable")) {
                     slaveAgentPort = -1;
-                else {
+                } else {
                     try {
                         slaveAgentPort = Integer.parseInt(req.getParameter("slaveAgentPort"));
                     } catch (NumberFormatException e) {
-                        throw new FormException(Messages.Hudson_BadPortNumber(req.getParameter("slaveAgentPort")),"slaveAgentPort");
+                        throw new FormException(Messages.Hudson_BadPortNumber(req.getParameter("slaveAgentPort")), "slaveAgentPort");
                     }
                 }
 
                 // relaunch the agent
-                if(tcpSlaveAgentListener==null) {
-                    if(slaveAgentPort!=-1)
+                if (tcpSlaveAgentListener == null) {
+                    if (slaveAgentPort != -1) {
                         tcpSlaveAgentListener = new TcpSlaveAgentListener(slaveAgentPort);
+                    }
                 } else {
-                    if(tcpSlaveAgentListener.configuredPort!=slaveAgentPort) {
+                    if (tcpSlaveAgentListener.configuredPort != slaveAgentPort) {
                         tcpSlaveAgentListener.shutdown();
                         tcpSlaveAgentListener = null;
-                        if(slaveAgentPort!=-1)
+                        if (slaveAgentPort != -1) {
                             tcpSlaveAgentListener = new TcpSlaveAgentListener(slaveAgentPort);
+                        }
                     }
                 }
             }
 
             numExecutors = json.getInt("numExecutors");
-            if(req.hasParameter("master.mode"))
+            if (req.hasParameter("master.mode")) {
                 mode = ModeExt.valueOf(req.getParameter("master.mode"));
-            else
+            } else {
                 mode = ModeExt.NORMAL;
+            }
 
-            label = json.optString("labelString","");
+            label = json.optString("labelString", "");
 
             quietPeriod = json.getInt("quiet_period");
 
@@ -526,16 +500,18 @@ public synchronized View getView(String name) {
             systemMessage = UtilExt.nullify(req.getParameter("system_message"));
 
             jdks.clear();
-            jdks.addAll(req.bindJSONToList(JDKExt.class,json.get("jdks")));
+            jdks.addAll(req.bindJSONToList(JDKExt.class, json.get("jdks")));
 
             boolean result = true;
-            for( Descriptor<?> d : Functions.getSortedDescriptorsForGlobalConfig() )
-                result &= configureDescriptor(req,json,d);
+            for (Descriptor<?> d : Functions.getSortedDescriptorsForGlobalConfig()) {
+                result &= configureDescriptor(req, json, d);
+            }
 
-            for( JSONObject o : StructuredForm.toList(json,"plugin"))
+            for (JSONObject o : StructuredForm.toList(json, "plugin")) {
                 pluginManager.getPlugin(o.getString("name")).getPlugin().configure(req, o);
+            }
 
-            clouds.rebuildHetero(req,json, Cloud.all(), "cloud");
+            clouds.rebuildHetero(req, json, Cloud.all(), "cloud");
 
             JSONObject np = json.getJSONObject("globalNodeProperties");
             if (np != null) {
@@ -546,17 +522,17 @@ public synchronized View getView(String name) {
 
             save();
             updateComputerList();
-            if(result)
-                rsp.sendRedirect(req.getContextPath()+'/');  // go to the top page
-            else
+            if (result) {
+                rsp.sendRedirect(req.getContextPath() + '/');  // go to the top page
+            } else {
                 rsp.sendRedirect("configure"); // back to config
+            }
         } finally {
             bc.commit();
         }
     }
 
-  
-    public synchronized void doTestPost( StaplerRequest req, StaplerResponse rsp ) throws IOException, ServletException {
+    public synchronized void doTestPost(StaplerRequest req, StaplerResponse rsp) throws IOException, ServletException {
         rsp.sendRedirect("foo");
     }
 
@@ -571,7 +547,7 @@ public synchronized View getView(String name) {
     /**
      * Accepts submission from the configuration page.
      */
-    public synchronized void doConfigExecutorsSubmit( StaplerRequest req, StaplerResponse rsp ) throws IOException, ServletException {
+    public synchronized void doConfigExecutorsSubmit(StaplerRequest req, StaplerResponse rsp) throws IOException, ServletException {
         checkPermission(ADMINISTER);
 
         BulkChange bc = new BulkChange(this);
@@ -579,12 +555,13 @@ public synchronized View getView(String name) {
             JSONObject json = req.getSubmittedForm();
 
             setNumExecutors(Integer.parseInt(req.getParameter("numExecutors")));
-            if(req.hasParameter("master.mode"))
+            if (req.hasParameter("master.mode")) {
                 mode = ModeExt.valueOf(req.getParameter("master.mode"));
-            else
+            } else {
                 mode = ModeExt.NORMAL;
+            }
 
-            setNodes(req.bindJSONToList(SlaveExt.class,json.get("slaves")));
+            setNodes(req.bindJSONToList(SlaveExt.class, json.get("slaves")));
         } finally {
             bc.commit();
         }
@@ -595,7 +572,7 @@ public synchronized View getView(String name) {
     /**
      * Accepts the new description.
      */
-    public synchronized void doSubmitDescription( StaplerRequest req, StaplerResponse rsp ) throws IOException, ServletException {
+    public synchronized void doSubmitDescription(StaplerRequest req, StaplerResponse rsp) throws IOException, ServletException {
         getPrimaryView().doSubmitDescription(req, rsp);
     }
 
@@ -609,32 +586,34 @@ public synchronized View getView(String name) {
 
     public synchronized HttpRedirect doQuietDown() throws IOException {
         try {
-            return doQuietDown(false,0);
+            return doQuietDown(false, 0);
         } catch (InterruptedException e) {
             throw new AssertionError(); // impossible
         }
     }
 
-    @CLIMethod(name="quiet-down")
+    @CLIMethod(name = "quiet-down")
     public HttpRedirect doQuietDown(
-            @Option(name="-block",usage="Block until the system really quiets down and no builds are running") @QueryParameter boolean block,
-            @Option(name="-timeout",usage="If non-zero, only block up to the specified number of milliseconds") @QueryParameter int timeout) throws InterruptedException, IOException {
+            @Option(name = "-block", usage = "Block until the system really quiets down and no builds are running") @QueryParameter boolean block,
+            @Option(name = "-timeout", usage = "If non-zero, only block up to the specified number of milliseconds") @QueryParameter int timeout) throws InterruptedException, IOException {
         synchronized (this) {
             checkPermission(ADMINISTER);
             isQuietingDown = true;
         }
         if (block) {
-            if (timeout > 0) timeout += System.currentTimeMillis();
+            if (timeout > 0) {
+                timeout += System.currentTimeMillis();
+            }
             while (isQuietingDown
-                   && (timeout <= 0 || System.currentTimeMillis() < timeout)
-                   && !RestartListener.isAllReady()) {
+                    && (timeout <= 0 || System.currentTimeMillis() < timeout)
+                    && !RestartListener.isAllReady()) {
                 Thread.sleep(1000);
             }
         }
         return new HttpRedirect(".");
     }
 
-    @CLIMethod(name="cancel-quiet-down")
+    @CLIMethod(name = "cancel-quiet-down")
     public synchronized HttpRedirect doCancelQuietDown() {
         checkPermission(ADMINISTER);
         isQuietingDown = false;
@@ -649,14 +628,13 @@ public synchronized View getView(String name) {
         rsp.sendRedirect2("threadDump");
     }
 
-    public synchronized ItemExt doCreateItem( StaplerRequest req, StaplerResponse rsp ) throws IOException, ServletException {
+    public synchronized ItemExt doCreateItem(StaplerRequest req, StaplerResponse rsp) throws IOException, ServletException {
         return itemGroupMixIn.createTopLevelItem(req, rsp);
     }
 
-
-    public synchronized void doCreateView( StaplerRequest req, StaplerResponse rsp ) throws IOException, ServletException, FormException {
+    public synchronized void doCreateView(StaplerRequest req, StaplerResponse rsp) throws IOException, ServletException, FormException {
         checkPermission(View.CREATE);
-        addView(View.create(req,rsp, this));
+        addView(View.create(req, rsp, this));
     }
 
     /**
@@ -664,18 +642,19 @@ public synchronized View getView(String name) {
      *
      * @see BasicAuthenticationFilter
      */
-    public void doSecured( StaplerRequest req, StaplerResponse rsp ) throws IOException, ServletException {
-        if(req.getUserPrincipal()==null) {
+    public void doSecured(StaplerRequest req, StaplerResponse rsp) throws IOException, ServletException {
+        if (req.getUserPrincipal() == null) {
             // authentication must have failed
             rsp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             return;
         }
 
         // the user is now authenticated, so send him back to the target
-        String path = req.getContextPath()+req.getOriginalRestOfPath();
+        String path = req.getContextPath() + req.getOriginalRestOfPath();
         String q = req.getQueryString();
-        if(q!=null)
-            path += '?'+q;
+        if (q != null) {
+            path += '?' + q;
+        }
 
         rsp.sendRedirect2(path);
     }
@@ -683,20 +662,20 @@ public synchronized View getView(String name) {
     /**
      * Called once the user logs in. Just forward to the top page.
      */
-    public void doLoginEntry( StaplerRequest req, StaplerResponse rsp ) throws IOException {
-        if(req.getUserPrincipal()==null) {
+    public void doLoginEntry(StaplerRequest req, StaplerResponse rsp) throws IOException {
+        if (req.getUserPrincipal() == null) {
             rsp.sendRedirect2("noPrincipal");
             return;
         }
 
         String from = req.getParameter("from");
-        if(from!=null && from.startsWith("/") && !from.equals("/loginError")) {
+        if (from != null && from.startsWith("/") && !from.equals("/loginError")) {
             rsp.sendRedirect2(from);    // I'm bit uncomfortable letting users redircted to other sites, make sure the URL falls into this domain
             return;
         }
 
         String url = AbstractProcessingFilter.obtainFullRequestUrl(req);
-        if(url!=null) {
+        if (url != null) {
             // if the login redirect is initiated by Acegi
             // this should send the user back to where s/he was from.
             rsp.sendRedirect2(url);
@@ -709,10 +688,9 @@ public synchronized View getView(String name) {
     /**
      * Logs out the user.
      */
-    public void doLogout( StaplerRequest req, StaplerResponse rsp ) throws IOException, ServletException {
+    public void doLogout(StaplerRequest req, StaplerResponse rsp) throws IOException, ServletException {
         securityRealm.doLogout(req, rsp);
     }
-
 
     public SlaveExt.JnlpJar doJnlpJars(StaplerRequest req) {
         return new SlaveExt.JnlpJar(req.getRestOfPath());
@@ -724,15 +702,15 @@ public synchronized View getView(String name) {
      * @deprecated
      *   As on 1.267, moved to "/log/rss..."
      */
-    public void doLogRss( StaplerRequest req, StaplerResponse rsp ) throws IOException, ServletException {
+    public void doLogRss(StaplerRequest req, StaplerResponse rsp) throws IOException, ServletException {
         String qs = req.getQueryString();
-        rsp.sendRedirect2("./log/rss"+(qs==null?"":'?'+qs));
+        rsp.sendRedirect2("./log/rss" + (qs == null ? "" : '?' + qs));
     }
 
     /**
      * Reloads the configuration.
      */
-    @CLIMethod(name="reload-configuration")
+    @CLIMethod(name = "reload-configuration")
     public synchronized HttpResponse doReload() throws IOException {
         checkPermission(ADMINISTER);
 
@@ -740,17 +718,18 @@ public synchronized View getView(String name) {
         servletContext.setAttribute("app", new HudsonIsLoading());
 
         new Thread("Hudson config reload thread") {
+
             @Override
             public void run() {
                 try {
                     SecurityContextHolder.getContext().setAuthentication(ACL.SYSTEM);
                     reload();
                 } catch (IOException e) {
-                    LOGGER.log(SEVERE,"Failed to reload Hudson config",e);
+                    LOGGER.log(SEVERE, "Failed to reload Hudson config", e);
                 } catch (ReactorException e) {
-                    LOGGER.log(SEVERE,"Failed to reload Hudson config",e);
+                    LOGGER.log(SEVERE, "Failed to reload Hudson config", e);
                 } catch (InterruptedException e) {
-                    LOGGER.log(SEVERE,"Failed to reload Hudson config",e);
+                    LOGGER.log(SEVERE, "Failed to reload Hudson config", e);
                 }
             }
         }.start();
@@ -758,19 +737,18 @@ public synchronized View getView(String name) {
         return HttpResponses.redirectViaContextPath("/");
     }
 
-
     /**
      * Do a finger-print check.
      */
-    public void doDoFingerprintCheck( StaplerRequest req, StaplerResponse rsp ) throws IOException, ServletException {
+    public void doDoFingerprintCheck(StaplerRequest req, StaplerResponse rsp) throws IOException, ServletException {
         // Parse the request
         MultipartFormDataParser p = new MultipartFormDataParser(req);
-        if(Hudson.getInstance().isUseCrumbs() && !Hudson.getInstance().getCrumbIssuer().validateCrumb(req, p)) {
-            rsp.sendError(HttpServletResponse.SC_FORBIDDEN,"No crumb found");
+        if (Hudson.getInstance().isUseCrumbs() && !Hudson.getInstance().getCrumbIssuer().validateCrumb(req, p)) {
+            rsp.sendError(HttpServletResponse.SC_FORBIDDEN, "No crumb found");
         }
         try {
-            rsp.sendRedirect2(req.getContextPath()+"/fingerprint/"+
-                UtilExt.getDigestOf(p.getFileItem("name").getInputStream())+'/');
+            rsp.sendRedirect2(req.getContextPath() + "/fingerprint/"
+                    + UtilExt.getDigestOf(p.getFileItem("name").getInputStream()) + '/');
         } finally {
             p.cleanUp();
         }
@@ -787,8 +765,6 @@ public synchronized View getView(String name) {
         rsp.getWriter().println("GCed");
     }
 
-    
-
     /**
      * Handles HTTP requests for duplex channels for CLI.
      */
@@ -796,7 +772,7 @@ public synchronized View getView(String name) {
         if (!"POST".equals(req.getMethod())) {
             // for GET request, serve _cli.jelly, assuming this is a browser
             checkPermission(READ);
-            req.getView(this,"_cli.jelly").forward(req,rsp);
+            req.getView(this, "_cli.jelly").forward(req, rsp);
             return;
         }
 
@@ -804,24 +780,25 @@ public synchronized View getView(String name) {
         // the actual authentication for the connecting Channel is done by CLICommand
 
         UUID uuid = UUID.fromString(req.getHeader("Session"));
-        rsp.setHeader("Hudson-Duplex",""); // set the header so that the client would know
+        rsp.setHeader("Hudson-Duplex", ""); // set the header so that the client would know
 
         FullDuplexHttpChannel server;
-        if(req.getHeader("Side").equals("download")) {
-            duplexChannels.put(uuid,server=new FullDuplexHttpChannel(uuid, !hasPermission(ADMINISTER)) {
+        if (req.getHeader("Side").equals("download")) {
+            duplexChannels.put(uuid, server = new FullDuplexHttpChannel(uuid, !hasPermission(ADMINISTER)) {
+
                 protected void main(Channel channel) throws IOException, InterruptedException {
                     // capture the identity given by the transport, since this can be useful for SecurityRealm.createCliAuthenticator()
-                    channel.setProperty(CLICommand.TRANSPORT_AUTHENTICATION,getAuthentication());
-                    channel.setProperty(CliEntryPoint.class.getName(),new CliManagerImpl());
+                    channel.setProperty(CLICommand.TRANSPORT_AUTHENTICATION, getAuthentication());
+                    channel.setProperty(CliEntryPoint.class.getName(), new CliManagerImpl());
                 }
             });
             try {
-                server.download(req,rsp);
+                server.download(req, rsp);
             } finally {
                 duplexChannels.remove(uuid);
             }
         } else {
-            duplexChannels.get(uuid).upload(req,rsp);
+            duplexChannels.get(uuid).upload(req, rsp);
         }
     }
 
@@ -829,7 +806,7 @@ public synchronized View getView(String name) {
      * Binds /userContent/... to $HUDSON_HOME/userContent.
      */
     public DirectoryBrowserSupportExt doUserContent() {
-        return new DirectoryBrowserSupportExt(this,getRootPath().child("userContent"),"User content","folder.gif",true);
+        return new DirectoryBrowserSupportExt(this, getRootPath().child("userContent"), "User content", "folder.gif", true);
     }
 
     /**
@@ -837,18 +814,20 @@ public synchronized View getView(String name) {
      *
      * This first replaces "app" to {@link HudsonIsRestarting}
      */
-    @CLIMethod(name="restart")
+    @CLIMethod(name = "restart")
     public void doRestart(StaplerRequest req, StaplerResponse rsp) throws IOException, ServletException, RestartNotSupportedException {
         checkPermission(ADMINISTER);
         if (req != null && req.getMethod().equals("GET")) {
-            req.getView(this,"_restart.jelly").forward(req,rsp);
+            req.getView(this, "_restart.jelly").forward(req, rsp);
             return;
         }
 
         restart();
 
         if (rsp != null) // null for CLI
+        {
             rsp.sendRedirect2(".");
+        }
     }
 
     /**
@@ -858,26 +837,27 @@ public synchronized View getView(String name) {
      *
      * @since 1.332
      */
-    @CLIMethod(name="safe-restart")
+    @CLIMethod(name = "safe-restart")
     public void doSafeRestart(StaplerRequest req, StaplerResponse rsp) throws IOException, ServletException, RestartNotSupportedException {
         checkPermission(ADMINISTER);
         if (req != null && req.getMethod().equals("GET")) {
-            req.getView(this,"_safeRestart.jelly").forward(req,rsp);
+            req.getView(this, "_safeRestart.jelly").forward(req, rsp);
             return;
         }
 
         safeRestart();
 
         if (rsp != null) // null for CLI
+        {
             rsp.sendRedirect2(".");
+        }
     }
 
-     
     /**
      * Shutdown the system.
      * @since 1.161
      */
-    public void doExit( StaplerRequest req, StaplerResponse rsp ) throws IOException {
+    public void doExit(StaplerRequest req, StaplerResponse rsp) throws IOException {
         checkPermission(ADMINISTER);
         LOGGER.severe(String.format("Shutting down VM as requested by %s from %s",
                 getAuthentication().getName(), req.getRemoteAddr()));
@@ -890,12 +870,11 @@ public synchronized View getView(String name) {
         System.exit(0);
     }
 
-
     /**
      * Shutdown the system safely.
      * @since 1.332
      */
-    public void doSafeExit( StaplerRequest req, StaplerResponse rsp ) throws IOException {
+    public void doSafeExit(StaplerRequest req, StaplerResponse rsp) throws IOException {
         checkPermission(ADMINISTER);
         rsp.setStatus(HttpServletResponse.SC_OK);
         rsp.setContentType("text/plain");
@@ -906,15 +885,16 @@ public synchronized View getView(String name) {
         final String exitUser = getAuthentication().getName();
         final String exitAddr = req.getRemoteAddr().toString();
         new Thread("safe-exit thread") {
+
             @Override
             public void run() {
                 try {
                     SecurityContextHolder.getContext().setAuthentication(ACL.SYSTEM);
                     LOGGER.severe(String.format("Shutting down VM as requested by %s from %s",
-                                                exitUser, exitAddr));
+                            exitUser, exitAddr));
                     // Wait 'til we have no active executors.
                     while (isQuietingDown
-                           && (overallLoad.computeTotalExecutors() > overallLoad.computeIdleExecutors())) {
+                            && (overallLoad.computeTotalExecutors() > overallLoad.computeIdleExecutors())) {
                         Thread.sleep(5000);
                     }
                     // Make sure isQuietingDown is still true.
@@ -923,12 +903,11 @@ public synchronized View getView(String name) {
                         System.exit(0);
                     }
                 } catch (InterruptedException e) {
-                    LOGGER.log(Level.WARNING, "Failed to shutdown Hudson",e);
+                    LOGGER.log(Level.WARNING, "Failed to shutdown Hudson", e);
                 }
             }
         }.start();
     }
-
 
     /**
      * For system diagnostics.
@@ -962,6 +941,46 @@ public synchronized View getView(String name) {
         view.forward(req, rsp);
     }
 
+    @Override
+    public void cleanUp() {
+        super.cleanUp();
+        if (dnsMultiCast != null) {
+            dnsMultiCast.close();
+        }
+    }
+
+    @Override
+    public SearchIndexBuilder makeSearchIndex() {
+        return super.makeSearchIndex().add("configure", "config", "configure").add("manage").add("log").add(getPrimaryView().makeSearchIndex()).add(new CollectionSearchIndex() {// for computers
+
+            protected ComputerExt get(String key) {
+                return getComputer(key);
+            }
+
+            protected Collection<ComputerExt> all() {
+                return computers.values();
+            }
+        }).add(new CollectionSearchIndex() {// for users
+
+            protected UserExt get(String key) {
+                return UserExt.get(key, false);
+            }
+
+            protected Collection<UserExt> all() {
+                return UserExt.getAll();
+            }
+        }).add(new CollectionSearchIndex() {// for views
+
+            protected View get(String key) {
+                return getView(key);
+            }
+
+            protected Collection<View> all() {
+                return views;
+            }
+        });
+    }
+
     /**
      * Evaluates the Jelly script submitted by the client.
      *
@@ -974,7 +993,7 @@ public synchronized View getView(String name) {
         try {
             MetaClass mc = WebApp.getCurrent().getMetaClass(getClass());
             Script script = mc.classLoader.loadTearOff(JellyClassLoaderTearOff.class).createContext().compileScript(new InputSource(req.getReader()));
-            new JellyRequestDispatcher(this,script).forward(req,rsp);
+            new JellyRequestDispatcher(this, script).forward(req, rsp);
         } catch (JellyException e) {
             throw new ServletException(e);
         }
@@ -983,22 +1002,25 @@ public synchronized View getView(String name) {
     /**
      * Sign up for the user account.
      */
-    public void doSignup( StaplerRequest req, StaplerResponse rsp ) throws IOException, ServletException {
+    public void doSignup(StaplerRequest req, StaplerResponse rsp) throws IOException, ServletException {
         req.getView(getSecurityRealm(), "signup.jelly").forward(req, rsp);
     }
 
     /**
      * Changes the icon size by changing the cookie
      */
-    public void doIconSize( StaplerRequest req, StaplerResponse rsp ) throws IOException, ServletException {
+    public void doIconSize(StaplerRequest req, StaplerResponse rsp) throws IOException, ServletException {
         String qs = req.getQueryString();
-        if(qs==null || !ICON_SIZE.matcher(qs).matches())
+        if (qs == null || !ICON_SIZE.matcher(qs).matches()) {
             throw new ServletException();
+        }
         Cookie cookie = new Cookie("iconSize", qs);
         cookie.setMaxAge(/* ~4 mo. */9999999); // #762
         rsp.addCookie(cookie);
         String ref = req.getHeader("Referer");
-        if(ref==null)   ref=".";
+        if (ref == null) {
+            ref = ".";
+        }
         rsp.sendRedirect2(ref);
     }
 
@@ -1020,16 +1042,18 @@ public synchronized View getView(String name) {
      * If the user chose the default JDKExt, make sure we got 'java' in PATH.
      */
     public FormValidation doDefaultJDKCheck(StaplerRequest request, @QueryParameter String value) {
-        if(!value.equals("(Default)"))
-            // assume the user configured named ones properly in system config ---
-            // or else system config should have reported form field validation errors.
+        if (!value.equals("(Default)")) // assume the user configured named ones properly in system config ---
+        // or else system config should have reported form field validation errors.
+        {
             return FormValidation.ok();
+        }
 
         // default JDKExt selected. Does such java really exist?
-        if(JDKExt.isDefaultJDKValid(Hudson.this))
+        if (JDKExt.isDefaultJDKValid(Hudson.this)) {
             return FormValidation.ok();
-        else
+        } else {
             return FormValidation.errorWithMarkup(Messages.Hudson_NoJavaInPath(request.getContextPath()));
+        }
     }
 
     /**
@@ -1040,8 +1064,9 @@ public synchronized View getView(String name) {
         // so it should be protected.
         checkPermission(ItemExt.CREATE);
 
-        if(fixEmpty(value)==null)
+        if (fixEmpty(value) == null) {
             return FormValidation.ok();
+        }
 
         try {
             checkJobName(value);
@@ -1058,12 +1083,15 @@ public synchronized View getView(String name) {
         checkPermission(View.CREATE);
 
         String view = fixEmpty(value);
-        if(view==null) return FormValidation.ok();
-
-        if(getView(view)==null)
+        if (view == null) {
             return FormValidation.ok();
-        else
+        }
+
+        if (getView(view) == null) {
+            return FormValidation.ok();
+        } else {
             return FormValidation.error(Messages.Hudson_ViewAlreadyExists(view));
+        }
     }
 
     /**
@@ -1075,7 +1103,7 @@ public synchronized View getView(String name) {
                 fixEmpty(req.getParameter("value")),
                 fixEmpty(req.getParameter("type")),
                 fixEmpty(req.getParameter("errorText")),
-                fixEmpty(req.getParameter("warningText"))).generateResponse(req,rsp,this);
+                fixEmpty(req.getParameter("warningText"))).generateResponse(req, rsp, this);
     }
 
     /**
@@ -1091,15 +1119,17 @@ public synchronized View getView(String name) {
      *      Either use client-side validation (e.g. class="required number")
      *      or define your own check method, instead of relying on this generic one.
      */
-    public FormValidation doFieldCheck(@QueryParameter(fixEmpty=true) String value,
-                                       @QueryParameter(fixEmpty=true) String type,
-                                       @QueryParameter(fixEmpty=true) String errorText,
-                                       @QueryParameter(fixEmpty=true) String warningText) {
+    public FormValidation doFieldCheck(@QueryParameter(fixEmpty = true) String value,
+            @QueryParameter(fixEmpty = true) String type,
+            @QueryParameter(fixEmpty = true) String errorText,
+            @QueryParameter(fixEmpty = true) String warningText) {
         if (value == null) {
-            if (errorText != null)
+            if (errorText != null) {
                 return FormValidation.error(errorText);
-            if (warningText != null)
+            }
+            if (warningText != null) {
                 return FormValidation.warning(warningText);
+            }
             return FormValidation.error("No error or warning text was set for fieldCheck().");
         }
 
@@ -1108,11 +1138,13 @@ public synchronized View getView(String name) {
                 if (type.equalsIgnoreCase("number")) {
                     NumberFormat.getInstance().parse(value);
                 } else if (type.equalsIgnoreCase("number-positive")) {
-                    if (NumberFormat.getInstance().parse(value).floatValue() <= 0)
+                    if (NumberFormat.getInstance().parse(value).floatValue() <= 0) {
                         return FormValidation.error(Messages.Hudson_NotAPositiveNumber());
+                    }
                 } else if (type.equalsIgnoreCase("number-negative")) {
-                    if (NumberFormat.getInstance().parse(value).floatValue() >= 0)
+                    if (NumberFormat.getInstance().parse(value).floatValue() >= 0) {
                         return FormValidation.error(Messages.Hudson_NotANegativeNumber());
+                    }
                 }
             } catch (ParseException e) {
                 return FormValidation.error(Messages.Hudson_NotANumber());
@@ -1135,21 +1167,20 @@ public synchronized View getView(String name) {
         // cut off the "..." portion of /resources/.../path/to/file
         // as this is only used to make path unique (which in turn
         // allows us to set a long expiration date
-        path = path.substring(path.indexOf('/',1)+1);
+        path = path.substring(path.indexOf('/', 1) + 1);
 
         int idx = path.lastIndexOf('.');
-        String extension = path.substring(idx+1);
-        if(ALLOWED_RESOURCE_EXTENSIONS.contains(extension)) {
+        String extension = path.substring(idx + 1);
+        if (ALLOWED_RESOURCE_EXTENSIONS.contains(extension)) {
             URL url = pluginManager.uberClassLoader.getResource(path);
-            if(url!=null) {
+            if (url != null) {
                 long expires = MetaClass.NO_CACHE ? 0 : 365L * 24 * 60 * 60 * 1000; /*1 year*/
-                rsp.serveFile(req,url,expires);
+                rsp.serveFile(req, url, expires);
                 return;
             }
         }
         rsp.sendError(HttpServletResponse.SC_NOT_FOUND);
     }
-
 
     /**
      * Checks if container uses UTF-8 to decode URLs. See
@@ -1159,8 +1190,9 @@ public synchronized View getView(String name) {
         // expected is non-ASCII String
         final String expected = "\u57f7\u4e8b";
         final String value = fixEmpty(request.getParameter("value"));
-        if (!expected.equals(value))
+        if (!expected.equals(value)) {
             return FormValidation.warningWithMarkup(Messages.Hudson_NotUsesUTF8ToDecodeURL());
+        }
         return FormValidation.ok();
     }
 
@@ -1169,20 +1201,113 @@ public synchronized View getView(String name) {
             checkPermission(READ);
         } catch (AccessDeniedException e) {
             String rest = Stapler.getCurrentRequest().getRestOfPath();
-            if(rest.startsWith("/login")
-            || rest.startsWith("/logout")
-            || rest.startsWith("/accessDenied")
-            || rest.startsWith("/signup")
-            || rest.startsWith("/jnlpJars/")
-            || rest.startsWith("/tcpSlaveAgentListener")
-            || rest.startsWith("/cli")
-            || rest.startsWith("/whoAmI")
-            || rest.startsWith("/federatedLoginService/")
-            || rest.startsWith("/securityRealm"))
+            if (rest.startsWith("/login")
+                    || rest.startsWith("/logout")
+                    || rest.startsWith("/accessDenied")
+                    || rest.startsWith("/signup")
+                    || rest.startsWith("/jnlpJars/")
+                    || rest.startsWith("/tcpSlaveAgentListener")
+                    || rest.startsWith("/cli")
+                    || rest.startsWith("/whoAmI")
+                    || rest.startsWith("/federatedLoginService/")
+                    || rest.startsWith("/securityRealm")) {
                 return this;    // URLs that are always visible without READ permission
+            }
             throw e;
         }
         return this;
+    }
+
+    /**
+     * Performs a restart.
+     */
+    @Override
+    public void restart() throws RestartNotSupportedException {
+        servletContext.setAttribute("app", new HudsonIsRestarting());
+        super.restart();
+    }
+
+    @Override
+    protected synchronized TaskBuilder loadTasks() throws IOException {
+
+        views.clear();
+
+        TaskGraphBuilder g = (TaskGraphBuilder) super.loadTasks();
+
+        g.requires(InitMilestone.JOB_LOADED).add("Finalizing set up", new Executable() {
+
+            @Override
+            public void run(Reactor session) throws Exception {
+
+                // initialize views by inserting the default view if necessary
+                // this is both for clean HudsonExt and for backward compatibility.
+                if (views.isEmpty() || primaryView == null) {
+                    View v = new AllView(Messages.Hudson_ViewName());
+                    v.owner = Hudson.this;
+                    views.add(0, v);
+                    primaryView = v.getViewName();
+                }
+
+            }
+        });
+
+        return g;
+    }
+
+    /**
+     * Queues up a restart to be performed once there are no builds currently running.
+     * @since 1.332
+     */
+    public void safeRestart() throws RestartNotSupportedException {
+        final Lifecycle lifecycle = Lifecycle.get();
+        lifecycle.verifyRestartable(); // verify that HudsonExt is restartable
+        // Quiet down so that we won't launch new builds.
+        isQuietingDown = true;
+
+        new Thread("safe-restart thread") {
+
+            final String exitUser = getAuthentication().getName();
+
+            @Override
+            public void run() {
+                try {
+                    SecurityContextHolder.getContext().setAuthentication(ACL.SYSTEM);
+
+                    // Wait 'til we have no active executors.
+                    doQuietDown(true, 0);
+
+                    // Make sure isQuietingDown is still true.
+                    if (isQuietingDown) {
+                        servletContext.setAttribute("app", new HudsonIsRestarting());
+                        // give some time for the browser to load the "reloading" page
+                        LOGGER.info("Restart in 10 seconds");
+                        Thread.sleep(10000);
+                        LOGGER.severe(String.format("Restarting VM as requested by %s", exitUser));
+                        for (RestartListener listener : RestartListener.all()) {
+                            listener.onRestart();
+                        }
+                        lifecycle.restart();
+                    } else {
+                        LOGGER.info("Safe-restart mode cancelled");
+                    }
+                } catch (InterruptedException e) {
+                    LOGGER.log(Level.WARNING, "Failed to restart Hudson", e);
+                } catch (IOException e) {
+                    LOGGER.log(Level.WARNING, "Failed to restart Hudson", e);
+                }
+            }
+        }.start();
+    }
+
+    /**
+     * Gets the {@link Widget}s registered on this object.
+     *
+     * <p>
+     * Plugins who wish to contribute boxes on the side panel can add widgets
+     * by {@code getWidgets().add(new MyWidget())} from {@link PluginExt#start()}.
+     */
+    public List<Widget> getWidgets() {
+        return widgets;
     }
 
     /**
@@ -1193,6 +1318,7 @@ public synchronized View getView(String name) {
     }
 
     public static final class MasterComputer extends Computer {
+
         private MasterComputer() {
             super(Hudson.getInstance());
         }
@@ -1247,10 +1373,11 @@ public synchronized View getView(String name) {
         public boolean hasPermission(Permission permission) {
             // no one should be allowed to delete the master.
             // this hides the "delete" link from the /computer/(master) page.
-            if(permission==ComputerExt.DELETE)
+            if (permission == ComputerExt.DELETE) {
                 return false;
+            }
             // Configuration of master node requires ADMINISTER permission
-            return super.hasPermission(permission==ComputerExt.CONFIGURE ? Hudson.ADMINISTER : permission);
+            return super.hasPermission(permission == ComputerExt.CONFIGURE ? Hudson.ADMINISTER : permission);
         }
 
         @Override
@@ -1277,20 +1404,18 @@ public synchronized View getView(String name) {
          * Redirect the master configuration to /configure.
          */
         public void doConfigure(StaplerRequest req, StaplerResponse rsp) throws IOException, ServletException {
-            rsp.sendRedirect2(req.getContextPath()+"/configure");
+            rsp.sendRedirect2(req.getContextPath() + "/configure");
         }
 
         protected Future<?> _connect(boolean forceReconnect) {
             return Futures.precomputed(null);
         }
-
         /**
          * {@link LocalChannel} instance that can be used to execute programs locally.
          */
         public static final LocalChannel localChannel = new LocalChannel(threadPoolForRemoting);
     }
 
-    
     /**
      * @deprecated since 2007-12-18.
      *      Use {@link #checkPermission(Permission)}
@@ -1298,7 +1423,7 @@ public synchronized View getView(String name) {
     public static boolean adminCheck() throws IOException {
         return adminCheck(Stapler.getCurrentRequest(), Stapler.getCurrentResponse());
     }
-    
+
     /**
      * @deprecated since 2007-12-18.
      *      Define a custom {@link Permission} and check against ACL.
@@ -1308,16 +1433,24 @@ public synchronized View getView(String name) {
         return isAdmin();
     }
 
-
     /**
      * @deprecated since 2007-12-18.
      *      Use {@link #checkPermission(Permission)}
      */
-    public static boolean adminCheck(StaplerRequest req,StaplerResponse rsp) throws IOException {
-        if (isAdmin(req)) return true;
+    public static boolean adminCheck(StaplerRequest req, StaplerResponse rsp) throws IOException {
+        if (isAdmin(req)) {
+            return true;
+        }
 
         rsp.sendError(StaplerResponse.SC_FORBIDDEN);
         return false;
     }
 
+    static {
+
+        // for backward compatibility with <1.75, recognize the tag name "view" as well.
+        XSTREAM.alias("view", ListView.class);
+        XSTREAM.alias("listView", ListView.class);
+
+    }
 }

@@ -138,8 +138,8 @@ public abstract class ConsoleNote<T> implements Serializable, Describable<Consol
      */
     public abstract ConsoleAnnotator annotate(T context, MarkupText text, int charPos);
 
-    public ConsoleAnnotationDescriptor getDescriptor() {
-        return (ConsoleAnnotationDescriptor)HudsonExt.getInstance().getDescriptorOrDie(getClass());
+    public ConsoleAnnotationDescriptorExt getDescriptor() {
+        return (ConsoleAnnotationDescriptorExt)HudsonExt.getInstance().getDescriptorOrDie(getClass());
     }
 
     /**

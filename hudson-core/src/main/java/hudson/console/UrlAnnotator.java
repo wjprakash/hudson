@@ -12,7 +12,7 @@ import java.util.regex.Pattern;
  * @author Kohsuke Kawaguchi
  */
 @Extension
-public class UrlAnnotator extends ConsoleAnnotatorFactory<Object> {
+public class UrlAnnotator extends ConsoleAnnotatorFactoryExt<Object> {
     @Override
     public ConsoleAnnotator newInstance(Object context) {
         return new UrlConsoleAnnotator();

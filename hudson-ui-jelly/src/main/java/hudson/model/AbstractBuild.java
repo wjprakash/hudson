@@ -24,9 +24,12 @@
 package hudson.model;
 
 import hudson.Functions;
+import hudson.console.AnnotatedLargeText;
+import hudson.console.ExpandableDetailsNote;
 import hudson.scm.ChangeLogSetExt;
 import hudson.scm.ChangeLogSetExt.Entry;
 import java.io.IOException;
+import java.io.StringWriter;
 import java.util.Set;
 import javax.servlet.ServletException;
 import org.kohsuke.stapler.Stapler;
@@ -87,6 +90,30 @@ public abstract class AbstractBuild extends AbstractBuildExt{
     @Override
     public ChangeLogSetExt<? extends Entry> getChangeSet() {
         return super.getChangeSet();
+    }
+    
+    protected abstract class AbstractRunner extends AbstractRunnerExt {
+        @Override
+         public ResultExt run(BuildListener listener) throws Exception {
+             ResultExt result = super.run(listener);
+             NodeExt node = getCurrentNode();
+             ComputerExt c = node.toComputer();
+                if (c==null || c.isOffline()) {
+                    // As can be seen in HUDSON-5073, when a build fails because of the slave connectivity problem,
+                    // error message doesn't point users to the slave. So let's do it here.
+                    listener.hyperlink("/computer/" + builtOn +"/log","Looks like the node went offline during the build. Check the slave log for the details.");
+
+                    // grab the end of the log file. This might not work very well if the slave already
+                    // starts reconnecting. Fixing this requires a ring buffer in slave logs.
+                    AnnotatedLargeText<ComputerExt> log = c.getLogText();
+                    StringWriter w = new StringWriter();
+                    log.writeHtmlTo(Math.max(0,c.getLogFile().length()-10240),w);
+
+                    listener.getLogger().print(ExpandableDetailsNote.encodeTo("details",w.toString()));
+                    listener.getLogger().println();
+                }
+             return super.run(listener);
+         }
     }
     
     //

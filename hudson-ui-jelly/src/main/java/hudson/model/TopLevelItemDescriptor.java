@@ -1,18 +1,18 @@
 /*
  * The MIT License
- *
- * Copyright (c) 2010, InfraDNA, Inc.
- *
+ * 
+ * Copyright (c) 2004-2009, Sun Microsystems, Inc., Kohsuke Kawaguchi
+ * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
+ * 
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- *
+ * 
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -21,44 +21,39 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package hudson.matrix;
+package hudson.model;
 
-import hudson.Extension;
-import hudson.model.HudsonExt;
-import org.kohsuke.stapler.DataBoundConstructor;
-
-import java.util.List;
+import hudson.model.Descriptor.FormException;
+import org.kohsuke.stapler.StaplerRequest;
 
 /**
- * {@link AxisExt} that selects label expressions.
+ * {@link DescriptorExt} for {@link TopLevelItem}s.
  *
  * @author Kohsuke Kawaguchi
  */
-public class LabelAxis extends AxisExt {
-    @DataBoundConstructor
-    public LabelAxis(String name, List<String> values) {
-        super(name, values);
+public abstract class TopLevelItemDescriptor extends TopLevelItemDescriptorExt {
+    
+    protected TopLevelItemDescriptor(Class<? extends TopLevelItem> clazz) {
+        super(clazz);
     }
 
-    @Override
-    public boolean isSystem() {
-        return true;
+    /**
+     * Infers the type of the corresponding {@link TopLevelItem} from the outer class.
+     * This version works when you follow the common convention, where a descriptor
+     * is written as the static nested class of the describable class.
+     *
+     * @since 1.278
+     */
+    protected TopLevelItemDescriptor() {
     }
 
-    @Extension
-    public static class DescriptorImpl extends AxisDescriptor {
-        @Override
-        public String getDisplayName() {
-            return Messages.LabelAxis_DisplayName();
-        }
-
-        /**
-         * If there's no distributed build set up, it's pointless to provide this axis.
-         */
-        @Override
-        public boolean isInstantiable() {
-            HudsonExt h = HudsonExt.getInstance();
-            return !h.getNodes().isEmpty() || !h.clouds.isEmpty();
-        }
+    /**
+     * @deprecated since 2007-01-19.
+     *      This is not a valid operation for {@link Job}s.
+     */
+    @Deprecated
+    public TopLevelItem newInstance(StaplerRequest req) throws FormException {
+        throw new UnsupportedOperationException();
     }
+
 }

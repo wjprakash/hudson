@@ -53,6 +53,7 @@ import hudson.tasks.Publisher;
 import hudson.triggers.Trigger;
 import hudson.util.CopyOnWriteMap;
 import hudson.util.DescribableList;
+import hudson.util.TokenList;
 
 import java.io.File;
 import java.io.FileFilter;
@@ -337,7 +338,7 @@ public class MatrixProjectExt extends AbstractProjectExt<MatrixProjectExt,Matrix
 
             for (File v : valuesDir) {
                 Map<String,String> c = new HashMap<String, String>(combination);
-                c.put(axis,TokenList.decode(v.getName()));
+                c.put(axis, TokenList.decode(v.getName()));
 
                 try {
                     XmlFile config = Items.getConfigFile(v);
@@ -497,7 +498,7 @@ public class MatrixProjectExt extends AbstractProjectExt<MatrixProjectExt,Matrix
      */
     public Set<LabelExt> getLabels() {
         Set<LabelExt> r = new HashSet<LabelExt>();
-        for (Combination c : axes.subList(LabelAxis.class).list())
+        for (Combination c : axes.subList(LabelAxisExt.class).list())
             r.add(HudsonExt.getInstance().getLabel(UtilExt.join(c.values(),"&&")));
         return r;
     }
@@ -560,6 +561,10 @@ public class MatrixProjectExt extends AbstractProjectExt<MatrixProjectExt,Matrix
     @Extension
     public static final DescriptorImpl DESCRIPTOR = new DescriptorImpl();
 
+    public String getUrl() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
     public static final class DescriptorImpl extends AbstractProjectDescriptorExt {
         public String getDisplayName() {
             return Messages.MatrixProject_DisplayName();
@@ -572,9 +577,9 @@ public class MatrixProjectExt extends AbstractProjectExt<MatrixProjectExt,Matrix
         /**
          * All {@link AxisDescriptor}s that contribute to the UI.
          */
-        public List<AxisDescriptor> getAxisDescriptors() {
-            List<AxisDescriptor> r = new ArrayList<AxisDescriptor>();
-            for (AxisDescriptor d : AxisExt.all()) {
+        public List<AxisDescriptorExt> getAxisDescriptors() {
+            List<AxisDescriptorExt> r = new ArrayList<AxisDescriptorExt>();
+            for (AxisDescriptorExt d : AxisExt.all()) {
                 if (d.isInstantiable())
                     r.add(d);
             }

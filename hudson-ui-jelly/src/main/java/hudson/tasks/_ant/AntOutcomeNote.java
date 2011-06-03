@@ -24,7 +24,7 @@
 package hudson.tasks._ant;
 
 import hudson.Extension;
-import hudson.console.ConsoleAnnotationDescriptor;
+import hudson.console.ConsoleAnnotationDescriptorExt;
 
 /**
  * Annotates the BUILD SUCCESSFUL/FAILED line of the Ant execution.
@@ -37,7 +37,7 @@ public class AntOutcomeNote extends AntOutcomeNoteExt {
     }
 
     @Extension
-    public static final class DescriptorImpl extends ConsoleAnnotationDescriptor {
+    public static final class DescriptorImpl extends ConsoleAnnotationDescriptorExt {
         @Override
         public String getDisplayName() {
             return "Ant build outcome";

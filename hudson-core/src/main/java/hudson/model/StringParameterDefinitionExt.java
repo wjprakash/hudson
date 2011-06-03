@@ -24,24 +24,20 @@
 package hudson.model;
 
 import hudson.Extension;
-import net.sf.json.JSONObject;
-import org.kohsuke.stapler.DataBoundConstructor;
-import org.kohsuke.stapler.StaplerRequest;
 
 /**
  * Parameter whose value is a string value.
  */
-public class StringParameterDefinition extends SimpleParameterDefinitionExt {
+public class StringParameterDefinitionExt extends SimpleParameterDefinitionExt {
 
     private String defaultValue;
 
-    @DataBoundConstructor
-    public StringParameterDefinition(String name, String defaultValue, String description) {
+    public StringParameterDefinitionExt(String name, String defaultValue, String description) {
         super(name, description);
         this.defaultValue = defaultValue;
     }
 
-    public StringParameterDefinition(String name, String defaultValue) {
+    public StringParameterDefinitionExt(String name, String defaultValue) {
         this(name, defaultValue, null);
     }
 
@@ -54,8 +50,8 @@ public class StringParameterDefinition extends SimpleParameterDefinitionExt {
     }
     
     @Override
-    public StringParameterValue getDefaultParameterValue() {
-        StringParameterValue v = new StringParameterValue(getName(), defaultValue, getDescription());
+    public StringParameterValueExt getDefaultParameterValue() {
+        StringParameterValueExt v = new StringParameterValueExt(getName(), defaultValue, getDescription());
         return v;
     }
 
@@ -72,14 +68,7 @@ public class StringParameterDefinition extends SimpleParameterDefinitionExt {
         }
     }
 
-    @Override
-    public ParameterValueExt createValue(StaplerRequest req, JSONObject jo) {
-        StringParameterValue value = req.bindJSON(StringParameterValue.class, jo);
-        value.setDescription(getDescription());
-        return value;
-    }
-
     public ParameterValueExt createValue(String value) {
-        return new StringParameterValue(getName(), value, getDescription());
+        return new StringParameterValueExt(getName(), value, getDescription());
     }
 }

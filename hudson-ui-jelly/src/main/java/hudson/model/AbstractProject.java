@@ -198,7 +198,7 @@ public abstract class AbstractProject extends AbstractProjectExt{
         BuildAuthorizationTokenExt.checkPermission(this, authToken, req, rsp);
 
         // if a build is parameterized, let that take over
-        ParametersDefinitionProperty pp = getProperty(ParametersDefinitionProperty.class);
+        ParametersDefinitionPropertyExt pp = getProperty(ParametersDefinitionPropertyExt.class);
         if (pp != null) {
             pp._doBuild(req,rsp);
             return;
@@ -250,7 +250,7 @@ public abstract class AbstractProject extends AbstractProjectExt{
     public void doBuildWithParameters(StaplerRequest req, StaplerResponse rsp) throws IOException, ServletException {
         BuildAuthorizationTokenExt.checkPermission(this, authToken, req, rsp);
 
-        ParametersDefinitionProperty pp = getProperty(ParametersDefinitionProperty.class);
+        ParametersDefinitionPropertyExt pp = getProperty(ParametersDefinitionPropertyExt.class);
         if (pp != null) {
             pp.buildWithParameters(req,rsp);
         } else {

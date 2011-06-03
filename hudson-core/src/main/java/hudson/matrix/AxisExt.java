@@ -29,7 +29,6 @@ import hudson.UtilExt;
 import hudson.model.AbstractDescribableImpl;
 import hudson.model.HudsonExt;
 import hudson.util.QuotedStringTokenizer;
-import org.kohsuke.stapler.DataBoundConstructor;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -83,7 +82,6 @@ public class AxisExt extends AbstractDescribableImpl<AxisExt> implements Compara
      *
      * AxisExt with empty values need to be removed later.
      */
-    @DataBoundConstructor
     public AxisExt(String name, String valueString) {
         this.name = name;
         this.values = new ArrayList<String>(Arrays.asList(UtilExt.tokenize(valueString)));
@@ -143,8 +141,8 @@ public class AxisExt extends AbstractDescribableImpl<AxisExt> implements Compara
     }
 
     @Override
-    public AxisDescriptor getDescriptor() {
-        return (AxisDescriptor)super.getDescriptor();
+    public AxisDescriptorExt getDescriptor() {
+        return (AxisDescriptorExt)super.getDescriptor();
     }
 
     @Override
@@ -177,17 +175,17 @@ public class AxisExt extends AbstractDescribableImpl<AxisExt> implements Compara
         if (getClass()!=AxisExt.class) return this;
 
         if (getName().equals("jdk"))
-            return new JDKAxis(getValues());
+            return new JDKAxisExt(getValues());
         if (getName().equals("label"))
-            return new LabelAxis(getName(),getValues());
-        return new TextAxis(getName(),getValues());
+            return new LabelAxisExt(getName(),getValues());
+        return new TextAxisExt(getName(),getValues());
     }
 
     /**
      * Returns all the registered {@link AxisDescriptor}s.
      */
-    public static DescriptorExtensionListExt<AxisExt,AxisDescriptor> all() {
-        return HudsonExt.getInstance().<AxisExt,AxisDescriptor>getDescriptorList(AxisExt.class);
+    public static DescriptorExtensionListExt<AxisExt,AxisDescriptorExt> all() {
+        return HudsonExt.getInstance().<AxisExt,AxisDescriptorExt>getDescriptorList(AxisExt.class);
     }
 
     /**

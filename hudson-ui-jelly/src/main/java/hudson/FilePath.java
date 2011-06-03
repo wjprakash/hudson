@@ -68,19 +68,54 @@ public class FilePath extends FilePathExt {
     public FilePath(FilePathExt base, String rel) {
         super(base, rel);
     }
+    
+     /**
+     * Shortcut for {@link #validateFileMask(String)} in case the left-hand side can be null.
+     */
+    public static FormValidation validateFileMask(FilePath pathOrNull, String value) throws IOException {
+        if (pathOrNull == null) {
+            return FormValidation.ok();
+        }
+        return pathOrNull.validateFileMask(value);
+    }
 
-   
+    /**
+     * Short for {@code validateFileMask(value,true)} 
+     */
+    public FormValidation validateFileMask(String value) throws IOException {
+        return validateFileMask(value, true);
+    }
+
     /**
      * Checks the GLOB-style file mask. See {@link #validateAntFileMask(String)}.
      * Requires configure permission on ancestor AbstractProjectExt object in request.
      * @since 1.294
      */
-    @Override
     public FormValidation validateFileMask(String value, boolean errorIfNotExist) throws IOException {
+        
         AbstractProjectExt subject = Stapler.getCurrentRequest().findAncestorObject(AbstractProjectExt.class);
         subject.checkPermission(ItemExt.CONFIGURE);
+        
+        value = UtilExt.fixEmpty(value);
+        if (value == null) {
+            return FormValidation.ok();
+        }
 
-        return super.validateFileMask(value, errorIfNotExist);
+        try {
+            if (!exists()) // no workspace. can't check
+            {
+                return FormValidation.ok();
+            }
+
+            String msg = validateAntFileMask(value);
+            if (errorIfNotExist) {
+                return FormValidation.error(msg);
+            } else {
+                return FormValidation.warning(msg);
+            }
+        } catch (InterruptedException e) {
+            return FormValidation.ok();
+        }
     }
 
     /**

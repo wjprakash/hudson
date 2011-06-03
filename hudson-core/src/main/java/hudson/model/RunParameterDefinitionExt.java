@@ -1,18 +1,18 @@
 /*
  * The MIT License
- *
- * Copyright (c) 2010, InfraDNA, Inc.
- *
+ * 
+ * Copyright (c) 2004-2009, Sun Microsystems, Inc., Kohsuke Kawaguchi, Tom Huybrechts
+ * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
+ * 
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- *
+ * 
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -21,52 +21,55 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package hudson.matrix;
+package hudson.model;
+
 
 import hudson.Extension;
-import hudson.model.HudsonExt;
-import org.kohsuke.stapler.DataBoundConstructor;
 
-import java.util.Arrays;
-import java.util.List;
 
-/**
- * {@link AxisExt} that selects available JDKs.
- *
- * @author Kohsuke Kawaguchi
- */
-public class JDKAxis extends AxisExt {
-    /**
-     * JDK axis was used to be stored as a plain "AxisExt" with the name "jdk",
-     * so it cannot be configured by any other name.
-     */
-    public JDKAxis(List<String> values) {
-        super("jdk", values);
+public class RunParameterDefinitionExt extends SimpleParameterDefinitionExt {
+
+    private final String projectName;
+
+    public RunParameterDefinitionExt(String name, String projectName, String description) {
+        super(name, description);
+        this.projectName = projectName;
     }
 
-    @DataBoundConstructor
-    public JDKAxis(String[] values) {
-        super("jdk", Arrays.asList(values));
+    public String getProjectName() {
+        return projectName;
     }
 
-    @Override
-    public boolean isSystem() {
-        return true;
+    public JobExt getProject() {
+        return (JobExt) HudsonExt.getInstance().getItem(projectName);
     }
 
     @Extension
-    public static class DescriptorImpl extends AxisDescriptor {
+    public static class DescriptorImplExt extends ParameterDescriptorExt {
         @Override
         public String getDisplayName() {
-            return Messages.JDKAxis_DisplayName();
+            return Messages.RunParameterDefinition_DisplayName();
         }
 
-        /**
-         * If there's no JDK configured, there's no point in this axis.
-         */
         @Override
-        public boolean isInstantiable() {
-            return !HudsonExt.getInstance().getJDKs().isEmpty();
+        public String getHelpFile() {
+            return "/help/parameter/run.html";
+        }
+
+    }
+
+    @Override
+    public ParameterValueExt getDefaultParameterValue() {
+        RunExt<?,?> lastBuild = getProject().getLastBuild();
+        if (lastBuild != null) {
+        	return createValue(lastBuild.getExternalizableId());
+        } else {
+        	return null;
         }
     }
+
+    public RunParameterValueExt createValue(String value) {
+        return new RunParameterValueExt(getName(), value, getDescription());
+    }
+
 }
