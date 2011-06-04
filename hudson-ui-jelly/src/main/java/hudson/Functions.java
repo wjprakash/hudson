@@ -40,7 +40,7 @@ import hudson.model.View;
 import hudson.search.SearchableModelObject;
 import hudson.security.AccessControlled;
 import hudson.security.Permission;
-import hudson.security.csrf.CrumbIssuer;
+import hudson.security.csrf.CrumbIssuerExt;
 import hudson.util.Area;
 import hudson.util.Iterators;
 import hudson.views.MyViewsTabBar;
@@ -424,7 +424,7 @@ public class Functions extends FunctionsExt {
 
     public static String getCrumb(StaplerRequest req) {
         HudsonExt h = HudsonExt.getInstance();
-        CrumbIssuer issuer = h != null ? h.getCrumbIssuer() : null;
+        CrumbIssuerExt issuer = h != null ? h.getCrumbIssuer() : null;
         return issuer != null ? issuer.getCrumb(req) : "";
     }
 

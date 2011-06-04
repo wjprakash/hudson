@@ -196,10 +196,4 @@ public abstract class AbstractTestResultActionExt<T extends AbstractTestResultAc
     	return this;
     }
     
-     /**
-     * Returns a full path down to a test result
-     */
-    public String getTestResultPath(TestResult it) {
-        return getUrlName() + "/" + it.getRelativePathFrom(null);
-    }
 }

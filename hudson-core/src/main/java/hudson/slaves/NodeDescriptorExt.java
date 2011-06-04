@@ -28,7 +28,7 @@ import hudson.model.DescriptorExt;
 import hudson.model.SlaveExt;
 import hudson.model.NodeExt;
 import hudson.model.HudsonExt;
-import hudson.util.DescriptorList;
+import hudson.util.DescriptorListExt;
 import hudson.DescriptorExtensionListExt;
 
 import java.util.List;
@@ -81,7 +81,7 @@ public abstract class NodeDescriptorExt extends DescriptorExt<NodeExt> {
      * @deprecated as of 1.286
      *      Use {@link #all()} for read access, and {@link Extension} for registration.
      */
-    public static final DescriptorList<NodeExt> ALL = new DescriptorList<NodeExt>(NodeExt.class);
+    public static final DescriptorListExt<NodeExt> ALL = new DescriptorListExt<NodeExt>(NodeExt.class);
 
     public static List<NodeDescriptorExt> allInstantiable() {
         List<NodeDescriptorExt> r = new ArrayList<NodeDescriptorExt>();

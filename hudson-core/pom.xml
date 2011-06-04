@@ -556,12 +556,6 @@ THE SOFTWARE.
             <type>jar</type>
         </dependency>
         <dependency>
-            <groupId>com.google.collections</groupId>
-            <artifactId>google-collections</artifactId>
-            <version>1.0</version>
-            <type>jar</type>
-        </dependency>
-        <dependency>
             <groupId>tomcat</groupId>
             <artifactId>commons-fileupload</artifactId>
             <version>1.0-5.5.23</version>
@@ -590,6 +584,10 @@ THE SOFTWARE.
             <artifactId>commons-fileupload</artifactId>
             <version>1.2.2</version>
             <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
         </dependency>
     </dependencies>
 

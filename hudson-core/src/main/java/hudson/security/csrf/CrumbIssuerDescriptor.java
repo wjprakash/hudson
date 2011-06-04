@@ -14,7 +14,7 @@ import hudson.model.DescriptorExt;
  * 
  * @author dty
  */
-public abstract class CrumbIssuerDescriptor<T extends CrumbIssuer> extends DescriptorExt<CrumbIssuer> {
+public abstract class CrumbIssuerDescriptor<T extends CrumbIssuerExt> extends DescriptorExt<CrumbIssuerExt> {
 
     private String crumbSalt;
     private String crumbRequestField;

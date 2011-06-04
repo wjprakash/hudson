@@ -23,7 +23,7 @@
  */
 package hudson.model;
 
-import hudson.util.DescriptorList;
+import hudson.util.DescriptorListExt;
 import hudson.Extension;
 
 import java.util.List;
@@ -48,5 +48,5 @@ public class Jobs {
      *      and {@link Extension} for registration.
      */
     public static final List<JobPropertyDescriptorExt> PROPERTIES = (List)
-            new DescriptorList<JobPropertyExt<?>>((Class)JobPropertyExt.class);
+            new DescriptorListExt<JobPropertyExt<?>>((Class)JobPropertyExt.class);
 }

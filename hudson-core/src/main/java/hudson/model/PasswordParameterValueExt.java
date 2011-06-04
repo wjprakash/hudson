@@ -24,7 +24,7 @@
 package hudson.model;
 
 import hudson.EnvVars;
-import hudson.util.Secret;
+import hudson.util.SecretExt;
 import hudson.util.VariableResolver;
 
 import java.util.Locale;
@@ -34,7 +34,7 @@ import java.util.Locale;
  */
 public class PasswordParameterValueExt extends ParameterValueExt {
 
-    private final Secret value;
+    private final SecretExt value;
 
     // kept for backward compatibility
     public PasswordParameterValueExt(String name, String value) {
@@ -43,12 +43,12 @@ public class PasswordParameterValueExt extends ParameterValueExt {
 
     public PasswordParameterValueExt(String name, String value, String description) {
         super(name, description);
-        this.value = Secret.fromString(value);
+        this.value = SecretExt.fromString(value);
     }
 
     @Override
     public void buildEnvVars(AbstractBuildExt<?,?> build, EnvVars env) {
-        String v = Secret.toString(value);
+        String v = SecretExt.toString(value);
         env.put(name, v);
         env.put(name.toUpperCase(Locale.ENGLISH),v); // backward compatibility pre 1.345
     }
@@ -57,7 +57,7 @@ public class PasswordParameterValueExt extends ParameterValueExt {
     public VariableResolver<String> createVariableResolver(AbstractBuildExt<?, ?> build) {
         return new VariableResolver<String>() {
             public String resolve(String name) {
-                return PasswordParameterValueExt.this.name.equals(name) ? Secret.toString(value) : null;
+                return PasswordParameterValueExt.this.name.equals(name) ? SecretExt.toString(value) : null;
             }
         };
     }

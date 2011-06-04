@@ -35,13 +35,9 @@ import hudson.model.DependecyDeclarer;
 import hudson.model.DependencyGraph;
 import hudson.model.Describable;
 import hudson.model.DescriptorExt;
-import hudson.model.DescriptorExt.FormException;
 import hudson.model.Saveable;
-import net.sf.json.JSONObject;
-import org.kohsuke.stapler.StaplerRequest;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -60,23 +56,23 @@ import java.util.Map;
  *
  * @author Kohsuke Kawaguchi
  */
-public class DescribableList<T extends Describable<T>, D extends DescriptorExt<T>> extends PersistedList<T> {
-    protected DescribableList() {
+public class DescribableListExt<T extends Describable<T>, D extends DescriptorExt<T>> extends PersistedList<T> {
+    protected DescribableListExt() {
     }
 
     /**
      * @deprecated since 2008-08-15.
      *      Use {@link #DescribableList(Saveable)} 
      */
-    public DescribableList(Owner owner) {
+    public DescribableListExt(Owner owner) {
         setOwner(owner);
     }
 
-    public DescribableList(Saveable owner) {
+    public DescribableListExt(Saveable owner) {
         setOwner(owner);
     }
 
-    public DescribableList(Saveable owner, Collection<? extends T> initialList) {
+    public DescribableListExt(Saveable owner, Collection<? extends T> initialList) {
         super(initialList);
         setOwner(owner);
     }
@@ -127,49 +123,6 @@ public class DescribableList<T extends Describable<T>, D extends DescriptorExt<T
         return (Map)DescriptorExt.toMap(data);
     }
 
-    /**
-     * Rebuilds the list by creating a fresh instances from the submitted form.
-     *
-     * <p>
-     * This method is almost always used by the owner.
-     * This method does not invoke the save method.
-     *
-     * @param json
-     *      Structured form data that includes the data for nested descriptor list.
-     */
-    public void rebuild(StaplerRequest req, JSONObject json, List<? extends DescriptorExt<T>> descriptors) throws FormException, IOException {
-        List<T> newList = new ArrayList<T>();
-
-        for (DescriptorExt<T> d : descriptors) {
-            String name = d.getJsonSafeClassName();
-            if (json.has(name)) {
-                T instance = d.newInstance(req, json.getJSONObject(name));
-                newList.add(instance);
-            }
-        }
-
-        replaceBy(newList);
-    }
-
-    /**
-     * @deprecated as of 1.271
-     *      Use {@link #rebuild(StaplerRequest, JSONObject, List)} instead.
-     */
-    public void rebuild(StaplerRequest req, JSONObject json, List<? extends DescriptorExt<T>> descriptors, String prefix) throws FormException, IOException {
-        rebuild(req,json,descriptors);
-    }
-
-    /**
-     * Rebuilds the list by creating a fresh instances from the submitted form.
-     *
-     * <p>
-     * This version works with the the &lt;f:hetero-list> UI tag, where the user
-     * is allowed to create multiple instances of the same descriptor. Order is also
-     * significant.
-     */
-    public void rebuildHetero(StaplerRequest req, JSONObject formData, Collection<? extends DescriptorExt<T>> descriptors, String key) throws FormException, IOException {
-        replaceBy(DescriptorExt.newInstancesFromHeteroList(req,formData,key,descriptors));
-    }
 
     /**
      * Picks up {@link DependecyDeclarer}s and allow it to build dependencies.
@@ -219,11 +172,11 @@ public class DescribableList<T extends Describable<T>, D extends DescriptorExt<T
 
         public boolean canConvert(Class type) {
             // handle subtypes in case the onModified method is overridden.
-            return DescribableList.class.isAssignableFrom(type);
+            return DescribableListExt.class.isAssignableFrom(type);
         }
 
         public void marshal(Object source, HierarchicalStreamWriter writer, MarshallingContext context) {
-            for (Object o : (DescribableList) source)
+            for (Object o : (DescribableListExt) source)
                 writeItem(o, context, writer);
         }
 
@@ -231,7 +184,7 @@ public class DescribableList<T extends Describable<T>, D extends DescriptorExt<T
             CopyOnWriteList core = copyOnWriteListConverter.unmarshal(reader, context);
 
             try {
-                DescribableList r = (DescribableList)context.getRequiredType().newInstance();
+                DescribableListExt r = (DescribableListExt)context.getRequiredType().newInstance();
                 r.data.replaceBy(core);
                 return r;
             } catch (InstantiationException e) {

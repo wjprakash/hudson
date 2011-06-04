@@ -37,7 +37,7 @@ import hudson.remoting.Callable;
 import hudson.slaves.NodeSpecific;
 import hudson.util.EditDistance;
 import hudson.util.StreamTaskListener;
-import hudson.tools.ToolDescriptor;
+import hudson.tools.ToolDescriptorExt;
 import hudson.tools.ToolInstallation;
 
 import java.util.List;
@@ -79,7 +79,7 @@ public class InstallToolCommand extends CLICommand {
         p.checkPermission(ItemExt.CONFIGURE);
 
         List<String> toolTypes = new ArrayList<String>();
-        for (ToolDescriptor<?> d : ToolInstallation.all()) {
+        for (ToolDescriptorExt<?> d : ToolInstallation.all()) {
             toolTypes.add(d.getDisplayName());
             if (d.getDisplayName().equals(toolType)) {
                 List<String> toolNames = new ArrayList<String>();

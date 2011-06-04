@@ -24,9 +24,6 @@
 package hudson.tasks;
 
 import hudson.Launcher;
-import hudson.Extension;
-import hudson.UtilExt;
-import hudson.security.AccessControlled;
 import hudson.model.AbstractBuildExt;
 import hudson.model.AbstractProjectExt;
 import hudson.model.Action;
@@ -35,27 +32,18 @@ import hudson.model.DependecyDeclarer;
 import hudson.model.DependencyGraph;
 import hudson.model.DependencyGraph.Dependency;
 import hudson.model.HudsonExt;
-import hudson.model.ItemExt;
 import hudson.model.Items;
-import hudson.model.JobExt;
-import hudson.model.ProjectExt;
 import hudson.model.ResultExt;
 import hudson.model.RunExt;
 import hudson.model.CauseExt.UpstreamCause;
 import hudson.model.TaskListener;
-import hudson.model.listeners.ItemListener;
-import hudson.util.FormValidation;
-import net.sf.json.JSONObject;
 
-import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.StringTokenizer;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**

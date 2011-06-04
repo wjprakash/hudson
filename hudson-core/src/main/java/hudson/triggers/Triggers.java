@@ -24,7 +24,7 @@
 package hudson.triggers;
 
 import hudson.model.ItemExt;
-import hudson.util.DescriptorList;
+import hudson.util.DescriptorListExt;
 import hudson.Extension;
 
 import java.util.List;
@@ -42,7 +42,7 @@ public class Triggers {
      * @deprecated as of 1.286
      *      Use {@link Trigger#all()} for read access, and {@link Extension} for registration.
      */
-    public static final List<TriggerDescriptor> TRIGGERS = (List)new DescriptorList<Trigger<?>>((Class)Trigger.class);
+    public static final List<TriggerDescriptor> TRIGGERS = (List)new DescriptorListExt<Trigger<?>>((Class)Trigger.class);
 //    DescriptorExt.toList(
 //        SCMTrigger.DESCRIPTOR,
 //        TimerTrigger.DESCRIPTOR

@@ -41,7 +41,7 @@ import hudson.slaves.NodePropertyDescriptor;
 import hudson.slaves.RetentionStrategyExt;
 import hudson.slaves.SlaveComputerExt;
 import hudson.util.ClockDifferenceExt;
-import hudson.util.DescribableList;
+import hudson.util.DescribableListExt;
 import hudson.util.FormValidation;
 
 import java.io.File;

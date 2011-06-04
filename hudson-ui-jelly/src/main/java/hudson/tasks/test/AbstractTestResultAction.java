@@ -31,7 +31,7 @@ import hudson.util.*;
 import hudson.util.graph.ChartLabel;
 import hudson.util.graph.ChartUtil;
 import hudson.util.graph.ChartUtil.NumberOnlyBuildLabel;
-import hudson.util.graph.Graph;
+import hudson.util.graph.GraphExt;
 import java.awt.Color;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
@@ -105,7 +105,7 @@ public abstract class AbstractTestResultAction<T extends AbstractTestResultActio
             return;
     
         Area defSize = calcDefaultSize();
-        Graph graph = new Graph(-1, defSize.width, defSize.height);
+        GraphExt graph = new GraphExt(-1, defSize.width, defSize.height);
         graph.setXAxisLabel("count");
         graph.setData(getGraphDataSet(req));
         graph.doPng(req,rsp);
@@ -121,7 +121,7 @@ public abstract class AbstractTestResultAction<T extends AbstractTestResultActio
             return;
         
         Area defSize = calcDefaultSize();
-        Graph graph = new Graph(-1, defSize.width, defSize.height);
+        GraphExt graph = new GraphExt(-1, defSize.width, defSize.height);
         graph.setXAxisLabel("count");
         graph.setData(getGraphDataSet(req));
         graph.doMap(req,rsp);
@@ -198,5 +198,12 @@ public abstract class AbstractTestResultAction<T extends AbstractTestResultActio
         String relPath = req.getParameter("rel");
         if(relPath==null)   return "";
         return relPath;
+    }
+    
+     /**
+     * Returns a full path down to a test result
+     */
+    public String getTestResultPath(TestResult it) {
+        return getUrlName() + "/" + it.getRelativePathFrom(null);
     }
 }

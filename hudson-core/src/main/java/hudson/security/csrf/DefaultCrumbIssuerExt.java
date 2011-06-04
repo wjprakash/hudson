@@ -17,24 +17,20 @@ import hudson.model.ModelObject;
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 
-import net.sf.json.JSONObject;
-
 import org.acegisecurity.Authentication;
-import org.kohsuke.stapler.DataBoundConstructor;
-import org.kohsuke.stapler.StaplerRequest;
+
 
 /**
  * A crumb issuing algorithm based on the request principal and the remote address.
  * 
  * @author dty
  */
-public class DefaultCrumbIssuer extends CrumbIssuer {
+public class DefaultCrumbIssuerExt extends CrumbIssuerExt {
     
     private transient MessageDigest md;
     private boolean excludeClientIPFromCrumb;
 
-    @DataBoundConstructor
-    public DefaultCrumbIssuer(boolean excludeClientIPFromCrumb) {
+    public DefaultCrumbIssuerExt(boolean excludeClientIPFromCrumb) {
         try {
             this.md = MessageDigest.getInstance("MD5");
             this.excludeClientIPFromCrumb = excludeClientIPFromCrumb;
@@ -124,9 +120,9 @@ public class DefaultCrumbIssuer extends CrumbIssuer {
     }
     
     @Extension
-    public static final class DescriptorImpl extends CrumbIssuerDescriptor<DefaultCrumbIssuer> implements ModelObject {
+    public static class DescriptorImplExt extends CrumbIssuerDescriptor<DefaultCrumbIssuerExt> implements ModelObject {
 
-        public DescriptorImpl() {
+        public DescriptorImplExt() {
             super(HudsonExt.getInstance().getSecretKey(), System.getProperty("hudson.security.csrf.requestfield", ".crumb"));
             load();
         }
@@ -136,11 +132,7 @@ public class DefaultCrumbIssuer extends CrumbIssuer {
             return Messages.DefaultCrumbIssuer_DisplayName();
         }
 
-        @Override
-        public DefaultCrumbIssuer newInstance(StaplerRequest req, JSONObject formData) throws FormException {
-            return req.bindJSON(DefaultCrumbIssuer.class, formData);
-        }
     }
     
-    private static final Logger LOGGER = Logger.getLogger(DefaultCrumbIssuer.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(DefaultCrumbIssuerExt.class.getName());
 }

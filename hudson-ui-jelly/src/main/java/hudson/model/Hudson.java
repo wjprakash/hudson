@@ -53,7 +53,7 @@ import hudson.security.AuthorizationStrategyExt;
 import hudson.security.BasicAuthenticationFilter;
 import hudson.security.Permission;
 import hudson.security.SecurityRealmExt;
-import hudson.security.csrf.CrumbIssuer;
+import hudson.security.csrf.CrumbIssuerExt;
 import hudson.slaves.Cloud;
 import hudson.slaves.NodeProperty;
 import hudson.slaves.RetentionStrategyExt;
@@ -433,7 +433,7 @@ public final class Hudson extends HudsonExt implements StaplerProxy, StaplerFall
 
             if (json.has("csrf")) {
                 JSONObject csrf = json.getJSONObject("csrf");
-                setCrumbIssuer(CrumbIssuer.all().newInstanceFromRadioList(csrf, "issuer"));
+                setCrumbIssuer(CrumbIssuerExt.all().newInstanceFromRadioList(csrf, "issuer"));
             } else {
                 setCrumbIssuer(null);
             }

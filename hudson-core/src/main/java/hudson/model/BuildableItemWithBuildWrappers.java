@@ -1,7 +1,7 @@
 package hudson.model;
 
 import hudson.tasks.BuildWrapper;
-import hudson.util.DescribableList;
+import hudson.util.DescribableListExt;
 
 /**
  * {@link AbstractProjectExt} that has associated {@link BuildWrapper}s.
@@ -27,6 +27,6 @@ public interface BuildableItemWithBuildWrappers extends BuildableItem {
      *      can be empty but never null. This list is live, and changes to it will be reflected
      *      to the project configuration.
      */
-    DescribableList<BuildWrapper,DescriptorExt<BuildWrapper>> getBuildWrappersList();
+    DescribableListExt<BuildWrapper,DescriptorExt<BuildWrapper>> getBuildWrappersList();
 }
 

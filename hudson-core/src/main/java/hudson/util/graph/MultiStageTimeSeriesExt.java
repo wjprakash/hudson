@@ -216,11 +216,11 @@ public class MultiStageTimeSeriesExt {
             return ds;
         }
 
-        public Graph createGraph() {
-            Graph graph = new Graph(-1, 500, 400);
+        public GraphExt createGraph() {
+            GraphExt graph = new GraphExt(-1, 500, 400);
             graph.setXAxisLabel("");
             graph.setData(createDataset());
-            graph.setChartType(Graph.TYPE_LINE);
+            graph.setChartType(GraphExt.TYPE_LINE);
             graph.setMultiStageTimeSeries(series);
             return graph;
         }

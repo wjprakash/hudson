@@ -28,9 +28,9 @@ import hudson.CopyOnWrite;
 import hudson.model.AbstractProjectExt;
 import hudson.model.Descriptor.FormException;
 import hudson.model.HudsonExt;
-import hudson.tools.ToolDescriptor;
+import hudson.tools.ToolDescriptorExt;
 import hudson.tools.ToolInstallation;
-import hudson.tools.DownloadFromUrlInstaller;
+import hudson.tools.DownloadFromUrlInstallerExt;
 import hudson.tools.ToolInstaller;
 import hudson.tools.ToolProperty;
 import hudson.util.FormValidation;
@@ -142,7 +142,7 @@ public class Maven extends MavenExt {
  
 
         @Extension
-        public static class DescriptorImpl extends ToolDescriptor<MavenInstallation> {
+        public static class DescriptorImpl extends ToolDescriptorExt<MavenInstallation> {
             @Override
             public String getDisplayName() {
                 return "Maven";
@@ -195,14 +195,14 @@ public class Maven extends MavenExt {
     /**
      * Automatic Maven installer from apache.org.
      */
-    public static class MavenInstaller extends DownloadFromUrlInstaller {
+    public static class MavenInstaller extends DownloadFromUrlInstallerExt {
         @DataBoundConstructor
         public MavenInstaller(String id) {
             super(id);
         }
 
         @Extension
-        public static final class DescriptorImpl extends DownloadFromUrlInstaller.DescriptorImpl<MavenInstaller> {
+        public static final class DescriptorImpl extends DownloadFromUrlInstallerExt.DescriptorImpl<MavenInstaller> {
             public String getDisplayName() {
                 return Messages.InstallFromApache();
             }

@@ -33,7 +33,7 @@ import hudson.model.Describable;
 import hudson.model.NodeExt;
 import hudson.model.HudsonExt;
 import hudson.model.DescriptorExt;
-import hudson.util.DescriptorList;
+import hudson.util.DescriptorListExt;
 
 import java.util.List;
 
@@ -131,7 +131,7 @@ public abstract class NodeMonitorExt implements ExtensionPoint, Describable<Node
      * @deprecated as of 1.286.
      *      Use {@link #all()} for read access and {@link Extension} for registration.
      */
-    public static final DescriptorList<NodeMonitorExt> LIST = new DescriptorList<NodeMonitorExt>(NodeMonitorExt.class);
+    public static final DescriptorListExt<NodeMonitorExt> LIST = new DescriptorListExt<NodeMonitorExt>(NodeMonitorExt.class);
 
     /**
      * Returns all the registered {@link NodeMonitor} descriptors.

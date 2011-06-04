@@ -42,7 +42,7 @@ import hudson.tasks.BuildTriggerExt;
 import hudson.tasks.MailerExt;
 import hudson.tasks.Publisher;
 import hudson.triggers.Trigger;
-import hudson.util.DescribableList;
+import hudson.util.DescribableListExt;
 import hudson.util.FormValidation;
 import hudson.widgets.BuildHistoryWidget;
 import hudson.widgets.HistoryWidget;
@@ -110,7 +110,7 @@ public abstract class AbstractProject extends AbstractProjectExt{
             boolean isUpstream = upstream.contains(p);
             synchronized(p) {
                 // does 'p' include us in its BuildTrigger? 
-                DescribableList<Publisher,DescriptorExt<Publisher>> pl = p.getPublishersList();
+                DescribableListExt<Publisher,DescriptorExt<Publisher>> pl = p.getPublishersList();
                 BuildTriggerExt trigger = pl.get(BuildTriggerExt.class);
                 List<AbstractProjectExt> newChildProjects = trigger == null ? new ArrayList<AbstractProjectExt>():trigger.getChildProjects();
                 if(isUpstream) {

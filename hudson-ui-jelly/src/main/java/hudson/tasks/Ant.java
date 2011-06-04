@@ -29,9 +29,9 @@ import hudson.model.AbstractProjectExt;
 import hudson.model.Descriptor.FormException;
 import hudson.model.Hudson;
 import hudson.model.HudsonExt;
-import hudson.tools.ToolDescriptor;
+import hudson.tools.ToolDescriptorExt;
 import hudson.tools.ToolInstallation;
-import hudson.tools.DownloadFromUrlInstaller;
+import hudson.tools.DownloadFromUrlInstallerExt;
 import hudson.tools.ToolInstaller;
 import hudson.tools.ToolProperty;
 import hudson.util.FormValidation;
@@ -129,7 +129,7 @@ public class Ant extends AntExt {
          
 
         @Extension
-        public static class DescriptorImpl extends ToolDescriptor<AntInstallation> {
+        public static class DescriptorImpl extends ToolDescriptorExt<AntInstallation> {
 
             @Override
             public String getDisplayName() {
@@ -183,14 +183,14 @@ public class Ant extends AntExt {
     /**
      * Automatic Ant installer from apache.org.
      */
-    public static class AntInstaller extends DownloadFromUrlInstaller {
+    public static class AntInstaller extends DownloadFromUrlInstallerExt {
         @DataBoundConstructor
         public AntInstaller(String id) {
             super(id);
         }
 
         @Extension
-        public static final class DescriptorImpl extends DownloadFromUrlInstaller.DescriptorImpl<AntInstaller> {
+        public static final class DescriptorImpl extends DownloadFromUrlInstallerExt.DescriptorImpl<AntInstaller> {
             public String getDisplayName() {
                 return Messages.InstallFromApache();
             }

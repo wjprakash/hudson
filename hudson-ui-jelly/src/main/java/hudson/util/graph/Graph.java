@@ -23,10 +23,7 @@
  */
 package hudson.util.graph;
 
-import hudson.model.DescriptorExt.FormException;
-import hudson.util.ColorPalette;
-import java.awt.Font;
-import java.awt.Graphics2D;
+import hudson.model.Descriptor.FormException;
 import java.awt.HeadlessException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -36,9 +33,7 @@ import org.kohsuke.stapler.StaplerResponse;
 import javax.servlet.ServletOutputStream;
 import javax.imageio.ImageIO;
 import java.io.IOException;
-import java.util.Calendar;
 import java.awt.image.BufferedImage;
-import java.util.List;
 
 /**
  * A JFreeChart-generated graph that's bound to UI.
@@ -55,83 +50,29 @@ import java.util.List;
  * 
  * @since 1.320
  */
-public class Graph {
+public class Graph extends GraphExt{
     
-    public static int TYPE_STACKED_AREA = 1;
-    public static int TYPE_LINE = 2;
-
-    private final long timestamp;
     private int width;
     private int height;
-    private volatile GraphSupport graphSupport;
-
+    
     /**
      * @param timestamp
      *      Timestamp of this graph. Used for HTTP cache related headers.
      *      If the graph doesn't have any timestamp to tie it to, pass -1.
      */
     public Graph(long timestamp, int defaultW, int defaultH) {
-        this.timestamp = timestamp;
-        this.width = defaultW;
-        this.height = defaultH;
+        super(timestamp, defaultW, defaultH);
         if (!GraphSupport.all().isEmpty()){
             try {
-                graphSupport = GraphSupport.all().get(0).newInstance(null, null);
+                GraphSupport graphSupport = GraphSupport.all().get(0).newInstance(null, null);
+                this.setGraphSupport(graphSupport);
             } catch (FormException ex) {
                 Logger.getLogger(Graph.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
     }
-
-    public Graph(Calendar timestamp, int defaultW, int defaultH) {
-        this(timestamp.getTimeInMillis(), defaultW, defaultH);
-    }
     
-    public void setChartType(int chartType) {
-        if (graphSupport != null) {
-            graphSupport.setChartType(chartType);
-        }
-    }
     
-    public void setMultiStageTimeSeries(List<MultiStageTimeSeriesExt> multiStageTimeSeries) {
-        if (graphSupport != null) {
-            graphSupport.setMultiStageTimeSeries(multiStageTimeSeries);
-        }
-    }
-
-    public void setData(DataSet data) {
-        if (graphSupport != null) {
-            graphSupport.setData(data);
-        }
-    }
-
-    public void setTitle(String title) {
-        if (graphSupport != null) {
-            graphSupport.setTitle(title);
-        }
-    }
-
-    public void setXAxisLabel(String xLabel) {
-        if (graphSupport != null) {
-            graphSupport.setXAxisLabel(xLabel);
-        }
-    }
-
-    public void setYAxisLabel(String yLabel) {
-        if (graphSupport != null) {
-            graphSupport.setYAxisLabel(yLabel);
-        }
-    }
-
-    public BufferedImage createImage(int width, int height) {
-        BufferedImage image = null;
-        if (graphSupport != null) {
-            image = graphSupport.render(width, height);
-        } else {
-            image = createErrorImage(width, height);
-        }
-        return image;
-    }
 
     /**
      * Renders the graph.
@@ -220,13 +161,4 @@ public class Graph {
         }
     }
 
-    private BufferedImage createErrorImage(int width, int height) {
-        BufferedImage img = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-        Graphics2D graphics = img.createGraphics();
-        graphics.setColor(ColorPalette.RED);
-        Font font = new Font("Serif", Font.BOLD, 14);
-        graphics.drawRect(2, 2, width - 4, height - 4);
-        graphics.drawString("Graph Support missing. \n Install Graph Support Plugin", 10, height / 2);
-        return img;
-    }
 }

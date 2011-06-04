@@ -31,7 +31,7 @@ import hudson.ExtensionPoint;
 import hudson.diagnosis.OldDataMonitorExt;
 import hudson.model.*;
 import hudson.slaves.NodeSpecific;
-import hudson.util.DescribableList;
+import hudson.util.DescribableListExt;
 import hudson.util.XStream2;
 
 import java.io.Serializable;
@@ -77,8 +77,8 @@ public abstract class ToolInstallation extends AbstractDescribableImpl<ToolInsta
      * {@link ToolProperty}s that are associated with this tool.
      */
     @XStreamSerializable
-    private transient /*almost final*/ DescribableList<ToolProperty<?>,ToolPropertyDescriptor> properties
-            = new DescribableList<ToolProperty<?>,ToolPropertyDescriptor>(Saveable.NOOP);
+    private transient /*almost final*/ DescribableListExt<ToolProperty<?>,ToolPropertyDescriptor> properties
+            = new DescribableListExt<ToolProperty<?>,ToolPropertyDescriptor>(Saveable.NOOP);
 
     /**
      * @deprecated
@@ -125,7 +125,7 @@ public abstract class ToolInstallation extends AbstractDescribableImpl<ToolInsta
         return home;
     }
 
-    public DescribableList<ToolProperty<?>,ToolPropertyDescriptor> getProperties() {
+    public DescribableListExt<ToolProperty<?>,ToolPropertyDescriptor> getProperties() {
         assert properties!=null;
         return properties;
     }
@@ -146,7 +146,7 @@ public abstract class ToolInstallation extends AbstractDescribableImpl<ToolInsta
      */
     @SuppressWarnings("deprecation")
     protected String translateFor(NodeExt node, TaskListener log) throws IOException, InterruptedException {
-        return ToolLocationNodeProperty.getToolHome(node, this, log);
+        return ToolLocationNodePropertyExt.getToolHome(node, this, log);
     }
 
     /**
@@ -154,7 +154,7 @@ public abstract class ToolInstallation extends AbstractDescribableImpl<ToolInsta
      */
     private Object readResolve() {
         if(properties==null)
-            properties = new DescribableList<ToolProperty<?>,ToolPropertyDescriptor>(Saveable.NOOP);
+            properties = new DescribableListExt<ToolProperty<?>,ToolPropertyDescriptor>(Saveable.NOOP);
         for (ToolProperty<?> p : properties)
             _setTool(p, this);
         return this;
@@ -178,9 +178,9 @@ public abstract class ToolInstallation extends AbstractDescribableImpl<ToolInsta
     /**
      * Returns all the registered {@link ToolDescriptor}s.
      */
-    public static DescriptorExtensionListExt<ToolInstallation,ToolDescriptor<?>> all() {
+    public static DescriptorExtensionListExt<ToolInstallation,ToolDescriptorExt<?>> all() {
         // use getDescriptorList and not getExtensionList to pick up legacy instances
-        return HudsonExt.getInstance().<ToolInstallation,ToolDescriptor<?>>getDescriptorList(ToolInstallation.class);
+        return HudsonExt.getInstance().<ToolInstallation,ToolDescriptorExt<?>>getDescriptorList(ToolInstallation.class);
     }
 
     private static final long serialVersionUID = 1L;

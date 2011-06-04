@@ -26,7 +26,7 @@ package hudson;
 import hudson.init.InitMilestone;
 import hudson.model.HudsonExt;
 import hudson.util.AdaptedIterator;
-import hudson.util.DescriptorList;
+import hudson.util.DescriptorListExt;
 import hudson.util.Memoizer;
 import hudson.util.Iterators;
 import hudson.ExtensionPoint.LegacyInstancesAreScopedToHudson;

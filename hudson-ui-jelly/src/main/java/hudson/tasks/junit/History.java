@@ -24,7 +24,7 @@
 package hudson.tasks.junit;
 
 import hudson.tasks.test.TestObjectExt;
-import hudson.util.graph.Graph;
+import hudson.util.graph.GraphExt;
 
 
 import org.kohsuke.stapler.Stapler;
@@ -44,8 +44,8 @@ public class History extends HistoryExt {
      * Graph of duration of tests over time.
      */
     @Override
-    public Graph getDurationGraph() {
-        Graph graph = new Graph(-1, 600, 300);
+    public GraphExt getDurationGraph() {
+        GraphExt graph = new GraphExt(-1, 600, 300);
         graph.setXAxisLabel("seconds");
         int start = Integer.parseInt(Stapler.getCurrentRequest().getParameter("start"));
         int end = Integer.parseInt(Stapler.getCurrentRequest().getParameter("end"));
@@ -57,8 +57,8 @@ public class History extends HistoryExt {
      * Graph of # of tests over time.
      */
     @Override
-    public Graph getCountGraph() {
-        Graph graph = new Graph(-1, 600, 300);
+    public GraphExt getCountGraph() {
+        GraphExt graph = new GraphExt(-1, 600, 300);
         graph.setXAxisLabel("");
         int start = Integer.parseInt(Stapler.getCurrentRequest().getParameter("start"));
         int end = Integer.parseInt(Stapler.getCurrentRequest().getParameter("end"));

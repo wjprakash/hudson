@@ -21,35 +21,27 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-
 package hudson.tools;
 
 import hudson.Extension;
 import hudson.FilePathExt;
 import hudson.FilePathExt.FileCallable;
-import hudson.ProxyConfiguration;
 import hudson.UtilExt;
 import hudson.FunctionsExt;
 import hudson.model.NodeExt;
 import hudson.model.TaskListener;
 import hudson.remoting.VirtualChannel;
-import hudson.util.FormValidation;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLConnection;
-import org.kohsuke.stapler.DataBoundConstructor;
-import org.kohsuke.stapler.QueryParameter;
 import org.jvnet.animal_sniffer.IgnoreJRERequirement;
 
 /**
  * Installs a tool into the Hudson working area by downloading and unpacking a ZIP file.
  * @since 1.305
  */
-public class ZipExtractionInstaller extends ToolInstaller {
+public class ZipExtractionInstallerExt extends ToolInstaller {
 
     /**
      * URL of a ZIP file which should be downloaded in case the tool is missing.
@@ -60,8 +52,7 @@ public class ZipExtractionInstaller extends ToolInstaller {
      */
     private final String subdir;
 
-    @DataBoundConstructor
-    public ZipExtractionInstaller(String label, String url, String subdir) {
+    public ZipExtractionInstallerExt(String label, String url, String subdir) {
         super(label);
         this.url = url;
         this.subdir = UtilExt.fixEmptyAndTrim(subdir);
@@ -88,29 +79,11 @@ public class ZipExtractionInstaller extends ToolInstaller {
     }
 
     @Extension
-    public static class DescriptorImpl extends ToolInstallerDescriptor<ZipExtractionInstaller> {
+    public static class DescriptorImplExt extends ToolInstallerDescriptor<ZipExtractionInstallerExt> {
 
         public String getDisplayName() {
             return Messages.ZipExtractionInstaller_DescriptorImpl_displayName();
         }
-
-        public FormValidation doCheckUrl(@QueryParameter String value) {
-            try {
-                URLConnection conn = ProxyConfiguration.open(new URL(value));
-                conn.connect();
-                if (conn instanceof HttpURLConnection) {
-                    if (((HttpURLConnection) conn).getResponseCode() != HttpURLConnection.HTTP_OK) {
-                        return FormValidation.error(Messages.ZipExtractionInstaller_bad_connection());
-                    }
-                }
-                return FormValidation.ok();
-            } catch (MalformedURLException x) {
-                return FormValidation.error(Messages.ZipExtractionInstaller_malformed_url());
-            } catch (IOException x) {
-                return FormValidation.error(x,Messages.ZipExtractionInstaller_could_not_connect());
-            }
-        }
-
     }
 
     /**
@@ -118,12 +91,16 @@ public class ZipExtractionInstaller extends ToolInstaller {
      * Hackish, is there a better way?
      */
     static class ChmodRecAPlusX implements FileCallable<Void> {
+
         private static final long serialVersionUID = 1L;
+
         public Void invoke(File d, VirtualChannel channel) throws IOException {
-            if(!FunctionsExt.isWindows())
+            if (!FunctionsExt.isWindows()) {
                 process(d);
+            }
             return null;
         }
+
         @IgnoreJRERequirement
         private void process(File f) {
             if (f.isFile()) {
@@ -142,5 +119,4 @@ public class ZipExtractionInstaller extends ToolInstaller {
             }
         }
     }
-
 }

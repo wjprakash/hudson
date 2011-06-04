@@ -60,7 +60,7 @@ import hudson.tasks.Publisher;
 import hudson.triggers.SCMTriggerExt;
 import hudson.triggers.Trigger;
 import hudson.triggers.TriggerDescriptor;
-import hudson.util.DescribableList;
+import hudson.util.DescribableListExt;
 import hudson.util.EditDistance;
 
 import java.io.File;
@@ -564,7 +564,7 @@ public abstract class AbstractProjectExt<P extends AbstractProjectExt<P,R>,R ext
      * This method couldn't be called <tt>getPublishers()</tt> because existing methods
      * in sub-classes return different inconsistent types.
      */
-    public abstract DescribableList<Publisher,DescriptorExt<Publisher>> getPublishersList();
+    public abstract DescribableListExt<Publisher,DescriptorExt<Publisher>> getPublishersList();
 
     @Override
     public void addProperty(JobPropertyExt<? super P> jobProp) throws IOException {

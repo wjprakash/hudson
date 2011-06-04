@@ -41,16 +41,14 @@ import hudson.model.TaskListener;
 import hudson.remoting.Callable;
 import hudson.slaves.NodeSpecific;
 import hudson.tasks._ant.AntConsoleAnnotator;
-import hudson.tools.ToolDescriptor;
+import hudson.tools.ToolDescriptorExt;
 import hudson.tools.ToolInstallation;
-import hudson.tools.DownloadFromUrlInstaller;
+import hudson.tools.DownloadFromUrlInstallerExt;
 import hudson.tools.ToolInstaller;
 import hudson.tools.ToolProperty;
 import hudson.util.ArgumentListBuilder;
 import hudson.util.VariableResolver;
-import hudson.util.FormValidation;
 import hudson.util.XStream2;
-import net.sf.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
@@ -371,7 +369,7 @@ public class AntExt extends Builder {
         }
 
         @Extension
-        public static class DescriptorImpl extends ToolDescriptor<AntInstallation> {
+        public static class DescriptorImpl extends ToolDescriptorExt<AntInstallation> {
 
             @Override
             public String getDisplayName() {
@@ -406,13 +404,13 @@ public class AntExt extends Builder {
     /**
      * Automatic Ant installer from apache.org.
      */
-    public static class AntInstaller extends DownloadFromUrlInstaller {
+    public static class AntInstaller extends DownloadFromUrlInstallerExt {
         public AntInstaller(String id) {
             super(id);
         }
 
         @Extension
-        public static final class DescriptorImpl extends DownloadFromUrlInstaller.DescriptorImpl<AntInstaller> {
+        public static final class DescriptorImpl extends DownloadFromUrlInstallerExt.DescriptorImpl<AntInstaller> {
             public String getDisplayName() {
                 return Messages.InstallFromApache();
             }

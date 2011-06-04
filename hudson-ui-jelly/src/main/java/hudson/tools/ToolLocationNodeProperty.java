@@ -1,7 +1,7 @@
 /*
  * The MIT License
  *
- * Copyright (c) 2009, Sun Microsystems, Inc.
+ * Copyright (c) 2004-2009, Sun Microsystems, Inc., Tom Huybrechts
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,48 +23,37 @@
  */
 package hudson.tools;
 
-import hudson.Extension;
-import hudson.util.DescribableList;
-import hudson.model.DescriptorExt;
-import hudson.model.Saveable;
+import hudson.slaves.NodeProperty;
 import org.kohsuke.stapler.DataBoundConstructor;
 
+import java.util.Arrays;
 import java.util.List;
-import java.io.IOException;
 
 /**
- * {@link ToolProperty} that shows auto installation options.
+ * {@link NodeProperty} that allows users to specify different locations for {@link ToolInstallation}s.
  *
- * @author Kohsuke Kawaguchi
- * @since 1.305
+ * @since 1.286
  */
-public class InstallSourceProperty extends ToolProperty<ToolInstallation> {
-    // TODO: get the proper Saveable
-    public final DescribableList<ToolInstaller, DescriptorExt<ToolInstaller>> installers =
-            new DescribableList<ToolInstaller, DescriptorExt<ToolInstaller>>(Saveable.NOOP);
+public class ToolLocationNodeProperty extends ToolLocationNodePropertyExt {
 
     @DataBoundConstructor
-    public InstallSourceProperty(List<? extends ToolInstaller> installers) throws IOException {
-        if (installers != null) {
-            this.installers.replaceBy(installers);
+    public ToolLocationNodeProperty(List<ToolLocationExt> locations) {
+        super(locations);
+    }
+
+    public ToolLocationNodeProperty(ToolLocationExt... locations) {
+        this(Arrays.asList(locations));
+    }
+
+    public static final class ToolLocation extends ToolLocationExt {
+
+        public ToolLocation(ToolDescriptorExt type, String name, String home) {
+            super(type, name, home);
         }
-    }
 
-    @Override
-    public void setTool(ToolInstallation t) {
-        super.setTool(t);
-        for (ToolInstaller installer : installers)
-            installer.setTool(t);
-    }
-
-    public Class<ToolInstallation> type() {
-        return ToolInstallation.class;
-    }
-
-    @Extension
-    public static class DescriptorImpl extends ToolPropertyDescriptor {
-        public String getDisplayName() {
-            return Messages.InstallSourceProperty_DescriptorImpl_displayName();
+        @DataBoundConstructor
+        public ToolLocation(String key, String home) {
+            super(key, home);
         }
     }
 }

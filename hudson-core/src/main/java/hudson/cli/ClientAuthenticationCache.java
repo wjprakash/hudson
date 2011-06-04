@@ -32,7 +32,7 @@ import hudson.model.HudsonExt.MasterComputer;
 import hudson.remoting.Callable;
 import hudson.remoting.Channel;
 import hudson.remoting.VirtualChannel;
-import hudson.util.Secret;
+import hudson.util.SecretExt;
 import org.acegisecurity.Authentication;
 import org.acegisecurity.AuthenticationException;
 import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
@@ -86,7 +86,7 @@ public class ClientAuthenticationCache implements Serializable {
      */
     public Authentication get() {
         HudsonExt h = HudsonExt.getInstance();
-        Secret userName = Secret.decrypt(props.getProperty(getPropertyKey()));
+        SecretExt userName = SecretExt.decrypt(props.getProperty(getPropertyKey()));
         if (userName==null) return HudsonExt.ANONYMOUS; // failed to decrypt
         try {
             UserDetails u = h.getSecurityRealm().loadUserByUsername(userName.toString());
@@ -104,7 +104,7 @@ public class ClientAuthenticationCache implements Serializable {
     private String getPropertyKey() {
         String url = HudsonExt.getInstance().getRootUrl();
         if (url!=null)  return url;
-        return Secret.fromString("key").toString();
+        return SecretExt.fromString("key").toString();
     }
 
     /**
@@ -116,7 +116,7 @@ public class ClientAuthenticationCache implements Serializable {
         // make sure that this security realm is capable of retrieving the authentication by name,
         // as it's not required.
         UserDetails u = h.getSecurityRealm().loadUserByUsername(a.getName());
-        props.setProperty(getPropertyKey(), Secret.fromString(u.getUsername()).getEncryptedValue());
+        props.setProperty(getPropertyKey(), SecretExt.fromString(u.getUsername()).getEncryptedValue());
 
         save();
     }

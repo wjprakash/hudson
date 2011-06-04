@@ -28,11 +28,9 @@ import hudson.Extension;
 import static hudson.UtilExt.fixNull;
 import static hudson.UtilExt.fixEmptyAndTrim;
 import static hudson.UtilExt.fixEmpty;
-import hudson.model.DescriptorExt;
 import hudson.model.HudsonExt;
 import hudson.model.UserExt;
 import hudson.tasks.MailAddressResolver;
-import hudson.util.FormValidation;
 import hudson.util.Scrambler;
 import hudson.util.spring.BeanBuilder;
 import org.acegisecurity.AuthenticationManager;
@@ -63,17 +61,11 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
-import java.io.IOException;
-import java.net.InetAddress;
-import java.net.Socket;
-import java.net.UnknownHostException;
 import java.util.Collections;
 import java.util.Hashtable;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 
 /**

@@ -26,7 +26,6 @@ package hudson.tasks.junit;
 import hudson.model.AbstractBuildExt;
 import hudson.model.AbstractModelObjectExt;
 import hudson.tasks.test.AbstractTestResultActionExt;
-import hudson.tasks.test.TestObjectExt;
 
 import java.io.Serializable;
 import java.util.List;

@@ -24,7 +24,7 @@
 package hudson.model;
 
 import hudson.Extension;
-import hudson.util.Secret;
+import hudson.util.SecretExt;
 
 /**
  * Parameter whose value is a {@link Secret} and is hidden from the UI.
@@ -34,11 +34,11 @@ import hudson.util.Secret;
  */
 public class PasswordParameterDefinitionExt extends SimpleParameterDefinitionExt {
 
-    private Secret defaultValue;
+    private SecretExt defaultValue;
 
     public PasswordParameterDefinitionExt(String name, String defaultValue, String description) {
         super(name, description);
-        this.defaultValue = Secret.fromString(defaultValue);
+        this.defaultValue = SecretExt.fromString(defaultValue);
     }
 
     @Override
@@ -52,12 +52,12 @@ public class PasswordParameterDefinitionExt extends SimpleParameterDefinitionExt
     }
 
     public String getDefaultValue() {
-        return Secret.toString(defaultValue);
+        return SecretExt.toString(defaultValue);
     }
 
     // kept for backward compatibility
     public void setDefaultValue(String defaultValue) {
-        this.defaultValue = Secret.fromString(defaultValue);
+        this.defaultValue = SecretExt.fromString(defaultValue);
     }
 
     @Extension

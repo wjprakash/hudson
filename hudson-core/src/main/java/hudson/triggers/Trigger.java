@@ -30,7 +30,6 @@ import hudson.ExtensionPoint;
 import hudson.DescriptorExtensionListExt;
 import hudson.Extension;
 import hudson.init.Initializer;
-import hudson.init.InitMilestone;
 import static hudson.init.InitMilestone.JOB_LOADED;
 import hudson.model.AbstractProjectExt;
 import hudson.model.Action;
@@ -91,7 +90,8 @@ public abstract class Trigger<J extends ItemExt> implements Describable<Trigger<
      * This method is invoked when {@link #Trigger(String)} is used
      * to create an instance, and the crontab matches the current time.
      */
-    public void run() {}
+    public void run() {
+    }
 
     /**
      * Called before a {@link Trigger} is removed.
@@ -102,7 +102,8 @@ public abstract class Trigger<J extends ItemExt> implements Describable<Trigger<
      * When the configuration is changed for a project, all triggers
      * are removed once and then added back.
      */
-    public void stop() {}
+    public void stop() {
+    }
 
     /**
      * Returns an action object if this {@link Trigger} has an action
@@ -125,16 +126,15 @@ public abstract class Trigger<J extends ItemExt> implements Describable<Trigger<
     public Collection<? extends Action> getProjectActions() {
         // delegate to getJobAction (singular) for backward compatible behavior
         Action a = getProjectAction();
-        if (a==null)    return Collections.emptyList();
+        if (a == null) {
+            return Collections.emptyList();
+        }
         return Collections.singletonList(a);
     }
 
     public TriggerDescriptor getDescriptor() {
-        return (TriggerDescriptor)HudsonExt.getInstance().getDescriptorOrDie(getClass());
+        return (TriggerDescriptor) HudsonExt.getInstance().getDescriptorOrDie(getClass());
     }
-
-
-
     protected final String spec;
     protected transient CronTabList tabs;
     protected transient J job;
@@ -177,12 +177,12 @@ public abstract class Trigger<J extends ItemExt> implements Describable<Trigger<
         return this;
     }
 
-
     /**
      * Runs every minute to check {@link TimerTrigger} and schedules build.
      */
     @Extension
     public static class Cron extends PeriodicWork {
+
         private final Calendar cal = new GregorianCalendar();
 
         public long getRecurrencePeriod() {
@@ -190,29 +190,28 @@ public abstract class Trigger<J extends ItemExt> implements Describable<Trigger<
         }
 
         public void doRun() {
-            while(new Date().getTime()-cal.getTimeInMillis()>1000) {
-                LOGGER.fine("cron checking "+cal.getTime().toLocaleString());
+            while (new Date().getTime() - cal.getTimeInMillis() > 1000) {
+                LOGGER.fine("cron checking " + cal.getTime().toLocaleString());
 
                 try {
                     checkTriggers(cal);
                 } catch (Throwable e) {
-                    LOGGER.log(Level.WARNING,"Cron thread throw an exception",e);
+                    LOGGER.log(Level.WARNING, "Cron thread throw an exception", e);
                     // bug in the code. Don't let the thread die.
                     e.printStackTrace();
                 }
 
-                cal.add(Calendar.MINUTE,1);
+                cal.add(Calendar.MINUTE, 1);
             }
         }
     }
-
     private static Future previousSynchronousPolling;
 
     public static void checkTriggers(final Calendar cal) {
         HudsonExt inst = HudsonExt.getInstance();
 
         // Are we using synchronous polling?
-        SCMTriggerExt.DescriptorImpl scmd = inst.getDescriptorByType(SCMTriggerExt.DescriptorImpl.class);
+        SCMTriggerExt.DescriptorImplExt scmd = inst.getDescriptorByType(SCMTriggerExt.DescriptorImplExt.class);
         if (scmd.synchronousPolling) {
             LOGGER.fine("using synchronous polling");
 
@@ -223,6 +222,7 @@ public abstract class Trigger<J extends ItemExt> implements Describable<Trigger<
                 // terminated.
                 // FIXME allow to set a global crontab spec
                 previousSynchronousPolling = scmd.getExecutor().submit(new DependencyRunner(new ProjectRunnable() {
+
                     public void run(AbstractProjectExt p) {
                         for (Trigger t : (Collection<Trigger>) p.getTriggers().values()) {
                             if (t instanceof SCMTriggerExt) {
@@ -238,28 +238,26 @@ public abstract class Trigger<J extends ItemExt> implements Describable<Trigger<
         }
 
         // Process all triggers, except SCMTriggers when synchronousPolling is set
-        for (AbstractProjectExt<?,?> p : inst.getAllItems(AbstractProjectExt.class)) {
+        for (AbstractProjectExt<?, ?> p : inst.getAllItems(AbstractProjectExt.class)) {
             for (Trigger t : p.getTriggers().values()) {
-                if (! (t instanceof SCMTriggerExt && scmd.synchronousPolling)) {
-                    LOGGER.fine("cron checking "+p.getName());
+                if (!(t instanceof SCMTriggerExt && scmd.synchronousPolling)) {
+                    LOGGER.fine("cron checking " + p.getName());
 
                     if (t.tabs.check(cal)) {
-                        LOGGER.config("cron triggered "+p.getName());
+                        LOGGER.config("cron triggered " + p.getName());
                         try {
                             t.run();
                         } catch (Throwable e) {
                             // t.run() is a plugin, and some of them throw RuntimeException and other things.
                             // don't let that cancel the polling activity. report and move on.
-                            LOGGER.log(Level.WARNING, t.getClass().getName()+".run() failed for "+p.getName(),e);
+                            LOGGER.log(Level.WARNING, t.getClass().getName() + ".run() failed for " + p.getName(), e);
                         }
                     }
                 }
             }
         }
     }
-
     private static final Logger LOGGER = Logger.getLogger(Trigger.class.getName());
-
     /**
      * This timer is available for all the components inside HudsonExt to schedule
      * some work.
@@ -270,27 +268,29 @@ public abstract class Trigger<J extends ItemExt> implements Describable<Trigger<
      */
     public static Timer timer;
 
-    @Initializer(after=JOB_LOADED)
+    @Initializer(after = JOB_LOADED)
     public static void init() {
         new DoubleLaunchCheckerExt().schedule();
 
         // start all PeridocWorks
-        for(PeriodicWork p : PeriodicWork.all())
-            timer.scheduleAtFixedRate(p,p.getInitialDelay(),p.getRecurrencePeriod());
+        for (PeriodicWork p : PeriodicWork.all()) {
+            timer.scheduleAtFixedRate(p, p.getInitialDelay(), p.getRecurrencePeriod());
+        }
 
         // start monitoring nodes, although there's no hurry.
         timer.schedule(new SafeTimerTask() {
+
             public void doRun() {
                 ComputerSetExt.initialize();
             }
-        }, 1000*10);
+        }, 1000 * 10);
     }
 
     /**
      * Returns all the registered {@link Trigger} descriptors.
      */
-    public static DescriptorExtensionListExt<Trigger<?>,TriggerDescriptor> all() {
-        return (DescriptorExtensionListExt)HudsonExt.getInstance().getDescriptorList(Trigger.class);
+    public static DescriptorExtensionListExt<Trigger<?>, TriggerDescriptor> all() {
+        return (DescriptorExtensionListExt) HudsonExt.getInstance().getDescriptorList(Trigger.class);
     }
 
     /**
@@ -299,13 +299,17 @@ public abstract class Trigger<J extends ItemExt> implements Describable<Trigger<
     public static List<TriggerDescriptor> for_(ItemExt i) {
         List<TriggerDescriptor> r = new ArrayList<TriggerDescriptor>();
         for (TriggerDescriptor t : all()) {
-            if(!t.isApplicable(i))  continue;
+            if (!t.isApplicable(i)) {
+                continue;
+            }
 
             if (i instanceof TopLevelItem) {// ugly
                 TopLevelItemDescriptorExt tld = ((TopLevelItem) i).getDescriptor();
                 // tld shouldn't be really null in contract, but we often write test Describables that
                 // doesn't have a Descriptor.
-                if(tld!=null && !tld.isApplicable(t))    continue;
+                if (tld != null && !tld.isApplicable(t)) {
+                    continue;
+                }
             }
 
             r.add(t);

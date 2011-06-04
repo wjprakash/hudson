@@ -36,7 +36,7 @@ import hudson.model.HudsonExt;
 import hudson.model.LabelExt;
 import hudson.model.Saveable;
 import hudson.model.listeners.SaveableListener;
-import hudson.util.DescribableList;
+import hudson.util.DescribableListExt;
 import hudson.util.QuotedStringTokenizer;
 import hudson.util.VariableResolver;
 import hudson.util.XStream2;
@@ -57,8 +57,8 @@ import java.util.logging.Logger;
  */
 public class LabelAtomExt extends LabelExt implements Saveable {
 
-    protected DescribableList<LabelAtomPropertyExt, LabelAtomPropertyDescriptor> properties =
-            new DescribableList<LabelAtomPropertyExt, LabelAtomPropertyDescriptor>(this);
+    protected DescribableListExt<LabelAtomPropertyExt, LabelAtomPropertyDescriptor> properties =
+            new DescribableListExt<LabelAtomPropertyExt, LabelAtomPropertyDescriptor>(this);
     @CopyOnWrite
     protected transient volatile List<Action> transientActions = new Vector<Action>();
 
@@ -127,7 +127,7 @@ public class LabelAtomExt extends LabelExt implements Saveable {
     /**
      * Properties associated with this label.
      */
-    public DescribableList<LabelAtomPropertyExt, LabelAtomPropertyDescriptor> getProperties() {
+    public DescribableListExt<LabelAtomPropertyExt, LabelAtomPropertyDescriptor> getProperties() {
         return properties;
     }
 

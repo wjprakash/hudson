@@ -34,7 +34,6 @@ import hudson.slaves.NodeProperty;
 import hudson.slaves.NodePropertyDescriptor;
 import hudson.slaves.NodeSpecific;
 import java.io.IOException;
-import org.kohsuke.stapler.DataBoundConstructor;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -45,28 +44,27 @@ import java.util.List;
  *
  * @since 1.286
  */
-public class ToolLocationNodeProperty extends NodeProperty<NodeExt> {
+public class ToolLocationNodePropertyExt extends NodeProperty<NodeExt> {
     /**
      * Override locations. Never null.
      */
-    private final List<ToolLocation> locations;
+    private final List<ToolLocationExt> locations;
 
-    @DataBoundConstructor
-    public ToolLocationNodeProperty(List<ToolLocation> locations) {
+    public ToolLocationNodePropertyExt(List<ToolLocationExt> locations) {
         if(locations==null) throw new IllegalArgumentException();
         this.locations = locations;
     }
 
-    public ToolLocationNodeProperty(ToolLocation... locations) {
+    public ToolLocationNodePropertyExt(ToolLocationExt... locations) {
         this(Arrays.asList(locations));
     }
 
-    public List<ToolLocation> getLocations() {
+    public List<ToolLocationExt> getLocations() {
         return Collections.unmodifiableList(locations);
     }
 
     public String getHome(ToolInstallation installation) {
-        for (ToolLocation location : locations) {
+        for (ToolLocationExt location : locations) {
             if (location.getName().equals(installation.getName()) && location.getType() == installation.getDescriptor()) {
                 return location.getHome();
             }
@@ -90,7 +88,7 @@ public class ToolLocationNodeProperty extends NodeProperty<NodeExt> {
         String result = null;
 
         // node-specific configuration takes precedence
-        ToolLocationNodeProperty property = node.getNodeProperties().get(ToolLocationNodeProperty.class);
+        ToolLocationNodePropertyExt property = node.getNodeProperties().get(ToolLocationNodePropertyExt.class);
         if (property != null)   result = property.getHome(installation);
         if (result != null)     return result;
 
@@ -111,7 +109,7 @@ public class ToolLocationNodeProperty extends NodeProperty<NodeExt> {
             return Messages.ToolLocationNodeProperty_displayName();
         }
 
-        public DescriptorExtensionListExt<ToolInstallation,ToolDescriptor<?>> getToolDescriptors() {
+        public DescriptorExtensionListExt<ToolInstallation,ToolDescriptorExt<?>> getToolDescriptors() {
             return ToolInstallation.all();
         }
 
@@ -125,21 +123,20 @@ public class ToolLocationNodeProperty extends NodeProperty<NodeExt> {
         }
     }
 
-    public static final class ToolLocation {
+    public static class ToolLocationExt {
         private final String type;
         private final String name;
         private final String home;
-        private transient volatile ToolDescriptor descriptor;
+        private transient volatile ToolDescriptorExt descriptor;
 
-        public ToolLocation(ToolDescriptor type, String name, String home) {
+        public ToolLocationExt(ToolDescriptorExt type, String name, String home) {
             this.descriptor = type;
             this.type = type.getClass().getName();
             this.name = name;
             this.home = home;
         }
         
-        @DataBoundConstructor
-        public ToolLocation(String key, String home) {
+        public ToolLocationExt(String key, String home) {
             this.type =  key.substring(0, key.indexOf('@'));
             this.name = key.substring(key.indexOf('@') + 1);
             this.home = home;
@@ -153,8 +150,8 @@ public class ToolLocationNodeProperty extends NodeProperty<NodeExt> {
             return home;
         }
 
-        public ToolDescriptor getType() {
-            if (descriptor == null) descriptor = (ToolDescriptor) DescriptorExt.find(type); 
+        public ToolDescriptorExt getType() {
+            if (descriptor == null) descriptor = (ToolDescriptorExt) DescriptorExt.find(type); 
             return descriptor;
         }
 

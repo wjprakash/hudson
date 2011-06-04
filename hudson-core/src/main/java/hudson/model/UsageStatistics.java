@@ -27,7 +27,7 @@ import hudson.PluginWrapperExt;
 import hudson.UtilExt;
 import hudson.Extension;
 import hudson.node_monitors.ArchitectureMonitorExt.DescriptorImpl;
-import hudson.util.Secret;
+import hudson.util.SecretExt;
 import static hudson.util.TimeUnit2.DAYS;
 import net.sf.json.JSONObject;
 import org.apache.commons.io.output.ByteArrayOutputStream;
@@ -107,7 +107,7 @@ public class UsageStatistics extends PageDecorator {
                 key = keyFactory.generatePublic(new X509EncodedKeySpec(UtilExt.fromHexString(keyImage)));
             }
 
-            Cipher cipher = Secret.getCipher("RSA");
+            Cipher cipher = SecretExt.getCipher("RSA");
             cipher.init(Cipher.ENCRYPT_MODE, key);
             return cipher;
         } catch (GeneralSecurityException e) {
@@ -198,7 +198,7 @@ public class UsageStatistics extends PageDecorator {
             out.write(asym.doFinal(symKey.getEncoded()));
 
             // the rest of the data will be encrypted by this symmetric cipher
-            Cipher sym = Secret.getCipher(algorithm);
+            Cipher sym = SecretExt.getCipher(algorithm);
             sym.init(Cipher.ENCRYPT_MODE, symKey);
             super.out = new CipherOutputStream(out, sym);
         }
@@ -223,7 +223,7 @@ public class UsageStatistics extends PageDecorator {
             SecretKey symKey = new SecretKeySpec(asym.doFinal(symKeyBytes), algorithm);
 
             // the rest of the data will be decrypted by this symmetric cipher
-            Cipher sym = Secret.getCipher(algorithm);
+            Cipher sym = SecretExt.getCipher(algorithm);
             sym.init(Cipher.DECRYPT_MODE, symKey);
             super.in = new CipherInputStream(in, sym);
         }

@@ -24,12 +24,13 @@
 package hudson.tasks.junit;
 
 import hudson.model.AbstractBuildExt;
+import hudson.model.HudsonExt;
 import hudson.tasks.test.TestObjectExt;
 import hudson.tasks.test.TestResult;
 import hudson.util.ColorPalette;
 import hudson.util.graph.ChartLabel;
 import hudson.util.graph.DataSet;
-import hudson.util.graph.Graph;
+import hudson.util.graph.GraphExt;
 
 import java.awt.Color;
 import java.util.ArrayList;
@@ -82,8 +83,8 @@ public class HistoryExt {
     /**
      * Graph of duration of tests over time.
      */
-    public Graph getDurationGraph() {
-        Graph graph = new Graph(-1, 600, 300);
+    public GraphExt getDurationGraph() {
+        GraphExt graph = new GraphExt(-1, 600, 300);
         graph.setXAxisLabel("seconds");
         graph.setData(getDurationGraphDataSet(0, 60));
         return graph;
@@ -120,8 +121,8 @@ public class HistoryExt {
     /**
      * Graph of # of tests over time.
      */
-    public Graph getCountGraph() {
-        Graph graph = new Graph(-1, 600, 300);
+    public GraphExt getCountGraph() {
+        GraphExt graph = new GraphExt(-1, 600, 300);
         graph.setXAxisLabel("");
         graph.setData(getCountGraphDataSet(0, 60));
         return graph;

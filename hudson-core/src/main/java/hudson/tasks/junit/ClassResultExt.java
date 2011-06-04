@@ -213,15 +213,5 @@ public class ClassResultExt extends TabulatedResult implements Comparable<ClassR
     	return getParent().getDisplayName() + "." + className;
     }
 
-    /**
-     * Gets the relative path to this test case from the given object.
-     */
-    @Override
-    public String getRelativePathFrom(TestObjectExt it) {
-        if(it instanceof CaseResultExt) {
-        	return "..";
-        } else {
-            return super.getRelativePathFrom(it);
-        }
-    }
+     
 }

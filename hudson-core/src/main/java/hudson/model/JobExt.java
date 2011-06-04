@@ -46,7 +46,7 @@ import hudson.util.IOException2;
 import hudson.util.RunListExt;
 import hudson.util.TextFile;
 import hudson.util.graph.ChartLabel;
-import hudson.util.graph.Graph;
+import hudson.util.graph.GraphExt;
 
 import java.awt.Color;
 import java.io.File;
@@ -831,8 +831,8 @@ public abstract class JobExt<JobT extends JobExt<JobT, RunT>, RunT extends RunEx
         return getIconColor().getImage();
     }
 
-    public Graph getBuildTimeGraph() {
-        Graph graph = new Graph(getLastBuild().getTimestamp(), 500, 400);
+    public GraphExt getBuildTimeGraph() {
+        GraphExt graph = new GraphExt(getLastBuild().getTimestamp(), 500, 400);
 
         DataSet<String, ChartLabel> data = new DataSet<String, ChartLabel>();
         for (RunExt r : getBuilds()) {

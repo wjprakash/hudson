@@ -28,7 +28,7 @@ import hudson.Extension;
 import hudson.UtilExt;
 import hudson.model.Descriptor.FormException;
 import hudson.util.CaseInsensitiveComparator;
-import hudson.util.DescribableList;
+import hudson.util.DescribableListExt;
 import hudson.util.FormValidation;
 import hudson.views.ListViewColumn;
 import hudson.views.ViewJobFilter;
@@ -59,9 +59,9 @@ public class ListView extends View implements Saveable {
      */
     /*package*/ final SortedSet<String> jobNames = new TreeSet<String>(CaseInsensitiveComparator.INSTANCE);
     
-    private DescribableList<ViewJobFilter, DescriptorExt<ViewJobFilter>> jobFilters;
+    private DescribableListExt<ViewJobFilter, DescriptorExt<ViewJobFilter>> jobFilters;
 
-    private DescribableList<ListViewColumn, DescriptorExt<ListViewColumn>> columns;
+    private DescribableListExt<ListViewColumn, DescriptorExt<ListViewColumn>> columns;
 
     /**
      * Include regex string.
@@ -108,12 +108,12 @@ public class ListView extends View implements Saveable {
 
     protected void initColumns() {
         if (columns == null)
-            columns = new DescribableList<ListViewColumn, DescriptorExt<ListViewColumn>>(this,ListViewColumn.createDefaultInitialColumnList());
+            columns = new DescribableListExt<ListViewColumn, DescriptorExt<ListViewColumn>>(this,ListViewColumn.createDefaultInitialColumnList());
     }
 
     protected void initJobFilters() {
         if (jobFilters == null)
-            jobFilters = new DescribableList<ViewJobFilter, DescriptorExt<ViewJobFilter>>(this);
+            jobFilters = new DescribableListExt<ViewJobFilter, DescriptorExt<ViewJobFilter>>(this);
     }
 
     /**
@@ -123,7 +123,7 @@ public class ListView extends View implements Saveable {
     	return !ViewJobFilter.all().isEmpty();
     }
 
-    public DescribableList<ViewJobFilter, DescriptorExt<ViewJobFilter>> getJobFilters() {
+    public DescribableListExt<ViewJobFilter, DescriptorExt<ViewJobFilter>> getJobFilters() {
     	return jobFilters;
     }
     
@@ -237,12 +237,12 @@ public class ListView extends View implements Saveable {
         }
 
         if (columns == null) {
-            columns = new DescribableList<ListViewColumn,DescriptorExt<ListViewColumn>>(this);
+            columns = new DescribableListExt<ListViewColumn,DescriptorExt<ListViewColumn>>(this);
         }
         columns.rebuildHetero(req, req.getSubmittedForm(), ListViewColumn.all(), "columns");
         
         if (jobFilters == null) {
-        	jobFilters = new DescribableList<ViewJobFilter,DescriptorExt<ViewJobFilter>>(this);
+        	jobFilters = new DescribableListExt<ViewJobFilter,DescriptorExt<ViewJobFilter>>(this);
         }
         jobFilters.rebuildHetero(req, req.getSubmittedForm(), ViewJobFilter.all(), "jobFilters");
 

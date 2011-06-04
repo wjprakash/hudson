@@ -36,7 +36,7 @@ import hudson.model.DescriptorExt;
 import hudson.security.ACL;
 import hudson.security.AccessControlled;
 import hudson.security.Permission;
-import hudson.util.DescriptorList;
+import hudson.util.DescriptorListExt;
 
 import java.util.Collection;
 
@@ -131,7 +131,7 @@ public abstract class Cloud extends AbstractModelObjectExt implements ExtensionP
      * @deprecated as of 1.286
      *      Use {@link #all()} for read access, and {@link Extension} for registration.
      */
-    public static final DescriptorList<Cloud> ALL = new DescriptorList<Cloud>(Cloud.class);
+    public static final DescriptorListExt<Cloud> ALL = new DescriptorListExt<Cloud>(Cloud.class);
 
     /**
      * Returns all the registered {@link Cloud} descriptors.

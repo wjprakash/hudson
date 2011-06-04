@@ -32,7 +32,7 @@ import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.BuildWrappers;
 import hudson.tasks.Builder;
 import hudson.tasks.Publisher;
-import hudson.util.DescribableList;
+import hudson.util.DescribableListExt;
 import hudson.util.FormValidation;
 import hudson.util.FormValidation.Kind;
 import java.io.IOException;
@@ -107,7 +107,7 @@ public class MatrixProject extends MatrixProjectExt{
         }
         
         // parse system axes
-        DescribableList<AxisExt,AxisDescriptorExt> newAxes = new DescribableList<AxisExt,AxisDescriptorExt>(this);
+        DescribableListExt<AxisExt,AxisDescriptorExt> newAxes = new DescribableListExt<AxisExt,AxisDescriptorExt>(this);
         newAxes.rebuildHetero(req, json, AxisExt.all(),"axis");
         checkAxisNames(newAxes);
         this.axes = new AxisList(newAxes.toList());

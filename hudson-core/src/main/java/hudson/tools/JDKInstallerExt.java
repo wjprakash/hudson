@@ -27,20 +27,16 @@ import hudson.AbortException;
 import hudson.Extension;
 import hudson.FilePathExt;
 import hudson.ProxyConfiguration;
-import hudson.UtilExt;
 import hudson.Launcher;
 import hudson.model.HudsonExt;
-import hudson.util.FormValidation;
 import hudson.util.ArgumentListBuilder;
 import hudson.util.IOException2;
 import hudson.model.NodeExt;
 import hudson.model.TaskListener;
 import hudson.model.DownloadServiceExt.DownloadableExt;
 import hudson.model.JDKExt;
-import static hudson.tools.JDKInstaller.Preference.*;
+import static hudson.tools.JDKInstallerExt.Preference.*;
 import hudson.remoting.Callable;
-import org.kohsuke.stapler.DataBoundConstructor;
-import org.kohsuke.stapler.QueryParameter;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.output.NullWriter;
 import org.w3c.tidy.Tidy;
@@ -77,7 +73,7 @@ import net.sf.json.JSONObject;
  * @author Kohsuke Kawaguchi
  * @since 1.305
  */
-public class JDKInstaller extends ToolInstaller {
+public class JDKInstallerExt extends ToolInstaller {
     /**
      * The release ID that Sun assigns to each JDKExt, such as "jdk-6u13-oth-JPR@CDS-CDS_Developer"
      *
@@ -93,8 +89,7 @@ public class JDKInstaller extends ToolInstaller {
      */
     public final boolean acceptLicense;
 
-    @DataBoundConstructor
-    public JDKInstaller(String id, boolean acceptLicense) {
+    public JDKInstallerExt(String id, boolean acceptLicense) {
         super(null);
         this.id = id;
         this.acceptLicense = acceptLicense;
@@ -555,7 +550,7 @@ public class JDKInstaller extends ToolInstaller {
     }
 
     @Extension
-    public static final class DescriptorImpl extends ToolInstallerDescriptor<JDKInstaller> {
+    public static class DescriptorImplExt extends ToolInstallerDescriptor<JDKInstallerExt> {
         public String getDisplayName() {
             return Messages.JDKInstaller_DescriptorImpl_displayName();
         }
@@ -565,29 +560,12 @@ public class JDKInstaller extends ToolInstaller {
             return toolType==JDKExt.class;
         }
 
-        public FormValidation doCheckId(@QueryParameter String value) {
-            if (UtilExt.fixEmpty(value) == null) {
-                return FormValidation.error(Messages.JDKInstaller_DescriptorImpl_doCheckId()); // improve message
-            } else {
-                // XXX further checks? 
-                return FormValidation.ok();
-            }
-        }
-
         /**
          * List of installable JDKs.
          * @return never null.
          */
         public List<JDKFamily> getInstallableJDKs() throws IOException {
             return Arrays.asList(JDKList.all().get(JDKList.class).toList().jdks);
-        }
-
-        public FormValidation doCheckAcceptLicense(@QueryParameter boolean value) {
-            if (value) {
-                return FormValidation.ok();
-            } else {
-                return FormValidation.error(Messages.JDKInstaller_DescriptorImpl_doCheckAcceptLicense()); 
-            }
         }
     }
 
@@ -597,7 +575,7 @@ public class JDKInstaller extends ToolInstaller {
     @Extension
     public static final class JDKList extends DownloadableExt {
         public JDKList() {
-            super(JDKInstaller.class);
+            super(JDKInstallerExt.class);
         }
 
         public JDKFamilyList toList() throws IOException {
@@ -607,5 +585,5 @@ public class JDKInstaller extends ToolInstaller {
         }
     }
 
-    private static final Logger LOGGER = Logger.getLogger(JDKInstaller.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(JDKInstallerExt.class.getName());
 }

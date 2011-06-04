@@ -52,7 +52,7 @@ import hudson.tasks.Builder;
 import hudson.tasks.Publisher;
 import hudson.triggers.Trigger;
 import hudson.util.CopyOnWriteMap;
-import hudson.util.DescribableList;
+import hudson.util.DescribableListExt;
 import hudson.util.TokenList;
 
 import java.io.File;
@@ -95,20 +95,20 @@ public class MatrixProjectExt extends AbstractProjectExt<MatrixProjectExt,Matrix
     /**
      * List of active {@link Builder}s configured for this project.
      */
-    protected DescribableList<Builder,DescriptorExt<Builder>> builders =
-            new DescribableList<Builder,DescriptorExt<Builder>>(this);
+    protected DescribableListExt<Builder,DescriptorExt<Builder>> builders =
+            new DescribableListExt<Builder,DescriptorExt<Builder>>(this);
 
     /**
      * List of active {@link Publisher}s configured for this project.
      */
-    protected DescribableList<Publisher,DescriptorExt<Publisher>> publishers =
-            new DescribableList<Publisher,DescriptorExt<Publisher>>(this);
+    protected DescribableListExt<Publisher,DescriptorExt<Publisher>> publishers =
+            new DescribableListExt<Publisher,DescriptorExt<Publisher>>(this);
 
     /**
      * List of active {@link BuildWrapper}s configured for this project.
      */
-    protected DescribableList<BuildWrapper,DescriptorExt<BuildWrapper>> buildWrappers =
-            new DescribableList<BuildWrapper,DescriptorExt<BuildWrapper>>(this);
+    protected DescribableListExt<BuildWrapper,DescriptorExt<BuildWrapper>> buildWrappers =
+            new DescribableListExt<BuildWrapper,DescriptorExt<BuildWrapper>>(this);
 
     /**
      * All {@link MatrixConfiguration}s, keyed by their {@link MatrixConfiguration#getName() names}.
@@ -507,7 +507,7 @@ public class MatrixProjectExt extends AbstractProjectExt<MatrixProjectExt,Matrix
         return builders.toList();
     }
 
-    public DescribableList<Builder,DescriptorExt<Builder>> getBuildersList() {
+    public DescribableListExt<Builder,DescriptorExt<Builder>> getBuildersList() {
         return builders;
     }
 
@@ -515,11 +515,11 @@ public class MatrixProjectExt extends AbstractProjectExt<MatrixProjectExt,Matrix
         return publishers.toMap();
     }
 
-    public DescribableList<Publisher,DescriptorExt<Publisher>> getPublishersList() {
+    public DescribableListExt<Publisher,DescriptorExt<Publisher>> getPublishersList() {
         return publishers;
     }
 
-    public DescribableList<BuildWrapper, DescriptorExt<BuildWrapper>> getBuildWrappersList() {
+    public DescribableListExt<BuildWrapper, DescriptorExt<BuildWrapper>> getBuildWrappersList() {
         return buildWrappers;
     }
 

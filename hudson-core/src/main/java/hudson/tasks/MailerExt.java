@@ -39,7 +39,7 @@ import hudson.model.AbstractProjectExt;
 import hudson.model.HudsonExt;
 import hudson.model.UserExt;
 import hudson.model.UserPropertyDescriptor;
-import hudson.util.Secret;
+import hudson.util.SecretExt;
 
 import java.io.File;
 import java.io.IOException;
@@ -124,7 +124,7 @@ public class MailerExt extends Notifier {
          * If non-null, use SMTP-AUTH with these information.
          */
         protected String smtpAuthUsername;
-        protected Secret smtpAuthPassword;
+        protected SecretExt smtpAuthPassword;
         /**
          * The e-mail address that HudsonExt puts to "From:" field in outgoing e-mails.
          * Null if not configured.
@@ -176,7 +176,7 @@ public class MailerExt extends Notifier {
             return createSession(smtpHost, smtpPort, useSsl, smtpAuthUsername, smtpAuthPassword);
         }
 
-        protected static Session createSession(String smtpHost, String smtpPort, boolean useSsl, String smtpAuthUserName, Secret smtpAuthPassword) {
+        protected static Session createSession(String smtpHost, String smtpPort, boolean useSsl, String smtpAuthUserName, SecretExt smtpAuthPassword) {
             smtpPort = UtilExt.fixEmptyAndTrim(smtpPort);
             smtpAuthUserName = UtilExt.fixEmptyAndTrim(smtpAuthUserName);
 
@@ -212,7 +212,7 @@ public class MailerExt extends Notifier {
             props.put("mail.smtp.timeout", "60000");
             props.put("mail.smtp.connectiontimeout", "60000");
 
-            return Session.getInstance(props, getAuthenticator(smtpAuthUserName, Secret.toString(smtpAuthPassword)));
+            return Session.getInstance(props, getAuthenticator(smtpAuthUserName, SecretExt.toString(smtpAuthPassword)));
         }
 
         private static Authenticator getAuthenticator(final String smtpAuthUserName, final String smtpAuthPassword) {
@@ -259,7 +259,7 @@ public class MailerExt extends Notifier {
             if (smtpAuthPassword == null) {
                 return null;
             }
-            return Secret.toString(smtpAuthPassword);
+            return SecretExt.toString(smtpAuthPassword);
         }
 
         public boolean getUseSsl() {
@@ -313,7 +313,7 @@ public class MailerExt extends Notifier {
 
         public void setSmtpAuth(String userName, String password) {
             this.smtpAuthUsername = userName;
-            this.smtpAuthPassword = Secret.fromString(password);
+            this.smtpAuthPassword = SecretExt.fromString(password);
         }
 
         public boolean isApplicable(Class<? extends AbstractProjectExt> jobType) {

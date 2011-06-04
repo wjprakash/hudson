@@ -27,7 +27,7 @@ import hudson.DescriptorExtensionListExt;
 import hudson.XmlFile;
 import hudson.model.listeners.SaveableListener;
 import hudson.node_monitors.NodeMonitorExt;
-import hudson.util.DescribableList;
+import hudson.util.DescribableListExt;
 
 import java.io.File;
 import java.io.IOException;
@@ -56,8 +56,8 @@ public class ComputerSetExt extends AbstractModelObjectExt {
         }
     };
 
-    protected static final DescribableList<NodeMonitorExt,DescriptorExt<NodeMonitorExt>> monitors
-            = new DescribableList<NodeMonitorExt, DescriptorExt<NodeMonitorExt>>(MONITORS_OWNER);
+    protected static final DescribableListExt<NodeMonitorExt,DescriptorExt<NodeMonitorExt>> monitors
+            = new DescribableListExt<NodeMonitorExt, DescriptorExt<NodeMonitorExt>>(MONITORS_OWNER);
 
     public String getDisplayName() {
         return Messages.ComputerSet_DisplayName();
@@ -82,7 +82,7 @@ public class ComputerSetExt extends AbstractModelObjectExt {
         return NodeMonitorExt.all();
     }
 
-    public static DescribableList<NodeMonitorExt,DescriptorExt<NodeMonitorExt>> getMonitors() {
+    public static DescribableListExt<NodeMonitorExt,DescriptorExt<NodeMonitorExt>> getMonitors() {
         return monitors;
     }
 
@@ -191,14 +191,14 @@ public class ComputerSetExt extends AbstractModelObjectExt {
 
     static {
         try {
-            DescribableList<NodeMonitorExt,DescriptorExt<NodeMonitorExt>> r
-                    = new DescribableList<NodeMonitorExt, DescriptorExt<NodeMonitorExt>>(Saveable.NOOP);
+            DescribableListExt<NodeMonitorExt,DescriptorExt<NodeMonitorExt>> r
+                    = new DescribableListExt<NodeMonitorExt, DescriptorExt<NodeMonitorExt>>(Saveable.NOOP);
 
             // load persisted monitors
             XmlFile xf = getConfigFile();
             if(xf.exists()) {
-                DescribableList<NodeMonitorExt,DescriptorExt<NodeMonitorExt>> persisted =
-                        (DescribableList<NodeMonitorExt,DescriptorExt<NodeMonitorExt>>) xf.read();
+                DescribableListExt<NodeMonitorExt,DescriptorExt<NodeMonitorExt>> persisted =
+                        (DescribableListExt<NodeMonitorExt,DescriptorExt<NodeMonitorExt>>) xf.read();
                 r.replaceBy(persisted.toList());
             }
 

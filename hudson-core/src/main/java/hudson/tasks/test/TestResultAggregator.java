@@ -38,7 +38,7 @@ import java.io.IOException;
  * @author Kohsuke Kawaguchi
  */
 public class TestResultAggregator extends MatrixAggregator {
-    private MatrixTestResult result;
+    private MatrixTestResultExt result;
 
     public TestResultAggregator(MatrixBuildExt build, Launcher launcher, BuildListener listener) {
         super(build, launcher, listener);
@@ -46,7 +46,7 @@ public class TestResultAggregator extends MatrixAggregator {
 
     @Override
     public boolean startBuild() throws InterruptedException, IOException {
-        result = new MatrixTestResult(build);
+        result = new MatrixTestResultExt(build);
         build.addAction(result);
         return true;
     }

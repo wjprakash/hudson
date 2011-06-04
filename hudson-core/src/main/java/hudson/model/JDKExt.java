@@ -30,9 +30,9 @@ import hudson.Extension;
 import hudson.EnvVars;
 import hudson.slaves.NodeSpecific;
 import hudson.tools.ToolInstallation;
-import hudson.tools.ToolDescriptor;
+import hudson.tools.ToolDescriptorExt;
 import hudson.tools.ToolProperty;
-import hudson.tools.JDKInstaller;
+import hudson.tools.JDKInstallerExt;
 import hudson.util.XStream2;
 
 import java.io.File;
@@ -131,7 +131,7 @@ public class JDKExt extends ToolInstallation implements NodeSpecific<JDKExt>, En
     }
 
     @Extension
-    public static class DescriptorImpl extends ToolDescriptor<JDKExt> {
+    public static class DescriptorImpl extends ToolDescriptorExt<JDKExt> {
 
         public String getDisplayName() {
             return "JDK"; // XXX I18N
@@ -149,8 +149,8 @@ public class JDKExt extends ToolInstallation implements NodeSpecific<JDKExt>, En
         }
 
         @Override
-        public List<JDKInstaller> getDefaultInstallers() {
-            return Collections.singletonList(new JDKInstaller(null,false));
+        public List<JDKInstallerExt> getDefaultInstallers() {
+            return Collections.singletonList(new JDKInstallerExt(null,false));
         }
     }
 

@@ -31,7 +31,6 @@ import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
 import com.trilead.ssh2.crypto.Base64;
 import hudson.model.HudsonExt;
 import hudson.UtilExt;
-import org.kohsuke.stapler.Stapler;
 
 import javax.crypto.SecretKey;
 import javax.crypto.Cipher;
@@ -53,13 +52,13 @@ import java.security.GeneralSecurityException;
  *
  * @author Kohsuke Kawaguchi
  */
-public final class Secret implements Serializable {
+public class SecretExt implements Serializable {
     /**
      * Unencrypted secret text.
      */
     private final String value;
 
-    private Secret(String value) {
+    protected SecretExt(String value) {
         this.value = value;
     }
 
@@ -87,7 +86,7 @@ public final class Secret implements Serializable {
 
     @Override
     public boolean equals(Object that) {
-        return that instanceof Secret && value.equals(((Secret)that).value);
+        return that instanceof SecretExt && value.equals(((SecretExt)that).value);
     }
 
     @Override
@@ -126,14 +125,14 @@ public final class Secret implements Serializable {
      * Reverse operation of {@link #getEncryptedValue()}. Returns null
      * if the given cipher text was invalid.
      */
-    public static Secret decrypt(String data) {
+    public static SecretExt decrypt(String data) {
         if(data==null)      return null;
         try {
             Cipher cipher = getCipher("AES");
             cipher.init(Cipher.DECRYPT_MODE, getKey());
             String plainText = new String(cipher.doFinal(Base64.decode(data.toCharArray())), "UTF-8");
             if(plainText.endsWith(MAGIC))
-                return new Secret(plainText.substring(0,plainText.length()-MAGIC.length()));
+                return new SecretExt(plainText.substring(0,plainText.length()-MAGIC.length()));
             return null;
         } catch (GeneralSecurityException e) {
             return null;
@@ -164,10 +163,10 @@ public final class Secret implements Serializable {
      *
      * @return never null
      */
-    public static Secret fromString(String data) {
+    public static SecretExt fromString(String data) {
         data = UtilExt.fixNull(data);
-        Secret s = decrypt(data);
-        if(s==null) s=new Secret(data);
+        SecretExt s = decrypt(data);
+        if(s==null) s=new SecretExt(data);
         return s;
     }
 
@@ -176,7 +175,7 @@ public final class Secret implements Serializable {
      * To be consistent with {@link #fromString(String)}, this method doesn't distinguish
      * empty password and null password.
      */
-    public static String toString(Secret s) {
+    public static String toString(SecretExt s) {
         return s==null ? "" : s.value;
     }
 
@@ -185,11 +184,11 @@ public final class Secret implements Serializable {
         }
 
         public boolean canConvert(Class type) {
-            return type==Secret.class;
+            return type==SecretExt.class;
         }
 
         public void marshal(Object source, HierarchicalStreamWriter writer, MarshallingContext context) {
-            Secret src = (Secret) source;
+            SecretExt src = (SecretExt) source;
             writer.setValue(src.getEncryptedValue());
         }
 
@@ -204,7 +203,7 @@ public final class Secret implements Serializable {
      * Workaround for HUDSON-6459 / http://java.net/jira/browse/GLASSFISH-11862 .
      * @see #getCipher(String)
      */
-    private static final String PROVIDER = System.getProperty(Secret.class.getName()+".provider");
+    private static final String PROVIDER = System.getProperty(SecretExt.class.getName()+".provider");
 
     /**
      * For testing only. Override the secret key so that we can test this class without {@link HudsonExt}.
@@ -213,11 +212,4 @@ public final class Secret implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    static {
-        Stapler.CONVERT_UTILS.register(new org.apache.commons.beanutils.Converter() {
-            public Secret convert(Class type, Object value) {
-                return Secret.fromString(value.toString());
-            }
-        }, Secret.class);
-    }
 }

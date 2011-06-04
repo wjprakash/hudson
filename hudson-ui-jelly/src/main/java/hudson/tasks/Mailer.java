@@ -32,7 +32,7 @@ import hudson.UtilExt;
 
 import hudson.model.Descriptor.FormException;
 import hudson.util.FormValidation;
-import hudson.util.Secret;
+import hudson.util.SecretExt;
 import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.export.Exported;
@@ -76,7 +76,7 @@ public class Mailer extends MailerExt {
             if (json.has("useSMTPAuth")) {
                 JSONObject auth = json.getJSONObject("useSMTPAuth");
                 smtpAuthUsername = nullify(auth.getString("smtpAuthUserName"));
-                smtpAuthPassword = Secret.fromString(nullify(auth.getString("smtpAuthPassword")));
+                smtpAuthPassword = SecretExt.fromString(nullify(auth.getString("smtpAuthPassword")));
             } else {
                 smtpAuthUsername = null;
                 smtpAuthPassword = null;
@@ -163,7 +163,7 @@ public class Mailer extends MailerExt {
                     smtpAuthUserName = smtpAuthPassword = null;
                 }
 
-                MimeMessage msg = new MimeMessage(createSession(smtpServer, smtpPort, useSsl, smtpAuthUserName, Secret.fromString(smtpAuthPassword)));
+                MimeMessage msg = new MimeMessage(createSession(smtpServer, smtpPort, useSsl, smtpAuthUserName, SecretExt.fromString(smtpAuthPassword)));
                 msg.setSubject("Test email #" + ++testEmailCount);
                 msg.setContent("This is test email #" + testEmailCount + " sent from Hudson Continuous Integration server.", "text/plain");
                 msg.setFrom(new InternetAddress(adminAddress));

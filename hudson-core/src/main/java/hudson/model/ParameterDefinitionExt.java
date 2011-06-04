@@ -28,7 +28,7 @@ import hudson.Extension;
 import hudson.ExtensionPoint;
 import hudson.AbortException;
 import hudson.cli.CLICommand;
-import hudson.util.DescriptorList;
+import hudson.util.DescriptorListExt;
 
 import java.io.Serializable;
 import java.io.IOException;
@@ -166,7 +166,7 @@ public abstract class ParameterDefinitionExt implements
      * @deprecated as of 1.286
      *      Use {@link #all()} for read access, and {@link Extension} for registration.
      */
-    public static final DescriptorList<ParameterDefinitionExt> LIST = new DescriptorList<ParameterDefinitionExt>(ParameterDefinitionExt.class);
+    public static final DescriptorListExt<ParameterDefinitionExt> LIST = new DescriptorListExt<ParameterDefinitionExt>(ParameterDefinitionExt.class);
 
     public abstract static class ParameterDescriptorExt extends
             DescriptorExt<ParameterDefinitionExt> {

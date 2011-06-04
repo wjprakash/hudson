@@ -38,16 +38,16 @@ public class SecretTest extends TestCase {
         SecureRandom sr = new SecureRandom();
         byte[] random = new byte[32];
         sr.nextBytes(random);
-        Secret.SECRET = UtilExt.toHexString(random);
+        SecretExt.SECRET = UtilExt.toHexString(random);
 
     }
 
     @Override protected void tearDown() throws Exception {
-        Secret.SECRET = null;
+        SecretExt.SECRET = null;
     }
 
     public void testEncrypt() {
-        Secret secret = Secret.fromString("abc");
+        SecretExt secret = SecretExt.fromString("abc");
         assertEquals("abc",secret.getPlainText());
 
         // make sure we got some encryption going
@@ -55,15 +55,15 @@ public class SecretTest extends TestCase {
         assertTrue(!"abc".equals(secret.getEncryptedValue()));
 
         // can we round trip?
-        assertEquals(secret,Secret.fromString(secret.getEncryptedValue()));
+        assertEquals(secret,SecretExt.fromString(secret.getEncryptedValue()));
     }
 
     public void testDecrypt() {
-        assertEquals("abc",Secret.toString(Secret.fromString("abc")));
+        assertEquals("abc",SecretExt.toString(SecretExt.fromString("abc")));
     }
 
     public void testSerialization() {
-        Secret s = Secret.fromString("Mr.Hudson");
+        SecretExt s = SecretExt.fromString("Mr.Hudson");
         String xml = HudsonExt.XSTREAM.toXML(s);
         assertTrue(xml, !xml.contains(s.getPlainText()));
         assertTrue(xml, xml.contains(s.getEncryptedValue()));
@@ -72,7 +72,7 @@ public class SecretTest extends TestCase {
     }
 
     public static class Foo {
-        Secret password;
+        SecretExt password;
     }
 
     /**
@@ -83,6 +83,6 @@ public class SecretTest extends TestCase {
         String xml = "<"+tagName+"><password>secret</password></"+tagName+">";
         Foo foo = new Foo();
         HudsonExt.XSTREAM.fromXML(xml, foo);
-        assertEquals("secret",Secret.toString(foo.password));
+        assertEquals("secret",SecretExt.toString(foo.password));
     }
 }

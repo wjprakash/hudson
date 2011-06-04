@@ -46,7 +46,7 @@ import hudson.security.AccessControlled;
 import hudson.security.AuthorizationStrategyExt;
 import hudson.security.Permission;
 import hudson.security.SecurityRealmExt;
-import hudson.security.csrf.CrumbIssuer;
+import hudson.security.csrf.CrumbIssuerExt;
 import hudson.slaves.Cloud;
 import hudson.slaves.ComputerLauncher;
 import hudson.slaves.NodeProperty;
@@ -60,7 +60,7 @@ import hudson.tasks.Publisher;
 import hudson.scm.SCMExt;
 import hudson.scm.SCMDescriptor;
 import hudson.security.captcha.CaptchaSupport;
-import hudson.util.Secret;
+import hudson.util.SecretExt;
 import org.acegisecurity.providers.anonymous.AnonymousAuthenticationToken;
 import org.apache.commons.jelly.JellyContext;
 import org.apache.commons.jelly.JellyTagException;
@@ -894,15 +894,15 @@ public class FunctionsExt {
         return body;
     }
 
-    public static List<DescriptorExt<CrumbIssuer>> getCrumbIssuerDescriptors() {
-        return CrumbIssuer.all();
+    public static List<DescriptorExt<CrumbIssuerExt>> getCrumbIssuerDescriptors() {
+        return CrumbIssuerExt.all();
     }
 
     
 
     public static String getCrumbRequestField() {
         HudsonExt h = HudsonExt.getInstance();
-        CrumbIssuer issuer = h != null ? h.getCrumbIssuer() : null;
+        CrumbIssuerExt issuer = h != null ? h.getCrumbIssuer() : null;
         return issuer != null ? issuer.getDescriptor().getCrumbRequestField() : "";
     }
 
@@ -939,7 +939,7 @@ public class FunctionsExt {
      */
     public String getPasswordValue(Object o) {
         if (o==null)    return null;
-        if (o instanceof Secret)    return ((Secret)o).getEncryptedValue();
+        if (o instanceof SecretExt)    return ((SecretExt)o).getEncryptedValue();
         return o.toString();
     }
 

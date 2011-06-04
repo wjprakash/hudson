@@ -1,7 +1,7 @@
 /*
  * The MIT License
  * 
- * Copyright (c) 2004-2009, Sun Microsystems, Inc., Kohsuke Kawaguchi, Yahoo!, Inc.
+ * Copyright (c) 2004-2010, Sun Microsystems, Inc., Kohsuke Kawaguchi
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,44 +21,39 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package hudson.tasks.test;
+package hudson.util;
 
-import hudson.matrix.Combination;
-import hudson.matrix.MatrixBuildExt;
-import hudson.matrix.MatrixRunExt;
-import hudson.model.AbstractBuildExt;
-import hudson.model.Action;
+import hudson.model.HudsonExt;
+import org.kohsuke.stapler.Stapler;
+
 
 /**
- * {@link Action} that aggregates all the test results from {@link MatrixRunExt}s.
+ * Glorified {@link String} that uses encryption in the persisted form, to avoid accidental exposure of a secret.
  *
  * <p>
- * This object is attached to {@link MatrixBuildExt}.
+ * Note that since the cryptography relies on {@link HudsonExt#getSecretKey()}, this is not meant as a protection
+ * against code running in the same VM, nor against an attacker who has local file system access. 
+ *
+ * <p>
+ * {@link Secret}s can correctly read-in plain text password, so this allows the existing
+ * String field to be updated to {@link Secret}.
  *
  * @author Kohsuke Kawaguchi
  */
-public class MatrixTestResult extends AggregatedTestResultActionExt {
-    public MatrixTestResult(MatrixBuildExt owner) {
-        super(owner);
+public final class Secret extends SecretExt {
+     
+
+    private Secret(String value) {
+        super(value);
     }
 
-    /**
-     * Use the configuration name.
-     */
-    @Override
-    protected String getChildName(AbstractTestResultActionExt tr) {
-        return tr.owner.getProject().getName();
-    }
-
-    @Override
-    public AbstractBuildExt<?,?> resolveChild(Child child) {
-        MatrixBuildExt b = (MatrixBuildExt)owner;
-        return b.getRun(Combination.fromString(child.name));
-    }
-
-    @Override
-    public String getTestResultPath(TestResult it) {
-        // Prepend Configuration path
-        return it.getOwner().getParent().getShortUrl() + super.getTestResultPath(it);
+    
+    static {
+        Stapler.CONVERT_UTILS.register(new org.apache.commons.beanutils.Converter() {
+            @Override
+            public SecretExt convert(Class type, Object value) {
+                return SecretExt.fromString(value.toString());
+            }
+        }, Secret.class);
     }
 }

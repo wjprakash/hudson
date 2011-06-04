@@ -29,7 +29,6 @@ import hudson.model.DescriptorExt;
 import hudson.model.HudsonExt;
 import hudson.UtilExt;
 import hudson.Extension;
-import hudson.util.FormValidation;
 import hudson.util.jna.NativeAccessException;
 import hudson.util.jna.NativeUtils;
 import hudson.util.spring.BeanBuilder;
@@ -150,30 +149,17 @@ public class PAMSecurityRealmExt extends SecurityRealmExt {
         };
     }
 
-    public static final class DescriptorImpl extends DescriptorExt<SecurityRealmExt> {
+    public static class DescriptorImplExt extends DescriptorExt<SecurityRealmExt> {
 
         public String getDisplayName() {
             return Messages.PAMSecurityRealm_DisplayName();
         }
-
-        public FormValidation doTest() {
-            try {
-                String message = NativeUtils.getInstance().checkPamAuthentication();
-                if (message.startsWith("Error:")) {
-                    return FormValidation.error(message.replaceFirst("Error:", ""));
-                } else {
-                    return FormValidation.ok(message);
-                }
-            } catch (NativeAccessException exc) {
-                return FormValidation.error("Native Support for PAM Authentication not available.");
-            }
-        }
     }
 
     @Extension
-    public static DescriptorImpl install() {
+    public static DescriptorImplExt install() {
         if (!FunctionsExt.isWindows()) {
-            return new DescriptorImpl();
+            return new DescriptorImplExt();
         }
         return null;
     }

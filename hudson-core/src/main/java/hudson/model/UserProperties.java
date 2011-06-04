@@ -24,7 +24,7 @@
 package hudson.model;
 
 import hudson.Extension;
-import hudson.util.DescriptorList;
+import hudson.util.DescriptorListExt;
 
 import java.util.List;
 
@@ -38,5 +38,5 @@ public class UserProperties {
      * @deprecated as of 1.286
      *      Use {@link UserProperty#all()} for read access and {@link Extension} for auto-registration.
      */
-    public static final List<UserPropertyDescriptor> LIST = (List)new DescriptorList<UserPropertyExt>(UserPropertyExt.class);
+    public static final List<UserPropertyDescriptor> LIST = (List)new DescriptorListExt<UserPropertyExt>(UserPropertyExt.class);
 }

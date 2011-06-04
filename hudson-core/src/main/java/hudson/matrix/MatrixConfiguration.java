@@ -24,7 +24,7 @@
 package hudson.matrix;
 
 import hudson.UtilExt;
-import hudson.util.DescribableList;
+import hudson.util.DescribableListExt;
 import hudson.model.AbstractBuildExt;
 import hudson.model.CauseExt;
 import hudson.model.CauseActionExt;
@@ -222,12 +222,12 @@ public class MatrixConfiguration extends ProjectExt<MatrixConfiguration,MatrixRu
     }
 
     @Override
-    public DescribableList<Builder, DescriptorExt<Builder>> getBuildersList() {
+    public DescribableListExt<Builder, DescriptorExt<Builder>> getBuildersList() {
         return getParent().getBuildersList();
     }
 
     @Override
-    public DescribableList<Publisher, DescriptorExt<Publisher>> getPublishersList() {
+    public DescribableListExt<Publisher, DescriptorExt<Publisher>> getPublishersList() {
         return getParent().getPublishersList();
     }
 
@@ -237,7 +237,7 @@ public class MatrixConfiguration extends ProjectExt<MatrixConfiguration,MatrixRu
     }
 
     @Override
-    public DescribableList<BuildWrapper, DescriptorExt<BuildWrapper>> getBuildWrappersList() {
+    public DescribableListExt<BuildWrapper, DescriptorExt<BuildWrapper>> getBuildWrappersList() {
         return getParent().getBuildWrappersList();
     }
 

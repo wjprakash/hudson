@@ -42,7 +42,7 @@ public class InstallerTranslator extends ToolLocationTranslator {
     private static final Map<NodeExt,Map<ToolInstallation,Semaphore>> mutexByNode = new WeakHashMap<NodeExt,Map<ToolInstallation,Semaphore>>();
 
     public String getToolHome(NodeExt node, ToolInstallation tool, TaskListener log) throws IOException, InterruptedException {
-        InstallSourceProperty isp = tool.getProperties().get(InstallSourceProperty.class);
+        InstallSourcePropertyExt isp = tool.getProperties().get(InstallSourcePropertyExt.class);
         if (isp == null) {
             return null;
         }

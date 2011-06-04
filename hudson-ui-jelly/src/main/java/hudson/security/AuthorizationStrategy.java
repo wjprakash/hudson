@@ -29,7 +29,7 @@ import hudson.Extension;
 import hudson.ExtensionPoint;
 import hudson.model.*;
 import hudson.slaves.Cloud;
-import hudson.util.DescriptorList;
+import hudson.util.DescriptorListExt;
 
 import java.io.Serializable;
 import java.util.Collection;

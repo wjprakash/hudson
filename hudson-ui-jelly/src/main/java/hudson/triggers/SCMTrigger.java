@@ -89,53 +89,11 @@ public class SCMTrigger extends SCMTriggerExt {
     }
 
     @Extension
-    public static class DescriptorImpl extends TriggerDescriptor {
-
-        
-        /**
-         * Whether the projects should be polled all in one go in the order of dependencies. The default behavior is
-         * that each project polls for changes independently.
-         */
-        public boolean synchronousPolling = false;
-        /**
-         * Max number of threads for SCM polling.
-         * 0 for unbounded.
-         */
-        private int maximumThreads;
+    public static class DescriptorImpl extends DescriptorImplExt {
 
         public DescriptorImpl() {
-            load();
+            super();
         }
-
-        @Override
-        public boolean isApplicable(ItemExt item) {
-            return item instanceof SCMedItem;
-        }
-
-         
-        @Override
-        public String getDisplayName() {
-            return Messages.SCMTrigger_DisplayName();
-        }
-
-        /**
-         * Gets the number of concurrent threads used for polling.
-         *
-         * @return
-         *      0 if unlimited.
-         */
-        public int getPollingThreadCount() {
-            return maximumThreads;
-        }
-
-        /**
-         * Sets the number of concurrent threads used for SCM polling and resizes the thread pool accordingly
-         * @param n number of concurrent threads, zero or less means unlimited, maximum is 100
-         */
-        public void setPollingThreadCount(int n) {
-            maximumThreads = n;
-        }
-
          
         public boolean configure(StaplerRequest req, JSONObject json) throws FormException {
             String t = json.optString("pollingThreadCount", null);

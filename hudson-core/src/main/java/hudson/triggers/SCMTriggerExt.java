@@ -23,6 +23,8 @@
  */
 package hudson.triggers;
 
+import hudson.model.ItemExt;
+import hudson.model.ProjectExt;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -461,6 +463,114 @@ public class SCMTriggerExt extends Trigger<SCMedItem> {
         public int hashCode() {
             return 3;
         }
+    }
+    
+    @Extension
+    public static class DescriptorImplExt extends TriggerDescriptor {
+ /**
+         * Used to control the execution of the polling tasks.
+         * <p>
+         * This executor implementation has a semantics suitable for polling. Namely, no two threads will try to poll the same project
+         * at once, and multiple polling requests to the same job will be combined into one. Note that because executor isn't aware
+         * of a potential workspace lock between a build and a polling, we may end up using executor threads unwisely --- they
+         * may block.
+         */
+        private transient final SequentialExecutionQueue queue = new SequentialExecutionQueue(Executors.newSingleThreadExecutor());
+
+        /**
+         * Whether the projects should be polled all in one go in the order of dependencies. The default behavior is
+         * that each project polls for changes independently.
+         */
+        public boolean synchronousPolling = false;
+
+        /**
+         * Max number of threads for SCM polling.
+         * 0 for unbounded.
+         */
+        private int maximumThreads;
+
+        public DescriptorImplExt() {
+            load();
+            resizeThreadPool();
+        }
+
+        public boolean isApplicable(ItemExt item) {
+            return item instanceof SCMedItem;
+        }
+
+        public ExecutorService getExecutor() {
+            return queue.getExecutors();
+        }
+
+        /**
+         * Returns true if the SCM polling thread queue has too many jobs
+         * than it can handle.
+         */
+        public boolean isClogged() {
+            return queue.isStarving(STARVATION_THRESHOLD);
+        }
+
+        /**
+         * Checks if the queue is clogged, and if so,
+         * activate {@link AdministrativeMonitorImpl}.
+         */
+        public void clogCheck() {
+            AdministrativeMonitorExt.all().get(AdministrativeMonitorImpl.class).on = isClogged();
+        }
+
+        /**
+         * Gets the snapshot of {@link Runner}s that are performing polling.
+         */
+        public List<Runner> getRunners() {
+            return UtilExt.filter(queue.getInProgress(),Runner.class);
+        }
+
+        /**
+         * Gets the snapshot of {@link SCMedItem}s that are being polled at this very moment.
+         */
+        public List<SCMedItem> getItemsBeingPolled() {
+            List<SCMedItem> r = new ArrayList<SCMedItem>();
+            for (Runner i : getRunners())
+                r.add(i.getTarget());
+            return r;
+        }
+
+        public String getDisplayName() {
+            return Messages.SCMTrigger_DisplayName();
+        }
+
+        /**
+         * Gets the number of concurrent threads used for polling.
+         *
+         * @return
+         *      0 if unlimited.
+         */
+        public int getPollingThreadCount() {
+            return maximumThreads;
+        }
+
+        /**
+         * Sets the number of concurrent threads used for SCM polling and resizes the thread pool accordingly
+         * @param n number of concurrent threads, zero or less means unlimited, maximum is 100
+         */
+        public void setPollingThreadCount(int n) {
+            // fool proof
+            if(n<0)     n=0;
+            if(n>100)   n=100;
+
+            maximumThreads = n;
+
+            resizeThreadPool();
+        }
+
+        /**
+         * Update the {@link ExecutorService} instance.
+         */
+        /*package*/ synchronized void resizeThreadPool() {
+            queue.setExecutors(
+                    (maximumThreads==0 ? Executors.newCachedThreadPool() : Executors.newFixedThreadPool(maximumThreads)));
+        }
+
     }
     /**
      * How long is too long for a polling activity to be in the queue?

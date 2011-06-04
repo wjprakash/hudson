@@ -32,7 +32,7 @@ public class CrumbFilter implements Filter {
      * (and different implementations indeed do this differently --- See HUDSON-3878),
      * we cannot use HudsonExt to the CrumbIssuer into CrumbFilter eagerly.
      */
-    public CrumbIssuer getCrumbIssuer() {
+    public CrumbIssuerExt getCrumbIssuer() {
         HudsonExt h = HudsonExt.getInstance();
         if(h==null)     return null;    // before HudsonExt is initialized?
         return h.getCrumbIssuer();
@@ -42,7 +42,7 @@ public class CrumbFilter implements Filter {
     }
 
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-        CrumbIssuer crumbIssuer = getCrumbIssuer();
+        CrumbIssuerExt crumbIssuer = getCrumbIssuer();
         if (crumbIssuer == null || !(request instanceof HttpServletRequest)) {
             chain.doFilter(request, response);
             return;

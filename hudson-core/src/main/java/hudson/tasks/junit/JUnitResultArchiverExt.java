@@ -25,8 +25,6 @@
 package hudson.tasks.junit;
 
 import hudson.AbortException;
-import hudson.Extension;
-import hudson.FilePathExt;
 import hudson.Launcher;
 import hudson.matrix.MatrixAggregatable;
 import hudson.matrix.MatrixAggregator;
@@ -38,17 +36,12 @@ import hudson.model.BuildListener;
 import hudson.model.CheckPoint;
 import hudson.model.DescriptorExt;
 import hudson.model.ResultExt;
-import hudson.model.Saveable;
-import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.BuildStepMonitor;
-import hudson.tasks.Publisher;
 import hudson.tasks.Recorder;
 import hudson.tasks.junit.TestResultActionExt.Data;
 import hudson.tasks.test.TestResultAggregator;
 import hudson.tasks.test.TestResultProjectActionExt;
-import hudson.util.DescribableList;
-import hudson.util.FormValidation;
-import net.sf.json.JSONObject;
+import hudson.util.DescribableListExt;
 import org.apache.tools.ant.DirectoryScanner;
 import org.apache.tools.ant.types.FileSet;
 
@@ -81,7 +74,7 @@ public class JUnitResultArchiverExt extends Recorder implements Serializable,
      * For compatibility reasons, can be null.
      * @since 1.320
      */
-    private final DescribableList<TestDataPublisher, DescriptorExt<TestDataPublisher>> testDataPublishers;
+    private final DescribableListExt<TestDataPublisher, DescriptorExt<TestDataPublisher>> testDataPublishers;
 
     /**
      * left for backwards compatibility
@@ -94,14 +87,14 @@ public class JUnitResultArchiverExt extends Recorder implements Serializable,
 
     @Deprecated
     public JUnitResultArchiverExt(String testResults,
-            DescribableList<TestDataPublisher, DescriptorExt<TestDataPublisher>> testDataPublishers) {
+            DescribableListExt<TestDataPublisher, DescriptorExt<TestDataPublisher>> testDataPublishers) {
         this(testResults, false, testDataPublishers);
     }
 
     public JUnitResultArchiverExt(
             String testResults,
             boolean keepLongStdio,
-            DescribableList<TestDataPublisher, DescriptorExt<TestDataPublisher>> testDataPublishers) {
+            DescribableListExt<TestDataPublisher, DescriptorExt<TestDataPublisher>> testDataPublishers) {
         this.testResults = testResults;
         this.keepLongStdio = keepLongStdio;
         this.testDataPublishers = testDataPublishers;
@@ -198,7 +191,7 @@ public class JUnitResultArchiverExt extends Recorder implements Serializable,
         return testResults;
     }
 
-    public DescribableList<TestDataPublisher, DescriptorExt<TestDataPublisher>> getTestDataPublishers() {
+    public DescribableListExt<TestDataPublisher, DescriptorExt<TestDataPublisher>> getTestDataPublishers() {
         return testDataPublishers;
     }
 

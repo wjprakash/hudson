@@ -25,11 +25,9 @@ package hudson.slaves;
 
 import antlr.ANTLRException;
 import hudson.Extension;
-import static hudson.UtilExt.fixNull;
 import hudson.model.ComputerExt;
 import hudson.model.DescriptorExt;
 import hudson.scheduler.CronTabList;
-import hudson.util.FormValidation;
 
 import java.io.InvalidObjectException;
 import java.io.ObjectStreamException;

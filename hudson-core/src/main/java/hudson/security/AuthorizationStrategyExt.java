@@ -28,7 +28,7 @@ import hudson.Extension;
 import hudson.ExtensionPoint;
 import hudson.model.*;
 import hudson.slaves.Cloud;
-import hudson.util.DescriptorList;
+import hudson.util.DescriptorListExt;
 
 import java.io.Serializable;
 import java.util.Collection;
@@ -163,7 +163,7 @@ public abstract class AuthorizationStrategyExt extends AbstractDescribableImpl<A
      * @deprecated since 1.286
      *      Use {@link #all()} for read access, and {@link Extension} for registration.
      */
-    public static final DescriptorList<AuthorizationStrategyExt> LIST = new DescriptorList<AuthorizationStrategyExt>(AuthorizationStrategyExt.class);
+    public static final DescriptorListExt<AuthorizationStrategyExt> LIST = new DescriptorListExt<AuthorizationStrategyExt>(AuthorizationStrategyExt.class);
     
     /**
      * {@link AuthorizationStrategy} that implements the semantics

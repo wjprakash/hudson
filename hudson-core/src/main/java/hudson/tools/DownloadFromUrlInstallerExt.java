@@ -5,7 +5,6 @@ import hudson.model.DownloadServiceExt.DownloadableExt;
 import hudson.model.NodeExt;
 import hudson.model.TaskListener;
 import net.sf.json.JSONObject;
-import org.kohsuke.stapler.DataBoundConstructor;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -23,11 +22,10 @@ import java.net.URL;
  * @author Kohsuke Kawaguchi
  * @since 1.308
  */
-public abstract class DownloadFromUrlInstaller extends ToolInstaller {
+public abstract class DownloadFromUrlInstallerExt extends ToolInstaller {
     public final String id;
 
-    @DataBoundConstructor
-    protected DownloadFromUrlInstaller(String id) {
+    protected DownloadFromUrlInstallerExt(String id) {
         // this installer implementation is designed for platform independent binary,
         // and as such we don't provide the label support
         super(null);
@@ -76,7 +74,7 @@ public abstract class DownloadFromUrlInstaller extends ToolInstaller {
                 base.moveAllChildrenTo(expected);
             // leave a record for the next up-to-date check
             expected.child(".installedFrom").write(inst.url,"UTF-8");
-            expected.act(new ZipExtractionInstaller.ChmodRecAPlusX());
+            expected.act(new ZipExtractionInstallerExt.ChmodRecAPlusX());
         }
 
         return expected;
@@ -116,7 +114,7 @@ public abstract class DownloadFromUrlInstaller extends ToolInstaller {
         return null;
     }
 
-    public static abstract class DescriptorImpl<T extends DownloadFromUrlInstaller> extends ToolInstallerDescriptor<T> {
+    public static abstract class DescriptorImpl<T extends DownloadFromUrlInstallerExt> extends ToolInstallerDescriptor<T> {
         
         @SuppressWarnings("deprecation") // intentionally adding dynamic item here
         protected DescriptorImpl() {

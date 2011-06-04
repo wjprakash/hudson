@@ -25,14 +25,11 @@
 package hudson.tools;
 
 import hudson.model.DescriptorExt;
-import hudson.util.DescribableList;
+import hudson.util.DescribableListExt;
 
 import java.util.Collections;
 import java.util.List;
 import java.io.IOException;
-import java.lang.reflect.Array;
-import net.sf.json.JSONObject;
-import org.kohsuke.stapler.StaplerRequest;
 
 /**
  * {@link DescriptorExt} for {@link ToolInstallation}.
@@ -40,7 +37,7 @@ import org.kohsuke.stapler.StaplerRequest;
  * @author huybrechts
  * @since 1.286
  */
-public abstract class ToolDescriptor<T extends ToolInstallation> extends DescriptorExt<ToolInstallation> {
+public abstract class ToolDescriptorExt<T extends ToolInstallation> extends DescriptorExt<ToolInstallation> {
 
     private T[] installations;
 
@@ -85,22 +82,14 @@ public abstract class ToolDescriptor<T extends ToolInstallation> extends Descrip
      * Default value for {@link ToolInstallation#getProperties()} used in the form binding.
      * @since 1.305
      */
-    public DescribableList<ToolProperty<?>,ToolPropertyDescriptor> getDefaultProperties() throws IOException {
-        DescribableList<ToolProperty<?>,ToolPropertyDescriptor> r
-                = new DescribableList<ToolProperty<?>, ToolPropertyDescriptor>(NOOP);
+    public DescribableListExt<ToolProperty<?>,ToolPropertyDescriptor> getDefaultProperties() throws IOException {
+        DescribableListExt<ToolProperty<?>,ToolPropertyDescriptor> r
+                = new DescribableListExt<ToolProperty<?>, ToolPropertyDescriptor>(NOOP);
 
         List<? extends ToolInstaller> installers = getDefaultInstallers();
         if(!installers.isEmpty())
-            r.add(new InstallSourceProperty(installers));
+            r.add(new InstallSourcePropertyExt(installers));
 
         return r;
     }
-
-    @Override
-    @SuppressWarnings("unchecked") // cast to T[]
-    public boolean configure(StaplerRequest req, JSONObject json) throws FormException {
-        setInstallations(req.bindJSONToList(clazz, json.get("tool")).toArray((T[]) Array.newInstance(clazz, 0)));
-        return true;
-    }
-
 }

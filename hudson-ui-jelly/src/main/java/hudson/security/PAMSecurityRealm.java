@@ -24,6 +24,9 @@
 package hudson.security;
 
 
+import hudson.util.FormValidation;
+import hudson.util.jna.NativeAccessException;
+import hudson.util.jna.NativeUtils;
 import org.kohsuke.stapler.DataBoundConstructor;
 
 /**
@@ -37,5 +40,21 @@ public class PAMSecurityRealm extends PAMSecurityRealmExt {
     @DataBoundConstructor
     public PAMSecurityRealm(String serviceName) {
          super(serviceName);
+    }
+    
+    public static final class DescriptorImpl extends DescriptorImplExt {
+
+        public FormValidation doTest() {
+            try {
+                String message = NativeUtils.getInstance().checkPamAuthentication();
+                if (message.startsWith("Error:")) {
+                    return FormValidation.error(message.replaceFirst("Error:", ""));
+                } else {
+                    return FormValidation.ok(message);
+                }
+            } catch (NativeAccessException exc) {
+                return FormValidation.error("Native Support for PAM Authentication not available.");
+            }
+        }
     }
 }

@@ -31,7 +31,7 @@ import hudson.model.AbstractDescribableImpl;
 import hudson.model.ComputerExt;
 import hudson.model.DescriptorExt;
 import hudson.model.HudsonExt;
-import hudson.util.DescriptorList;
+import hudson.util.DescriptorListExt;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -91,7 +91,7 @@ public abstract class RetentionStrategyExt<T extends ComputerExt> extends Abstra
      * @deprecated as of 1.286
      *      Use {@link #all()} for read access, and {@link Extension} for registration.
      */
-    public static final DescriptorList<RetentionStrategyExt<?>> LIST = new DescriptorList<RetentionStrategyExt<?>>((Class)RetentionStrategyExt.class);
+    public static final DescriptorListExt<RetentionStrategyExt<?>> LIST = new DescriptorListExt<RetentionStrategyExt<?>>((Class)RetentionStrategyExt.class);
 
     /**
      * Dummy instance that doesn't do any attempt to retention.

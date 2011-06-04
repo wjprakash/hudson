@@ -55,7 +55,7 @@ import hudson.security.ACL;
 import hudson.security.AccessControlled;
 import hudson.security.Permission;
 import hudson.security.PermissionGroup;
-import hudson.util.DescriptorList;
+import hudson.util.DescriptorListExt;
 import hudson.util.RunListExt;
 import hudson.widgets.Widget;
 
@@ -674,7 +674,7 @@ public abstract class View extends AbstractModelObjectExt implements AccessContr
      * @deprecated as of 1.286
      *      Use {@link #all()} for read access, and use {@link Extension} for registration.
      */
-    public static final DescriptorList<View> LIST = new DescriptorList<View>(View.class);
+    public static final DescriptorListExt<View> LIST = new DescriptorListExt<View>(View.class);
 
     /**
      * Returns all the registered {@link ViewDescriptor}s.

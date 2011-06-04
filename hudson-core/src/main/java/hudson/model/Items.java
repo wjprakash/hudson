@@ -33,7 +33,7 @@ import hudson.XmlFile;
 import hudson.matrix.AxisExt;
 import hudson.matrix.MatrixConfiguration;
 import hudson.matrix.MatrixProjectExt;
-import hudson.util.DescriptorList;
+import hudson.util.DescriptorListExt;
 import hudson.util.XStream2;
 
 import java.io.File;
@@ -55,7 +55,7 @@ public class Items {
      * @deprecated as of 1.286
      *      Use {@link #all()} for read access and {@link Extension} for registration.
      */
-    public static final List<TopLevelItemDescriptorExt> LIST = (List)new DescriptorList<TopLevelItem>(TopLevelItem.class);
+    public static final List<TopLevelItemDescriptorExt> LIST = (List)new DescriptorListExt<TopLevelItem>(TopLevelItem.class);
 
     /**
      * Returns all the registered {@link TopLevelItemDescriptor}s.

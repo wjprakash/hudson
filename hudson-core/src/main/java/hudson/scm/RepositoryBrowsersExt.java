@@ -24,7 +24,7 @@
 package hudson.scm;
 
 import hudson.model.DescriptorExt;
-import hudson.util.DescriptorList;
+import hudson.util.DescriptorListExt;
 import hudson.Extension;
 
 import java.util.ArrayList;
@@ -43,7 +43,7 @@ public class RepositoryBrowsersExt {
      * @deprecated as of 1.286.
      *      Use {@link RepositoryBrowser#all()} for read access and {@link Extension} for registration.
      */
-    public static final List<DescriptorExt<RepositoryBrowserExt<?>>> LIST = new DescriptorList<RepositoryBrowserExt<?>>((Class)RepositoryBrowserExt.class);
+    public static final List<DescriptorExt<RepositoryBrowserExt<?>>> LIST = new DescriptorListExt<RepositoryBrowserExt<?>>((Class)RepositoryBrowserExt.class);
 
     /**
      * Only returns those {@link RepositoryBrowser} descriptors that extend from the given type.

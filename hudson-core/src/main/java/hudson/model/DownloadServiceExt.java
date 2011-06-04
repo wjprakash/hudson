@@ -23,6 +23,7 @@
  */
 package hudson.model;
 
+import hudson.ExtensionList;
 import hudson.ExtensionPoint;
 import hudson.util.TextFile;
 import hudson.util.TimeUnit2;
@@ -161,20 +162,20 @@ public class DownloadServiceExt extends PageDecorator {
         /**
          * Returns all the registered {@link DownloadableExt}s.
          */
-//        public static ExtensionList<DownloadableExt> all() {
-//            return HudsonExt.getInstance().getExtensionList(DownloadableExt.class);
-//        }
+        public static ExtensionList<DownloadableExt> all() {
+            return HudsonExt.getInstance().getExtensionList(DownloadableExt.class);
+        }
 
         /**
          * Returns the {@link DownloadableExt} that has the given ID.
          */
-//        public static DownloadableExt get(String id) {
-//            for (DownloadableExt d : all()) {
-//                if(d.id.equals(id))
-//                    return d;
-//            }
-//            return null;
-//        }
+        public static DownloadableExt get(String id) {
+            for (DownloadableExt d : all()) {
+                if(d.id.equals(id))
+                    return d;
+            }
+            return null;
+        }
 
     }
 

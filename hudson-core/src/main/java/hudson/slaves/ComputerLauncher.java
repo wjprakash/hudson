@@ -27,7 +27,7 @@ import hudson.ExtensionPoint;
 import hudson.Extension;
 import hudson.model.*;
 import hudson.remoting.Channel;
-import hudson.util.DescriptorList;
+import hudson.util.DescriptorListExt;
 import hudson.util.StreamTaskListener;
 
 import java.io.IOException;
@@ -155,5 +155,5 @@ public abstract class ComputerLauncher extends AbstractDescribableImpl<ComputerL
      *      Use {@link Extension} for registration, and use
      *      {@link Hudson#getDescriptorList(Class)} for read access.
      */
-    public static final DescriptorList<ComputerLauncher> LIST = new DescriptorList<ComputerLauncher>(ComputerLauncher.class);
+    public static final DescriptorListExt<ComputerLauncher> LIST = new DescriptorListExt<ComputerLauncher>(ComputerLauncher.class);
 }

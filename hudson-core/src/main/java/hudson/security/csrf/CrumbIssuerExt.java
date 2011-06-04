@@ -7,13 +7,9 @@ package hudson.security.csrf;
 
 import javax.servlet.ServletRequest;
 
-import org.kohsuke.stapler.Stapler;
-import org.kohsuke.stapler.export.Exported;
-import org.kohsuke.stapler.export.ExportedBean;
 
 import hudson.DescriptorExtensionListExt;
 import hudson.ExtensionPoint;
-import hudson.model.Api;
 import hudson.model.Describable;
 import hudson.model.DescriptorExt;
 import hudson.model.HudsonExt;
@@ -29,30 +25,19 @@ import hudson.util.MultipartFormDataParser;
  * @author dty
  * @see http://en.wikipedia.org/wiki/XSRF
  */
-@ExportedBean
-public abstract class CrumbIssuer implements Describable<CrumbIssuer>, ExtensionPoint {
+public abstract class CrumbIssuerExt implements Describable<CrumbIssuerExt>, ExtensionPoint {
 
-    private static final String CRUMB_ATTRIBUTE = CrumbIssuer.class.getName() + "_crumb";
+    private static final String CRUMB_ATTRIBUTE = CrumbIssuerExt.class.getName() + "_crumb";
 
     /**
      * Get the name of the request parameter the crumb will be stored in. Exposed
      * here for the remote API.
      */
-    @Exported
     public String getCrumbRequestField() {
         return getDescriptor().getCrumbRequestField();
     }
 
-    /**
-     * Get a crumb value based on user specific information in the current request.
-     * Intended for use only by the remote API.
-     * @return
-     */
-    @Exported
-    public String getCrumb() {
-        return getCrumb(Stapler.getCurrentRequest());
-    }
-
+    
     /**
      * Get a crumb value based on user specific information in the request.
      * @param request
@@ -101,7 +86,7 @@ public abstract class CrumbIssuer implements Describable<CrumbIssuer>, Extension
      * @return
      */
     public boolean validateCrumb(ServletRequest request) {
-        CrumbIssuerDescriptor<CrumbIssuer> desc = getDescriptor();
+        CrumbIssuerDescriptor<CrumbIssuerExt> desc = getDescriptor();
         String crumbField = desc.getCrumbRequestField();
         String crumbSalt = desc.getCrumbSalt();
 
@@ -118,7 +103,7 @@ public abstract class CrumbIssuer implements Describable<CrumbIssuer>, Extension
      * @return
      */
     public boolean validateCrumb(ServletRequest request, MultipartFormDataParser parser) {
-        CrumbIssuerDescriptor<CrumbIssuer> desc = getDescriptor();
+        CrumbIssuerDescriptor<CrumbIssuerExt> desc = getDescriptor();
         String crumbField = desc.getCrumbRequestField();
         String crumbSalt = desc.getCrumbSalt();
 
@@ -138,18 +123,15 @@ public abstract class CrumbIssuer implements Describable<CrumbIssuer>, Extension
     /**
      * Access global configuration for the crumb issuer.
      */
-    public CrumbIssuerDescriptor<CrumbIssuer> getDescriptor() {
-        return (CrumbIssuerDescriptor<CrumbIssuer>) HudsonExt.getInstance().getDescriptorOrDie(getClass());
+    public CrumbIssuerDescriptor<CrumbIssuerExt> getDescriptor() {
+        return (CrumbIssuerDescriptor<CrumbIssuerExt>) HudsonExt.getInstance().getDescriptorOrDie(getClass());
     }
 
     /**
      * Returns all the registered {@link CrumbIssuer} descriptors.
      */
-    public static DescriptorExtensionListExt<CrumbIssuer, DescriptorExt<CrumbIssuer>> all() {
-        return HudsonExt.getInstance().<CrumbIssuer, DescriptorExt<CrumbIssuer>>getDescriptorList(CrumbIssuer.class);
+    public static DescriptorExtensionListExt<CrumbIssuerExt, DescriptorExt<CrumbIssuerExt>> all() {
+        return HudsonExt.getInstance().<CrumbIssuerExt, DescriptorExt<CrumbIssuerExt>>getDescriptorList(CrumbIssuerExt.class);
     }
 
-    public Api getApi() {
-        return new Api(this);
-    }
 }

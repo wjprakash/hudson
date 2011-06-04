@@ -33,7 +33,7 @@ import hudson.model.HudsonExt;
 import hudson.model.ItemExt;
 import hudson.model.ItemGroup;
 import hudson.model.View;
-import hudson.util.DescriptorList;
+import hudson.util.DescriptorListExt;
 import org.kohsuke.stapler.export.Exported;
 
 import java.util.ArrayList;
@@ -93,7 +93,7 @@ public abstract class ListViewColumn implements ExtensionPoint, Describable<List
      * @deprecated as of 1.281
      *      Use {@link #all()} for read access and {@link Extension} for registration.
      */
-    public static final DescriptorList<ListViewColumn> LIST = new DescriptorList<ListViewColumn>(ListViewColumn.class);
+    public static final DescriptorListExt<ListViewColumn> LIST = new DescriptorListExt<ListViewColumn>(ListViewColumn.class);
 
     /**
      * Whether this column will be shown by default.

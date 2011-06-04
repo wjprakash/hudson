@@ -47,7 +47,7 @@ public class Protector {
 
     public static String protect(String secret) {
         try {
-            Cipher cipher = Secret.getCipher(ALGORITHM);
+            Cipher cipher = SecretExt.getCipher(ALGORITHM);
             cipher.init(Cipher.ENCRYPT_MODE, DES_KEY);
             return new String(Base64.encode(cipher.doFinal((secret+ MAGIC).getBytes("UTF-8"))));
         } catch (GeneralSecurityException e) {
@@ -63,7 +63,7 @@ public class Protector {
     public static String unprotect(String data) {
         if(data==null)      return null;
         try {
-            Cipher cipher = Secret.getCipher(ALGORITHM);
+            Cipher cipher = SecretExt.getCipher(ALGORITHM);
             cipher.init(Cipher.DECRYPT_MODE, DES_KEY);
             String plainText = new String(cipher.doFinal(Base64.decode(data.toCharArray())), "UTF-8");
             if(plainText.endsWith(MAGIC))

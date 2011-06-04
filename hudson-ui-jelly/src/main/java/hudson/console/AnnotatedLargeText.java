@@ -27,7 +27,7 @@ import com.trilead.ssh2.crypto.Base64;
 import hudson.model.HudsonExt;
 import hudson.remoting.ObjectInputStreamEx;
 import hudson.util.IOException2;
-import hudson.util.Secret;
+import hudson.util.SecretExt;
 import hudson.util.TimeUnit2;
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.kohsuke.stapler.Stapler;
@@ -115,7 +115,7 @@ public class AnnotatedLargeText<T> extends LargeText {
         try {
             String base64 = req!=null ? req.getHeader("X-ConsoleAnnotator") : null;
             if (base64!=null) {
-                Cipher sym = Secret.getCipher("AES");
+                Cipher sym = SecretExt.getCipher("AES");
                 sym.init(Cipher.DECRYPT_MODE, HudsonExt.getInstance().getSecretKeyAsAES128());
 
                 ObjectInputStream ois = new ObjectInputStreamEx(new GZIPInputStream(
@@ -155,7 +155,7 @@ public class AnnotatedLargeText<T> extends LargeText {
 
         try {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            Cipher sym = Secret.getCipher("AES");
+            Cipher sym = SecretExt.getCipher("AES");
             sym.init(Cipher.ENCRYPT_MODE, HudsonExt.getInstance().getSecretKeyAsAES128());
             ObjectOutputStream oos = new ObjectOutputStream(new GZIPOutputStream(new CipherOutputStream(baos,sym)));
             oos.writeLong(System.currentTimeMillis()); // send timestamp to prevent a replay attack

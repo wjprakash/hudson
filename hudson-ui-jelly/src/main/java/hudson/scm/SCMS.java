@@ -25,7 +25,7 @@ package hudson.scm;
 
 import hudson.model.AbstractProjectExt;
 import hudson.model.Descriptor.FormException;
-import hudson.util.DescriptorList;
+import hudson.util.DescriptorListExt;
 import hudson.Extension;
 
 import java.util.List;
@@ -45,7 +45,7 @@ public class SCMS {
      * @deprecated as of 1.286
      *      Use {@link SCM#all()} for read access and {@link Extension} for registration.
      */
-    public static final List<SCMDescriptor<?>> SCMS = (List)new DescriptorList<SCMExt>(SCMExt.class);
+    public static final List<SCMDescriptor<?>> SCMS = (List)new DescriptorListExt<SCMExt>(SCMExt.class);
 
     /**
      * Parses {@link SCM} configuration from the submitted form.

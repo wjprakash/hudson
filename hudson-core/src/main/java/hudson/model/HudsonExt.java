@@ -77,7 +77,7 @@ import hudson.security.Permission;
 import hudson.security.PermissionGroup;
 import hudson.security.SecurityMode;
 import hudson.security.SecurityRealmExt;
-import hudson.security.csrf.CrumbIssuer;
+import hudson.security.csrf.CrumbIssuerExt;
 import hudson.slaves.Cloud;
 import hudson.slaves.ComputerListener;
 import hudson.slaves.DumbSlaveExt;
@@ -99,7 +99,7 @@ import hudson.util.ClockDifferenceExt;
 import hudson.util.CopyOnWriteList;
 import hudson.util.CopyOnWriteMap;
 import hudson.util.DaemonThreadFactory;
-import hudson.util.DescribableList;
+import hudson.util.DescribableListExt;
 import hudson.util.Futures;
 import hudson.util.Iterators;
 import hudson.util.Memoizer;
@@ -303,7 +303,7 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, Acces
      */
     private String rootUrl;
 
-    public static class CloudList extends DescribableList<Cloud, DescriptorExt<Cloud>> {
+    public static class CloudList extends DescribableListExt<Cloud, DescriptorExt<Cloud>> {
 
         public CloudList(HudsonExt h) {
             super(h);
@@ -389,7 +389,7 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, Acces
     /**
      * {@link hudson.security.csrf.CrumbIssuer}
      */
-    private volatile CrumbIssuer crumbIssuer;
+    private volatile CrumbIssuerExt crumbIssuer;
     /**
      * All labels known to HudsonExt. This allows us to reuse the same label instances
      * as much as possible, even though that's not a strict requirement.
@@ -412,11 +412,11 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, Acces
     /**
      * List of master node properties
      */
-    private DescribableList<NodeProperty<?>, NodePropertyDescriptor> nodeProperties = new DescribableList<NodeProperty<?>, NodePropertyDescriptor>(this);
+    private DescribableListExt<NodeProperty<?>, NodePropertyDescriptor> nodeProperties = new DescribableListExt<NodeProperty<?>, NodePropertyDescriptor>(this);
     /**
      * List of global properties
      */
-    protected DescribableList<NodeProperty<?>, NodePropertyDescriptor> globalNodeProperties = new DescribableList<NodeProperty<?>, NodePropertyDescriptor>(this);
+    protected DescribableListExt<NodeProperty<?>, NodePropertyDescriptor> globalNodeProperties = new DescribableListExt<NodeProperty<?>, NodePropertyDescriptor>(this);
     /**
      * {@link AdministrativeMonitorExt}s installed on this system.
      *
@@ -1492,11 +1492,11 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, Acces
         save();
     }
 
-    public DescribableList<NodeProperty<?>, NodePropertyDescriptor> getNodeProperties() {
+    public DescribableListExt<NodeProperty<?>, NodePropertyDescriptor> getNodeProperties() {
         return nodeProperties;
     }
 
-    public DescribableList<NodeProperty<?>, NodePropertyDescriptor> getGlobalNodeProperties() {
+    public DescribableListExt<NodeProperty<?>, NodePropertyDescriptor> getGlobalNodeProperties() {
         return globalNodeProperties;
     }
 
@@ -2168,11 +2168,11 @@ public class HudsonExt extends NodeExt implements ItemGroup<TopLevelItem>, Acces
         return null;
     }
 
-    public CrumbIssuer getCrumbIssuer() {
+    public CrumbIssuerExt getCrumbIssuer() {
         return crumbIssuer;
     }
 
-    public void setCrumbIssuer(CrumbIssuer issuer) {
+    public void setCrumbIssuer(CrumbIssuerExt issuer) {
         crumbIssuer = issuer;
     }
 

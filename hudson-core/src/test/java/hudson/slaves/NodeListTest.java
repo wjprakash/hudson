@@ -35,7 +35,7 @@ import hudson.Launcher;
 import hudson.FilePathExt;
 import hudson.model.labels.LabelAtomExt;
 import hudson.util.ClockDifferenceExt;
-import hudson.util.DescribableList;
+import hudson.util.DescribableListExt;
 
 import java.io.File;
 import java.io.IOException;
@@ -101,7 +101,7 @@ public class NodeListTest extends TestCase {
         }
 
 		@Override
-		public DescribableList<NodeProperty<?>, NodePropertyDescriptor> getNodeProperties() {
+		public DescribableListExt<NodeProperty<?>, NodePropertyDescriptor> getNodeProperties() {
             throw new UnsupportedOperationException();
 		}
     }

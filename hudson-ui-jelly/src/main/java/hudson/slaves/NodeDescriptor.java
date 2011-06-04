@@ -29,7 +29,7 @@ import hudson.model.DescriptorExt;
 import hudson.model.SlaveExt;
 import hudson.model.NodeExt;
 import hudson.model.HudsonExt;
-import hudson.util.DescriptorList;
+import hudson.util.DescriptorListExt;
 import hudson.util.FormValidation;
 import hudson.DescriptorExtensionListExt;
 import hudson.UtilExt;

@@ -39,7 +39,7 @@ import hudson.slaves.NodePropertyDescriptor;
 import hudson.slaves.RetentionStrategyExt;
 import hudson.slaves.SlaveComputerExt;
 import hudson.util.ClockDifferenceExt;
-import hudson.util.DescribableList;
+import hudson.util.DescribableListExt;
 
 import java.io.File;
 import java.io.IOException;
@@ -102,7 +102,7 @@ public abstract class SlaveExt extends NodeExt implements Serializable {
      * Whitespace-separated labels.
      */
     private String label = "";
-    private /*almost final*/ DescribableList<NodeProperty<?>, NodePropertyDescriptor> nodeProperties = new DescribableList<NodeProperty<?>, NodePropertyDescriptor>(HudsonExt.getInstance());
+    private /*almost final*/ DescribableListExt<NodeProperty<?>, NodePropertyDescriptor> nodeProperties = new DescribableListExt<NodeProperty<?>, NodePropertyDescriptor>(HudsonExt.getInstance());
     /**
      * Lazily computed set of labels from {@link #label}.
      */
@@ -174,7 +174,7 @@ public abstract class SlaveExt extends NodeExt implements Serializable {
         this.mode = mode;
     }
 
-    public DescribableList<NodeProperty<?>, NodePropertyDescriptor> getNodeProperties() {
+    public DescribableListExt<NodeProperty<?>, NodePropertyDescriptor> getNodeProperties() {
         return nodeProperties;
     }
 
@@ -318,7 +318,7 @@ public abstract class SlaveExt extends NodeExt implements Serializable {
                     : new CommandLauncherExt(agentCommand);
         }
         if (nodeProperties == null) {
-            nodeProperties = new DescribableList<NodeProperty<?>, NodePropertyDescriptor>(HudsonExt.getInstance());
+            nodeProperties = new DescribableListExt<NodeProperty<?>, NodePropertyDescriptor>(HudsonExt.getInstance());
         }
         return this;
     }

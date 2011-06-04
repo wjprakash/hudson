@@ -51,23 +51,23 @@ public class NativeUtils {
         public static final NativeUtils INSTANCE = new NativeUtils();
     }
 
-    private NativeUtils() {
+    protected NativeUtils() {
         try {
-            if (!NativeUnixSupport.all().isEmpty()) {
-                nativeUnixSupport = NativeUnixSupport.all().get(0).newInstance(null, null);
-            }
-
-            if (!NativeWindowsSupport.all().isEmpty()) {
-                nativeWindowsSupport = NativeWindowsSupport.all().get(0).newInstance(null, null);
-            }
-
-            if (!NativeMacSupport.all().isEmpty()) {
-                nativeMacSupport = NativeMacSupport.all().get(0).newInstance(null, null);
-            }
-
-            if (!NativeZfsSupport.all().isEmpty()) {
-                nativeZfsSupport = NativeZfsSupport.all().get(0).newInstance(null, null);
-            }
+//            if (!NativeUnixSupport.all().isEmpty()) {
+//                nativeUnixSupport = NativeUnixSupport.all().get(0).newInstance(null, null);
+//            }
+//
+//            if (!NativeWindowsSupport.all().isEmpty()) {
+//                nativeWindowsSupport = NativeWindowsSupport.all().get(0).newInstance(null, null);
+//            }
+//
+//            if (!NativeMacSupport.all().isEmpty()) {
+//                nativeMacSupport = NativeMacSupport.all().get(0).newInstance(null, null);
+//            }
+//
+//            if (!NativeZfsSupport.all().isEmpty()) {
+//                nativeZfsSupport = NativeZfsSupport.all().get(0).newInstance(null, null);
+//            }
         } catch (Exception ex) {
             LOGGER.log(Level.SEVERE, null, ex);
         }

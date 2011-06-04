@@ -34,7 +34,7 @@ import hudson.tasks.MavenExt;
 import hudson.tasks.MavenExt.ProjectWithMaven;
 import hudson.tasks.MavenExt.MavenInstallation;
 import hudson.triggers.Trigger;
-import hudson.util.DescribableList;
+import hudson.util.DescribableListExt;
 
 import java.io.IOException;
 import java.util.HashSet;
@@ -53,20 +53,20 @@ public abstract class ProjectExt<P extends ProjectExt<P,B>,B extends Build<P,B>>
     /**
      * List of active {@link Builder}s configured for this project.
      */
-    protected DescribableList<Builder,DescriptorExt<Builder>> builders =
-            new DescribableList<Builder,DescriptorExt<Builder>>(this);
+    protected DescribableListExt<Builder,DescriptorExt<Builder>> builders =
+            new DescribableListExt<Builder,DescriptorExt<Builder>>(this);
 
     /**
      * List of active {@link Publisher}s configured for this project.
      */
-    protected DescribableList<Publisher,DescriptorExt<Publisher>> publishers =
-            new DescribableList<Publisher,DescriptorExt<Publisher>>(this);
+    protected DescribableListExt<Publisher,DescriptorExt<Publisher>> publishers =
+            new DescribableListExt<Publisher,DescriptorExt<Publisher>>(this);
 
     /**
      * List of active {@link BuildWrapper}s configured for this project.
      */
-    protected DescribableList<BuildWrapper,DescriptorExt<BuildWrapper>> buildWrappers =
-            new DescribableList<BuildWrapper,DescriptorExt<BuildWrapper>>(this);
+    protected DescribableListExt<BuildWrapper,DescriptorExt<BuildWrapper>> buildWrappers =
+            new DescribableListExt<BuildWrapper,DescriptorExt<BuildWrapper>>(this);
 
     /**
      * Creates a new project.
@@ -81,7 +81,7 @@ public abstract class ProjectExt<P extends ProjectExt<P,B>,B extends Build<P,B>>
 
         if (buildWrappers==null) {
             // it didn't exist in < 1.64
-            buildWrappers = new DescribableList<BuildWrapper, DescriptorExt<BuildWrapper>>(this);
+            buildWrappers = new DescribableListExt<BuildWrapper, DescriptorExt<BuildWrapper>>(this);
             OldDataMonitorExt.report(this, "1.64");
         }
         builders.setOwner(this);
@@ -101,11 +101,11 @@ public abstract class ProjectExt<P extends ProjectExt<P,B>,B extends Build<P,B>>
         return publishers.toMap();
     }
 
-    public DescribableList<Builder,DescriptorExt<Builder>> getBuildersList() {
+    public DescribableListExt<Builder,DescriptorExt<Builder>> getBuildersList() {
         return builders;
     }
     
-    public DescribableList<Publisher,DescriptorExt<Publisher>> getPublishersList() {
+    public DescribableListExt<Publisher,DescriptorExt<Publisher>> getPublishersList() {
         return publishers;
     }
 
@@ -113,7 +113,7 @@ public abstract class ProjectExt<P extends ProjectExt<P,B>,B extends Build<P,B>>
         return buildWrappers.toMap();
     }
 
-    public DescribableList<BuildWrapper, DescriptorExt<BuildWrapper>> getBuildWrappersList() {
+    public DescribableListExt<BuildWrapper, DescriptorExt<BuildWrapper>> getBuildWrappersList() {
         return buildWrappers;
     }
 

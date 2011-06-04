@@ -32,7 +32,7 @@ import hudson.model.AbstractDescribableImpl;
 import hudson.model.DescriptorExt;
 import hudson.model.HudsonExt;
 import hudson.security.captcha.CaptchaSupport;
-import hudson.util.DescriptorList;
+import hudson.util.DescriptorListExt;
 import hudson.util.PluginServletFilter;
 import hudson.util.spring.BeanBuilder;
 import java.util.List;
@@ -446,7 +446,7 @@ public abstract class SecurityRealmExt extends AbstractDescribableImpl<SecurityR
      * @deprecated as of 1.286
      *      Use {@link #all()} for read access, and use {@link Extension} for registration.
      */
-    public static final DescriptorList<SecurityRealmExt> LIST = new DescriptorList<SecurityRealmExt>(SecurityRealmExt.class);
+    public static final DescriptorListExt<SecurityRealmExt> LIST = new DescriptorListExt<SecurityRealmExt>(SecurityRealmExt.class);
 
     /**
      * Returns all the registered {@link SecurityRealm} descriptors.

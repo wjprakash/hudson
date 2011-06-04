@@ -33,7 +33,7 @@ import hudson.model.DescriptorExt;
 import hudson.model.Saveable;
 import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.Publisher;
-import hudson.util.DescribableList;
+import hudson.util.DescribableListExt;
 import hudson.util.FormValidation;
 import net.sf.json.JSONObject;
 import org.kohsuke.stapler.AncestorInPath;
@@ -63,7 +63,7 @@ public class JUnitResultArchiver extends JUnitResultArchiverExt implements Seria
 
     @Deprecated
     public JUnitResultArchiver(String testResults,
-            DescribableList<TestDataPublisher, DescriptorExt<TestDataPublisher>> testDataPublishers) {
+            DescribableListExt<TestDataPublisher, DescriptorExt<TestDataPublisher>> testDataPublishers) {
         this(testResults, false, testDataPublishers);
     }
 
@@ -71,7 +71,7 @@ public class JUnitResultArchiver extends JUnitResultArchiverExt implements Seria
     public JUnitResultArchiver(
             String testResults,
             boolean keepLongStdio,
-            DescribableList<TestDataPublisher, DescriptorExt<TestDataPublisher>> testDataPublishers) {
+            DescribableListExt<TestDataPublisher, DescriptorExt<TestDataPublisher>> testDataPublishers) {
         super(testResults, keepLongStdio, testDataPublishers);
     }
 
@@ -92,7 +92,7 @@ public class JUnitResultArchiver extends JUnitResultArchiverExt implements Seria
                 throws FormException {
             String testResults = formData.getString("testResults");
             boolean keepLongStdio = formData.getBoolean("keepLongStdio");
-            DescribableList<TestDataPublisher, DescriptorExt<TestDataPublisher>> testDataPublishers = new DescribableList<TestDataPublisher, DescriptorExt<TestDataPublisher>>(Saveable.NOOP);
+            DescribableListExt<TestDataPublisher, DescriptorExt<TestDataPublisher>> testDataPublishers = new DescribableListExt<TestDataPublisher, DescriptorExt<TestDataPublisher>>(Saveable.NOOP);
 
             testDataPublishers.rebuild(req, formData, TestDataPublisher.all());
 

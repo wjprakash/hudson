@@ -26,7 +26,7 @@ package hudson.tasks;
 import hudson.Launcher;
 import hudson.Extension;
 import hudson.ExtensionList;
-import hudson.util.DescriptorList;
+import hudson.util.DescriptorListExt;
 import hudson.model.AbstractBuildExt;
 import hudson.model.AbstractProjectExt;
 import hudson.model.Action;
@@ -204,7 +204,7 @@ public interface BuildStep {
      *      Use {@link Builder#all()} for read access, and use
      *      {@link Extension} for registration.
      */
-    public static final List<DescriptorExt<Builder>> BUILDERS = new DescriptorList<Builder>(Builder.class);
+    public static final List<DescriptorExt<Builder>> BUILDERS = new DescriptorListExt<Builder>(Builder.class);
 
     /**
      * List of all installed publishers.
@@ -230,7 +230,7 @@ public interface BuildStep {
          * {@link DescriptorExt}s are actually stored in here.
          * Since {@link PublisherList} lives longer than {@link HudsonExt} we cannot directly use {@link ExtensionList}.
          */
-        private final DescriptorList<Publisher> core = new DescriptorList<Publisher>(Publisher.class);
+        private final DescriptorListExt<Publisher> core = new DescriptorListExt<Publisher>(Publisher.class);
 
         /**
          * For descriptors that are manually registered, remember what kind it was since

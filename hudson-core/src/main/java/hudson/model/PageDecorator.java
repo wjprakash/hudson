@@ -27,7 +27,7 @@ import hudson.ExtensionPoint;
 import hudson.PluginExt;
 import hudson.Extension;
 import hudson.ExtensionList;
-import hudson.util.DescriptorList;
+import hudson.util.DescriptorListExt;
 
 import java.util.List;
 
@@ -108,7 +108,7 @@ public abstract class PageDecorator extends DescriptorExt<PageDecorator> impleme
      * @deprecated as of 1.286
      *      Use {@link #all()} for read access, and use {@link Extension} for registration.
      */
-    public static final List<PageDecorator> ALL = (List)new DescriptorList<PageDecorator>(PageDecorator.class);
+    public static final List<PageDecorator> ALL = (List)new DescriptorListExt<PageDecorator>(PageDecorator.class);
 
     /**
      * Returns all the registered {@link PageDecorator} descriptors.

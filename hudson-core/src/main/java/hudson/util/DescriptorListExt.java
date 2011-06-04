@@ -27,10 +27,7 @@ import hudson.Extension;
 import hudson.ExtensionList;
 import hudson.model.Describable;
 import hudson.model.DescriptorExt;
-import hudson.model.DescriptorExt.FormException;
 import hudson.model.HudsonExt;
-import net.sf.json.JSONObject;
-import org.kohsuke.stapler.Stapler;
 
 import java.util.AbstractList;
 import java.util.Iterator;
@@ -65,7 +62,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * @author Kohsuke Kawaguchi
  * @since 1.161
  */
-public final class DescriptorList<T extends Describable<T>> extends AbstractList<DescriptorExt<T>> {
+public class DescriptorListExt<T extends Describable<T>> extends AbstractList<DescriptorExt<T>> {
 
     private final Class<T> type;
 
@@ -78,7 +75,7 @@ public final class DescriptorList<T extends Describable<T>> extends AbstractList
      * @deprecated
      *      As of 1.286. Use {@link #DescriptorList(Class)} instead.
      */
-    public DescriptorList(DescriptorExt<T>... descriptors) {
+    public DescriptorListExt(DescriptorExt<T>... descriptors) {
         this.type = null;
         this.legacy = new CopyOnWriteArrayList<DescriptorExt<T>>(descriptors);
     }
@@ -86,7 +83,7 @@ public final class DescriptorList<T extends Describable<T>> extends AbstractList
     /**
      * Creates a {@link DescriptorList} backed by {@link ExtensionList}.
      */
-    public DescriptorList(Class<T> type) {
+    public DescriptorListExt(Class<T> type) {
         this.type = type;
         this.legacy = null;
     }
@@ -143,22 +140,6 @@ public final class DescriptorList<T extends Describable<T>> extends AbstractList
             return legacy;
         else
             return HudsonExt.getInstance().<T,DescriptorExt<T>>getDescriptorList(type);
-    }
-
-    /**
-     * Creates a new instance of a {@link Describable}
-     * from the structured form submission data posted
-     * by a radio button group. 
-     */
-    public T newInstanceFromRadioList(JSONObject config) throws FormException {
-        if(config.isNullObject())
-            return null;    // none was selected
-        int idx = config.getInt("value");
-        return get(idx).newInstance(Stapler.getCurrentRequest(),config);
-    }
-
-    public T newInstanceFromRadioList(JSONObject parent, String name) throws FormException {
-        return newInstanceFromRadioList(parent.getJSONObject(name));
     }
 
     /**

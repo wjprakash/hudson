@@ -26,7 +26,7 @@ package hudson.model;
 import net.sf.json.JSONObject;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.DataBoundConstructor;
-import hudson.util.Secret;
+import hudson.util.SecretExt;
 
 /**
  * Parameter whose value is a {@link Secret} and is hidden from the UI.
@@ -36,7 +36,7 @@ import hudson.util.Secret;
  */
 public class PasswordParameterDefinition extends PasswordParameterDefinitionExt {
 
-    private Secret defaultValue;
+    private SecretExt defaultValue;
 
     @DataBoundConstructor
     public PasswordParameterDefinition(String name, String defaultValue, String description) {

@@ -41,7 +41,7 @@ import hudson.slaves.NodeDescriptorExt;
 import hudson.slaves.NodeProperty;
 import hudson.slaves.NodePropertyDescriptor;
 import hudson.util.ClockDifferenceExt;
-import hudson.util.DescribableList;
+import hudson.util.DescribableListExt;
 import hudson.util.EnumConverter;
 import hudson.util.TagCloud;
 import hudson.util.TagCloud.WeightFunction;
@@ -292,7 +292,7 @@ public abstract class NodeExt extends AbstractModelObjectExt implements Describa
     /**
      * Gets the {@link NodeProperty} instances configured for this {@link NodeExt}.
      */
-    public abstract DescribableList<NodeProperty<?>, NodePropertyDescriptor> getNodeProperties();
+    public abstract DescribableListExt<NodeProperty<?>, NodePropertyDescriptor> getNodeProperties();
 
     // used in the Jelly script to expose descriptors
     public List<NodePropertyDescriptor> getNodePropertyDescriptors() {
