@@ -32,6 +32,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.lang.ref.WeakReference;
 import java.io.IOException;
 
+import org.kohsuke.stapler.framework.io.LargeText;
+
 
 /**
  * Partial {@link Action} implementation for those who kick some

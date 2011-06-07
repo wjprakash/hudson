@@ -24,7 +24,7 @@
 package hudson.node_monitors;
 
 import hudson.Extension;
-import hudson.Util;
+import hudson.StaplerUtils;
 import hudson.model.Descriptor.FormException;
 import hudson.model.ComputerExt;
 import hudson.remoting.Future;
@@ -128,7 +128,7 @@ public class ResponseTimeMonitor extends ResponseTimeMonitorExt {
 //            return buf.toString();
             int fc = failureCount();
             if(fc>0)
-                return Util.wrapToErrorSpan(Messages.ResponseTimeMonitor_TimeOut(fc));
+                return StaplerUtils.wrapToErrorSpan(Messages.ResponseTimeMonitor_TimeOut(fc));
             return getAverage()+"ms";
         }
     }

@@ -36,22 +36,22 @@ import net.sf.json.JSONObject;
  *
  * @author Kohsuke Kawaguchi
  */
-public class RepositoryBrowsers extends RepositoryBrowsersExt{
-     
+public class RepositoryBrowsers extends RepositoryBrowsersExt {
+
     /**
      * Creates an instance of {@link RepositoryBrowser} from a form submission.
      *
      * @deprecated since 2008-06-19.
      *      Use {@link #createInstance(Class, StaplerRequest, JSONObject, String)}.
      */
-    public static <T extends RepositoryBrowserExt>
-    T createInstance(Class<T> type, StaplerRequest req, String fieldName) throws FormException {
+    public static <T extends RepositoryBrowserExt> T createInstance(Class<T> type, StaplerRequest req, String fieldName) throws FormException {
         List<DescriptorExt<RepositoryBrowserExt<?>>> list = filter(type);
         String value = req.getParameter(fieldName);
-        if(value==null || value.equals("auto"))
+        if (value == null || value.equals("auto")) {
             return null;
+        }
 
-        return type.cast(list.get(Integer.parseInt(value)).newInstance(req,null/*TODO*/));
+        return type.cast(list.get(Integer.parseInt(value)).newInstance(req, null/*TODO*/));
     }
 
     /**
@@ -59,11 +59,12 @@ public class RepositoryBrowsers extends RepositoryBrowsersExt{
      *
      * @since 1.227
      */
-    public static <T extends RepositoryBrowserExt>
-    T createInstance(Class<T> type, StaplerRequest req, JSONObject parent, String fieldName) throws FormException {
-        JSONObject o = (JSONObject)parent.get(fieldName);
-        if(o==null) return null;
+    public static <T extends RepositoryBrowserExt> T createInstance(Class<T> type, StaplerRequest req, JSONObject parent, String fieldName) throws FormException {
+        JSONObject o = (JSONObject) parent.get(fieldName);
+        if (o == null) {
+            return null;
+        }
 
-        return req.bindJSON(type,o);
+        return req.bindJSON(type, o);
     }
 }

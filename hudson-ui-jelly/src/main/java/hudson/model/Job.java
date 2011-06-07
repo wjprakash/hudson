@@ -29,6 +29,7 @@ import static javax.servlet.http.HttpServletResponse.SC_NO_CONTENT;
 
 import com.infradna.tool.bridge_method_injector.WithBridgeMethods;
 import hudson.Extension;
+import hudson.StaplerUtils;
 import hudson.model.Descriptor.FormException;
 import hudson.model.PermalinkProjectAction.Permalink;
 import hudson.search.QuickSilver;
@@ -366,7 +367,7 @@ public abstract class Job<JobT extends Job<JobT, RunT>, RunT extends RunExt<JobT
             e.printStackTrace(pw);
 
             rsp.setStatus(SC_BAD_REQUEST);
-            sendError(sw.toString(), req, rsp, true);
+            StaplerUtils.sendError(this, sw.toString(), req, rsp, true);
         }
     }
 
@@ -419,7 +420,7 @@ public abstract class Job<JobT extends Job<JobT, RunT>, RunT extends RunExt<JobT
     public/* not synchronized. see renameTo() */ void doDoRename(
             StaplerRequest req, StaplerResponse rsp) throws IOException,
             ServletException {
-        requirePOST();
+        StaplerUtils.requirePOST();
         // rename is essentially delete followed by a create
         checkPermission(CREATE);
         checkPermission(DELETE);
@@ -454,7 +455,7 @@ public abstract class Job<JobT extends Job<JobT, RunT>, RunT extends RunExt<JobT
     private void rss(StaplerRequest req, StaplerResponse rsp, String suffix,
             RunListExt runs) throws IOException, ServletException {
         RSS.forwardToRss(getDisplayName() + suffix, getUrl(), runs.newBuilds(),
-                RunExt.FEED_ADAPTER, req, rsp);
+                Run.FEED_ADAPTER, req, rsp);
     }
 
 }

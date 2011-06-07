@@ -23,6 +23,7 @@
  */
 package hudson.model;
 
+import hudson.StaplerUtils;
 import org.kohsuke.stapler.WebMethod;
 import hudson.Functions;
 import hudson.UtilExt;
@@ -123,7 +124,7 @@ public abstract class AbstractItem extends AbstractItemExt implements HttpDeleta
      */
     @CLIMethod(name = "delete-job")
     public void doDoDelete(StaplerRequest req, StaplerResponse rsp) throws IOException, ServletException, InterruptedException {
-        requirePOST();
+        StaplerUtils.requirePOST();
         delete();
         if (rsp != null) // null for CLI
         {
@@ -131,6 +132,7 @@ public abstract class AbstractItem extends AbstractItemExt implements HttpDeleta
         }
     }
 
+    @Override
     public void delete(StaplerRequest req, StaplerResponse rsp) throws IOException, ServletException {
         try {
             doDoDelete(req, rsp);

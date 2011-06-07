@@ -25,11 +25,7 @@ package hudson.model;
 
 import hudson.Extension;
 import hudson.UtilExt;
-import hudson.model.DescriptorExt.FormException;
-import hudson.model.HudsonExt;
-import hudson.model.ItemExt;
-import hudson.model.Messages;
-import hudson.model.TopLevelItem;
+import hudson.model.Descriptor.FormException;
 import hudson.util.FormValidation;
 import java.io.IOException;
 import java.util.Collection;
@@ -57,7 +53,7 @@ public class ProxyView extends View implements StaplerFallback {
     public ProxyView(String name) {
         super(name);
 
-        if (HudsonExt.getInstance().getView(name) != null) {
+        if (Hudson.getInstance().getView(name) != null) {
             // if this is a valid global view name, let's assume the
             // user wants to show it
             proxiedViewName = name;
@@ -67,9 +63,9 @@ public class ProxyView extends View implements StaplerFallback {
     public View getProxiedView() {
         if (proxiedViewName == null) {
             // just so we avoid errors just after creation
-            return HudsonExt.getInstance().getPrimaryView();
+            return Hudson.getInstance().getPrimaryView();
         } else {
-            return HudsonExt.getInstance().getView(proxiedViewName);
+            return Hudson.getInstance().getView(proxiedViewName);
         }
     }
 
@@ -101,7 +97,7 @@ public class ProxyView extends View implements StaplerFallback {
     @Override
     protected void submit(StaplerRequest req) throws IOException, ServletException, FormException {
         String proxiedViewName = req.getSubmittedForm().getString("proxiedViewName");
-        if (HudsonExt.getInstance().getView(proxiedViewName) == null) {
+        if (Hudson.getInstance().getView(proxiedViewName) == null) {
             throw new FormException("Not an existing global view", "proxiedViewName");
         }
         this.proxiedViewName = proxiedViewName;
@@ -121,7 +117,7 @@ public class ProxyView extends View implements StaplerFallback {
         String view = UtilExt.fixEmpty(value);
         if(view==null) return FormValidation.ok();
 
-        if(HudsonExt.getInstance().getView(view)!=null)
+        if(Hudson.getInstance().getView(view)!=null)
             return FormValidation.ok();
         else
             return FormValidation.error(Messages.ProxyView_NoSuchViewExists(value));

@@ -50,27 +50,7 @@ import org.kohsuke.stapler.export.ExportedBean;
  */
 @ExportedBean
 public abstract class UserProperty extends UserPropertyExt {
-    /**
-     * The user object that owns this property.
-     * This value will be set by the HudsonExt code.
-     * Derived classes can expect this value to be always set.
-     */
-    protected transient UserExt user;
-
     
-
-    // descriptor must be of the UserPropertyDescriptor type
-    public UserPropertyDescriptor getDescriptor() {
-        return (UserPropertyDescriptor)Hudson.getInstance().getDescriptorOrDie(getClass());
-    }
-
-    /**
-     * Returns all the registered {@link UserPropertyDescriptor}s.
-     */
-    public static DescriptorExtensionList<UserProperty,UserPropertyDescriptor> all() {
-        return HudsonExt.getInstance().<UserProperty,UserPropertyDescriptor>getDescriptorList(UserProperty.class);
-    }
-
     public UserProperty reconfigure(StaplerRequest req, JSONObject form) throws FormException {
     	return getDescriptor().newInstance(req, form);
     }

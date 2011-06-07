@@ -23,6 +23,7 @@
  */
 package hudson.logging;
 
+import hudson.StaplerUtils;
 import hudson.UtilExt;
 import hudson.XmlFile;
 import hudson.model.HudsonExt;
@@ -93,7 +94,7 @@ public class LogRecorder extends LogRecorderExt {
      * Deletes this recorder, then go back to the parent.
      */
     public synchronized void doDoDelete(StaplerResponse rsp) throws IOException, ServletException {
-        requirePOST();
+        StaplerUtils.requirePOST();
         getConfigFile().delete();
         getParent().logRecorders.remove(name);
         // Disable logging for all our targets,

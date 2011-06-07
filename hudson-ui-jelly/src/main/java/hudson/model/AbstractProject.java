@@ -24,16 +24,15 @@
 package hudson.model;
 
 import antlr.ANTLRException;
-import com.sun.jdi.connect.Connector.Argument;
 import hudson.FeedAdapter;
 import hudson.FilePathExt;
+import hudson.StaplerUtils;
 import hudson.UtilExt;
 import hudson.cli.declarative.CLIMethod;
 import hudson.cli.declarative.CLIResolver;
 import hudson.model.CauseExt.RemoteCause;
 import hudson.model.CauseExt.UserCause;
 import hudson.model.Descriptor.FormException;
-import hudson.model.DescriptorExt.FormException;
 import hudson.scm.ChangeLogSetExt;
 import hudson.scm.ChangeLogSetExt.Entry;
 import hudson.scm.SCMExt;
@@ -55,6 +54,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.Vector;
 import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletResponse;
 import net.sf.json.JSONObject;
 import org.kohsuke.args4j.Argument;
 import org.kohsuke.args4j.CmdLineException;
@@ -71,7 +71,7 @@ import org.kohsuke.stapler.export.Exported;
  *
  * @author Winston Prakash
  */
-public abstract class AbstractProject extends AbstractProjectExt{
+public abstract class AbstractProject<P extends AbstractProjectExt<P,R>,R extends AbstractBuildExt<P,R>> extends AbstractProjectExt<P, R>{
     
     protected AbstractProject(ItemGroup parent, String name) {
         super(parent,name);
@@ -195,17 +195,17 @@ public abstract class AbstractProject extends AbstractProjectExt{
      * Schedules a new build command.
      */
     public void doBuild( StaplerRequest req, StaplerResponse rsp ) throws IOException, ServletException {
-        BuildAuthorizationTokenExt.checkPermission(this, authToken, req, rsp);
+        BuildAuthorizationToken.checkPermission(this, authToken, req, rsp);
 
         // if a build is parameterized, let that take over
-        ParametersDefinitionPropertyExt pp = getProperty(ParametersDefinitionPropertyExt.class);
+        ParametersDefinitionProperty pp = getProperty(ParametersDefinitionProperty.class);
         if (pp != null) {
             pp._doBuild(req,rsp);
             return;
         }
 
         if (!isBuildable())
-            throw HttpResponses.error(SC_INTERNAL_SERVER_ERROR,new IOException(getFullName()+" is not buildable"));
+            throw HttpResponses.error(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, new IOException(getFullName()+" is not buildable"));
 
         HudsonExt.getInstance().getQueue().schedule(this, getDelay(req), getBuildCause(req));
         rsp.forwardToPreviousPage(req);
@@ -248,7 +248,7 @@ public abstract class AbstractProject extends AbstractProjectExt{
      * Currently only String parameters are supported.
      */
     public void doBuildWithParameters(StaplerRequest req, StaplerResponse rsp) throws IOException, ServletException {
-        BuildAuthorizationTokenExt.checkPermission(this, authToken, req, rsp);
+        BuildAuthorizationToken.checkPermission(this, authToken, req, rsp);
 
         ParametersDefinitionPropertyExt pp = getProperty(ParametersDefinitionPropertyExt.class);
         if (pp != null) {
@@ -263,7 +263,7 @@ public abstract class AbstractProject extends AbstractProjectExt{
      * Schedules a new SCM polling command.
      */
     public void doPolling( StaplerRequest req, StaplerResponse rsp ) throws IOException, ServletException {
-        BuildAuthorizationTokenExt.checkPermission(this, authToken, req, rsp);
+        BuildAuthorizationToken.checkPermission(this, authToken, req, rsp);
         schedulePolling();
         rsp.forwardToPreviousPage(req);
     }
@@ -314,7 +314,7 @@ public abstract class AbstractProject extends AbstractProjectExt{
 
         concurrentBuild = req.getSubmittedForm().has("concurrentBuild");
 
-        authToken = BuildAuthorizationTokenExt.create(req);
+        authToken = BuildAuthorizationToken.create(req);
 
         setScm(SCMS.parseSCM(req,this));
 
@@ -393,7 +393,7 @@ public abstract class AbstractProject extends AbstractProjectExt{
     
     @CLIMethod(name="disable-job")
     public HttpResponse doDisable() throws IOException, ServletException {
-        requirePOST();
+        StaplerUtils.requirePOST();
         checkPermission(CONFIGURE);
         makeDisabled(true);
         return new HttpRedirect(".");
@@ -401,7 +401,7 @@ public abstract class AbstractProject extends AbstractProjectExt{
 
     @CLIMethod(name="enable-job")
     public HttpResponse doEnable() throws IOException, ServletException {
-        requirePOST();
+        StaplerUtils.requirePOST();
         checkPermission(CONFIGURE);
         makeDisabled(false);
         return new HttpRedirect(".");

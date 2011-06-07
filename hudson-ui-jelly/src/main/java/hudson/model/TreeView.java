@@ -23,14 +23,10 @@
  */
 package hudson.model;
 
-import hudson.model.DescriptorExt.FormException;
 import hudson.util.CaseInsensitiveComparator;
 import hudson.Indenter;
 import hudson.Extension;
-import hudson.model.HudsonExt;
-import hudson.model.ItemExt;
-import hudson.model.JobExt;
-import hudson.model.TopLevelItem;
+import hudson.model.Descriptor.FormException;
 import hudson.views.ViewsTabBar;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.StaplerRequest;
@@ -109,7 +105,7 @@ public class TreeView extends View implements ViewGroup {
     }
 
     public ItemExt doCreateItem(StaplerRequest req, StaplerResponse rsp) throws IOException, ServletException {
-        ItemExt item = HudsonExt.getInstance().doCreateItem(req, rsp);
+        ItemExt item = Hudson.getInstance().doCreateItem(req, rsp);
         if(item!=null) {
             jobNames.add(item.getName());
             owner.save();

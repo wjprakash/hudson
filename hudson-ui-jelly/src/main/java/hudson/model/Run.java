@@ -31,6 +31,7 @@ import hudson.BulkChange;
 import hudson.EnvVars;
 import hudson.FeedAdapter;
 import hudson.FilePathExt;
+import hudson.StaplerUtils;
 import hudson.model.Descriptor.FormException;
 import hudson.model.listeners.RunListener;
 import hudson.tasks.LogRotatorExt;
@@ -305,7 +306,7 @@ public abstract class Run<JobT extends JobExt<JobT, RunT>, RunT extends Run<JobT
      * Deletes the build when the button is pressed.
      */
     public void doDoDelete(StaplerRequest req, StaplerResponse rsp) throws IOException, ServletException {
-        requirePOST();
+        StaplerUtils.requirePOST();
         checkPermission(DELETE);
 
         // We should not simply delete the build if it has been explicitly
@@ -313,7 +314,7 @@ public abstract class Run<JobT extends JobExt<JobT, RunT>, RunT extends Run<JobT
         // due to dependencies!
         String why = getWhyKeepLog();
         if (why != null) {
-            sendError(Messages.Run_UnableToDelete(toString(), why), req, rsp);
+            StaplerUtils.sendError(this, Messages.Run_UnableToDelete(toString(), why), req, rsp);
             return;
         }
 
@@ -321,6 +322,7 @@ public abstract class Run<JobT extends JobExt<JobT, RunT>, RunT extends Run<JobT
         rsp.sendRedirect2(req.getContextPath() + '/' + getParent().getUrl());
     }
 
+    @Override
     public EnvVars getEnvironment(TaskListener log) throws IOException, InterruptedException {
         EnvVars env = super.getEnvironment(log);
         String rootUrl = Hudson.getInstance().getRootUrl();

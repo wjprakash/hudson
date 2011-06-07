@@ -237,7 +237,7 @@ public abstract class SlaveExt extends NodeExt implements Serializable {
      */
     public static class JnlpJar {
 
-        private final String fileName;
+        protected final String fileName;
 
         public JnlpJar(String fileName) {
             this.fileName = fileName;

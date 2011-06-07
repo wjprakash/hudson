@@ -62,7 +62,7 @@ public class MyView extends View {
     @Override
     public ItemExt doCreateItem(StaplerRequest req, StaplerResponse rsp)
             throws IOException, ServletException {
-        return HudsonExt.getInstance().doCreateItem(req, rsp);
+        return Hudson.getInstance().doCreateItem(req, rsp);
     }
 
     @Override

@@ -24,7 +24,6 @@
 package hudson.model;
 
 import hudson.FeedAdapter;
-import hudson.model.HudsonExt;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 

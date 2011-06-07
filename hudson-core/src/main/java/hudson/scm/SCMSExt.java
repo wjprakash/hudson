@@ -1,7 +1,7 @@
 /*
  * The MIT License
  * 
- * Copyright (c) 2004-2011, Oracle Corporation, Kohsuke Kawaguchi, Winston Prakash
+ * Copyright (c) 2004-2009, Sun Microsystems, Inc., Kohsuke Kawaguchi
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,7 +25,10 @@ package hudson.scm;
 
 import hudson.model.AbstractProjectExt;
 import hudson.model.Descriptor.FormException;
+import hudson.util.DescriptorListExt;
+import hudson.Extension;
 
+import java.util.List;
 
 import org.kohsuke.stapler.StaplerRequest;
 
@@ -36,8 +39,13 @@ import javax.servlet.ServletException;
  * 
  * @author Kohsuke Kawaguchi
  */
-public class SCMS extends SCMSExt{
-    
+public class SCMS {
+    /**
+     * List of all installed SCMs.
+     * @deprecated as of 1.286
+     *      Use {@link SCM#all()} for read access and {@link Extension} for registration.
+     */
+    public static final List<SCMDescriptor<?>> SCMS = (List)new DescriptorListExt<SCMExt>(SCMExt.class);
 
     /**
      * Parses {@link SCM} configuration from the submitted form.

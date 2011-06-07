@@ -24,7 +24,7 @@
 package hudson.util;
 
 
-import hudson.Util;
+import hudson.StaplerUtils;
 
 import org.kohsuke.stapler.export.ExportedBean;
 import org.kohsuke.stapler.export.Exported;
@@ -52,7 +52,7 @@ public final class ClockDifference extends ClockDifferenceExt{
     public String toHtml() {
         String s = toString();
         if(isDangerous())
-            s = Util.wrapToErrorSpan(s);
+            s = StaplerUtils.wrapToErrorSpan(s);
         return s;
     }
 

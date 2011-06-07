@@ -24,14 +24,9 @@
 package hudson.model;
 
 import hudson.Extension;
-import hudson.ExtensionPoint;
-import hudson.AbortException;
-import hudson.DescriptorExtensionList;
-import hudson.cli.CLICommand;
-import hudson.util.DescriptorListExt;
+import java.beans.ParameterDescriptor;
 
 import java.io.Serializable;
-import java.io.IOException;
 
 import net.sf.json.JSONObject;
 
@@ -94,44 +89,35 @@ import org.kohsuke.stapler.export.ExportedBean;
  * @see StringParameterDefinition
  */
 @ExportedBean(defaultVisibility=3)
-public abstract class ParameterDefinition implements
-        Describable<ParameterDefinition>, ExtensionPoint, Serializable {
-
-    private final String name;
-
-    private final String description;
+public abstract class ParameterDefinition extends ParameterDefinitionExt implements Serializable {
 
     public ParameterDefinition(String name) {
         this(name, null);
     }
 
     public ParameterDefinition(String name, String description) {
-        this.name = name;
-        this.description = description;
+        super(name, description);
     }
 
     @Exported
+    @Override
     public String getType() {
-    	return this.getClass().getSimpleName();
+    	return super.getType();
     }
     
     @Exported
+    @Override
     public String getName() {
-        return name;
+        return super.getName();
     }
 
     @Exported
+    @Override
     public String getDescription() {
-        return description;
+        return super.getDescription();
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public ParameterDescriptor getDescriptor() {
-        return (ParameterDescriptor)HudsonExt.getInstance().getDescriptorOrDie(getClass());
-    }
-
+    
     /**
      * Create a parameter value from a form submission.
      *
@@ -156,74 +142,4 @@ public abstract class ParameterDefinition implements
      */
     public abstract ParameterValueExt createValue(StaplerRequest req);
 
-
-    /**
-     * Create a parameter value from the string given in the CLI.
-     *
-     * @param command
-     *      This is the command that got the parameter. You can use its {@link CLICommand#channel}
-     *      for interacting with the CLI JVM.
-     * @throws AbortException
-     *      If the CLI processing should be aborted. HudsonExt will report the error message
-     *      without stack trace, and then exits this command. Useful for graceful termination.
-     * @throws Exception
-     *      All the other exceptions cause the stack trace to be dumped, and then
-     *      the command exits with an error code.
-     * @since 1.334
-     */
-    public ParameterValueExt createValue(CLICommand command, String value) throws IOException, InterruptedException {
-        throw new AbortException("CLI parameter submission is not supported for the "+getClass()+" type. Please file a bug report for this");
-    }
-    
-    /**
-     * Returns default parameter value for this definition.
-     * 
-     * @return default parameter value or null if no defaults are available
-     * @since 1.253
-     */
-    @Exported
-    public ParameterValueExt getDefaultParameterValue() {
-        return null;
-    }
-
-    /**
-     * Returns all the registered {@link ParameterDefinitionExt} descriptors.
-     */
-    public static DescriptorExtensionList<ParameterDefinition,ParameterDescriptor> all() {
-        return Hudson.getInstance().<ParameterDefinition, ParameterDescriptor>getDescriptorList(ParameterDefinition.class);
-    }
-
-    /**
-     * A list of available parameter definition types
-     * @deprecated as of 1.286
-     *      Use {@link #all()} for read access, and {@link Extension} for registration.
-     */
-    public static final DescriptorListExt<ParameterDefinition> LIST = new DescriptorListExt<ParameterDefinition>(ParameterDefinition.class);
-
-    public abstract static class ParameterDescriptor extends
-            Descriptor<ParameterDefinition> {
-
-        protected ParameterDescriptor(Class<? extends ParameterDefinition> klazz) {
-            super(klazz);
-        }
-
-        /**
-         * Infers the type of the corresponding {@link ParameterDescriptor} from the outer class.
-         * This version works when you follow the common convention, where a descriptor
-         * is written as the static nested class of the describable class.
-         *
-         * @since 1.278
-         */
-        protected ParameterDescriptor() {
-        }
-
-        public String getValuePage() {
-            return getViewPage(clazz, "index.jelly");
-        }
-
-        @Override
-        public String getDisplayName() {
-            return "Parameter";
-        }
-    }
 }

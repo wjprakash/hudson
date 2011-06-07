@@ -23,18 +23,12 @@
  */
 package hudson.model;
 
-import hudson.ExtensionPoint;
 import hudson.Launcher;
 import hudson.PluginExt;
-import hudson.model.queue.SubTask;
 import hudson.tasks.BuildStep;
 import hudson.tasks.Builder;
 import hudson.tasks.Publisher;
-import hudson.tasks.BuildStepMonitor;
 
-import java.io.IOException;
-import java.util.Collection;
-import java.util.Collections;
 
 import org.kohsuke.stapler.export.ExportedBean;
 
@@ -69,112 +63,6 @@ import org.kohsuke.stapler.export.ExportedBean;
  * @since 1.72
  */
 @ExportedBean
-public abstract class JobProperty<J extends JobExt<?,?>> implements Describable<JobProperty<?>>, BuildStep, ExtensionPoint {
-    /**
-     * The {@link JobExt} object that owns this property.
-     * This value will be set by the HudsonExt code.
-     * Derived classes can expect this value to be always set.
-     */
-    protected transient J owner;
-
-    /**
-     * Hook for performing post-initialization action.
-     *
-     * <p>
-     * This method is invoked in two cases. One is when the {@link JobExt} that owns
-     * this property is loaded from disk, and the other is when a job is re-configured
-     * and all the {@link JobPropertyExt} instances got re-created.
-     */
-    protected void setOwner(J owner) {
-        this.owner = owner;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public JobPropertyDescriptorExt getDescriptor() {
-        return (JobPropertyDescriptorExt)HudsonExt.getInstance().getDescriptorOrDie(getClass());
-    }
-
-    /**
-     * @deprecated
-     *      as of 1.341. Override {@link #getJobActions(JobExt)} instead.
-     */
-    public Action getJobAction(J job) {
-        return null;
-    }
-
-    /**
-     * {@link Action}s to be displayed in the job page.
-     *
-     * <p>
-     * Returning actions from this method allows a job property to add them
-     * to the left navigation bar in the job page.
-     *
-     * <p>
-     * {@link Action} can implement additional marker interface to integrate
-     * with the UI in different ways.
-     *
-     * @param job
-     *      Always the same as {@link #owner} but passed in anyway for backward compatibility (I guess.)
-     *      You really need not use this value at all.
-     * @return
-     *      can be empty but never null.
-     * @since 1.341
-     * @see ProminentProjectAction
-     * @see PermalinkProjectAction
-     */
-    public Collection<? extends Action> getJobActions(J job) {
-        // delegate to getJobAction (singular) for backward compatible behavior
-        Action a = getJobAction(job);
-        if (a==null)    return Collections.emptyList();
-        return Collections.singletonList(a);
-    }
-
-//
-// default no-op implementation
-//
-
-    public boolean prebuild(AbstractBuildExt<?,?> build, BuildListener listener) {
-        return true;
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * <p>
-     * Invoked after {@link Publisher}s have run.
-     */
-    public boolean perform(AbstractBuildExt<?,?> build, Launcher launcher, BuildListener listener) throws InterruptedException, IOException {
-        return true;
-    }
-
-    /**
-     * Returns {@link BuildStepMonitor#NONE} by default, as {@link JobPropertyExt}s normally don't depend
-     * on its previous result.
-     */
-    public BuildStepMonitor getRequiredMonitorService() {
-        return BuildStepMonitor.NONE;
-    }
-
-    public final Action getProjectAction(AbstractProjectExt<?,?> project) {
-        return getJobAction((J)project);
-    }
-
-    public final Collection<? extends Action> getProjectActions(AbstractProjectExt<?,?> project) {
-        return getJobActions((J)project);
-    }
-
-    public Collection<?> getJobOverrides() {
-        return Collections.emptyList();
-    }
-
-    /**
-     * Contributes {@link SubTask}s to {@link AbstractProjectExt#getSubTasks()}
-     *
-     * @since 1.377
-     */
-    public Collection<? extends SubTask> getSubTasks() {
-        return Collections.emptyList();
-    }
+public abstract class JobProperty<J extends JobExt<?,?>>  extends JobPropertyExt {
+     
 }

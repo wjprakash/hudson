@@ -197,8 +197,9 @@ public class ListView extends View implements Saveable {
         return statusFilter;
     }
 
+    @Override
     public synchronized ItemExt doCreateItem(StaplerRequest req, StaplerResponse rsp) throws IOException, ServletException {
-        ItemExt item = HudsonExt.getInstance().doCreateItem(req, rsp);
+        ItemExt item = Hudson.getInstance().doCreateItem(req, rsp);
         if(item!=null) {
             jobNames.add(item.getName());
             owner.save();

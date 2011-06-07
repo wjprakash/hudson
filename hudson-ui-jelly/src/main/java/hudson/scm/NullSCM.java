@@ -23,49 +23,24 @@
  */
 package hudson.scm;
 
-import hudson.FilePathExt;
-import hudson.Launcher;
 import hudson.Extension;
-import hudson.model.AbstractBuildExt;
-import hudson.model.AbstractProjectExt;
-import hudson.model.BuildListener;
-import hudson.model.TaskListener;
+import hudson.model.Descriptor.FormException;
 import net.sf.json.JSONObject;
 import org.kohsuke.stapler.StaplerRequest;
 
-import java.io.File;
-import java.io.IOException;
 
 /**
  * No {@link SCM}.
  *
  * @author Kohsuke Kawaguchi
  */
-public class NullSCM extends SCMExt {
-    public SCMRevisionState calcRevisionsFromBuild(AbstractBuildExt<?, ?> build, Launcher launcher, TaskListener listener) throws IOException, InterruptedException {
-        return null;
-    }
-
-    protected PollingResult compareRemoteRevisionWith(AbstractProjectExt project, Launcher launcher, FilePathExt workspace, TaskListener listener, SCMRevisionState baseline) throws IOException, InterruptedException {
-        return PollingResult.NO_CHANGES;
-    }
-
-    public boolean checkout(AbstractBuildExt<?,?> build, Launcher launcher, FilePathExt remoteDir, BuildListener listener, File changeLogFile) throws IOException, InterruptedException {
-        return createEmptyChangeLog(changeLogFile, listener, "log");
-    }
-
-    public ChangeLogParser createChangeLogParser() {
-        return new NullChangeLogParser();
-    }
+public class NullSCM extends NullSCMExt {
+     
 
     @Extension
-    public static class DescriptorImpl extends SCMDescriptor<NullSCM> {
+    public static class DescriptorImpl extends DescriptorImplExt {
         public DescriptorImpl() {
-            super(null);
-        }
-
-        public String getDisplayName() {
-            return Messages.NullSCM_DisplayName();
+            super();
         }
 
         @Override

@@ -23,7 +23,7 @@
  */
 package hudson.node_monitors;
 
-import hudson.Util;
+import hudson.StaplerUtils;
 import hudson.node_monitors.DiskSpaceMonitorDescriptor.DiskSpace;
 
 import java.math.BigDecimal;
@@ -67,7 +67,7 @@ import org.kohsuke.stapler.export.Exported;
             space /= 1024L;   // convert to MB
             if (triggered) {
                 // less than a GB
-                return Util.wrapToErrorSpan(new BigDecimal(space).scaleByPowerOfTen(-3).toPlainString() + "GB");
+                return StaplerUtils.wrapToErrorSpan(new BigDecimal(space).scaleByPowerOfTen(-3).toPlainString() + "GB");
             }
 
             return space / 1024 + "GB";

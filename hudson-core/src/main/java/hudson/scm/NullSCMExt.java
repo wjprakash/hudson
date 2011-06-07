@@ -30,7 +30,6 @@ import hudson.model.AbstractBuildExt;
 import hudson.model.AbstractProjectExt;
 import hudson.model.BuildListener;
 import hudson.model.TaskListener;
-import net.sf.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
@@ -58,8 +57,8 @@ public class NullSCMExt extends SCMExt {
     }
 
     @Extension
-    public static class DescriptorImpl extends SCMDescriptor<NullSCMExt> {
-        public DescriptorImpl() {
+    public static class DescriptorImplExt extends SCMDescriptor<NullSCMExt> {
+        public DescriptorImplExt() {
             super(null);
         }
 

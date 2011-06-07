@@ -28,8 +28,6 @@ import org.kohsuke.stapler.StaplerResponse;
 
 import javax.servlet.ServletException;
 import java.io.IOException;
-import java.util.LinkedHashSet;
-import java.util.SortedMap;
 
 import hudson.model.Descriptor.FormException;
 

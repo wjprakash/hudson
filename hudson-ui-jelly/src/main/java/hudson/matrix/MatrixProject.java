@@ -24,7 +24,7 @@
 package hudson.matrix;
 
 import hudson.UtilExt;
-import hudson.model.DescriptorExt.FormException;
+import hudson.model.Descriptor.FormException;
 import hudson.model.HudsonExt;
 import hudson.model.ItemGroup;
 import hudson.model.ResultExt;

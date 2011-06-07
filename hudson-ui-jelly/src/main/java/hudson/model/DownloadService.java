@@ -24,7 +24,6 @@
 package hudson.model;
 
 import hudson.Extension;
-import hudson.ExtensionList;
 import hudson.util.IOUtils;
 import hudson.util.QuotedStringTokenizer;
 import hudson.util.TextFile;
@@ -49,17 +48,6 @@ import org.kohsuke.stapler.StaplerResponse;
 @Extension
 public class DownloadService extends DownloadServiceExt {
     
-
-     /**
-     * Gets {@link DownloadableExt} by its ID.
-     * Used to bind them to URL.
-     */
-    public Downloadable getById(String id) {
-        for (Downloadable d : Downloadable.all())
-            if(d.getId().equals(id))
-                return d;
-        return null;
-    }
     
     /**
      * Builds up an HTML fragment that starts all the download jobs.
@@ -70,7 +58,7 @@ public class DownloadService extends DownloadServiceExt {
         StringBuilder buf = new StringBuilder();
         if(HudsonExt.getInstance().hasPermission(HudsonExt.READ)) {
             long now = System.currentTimeMillis();
-            for (Downloadable d : Downloadable.all()) {
+            for (DownloadableExt d : DownloadableExt.all()) {
                 if(d.getDue()<now && d.lastAttempt+10*1000<now) {
                     buf.append("<script>")
                        .append("Behaviour.addLoadEvent(function() {")
@@ -79,7 +67,9 @@ public class DownloadService extends DownloadServiceExt {
                        .append(',')
                        .append(QuotedStringTokenizer.quote(d.getUrl()))
                        .append(',')
-                       .append("{version:"+QuotedStringTokenizer.quote(HudsonExt.VERSION)+'}')
+                       .append("{version:")
+                       .append(QuotedStringTokenizer.quote(HudsonExt.VERSION))
+                       .append('}')
                        .append(',')
                        .append(QuotedStringTokenizer.quote(Stapler.getCurrentRequest().getContextPath()+'/'+getUrl()+"/byId/"+d.getId()+"/postBack"))
                        .append(',')
@@ -105,6 +95,8 @@ public class DownloadService extends DownloadServiceExt {
      * @since 1.305
      */
     public static class Downloadable extends DownloadServiceExt.DownloadableExt {
+         
+        private static final Logger LOGGER = Logger.getLogger(Downloadable.class.getName());
          
         /**
          *
@@ -135,24 +127,6 @@ public class DownloadService extends DownloadServiceExt {
             rsp.setContentType("text/plain");  // So browser won't try to parse response
         }
         
-        /**
-         * Returns the {@link DownloadableExt} that has the given ID.
-         */
-        public static DownloadableExt get(String id) {
-            for (Downloadable d : all()) {
-                if(d.id.equals(id))
-                    return d;
-            }
-            return null;
-        }
-
-        /**
-         * Returns all the registered {@link DownloadableExt}s.
-         */
-        public static ExtensionList<Downloadable> all() {
-            return HudsonExt.getInstance().getExtensionList(Downloadable.class);
-        }
-        private static final Logger LOGGER = Logger.getLogger(Downloadable.class.getName());
     }
 
 }

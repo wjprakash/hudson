@@ -25,6 +25,7 @@ package hudson.model;
 
 import hudson.PluginManagerExt;
 import hudson.PluginWrapperExt;
+import hudson.StaplerUtils;
 import hudson.lifecycle.Lifecycle;
 import hudson.model.UpdateSiteExt.PluginExt;
 import hudson.security.ACL;
@@ -33,6 +34,7 @@ import org.kohsuke.stapler.StaplerResponse;
 
 import javax.servlet.ServletException;
 import java.io.IOException;
+import java.util.logging.Logger;
 import org.acegisecurity.context.SecurityContextHolder;
 
 
@@ -52,16 +54,18 @@ import org.acegisecurity.context.SecurityContextHolder;
  * @since 1.220
  */
 public class UpdateCenter extends UpdateCenterExt {
+    
+     private static final Logger LOGGER = Logger.getLogger(UpdateCenter.class.getName());
      
     /**
      * Schedules a HudsonExt upgrade.
      */
     public void doUpgrade(StaplerResponse rsp) throws IOException, ServletException {
-        requirePOST();
+        StaplerUtils.requirePOST();
         HudsonExt.getInstance().checkPermission(HudsonExt.ADMINISTER);
         HudsonUpgradeJob job = new HudsonUpgradeJob(getCoreSource(), HudsonExt.getAuthentication());
         if(!Lifecycle.get().canRewriteHudsonWar()) {
-            sendError("Hudson upgrade not supported in this running mode");
+            StaplerUtils.sendError(this, "Hudson upgrade not supported in this running mode");
             return;
         }
 
@@ -75,10 +79,10 @@ public class UpdateCenter extends UpdateCenterExt {
      * Performs hudson downgrade.
      */
     public void doDowngrade(StaplerResponse rsp) throws IOException, ServletException {
-        requirePOST();
+        StaplerUtils.requirePOST();
         HudsonExt.getInstance().checkPermission(HudsonExt.ADMINISTER);
         if(!isDowngradable()) {
-            sendError("Hudson downgrade is not possible, probably backup does not exist");
+            StaplerUtils.sendError(this, "Hudson downgrade is not possible, probably backup does not exist");
             return;
         }
 

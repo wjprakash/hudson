@@ -24,6 +24,7 @@
  */
 package hudson.model;
 
+import hudson.StaplerUtils;
 import hudson.UtilExt;
 import hudson.cli.declarative.CLIMethod;
 import hudson.console.AnnotatedLargeText;
@@ -98,6 +99,7 @@ public  abstract class Computer extends ComputerExt {
      *      null if the system was put offline without given a cause.
      */
     @Exported
+    @Override
     public OfflineCauseExt getOfflineCause() {
         return super.getOfflineCause();
     }
@@ -114,6 +116,7 @@ public  abstract class Computer extends ComputerExt {
      */
     // ugly name to let EL access this
     @Exported
+    @Override
     public int getNumExecutors() {
         return super.getNumExecutors();
     }
@@ -121,11 +124,13 @@ public  abstract class Computer extends ComputerExt {
      
 
     @Exported
+    @Override
     public LoadStatisticsExt getLoadStatistics() {
         return super.getLoadStatistics();
     }
 
     @Exported
+    @Override
     public boolean isOffline() {
         return super.isOffline();
     }
@@ -136,6 +141,7 @@ public  abstract class Computer extends ComputerExt {
      * @return {@code true} if manual launching of the slave is allowed at this point in time.
      */
     @Exported
+    @Override
     public boolean isManualLaunchAllowed() {
         return super.isManualLaunchAllowed();
     }
@@ -148,6 +154,7 @@ public  abstract class Computer extends ComputerExt {
      */
     @Exported
     @Deprecated
+    @Override
     public boolean isJnlpAgent() {
         return super.isJnlpAgent();
     }
@@ -160,6 +167,7 @@ public  abstract class Computer extends ComputerExt {
      * needs to be initiated from the slave side.
      */
     @Exported
+    @Override
     public boolean isLaunchSupported() {
         return super.isLaunchSupported();
     }
@@ -178,18 +186,21 @@ public  abstract class Computer extends ComputerExt {
      *      accidentally call this method.
      */
     @Exported
+    @Override
     public boolean isTemporarilyOffline() {
         return super.isTemporarilyOffline();
     }
  
 
     @Exported
+    @Override
     public String getIcon() {
         return super.getIcon();
     }
 
      
     @Exported
+    @Override
     public String getDisplayName() {
         return super.getDisplayName();
     }
@@ -199,6 +210,7 @@ public  abstract class Computer extends ComputerExt {
      * Gets the read-only snapshot view of all {@link ExecutorExt}s.
      */
     @Exported
+    @Override
     public List<ExecutorExt> getExecutors() {
         return super.getExecutors();
     }
@@ -207,6 +219,7 @@ public  abstract class Computer extends ComputerExt {
      * Gets the read-only snapshot view of all {@link OneOffExecutor}s.
      */
     @Exported
+    @Override
     public List<OneOffExecutor> getOneOffExecutors() {
         return super.getOneOffExecutors();
     }
@@ -215,6 +228,7 @@ public  abstract class Computer extends ComputerExt {
      * Returns true if all the executors of this computer are idle.
      */
     @Exported
+    @Override
     public final boolean isIdle() {
         return super.isIdle();
     }
@@ -225,6 +239,7 @@ public  abstract class Computer extends ComputerExt {
      * Expose monitoring data for the remote API.
      */
     @Exported(inline=true)
+    @Override
     public Map<String/*monitor name*/,Object> getMonitorData() {
         return super.getMonitorData();
     }
@@ -242,7 +257,7 @@ public  abstract class Computer extends ComputerExt {
     }
     private void rss(StaplerRequest req, StaplerResponse rsp, String suffix, RunListExt runs) throws IOException, ServletException {
         RSS.forwardToRss(getDisplayName()+ suffix, getUrl(),
-            runs.newBuilds(), RunExt.FEED_ADAPTER, req, rsp );
+            runs.newBuilds(), Run.FEED_ADAPTER, req, rsp );
     }
 
     public HttpResponse doToggleOffline(@QueryParameter String offlineMessage) throws IOException, ServletException {
@@ -334,7 +349,7 @@ public  abstract class Computer extends ComputerExt {
             List<NodeExt> nodes = new ArrayList<NodeExt>(app.getNodes());
             int i = nodes.indexOf(getNode());
             if(i<0) {
-                sendError("This slave appears to be removed while you were editing the configuration",req,rsp);
+                StaplerUtils.sendError(this, "This slave appears to be removed while you were editing the configuration",req,rsp);
                 return;
             }
 

@@ -25,15 +25,7 @@ package hudson.model;
 
 import hudson.Extension;
 import hudson.UtilExt;
-import hudson.model.Action;
-import hudson.model.AllViewExt;
-import hudson.model.DescriptorExt.FormException;
-import hudson.model.HudsonExt;
-import hudson.model.Messages;
-import hudson.model.RootAction;
-import hudson.model.UserExt;
-import hudson.model.UserPropertyExt;
-import hudson.model.UserPropertyDescriptor;
+import hudson.model.Descriptor.FormException;
 import hudson.security.ACL;
 import hudson.security.Permission;
 import hudson.util.FormValidation;
@@ -83,7 +75,7 @@ public class MyViewsProperty extends UserPropertyExt implements ViewGroup, Actio
     }
 
     private MyViewsProperty() {
-		views.add(new AllViewExt(Messages.Hudson_ViewName(), this));
+		views.add(new AllView(Messages.Hudson_ViewName(), this));
         primaryViewName = views.get(0).getViewName();
     }
 
@@ -246,16 +238,16 @@ public class MyViewsProperty extends UserPropertyExt implements ViewGroup, Actio
 
         if (views.isEmpty())
             // preserve the non-empty invariant
-            views.add(new AllViewExt(Messages.Hudson_ViewName(), this));
+            views.add(new AllView(Messages.Hudson_ViewName(), this));
         return this;
     }
 
     public ViewsTabBar getViewsTabBar() {
-        return HudsonExt.getInstance().getViewsTabBar();
+        return Hudson.getInstance().getViewsTabBar();
     }
 
     public MyViewsTabBar getMyViewsTabBar() {
-        return HudsonExt.getInstance().getMyViewsTabBar();
+        return Hudson.getInstance().getMyViewsTabBar();
     }
     
     @Extension

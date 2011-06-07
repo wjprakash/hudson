@@ -24,8 +24,9 @@
 package hudson.model;
 
 import hudson.BulkChange;
+import hudson.StaplerUtils;
 import hudson.UtilExt;
-import hudson.model.DescriptorExt.FormException;
+import hudson.model.Descriptor.FormException;
 import hudson.node_monitors.NodeMonitorExt;
 import hudson.slaves.NodeDescriptorExt;
 import org.kohsuke.stapler.QueryParameter;
@@ -50,6 +51,7 @@ public final class ComputerSet extends ComputerSetExt {
       
 
     @Exported
+    @Override
     public String getDisplayName() {
         return super.getDisplayName();
     }
@@ -57,6 +59,7 @@ public final class ComputerSet extends ComputerSetExt {
     
 
     @Exported(name="computer",inline=true)
+    @Override
     public ComputerExt[] get_all() {
         return super.get_all();
     }
@@ -69,6 +72,7 @@ public final class ComputerSet extends ComputerSetExt {
      * This excludes executors that belong to offline nodes.
      */
     @Exported
+    @Override
     public int getTotalExecutors() {
          
         return super.getTotalExecutors();
@@ -78,6 +82,7 @@ public final class ComputerSet extends ComputerSetExt {
      * Number of busy {@link Executor}s that are carrying out some work right now.
      */
     @Exported
+    @Override
     public int getBusyExecutors() {
          
         return super.getBusyExecutors();
@@ -128,9 +133,9 @@ public final class ComputerSet extends ComputerSetExt {
             if(src==null) {
                 rsp.setStatus(SC_BAD_REQUEST);
                 if(UtilExt.fixEmpty(from)==null)
-                    sendError(Messages.ComputerSet_SpecifySlaveToCopy(),req,rsp);
+                    StaplerUtils.sendError(this, Messages.ComputerSet_SpecifySlaveToCopy(),req,rsp);
                 else
-                    sendError(Messages.ComputerSet_NoSuchSlave(from),req,rsp);
+                    StaplerUtils.sendError(this, Messages.ComputerSet_NoSuchSlave(from),req,rsp);
                 return;
             }
 
@@ -200,7 +205,7 @@ public final class ComputerSet extends ComputerSetExt {
         BulkChange bc = new BulkChange(MONITORS_OWNER);
         try {
             HudsonExt.getInstance().checkPermission(HudsonExt.ADMINISTER);
-            monitors.rebuild(req,req.getSubmittedForm(),getNodeMonitorDescriptors());
+            monitors.rebuild(req, req.getSubmittedForm(), getNodeMonitorDescriptors());
 
             // add in the rest of instances are ignored instances
             for (DescriptorExt<NodeMonitorExt> d : NodeMonitorExt.all())

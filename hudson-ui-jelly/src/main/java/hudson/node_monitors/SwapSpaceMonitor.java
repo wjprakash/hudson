@@ -24,7 +24,7 @@
 package hudson.node_monitors;
 
 import hudson.Extension;
-import hudson.Util;
+import hudson.StaplerUtils;
 import hudson.model.ComputerExt;
 import hudson.util.jna.NativeSystemMemory;
 import net.sf.json.JSONObject;
@@ -58,7 +58,7 @@ public class SwapSpaceMonitor extends SwapSpaceMonitorExt {
             return free + "MB"; // if we have more than 256MB free or less than 80% filled up, it's OK
         }
         // Otherwise considered dangerously low.
-        return Util.wrapToErrorSpan(free + "MB");
+        return StaplerUtils.wrapToErrorSpan(free + "MB");
     }
     @Extension
     public static final AbstractNodeMonitorDescriptor<NativeSystemMemory> DESCRIPTOR = new AbstractNodeMonitorDescriptor<NativeSystemMemory>() {

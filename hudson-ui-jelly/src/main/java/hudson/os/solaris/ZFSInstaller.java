@@ -23,6 +23,7 @@
  */
 package hudson.os.solaris;
 
+import hudson.StaplerUtils;
 import hudson.model.HudsonExt;
 import hudson.util.HudsonIsRestarting;
 import hudson.util.StreamTaskListener;
@@ -56,7 +57,7 @@ public class ZFSInstaller extends ZFSInstallerExt {
      * Called from the management screen.
      */
     public HttpResponse doAct(StaplerRequest req) throws ServletException, IOException {
-        requirePOST();
+        StaplerUtils.requirePOST();
         HudsonExt.getInstance().checkPermission(HudsonExt.ADMINISTER);
 
         if(req.hasParameter("n")) {
@@ -73,7 +74,7 @@ public class ZFSInstaller extends ZFSInstallerExt {
      * Called from the confirmation screen to actually initiate the migration.
      */
     public void doStart(StaplerRequest req, StaplerResponse rsp, @QueryParameter String username, @QueryParameter String password) throws ServletException, IOException {
-        requirePOST(); 
+        StaplerUtils.requirePOST(); 
         HudsonExt hudson = HudsonExt.getInstance();
         hudson.checkPermission(HudsonExt.ADMINISTER);
 
@@ -97,7 +98,7 @@ public class ZFSInstaller extends ZFSInstallerExt {
 
             // for other kinds of problems, report and bail out
             req.setAttribute("pre",true);
-            sendError(log.toString(),req,rsp);
+            StaplerUtils.sendError(this, log.toString(),req,rsp);
             return;
         }
 

@@ -23,7 +23,7 @@
  */
 package hudson;
 
-import hudson.model.DescriptorExt.FormException;
+import hudson.model.Descriptor.FormException;
 import java.io.IOException;
 import java.net.URL;
 import javax.servlet.ServletException;

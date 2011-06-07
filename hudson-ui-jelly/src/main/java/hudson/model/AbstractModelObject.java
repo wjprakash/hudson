@@ -33,46 +33,6 @@ import org.kohsuke.stapler.StaplerResponse;
  *
  * @author Winston Prakash
  */
-public abstract class AbstractModelObject extends AbstractModelObjectExt{
-     /**
-     * Displays the error in a page.
-     */
-    protected final void sendError(Exception e, StaplerRequest req, StaplerResponse rsp) throws ServletException, IOException {
-        sendError(e.getMessage(),req,rsp);
-    }
+public abstract class AbstractModelObject extends AbstractModelObjectExt {
 
-    protected final void sendError(Exception e) throws ServletException, IOException {
-        sendError(e,Stapler.getCurrentRequest(),Stapler.getCurrentResponse());
-    }
-
-    protected final void sendError(String message, StaplerRequest req, StaplerResponse rsp) throws ServletException, IOException {
-        req.setAttribute("message",message);
-        rsp.forward(this,"error",req);
-    }
-
-    /**
-     * @param pre
-     *      If true, the message is put in a PRE tag.
-     */
-    protected final void sendError(String message, StaplerRequest req, StaplerResponse rsp, boolean pre) throws ServletException, IOException {
-        req.setAttribute("message",message);
-        if(pre)
-            req.setAttribute("pre",true);
-        rsp.forward(this,"error",req);
-    }
-
-    protected final void sendError(String message) throws ServletException, IOException {
-        sendError(message,Stapler.getCurrentRequest(),Stapler.getCurrentResponse());
-    }
-
-    /**
-     * Convenience method to verify that the current request is a POST request.
-     */
-    protected final void requirePOST() throws ServletException {
-        StaplerRequest req = Stapler.getCurrentRequest();
-        if (req==null)  return; // invoked outside the context of servlet
-        String method = req.getMethod();
-        if(!method.equalsIgnoreCase("POST"))
-            throw new ServletException("Must be POST, Can't be "+method);
-    }
 }

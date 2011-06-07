@@ -27,27 +27,10 @@ import static hudson.model.HudsonExt.checkGoodName;
 import hudson.DescriptorExtensionListExt;
 import hudson.Extension;
 import hudson.ExtensionPoint;
+import hudson.StaplerUtils;
 import hudson.UtilExt;
-import hudson.model.AbstractBuildExt;
-import hudson.model.AbstractModelObjectExt;
-import hudson.model.AbstractProjectExt;
-import hudson.model.Action;
-import hudson.model.BuildTimelineWidgetExt;
-import hudson.model.ComputerExt;
-import hudson.model.Describable;
-import hudson.model.DescriptorExt.FormException;
-import hudson.model.FailureExt;
-import hudson.model.HudsonExt;
-import hudson.model.ItemExt;
-import hudson.model.JobExt;
-import hudson.model.LabelExt;
-import hudson.model.Messages;
-import hudson.model.NodeExt;
+import hudson.model.Descriptor.FormException;
 import hudson.model.NodeExt.ModeExt;
-import hudson.model.QueueExt;
-import hudson.model.RunExt;
-import hudson.model.TopLevelItem;
-import hudson.model.UserExt;
 import hudson.scm.ChangeLogSetExt.Entry;
 import hudson.search.CollectionSearchIndex;
 import hudson.search.SearchIndexBuilder;
@@ -60,7 +43,6 @@ import hudson.util.RunListExt;
 import hudson.widgets.Widget;
 
 import java.io.IOException;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -242,14 +224,14 @@ public abstract class View extends AbstractModelObjectExt implements AccessContr
      * For now, this just returns the widgets registered to HudsonExt.
      */
     public List<Widget> getWidgets() {
-        return Collections.unmodifiableList(HudsonExt.getInstance().getWidgets());
+        return Collections.unmodifiableList(Hudson.getInstance().getWidgets());
     }
 
     /**
      * If true, this is a view that renders the top page of HudsonExt.
      */
     public boolean isDefault() {
-        return HudsonExt.getInstance().getPrimaryView()==this;
+        return Hudson.getInstance().getPrimaryView()==this;
     }
     
     public List<ComputerExt> getComputers() {
@@ -378,7 +360,7 @@ public abstract class View extends AbstractModelObjectExt implements AccessContr
      * Returns the {@link ACL} for this object.
      */
     public ACL getACL() {
-        return HudsonExt.getInstance().getAuthorizationStrategy().getACL(this);
+        return Hudson.getInstance().getAuthorizationStrategy().getACL(this);
     }
 
     public void checkPermission(Permission p) {
@@ -614,7 +596,7 @@ public abstract class View extends AbstractModelObjectExt implements AccessContr
      * Deletes this view.
      */
     public synchronized void doDoDelete(StaplerRequest req, StaplerResponse rsp) throws IOException, ServletException {
-        requirePOST();
+        StaplerUtils.requirePOST();
         checkPermission(DELETE);
 
         owner.deleteView(this);
@@ -653,7 +635,7 @@ public abstract class View extends AbstractModelObjectExt implements AccessContr
 
     private void rss(StaplerRequest req, StaplerResponse rsp, String suffix, RunListExt runs) throws IOException, ServletException {
         RSS.forwardToRss(getDisplayName()+ suffix, getUrl(),
-            runs.newBuilds(), RunExt.FEED_ADAPTER, req, rsp );
+            runs.newBuilds(), Run.FEED_ADAPTER, req, rsp );
     }
 
     public void doRssLatest( StaplerRequest req, StaplerResponse rsp ) throws IOException, ServletException {
@@ -665,8 +647,8 @@ public abstract class View extends AbstractModelObjectExt implements AccessContr
                 if(lb!=null)    lastBuilds.add(lb);
             }
         }
-        RSS.forwardToRss(getDisplayName()+" last builds only", getUrl(),
-            lastBuilds, RunExt.FEED_ADAPTER_LATEST, req, rsp );
+        RSS.forwardToRss(getDisplayName() + " last builds only", getUrl(),
+            lastBuilds, Run.FEED_ADAPTER_LATEST, req, rsp );
     }
 
     /**

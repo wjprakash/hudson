@@ -27,7 +27,7 @@ package hudson.tasks;
 import hudson.Extension;
 import hudson.Functions;
 import hudson.FunctionsExt;
-import hudson.Util;
+import hudson.StaplerUtils;
 import hudson.UtilExt;
 
 import hudson.model.Descriptor.FormException;
@@ -127,7 +127,7 @@ public class Mailer extends MailerExt {
 
         public FormValidation doCheckSmtpServer(@QueryParameter String value) {
             try {
-                if (Util.fixEmptyAndTrim(value) != null) {
+                if (UtilExt.fixEmptyAndTrim(value) != null) {
                     InetAddress.getByName(value);
                 }
                 return FormValidation.ok();
@@ -141,7 +141,7 @@ public class Mailer extends MailerExt {
         }
 
         public FormValidation doCheckDefaultSuffix(@QueryParameter String value) {
-            if (value.matches("@[A-Za-z0-9.\\-]+") || Util.fixEmptyAndTrim(value) == null) {
+            if (value.matches("@[A-Za-z0-9.\\-]+") || UtilExt.fixEmptyAndTrim(value) == null) {
                 return FormValidation.ok();
             } else {
                 return FormValidation.error(Messages.Mailer_Suffix_Error());

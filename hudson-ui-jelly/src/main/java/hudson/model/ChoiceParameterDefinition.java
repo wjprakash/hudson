@@ -3,15 +3,10 @@ package hudson.model;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.export.Exported;
-import org.apache.commons.lang.StringUtils;
 import net.sf.json.JSONObject;
 import hudson.Extension;
-import hudson.cli.CLICommand;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Arrays;
-import java.io.IOException;
 
 /**
  * @author huybrechts

@@ -68,7 +68,7 @@ public class AllView extends View {
     }
 
     @Override
-    public Item doCreateItem(StaplerRequest req, StaplerResponse rsp)
+    public ItemExt doCreateItem(StaplerRequest req, StaplerResponse rsp)
             throws IOException, ServletException {
         return Hudson.getInstance().doCreateItem(req, rsp);
     }
@@ -92,7 +92,7 @@ public class AllView extends View {
     }
 
     @Override
-    public void onJobRenamed(Item item, String oldName, String newName) {
+    public void onJobRenamed(ItemExt item, String oldName, String newName) {
         // noop
     }
 
@@ -106,7 +106,7 @@ public class AllView extends View {
         @Override
         public boolean isInstantiable() {
             for (View v : Stapler.getCurrentRequest().findAncestorObject(ViewGroup.class).getViews())
-                if(v instanceof AllViewExt)
+                if(v instanceof AllView)
                     return false;
             return true;
         }

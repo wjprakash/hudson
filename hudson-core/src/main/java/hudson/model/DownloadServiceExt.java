@@ -27,6 +27,7 @@ import hudson.ExtensionList;
 import hudson.ExtensionPoint;
 import hudson.util.TextFile;
 import hudson.util.TimeUnit2;
+import hudson.util.QuotedStringTokenizer;
 
 import java.io.File;
 import java.io.IOException;
@@ -49,17 +50,18 @@ public class DownloadServiceExt extends PageDecorator {
     public DownloadServiceExt() {
         super(DownloadServiceExt.class);
     }
-
+    
     /**
      * Gets {@link DownloadableExt} by its ID.
      * Used to bind them to URL.
      */
-//    public DownloadableExt getById(String id) {
-//        for (DownloadableExt d : DownloadableExt.all())
-//            if(d.getId().equals(id))
-//                return d;
-//        return null;
-//    }
+    public DownloadableExt getById(String id) {
+        for (DownloadableExt d : DownloadableExt.all())
+            if(d.getId().equals(id))
+                return d;
+        return null;
+    }
+   
 
     /**
      * Represents a periodically updated JSON data file obtained from a remote URL.

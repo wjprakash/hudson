@@ -23,33 +23,17 @@
  */
 package hudson.model;
 
-import hudson.FilePathExt;
-import hudson.Launcher;
 import hudson.UtilExt;
-import hudson.Launcher.RemoteLauncher;
-import hudson.diagnosis.OldDataMonitorExt;
 import hudson.model.Descriptor.FormException;
-import hudson.remoting.Callable;
-import hudson.remoting.VirtualChannel;
-import hudson.slaves.CommandLauncherExt;
 import hudson.slaves.ComputerLauncher;
-import hudson.slaves.DumbSlaveExt;
-import hudson.slaves.JNLPLauncherExt;
+import hudson.slaves.DumbSlave;
 import hudson.slaves.NodeDescriptorExt;
 import hudson.slaves.NodeProperty;
-import hudson.slaves.NodePropertyDescriptor;
 import hudson.slaves.RetentionStrategyExt;
-import hudson.slaves.SlaveComputerExt;
-import hudson.util.ClockDifferenceExt;
-import hudson.util.DescribableListExt;
 import hudson.util.FormValidation;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.Serializable;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
@@ -57,7 +41,6 @@ import java.util.Set;
 
 import javax.servlet.ServletException;
 
-import org.apache.commons.io.IOUtils;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.HttpResponse;
 import org.kohsuke.stapler.QueryParameter;
