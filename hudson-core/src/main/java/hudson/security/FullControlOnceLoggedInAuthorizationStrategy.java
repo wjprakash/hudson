@@ -24,13 +24,15 @@
 package hudson.security;
 
 import hudson.Extension;
-import hudson.model.Descriptor;
-import hudson.model.Descriptor.FormException;
+import hudson.model.DescriptorExt;
+import hudson.model.HudsonExt;
 
-
+import java.util.Collections;
+import java.util.List;
+import javax.servlet.ServletRequest;
 import net.sf.json.JSONObject;
 
-import org.kohsuke.stapler.StaplerRequest;
+
 
 /**
  * {@link AuthorizationStrategy} that grants full-control to authenticated user
@@ -38,17 +40,33 @@ import org.kohsuke.stapler.StaplerRequest;
  *
  * @author Kohsuke Kawaguchi
  */
-public class FullControlOnceLoggedInAuthorizationStrategy extends FullControlOnceLoggedInAuthorizationStrategyExt {
+public class FullControlOnceLoggedInAuthorizationStrategy extends AuthorizationStrategyExt {
+    @Override
+    public ACL getRootACL() {
+        return THE_ACL;
+    }
 
+    public List<String> getGroups() {
+        return Collections.emptyList();
+    }
+
+    private static final SparseACL THE_ACL = new SparseACL(null);
+
+    static {
+        THE_ACL.add(ACL.EVERYONE,HudsonExt.ADMINISTER,true);
+        THE_ACL.add(ACL.ANONYMOUS,HudsonExt.ADMINISTER,false);
+        THE_ACL.add(ACL.ANONYMOUS,Permission.READ,true);
+    }
+    
     @Extension
-    public static final Descriptor<AuthorizationStrategyExt> DESCRIPTOR = new Descriptor<AuthorizationStrategyExt>() {
+    public static final DescriptorExt<AuthorizationStrategyExt> DESCRIPTOR = new DescriptorExt<AuthorizationStrategyExt>() {
         @Override
         public String getDisplayName() {
             return Messages.FullControlOnceLoggedInAuthorizationStrategy_DisplayName();
         }
 
         @Override
-        public AuthorizationStrategyExt newInstance(StaplerRequest req, JSONObject formData) throws FormException {
+        public AuthorizationStrategyExt newInstance(ServletRequest req, JSONObject formData) {
             return new FullControlOnceLoggedInAuthorizationStrategy();
         }
 

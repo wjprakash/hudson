@@ -42,7 +42,7 @@ import java.util.Locale;
  *
  * @author Kohsuke Kawaguchi
  */
-/*package*/ abstract class DiskSpaceMonitorDescriptorExt extends AbstractNodeMonitorDescriptorExt<DiskSpace> {
+/*package*/ abstract class DiskSpaceMonitorDescriptorExt extends AbstractNodeMonitorDescriptor<DiskSpace> {
 
     /**
      * Value object that represents the disk space.

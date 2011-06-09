@@ -37,7 +37,6 @@ import java.io.IOException;
 
 import static hudson.model.queue.Executables.*;
 
-
 /**
  * Thread that executes builds.
  *
@@ -45,12 +44,10 @@ import static hudson.model.queue.Executables.*;
  */
 @ExportedBean
 public class Executor extends ExecutorExt {
-     
-    public Executor(ComputerExt owner, int n) {
-       super(owner, n);
-    }
 
-     
+    public Executor(ComputerExt owner, int n) {
+        super(owner, n);
+    }
 
     /**
      * Returns the current {@link Queue.Task} this executor is running.
@@ -121,17 +118,17 @@ public class Executor extends ExecutorExt {
     @Exported
     @Override
     public boolean isLikelyStuck() {
-         return super.isLikelyStuck();
+        return super.isLikelyStuck();
     }
 
     /**
      * Stops the current build.
      */
-    public void doStop( StaplerRequest req, StaplerResponse rsp ) throws IOException, ServletException {
-        QueueExt.Executable e = executable;
-        if(e!=null) {
+    public static void doStop(ExecutorExt executor, StaplerRequest req, StaplerResponse rsp) throws IOException, ServletException {
+        QueueExt.Executable e = executor.executable;
+        if (e != null) {
             Tasks.getOwnerTaskOf(getParentOf(e)).checkAbortPermission();
-            interrupt();
+            executor.interrupt();
         }
         rsp.forwardToPreviousPage(req);
     }
@@ -141,8 +138,9 @@ public class Executor extends ExecutorExt {
      */
     public HttpResponse doYank() {
         HudsonExt.getInstance().checkPermission(HudsonExt.ADMINISTER);
-        if (isAlive())
+        if (isAlive()) {
             throw new FailureExt("Can't yank a live executor");
+        }
         owner.removeExecutor(this);
         return HttpResponses.redirectViaContextPath("/");
     }
@@ -153,5 +151,4 @@ public class Executor extends ExecutorExt {
     public Api getApi() {
         return new Api(this);
     }
-
 }

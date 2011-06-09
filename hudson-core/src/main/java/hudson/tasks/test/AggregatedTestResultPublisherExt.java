@@ -35,8 +35,10 @@ import hudson.model.ResultExt;
 import hudson.model.RunExt;
 import hudson.model.TaskListener;
 import hudson.model.listeners.RunListener;
+import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.BuildStepMonitor;
 import hudson.tasks.FingerprinterExt.FingerprintAction;
+import hudson.tasks.Publisher;
 import hudson.tasks.Recorder;
 
 import java.io.IOException;
@@ -44,6 +46,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import javax.servlet.ServletRequest;
+import net.sf.json.JSONObject;
 
 /**
  * Aggregates downstream test reports into a single consolidated report,
@@ -274,6 +278,35 @@ public class AggregatedTestResultPublisherExt extends Recorder {
             @Override
             public void onCompleted(RunExt run, TaskListener listener) {
                 lastChanged = System.currentTimeMillis();
+            }
+        }
+    }
+
+    @Extension
+    public static final class DescriptorImpl extends BuildStepDescriptor<Publisher> {
+
+        @Override
+        public boolean isApplicable(Class<? extends AbstractProjectExt> jobType) {
+            return true;    // for all types
+        }
+
+        @Override
+        public String getDisplayName() {
+            return Messages.AggregatedTestResultPublisher_DisplayName();
+        }
+
+        @Override
+        public String getHelpFile() {
+            return "/help/tasks/aggregate-test/help.html";
+        }
+
+        @Override
+        public AggregatedTestResultPublisherExt newInstance(ServletRequest req, JSONObject formData) {
+            JSONObject s = formData.getJSONObject("specify");
+            if (s.isNullObject()) {
+                return new AggregatedTestResultPublisherExt(null);
+            } else {
+                return new AggregatedTestResultPublisherExt(s.getString("jobs"));
             }
         }
     }

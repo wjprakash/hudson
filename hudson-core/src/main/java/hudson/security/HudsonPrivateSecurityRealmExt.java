@@ -34,7 +34,9 @@ import org.acegisecurity.userdetails.User;
 import hudson.security.captcha.CaptchaSupport;
 import com.thoughtworks.xstream.converters.UnmarshallingContext;
 import hudson.Extension;
+import hudson.UtilExt;
 import hudson.diagnosis.OldDataMonitorExt;
+import hudson.model.UserPropertyDescriptor;
 import hudson.security.FederatedLoginService.FederatedIdentity;
 import hudson.util.PluginServletFilter;
 import hudson.util.Protector;
@@ -57,6 +59,7 @@ import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import net.sf.json.JSONObject;
 
 
 /**
@@ -128,7 +131,7 @@ public class HudsonPrivateSecurityRealmExt extends AbstractPasswordBasedSecurity
      */
     protected static boolean hasSomeUser() {
         for (UserExt u : UserExt.getAll())
-            if(u.getProperty(Details.class)!=null)
+            if(u.getProperty(DetailsExt.class)!=null)
                 return true;
         return false;
     }
@@ -142,9 +145,9 @@ public class HudsonPrivateSecurityRealmExt extends AbstractPasswordBasedSecurity
     }
 
     @Override
-    public Details loadUserByUsername(String username) throws UsernameNotFoundException, DataAccessException {
+    public DetailsExt loadUserByUsername(String username) throws UsernameNotFoundException, DataAccessException {
         UserExt u = UserExt.get(username,false);
-        Details p = u!=null ? u.getProperty(Details.class) : null;
+        DetailsExt p = u!=null ? u.getProperty(DetailsExt.class) : null;
         if(p==null)
             throw new UsernameNotFoundException("Password is not set: "+username);
         if(p.getUser()==null)
@@ -153,8 +156,8 @@ public class HudsonPrivateSecurityRealmExt extends AbstractPasswordBasedSecurity
     }
 
     @Override
-    protected Details authenticate(String username, String password) throws AuthenticationException {
-        Details u = loadUserByUsername(username);
+    protected DetailsExt authenticate(String username, String password) throws AuthenticationException {
+        DetailsExt u = loadUserByUsername(username);
         if (!PASSWORD_ENCODER.isPasswordValid(u.getPassword(),password,null))
             throw new BadCredentialsException("Failed to login as "+username);
         return u;
@@ -181,7 +184,7 @@ public class HudsonPrivateSecurityRealmExt extends AbstractPasswordBasedSecurity
      */
     public UserExt createAccount(String userName, String password) throws IOException {
         UserExt user = UserExt.get(userName);
-        user.addProperty(Details.fromPlainPassword(password));
+        user.addProperty(DetailsExt.fromPlainPassword(password));
         return user;
     }
 
@@ -211,7 +214,7 @@ public class HudsonPrivateSecurityRealmExt extends AbstractPasswordBasedSecurity
     public List<UserExt> getAllUsers() {
         List<UserExt> r = new ArrayList<UserExt>();
         for (UserExt u : UserExt.getAll()) {
-            if(u.getProperty(Details.class)!=null)
+            if(u.getProperty(DetailsExt.class)!=null)
                 r.add(u);
         }
         Collections.sort(r);
@@ -259,7 +262,7 @@ public class HudsonPrivateSecurityRealmExt extends AbstractPasswordBasedSecurity
      * is sent to the hidden input field by using {@link Protector}, so that
      * the same password can be retained but without leaking information to the browser.
      */
-    public static class Details extends UserPropertyExt implements InvalidatableUserDetails {
+    public static class DetailsExt extends UserPropertyExt implements InvalidatableUserDetails {
         /**
          * Hashed password.
          */
@@ -272,16 +275,16 @@ public class HudsonPrivateSecurityRealmExt extends AbstractPasswordBasedSecurity
          */
         private transient String password;
 
-        protected Details(String passwordHash) {
+        protected DetailsExt(String passwordHash) {
             this.passwordHash = passwordHash;
         }
 
-        static Details fromHashedPassword(String hashed) {
-            return new Details(hashed);
+        static DetailsExt fromHashedPassword(String hashed) {
+            return new DetailsExt(hashed);
         }
 
-        static Details fromPlainPassword(String rawPassword) {
-            return new Details(PASSWORD_ENCODER.encodePassword(rawPassword,null));
+        static DetailsExt fromPlainPassword(String rawPassword) {
+            return new DetailsExt(PASSWORD_ENCODER.encodePassword(rawPassword,null));
         }
 
         public GrantedAuthority[] getAuthorities() {
@@ -331,10 +334,29 @@ public class HudsonPrivateSecurityRealmExt extends AbstractPasswordBasedSecurity
         public boolean isInvalid() {
             return user==null;
         }
+        
+        @Extension
+        public static class DescriptorImplExt extends UserPropertyDescriptor {
 
-        public static class ConverterImpl extends XStream2.PassthruConverter<Details> {
+            public String getDisplayName() {
+                // this feature is only when HudsonPrivateSecurityRealm is enabled
+                if (isEnabled()) {
+                    return Messages.HudsonPrivateSecurityRealm_Details_DisplayName();
+                } else {
+                    return null;
+                }
+            }
+
+             
+
+            public UserPropertyExt newInstance(UserExt user) {
+                return null;
+            }
+        }
+
+        public static class ConverterImpl extends XStream2.PassthruConverter<DetailsExt> {
             public ConverterImpl(XStream2 xstream) { super(xstream); }
-            @Override protected void callback(Details d, UnmarshallingContext context) {
+            @Override protected void callback(DetailsExt d, UnmarshallingContext context) {
                 // Convert to hashed password and report to monitor if we load old data
                 if (d.password!=null && d.passwordHash==null) {
                     d.passwordHash = PASSWORD_ENCODER.encodePassword(Scrambler.descramble(d.password),null);

@@ -23,27 +23,16 @@
  */
 package hudson.security;
 
-import hudson.model.DescriptorExt;
 import hudson.model.HudsonExt;
 import hudson.util.FormValidation;
 import hudson.util.FormValidation.Kind;
 import hudson.FunctionsExt;
-import hudson.Extension;
-import hudson.model.Descriptor;
-import hudson.model.Descriptor.FormException;
-import net.sf.json.JSONObject;
 import org.acegisecurity.userdetails.UsernameNotFoundException;
 import org.kohsuke.stapler.Stapler;
-import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.QueryParameter;
 import org.springframework.dao.DataAccessException;
 
 import javax.servlet.ServletException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
 import java.io.IOException;
 
 /**
@@ -54,49 +43,14 @@ import java.io.IOException;
 // TODO: think about the concurrency commitment of this class
 public class GlobalMatrixAuthorizationStrategy extends GlobalMatrixAuthorizationStrategyExt {
 
-    @Extension
-    public static final DescriptorImpl DESCRIPTOR = new DescriptorImpl();
-
-    public static class DescriptorImpl extends Descriptor<AuthorizationStrategyExt> {
+     
+    public static class DescriptorImpl extends DescriptorImplExt {
         protected DescriptorImpl(Class<? extends GlobalMatrixAuthorizationStrategy> clazz) {
             super(clazz);
         }
 
         public DescriptorImpl() {
             super();
-        }
-
-        public String getDisplayName() {
-            return Messages.GlobalMatrixAuthorizationStrategy_DisplayName();
-        }
-
-        @Override
-        public AuthorizationStrategyExt newInstance(StaplerRequest req, JSONObject formData) throws FormException {
-            GlobalMatrixAuthorizationStrategy gmas = create();
-            for(Map.Entry<String,JSONObject> r : (Set<Map.Entry<String,JSONObject>>)formData.getJSONObject("data").entrySet()) {
-                String sid = r.getKey();
-                for(Map.Entry<String,Boolean> e : (Set<Map.Entry<String,Boolean>>)r.getValue().entrySet()) {
-                    if(e.getValue()) {
-                        Permission p = Permission.fromId(e.getKey());
-                        gmas.add(p,sid);
-                    }
-                }
-            }
-            return gmas;
-        }
-
-        protected GlobalMatrixAuthorizationStrategy create() {
-            return new GlobalMatrixAuthorizationStrategy();
-        }
-
-        public List<PermissionGroup> getAllGroups() {
-            List<PermissionGroup> groups = new ArrayList<PermissionGroup>(PermissionGroup.getAll());
-            groups.remove(PermissionGroup.get(Permission.class));
-            return groups;
-        }
-
-        public boolean showPermission(Permission p) {
-            return p.getEnabled();
         }
 
         public FormValidation doCheckName(@QueryParameter String value ) throws IOException, ServletException {

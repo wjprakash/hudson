@@ -34,7 +34,7 @@ import org.kohsuke.stapler.Stapler;
  *
  * @author Winston Prakash
  */
-public class DescriptorExtensionList<T extends Describable<T>, D extends Descriptor<T>> extends DescriptorExtensionListExt {
+public class DescriptorExtensionList<T extends Describable<T>, D extends Descriptor<T>> extends DescriptorExtensionListExt<T, D> {
 
     protected DescriptorExtensionList(HudsonExt hudson, Class<T> describableType) {
         super(hudson, describableType);
@@ -49,7 +49,7 @@ public class DescriptorExtensionList<T extends Describable<T>, D extends Descrip
         if(config.isNullObject())
             return null;    // none was selected
         int idx = config.getInt("value");
-        return get(idx).newInstance(Stapler.getCurrentRequest(),config);
+        return get(idx).newInstance(Stapler.getCurrentRequest(), config);
     }
 
     public T newInstanceFromRadioList(JSONObject parent, String name) throws FormException {

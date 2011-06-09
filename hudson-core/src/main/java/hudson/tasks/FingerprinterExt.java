@@ -24,6 +24,7 @@
 package hudson.tasks;
 
 import com.google.common.collect.ImmutableMap;
+import hudson.Extension;
 import hudson.FilePathExt;
 import hudson.FilePathExt.FileCallable;
 import hudson.Launcher;
@@ -57,6 +58,7 @@ import java.util.Map.Entry;
 import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import net.sf.json.JSONObject;
 
 /**
  * Records fingerprints of the specified files.
@@ -192,6 +194,22 @@ public class FingerprinterExt extends Recorder implements Serializable {
             }
             fp.add(build);
             record.put(r.relativePath,fp.getHashString());
+        }
+    }
+    
+    @Extension
+    public static class DescriptorImplExt extends BuildStepDescriptor<Publisher> {
+        public String getDisplayName() {
+            return Messages.Fingerprinter_DisplayName();
+        }
+
+        @Override
+        public String getHelpFile() {
+            return "/help/project-config/fingerprint.html";
+        }
+
+        public boolean isApplicable(Class<? extends AbstractProjectExt> jobType) {
+            return true;
         }
     }
 

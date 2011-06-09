@@ -26,7 +26,7 @@ package hudson.model;
 import hudson.PluginWrapperExt;
 import hudson.UtilExt;
 import hudson.Extension;
-import hudson.node_monitors.ArchitectureMonitorExt.DescriptorImpl;
+import hudson.node_monitors.ArchitectureMonitor.DescriptorImpl;
 import hudson.util.SecretExt;
 import static hudson.util.TimeUnit2.DAYS;
 import net.sf.json.JSONObject;

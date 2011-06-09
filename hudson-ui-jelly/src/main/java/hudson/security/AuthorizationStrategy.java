@@ -75,25 +75,4 @@ public abstract class AuthorizationStrategy extends AuthorizationStrategyExt {
         return item.getOwner().getACL();
     }
     
-    public static final class Unsecured extends AuthorizationStrategyExt.Unsecured {
-
-        @Extension
-        public static final class DescriptorImpl extends Descriptor<AuthorizationStrategyExt> {
-
-            @Override
-            public String getDisplayName() {
-                return Messages.AuthorizationStrategy_DisplayName();
-            }
-
-            @Override
-            public AuthorizationStrategyExt newInstance(StaplerRequest req, JSONObject formData) throws FormException {
-                return UNSECURED;
-            }
-
-            @Override
-            public String getHelpFile() {
-                return "/help/security/no-authorization.html";
-            }
-        }
-    }
 }

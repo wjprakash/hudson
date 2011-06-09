@@ -49,6 +49,9 @@ import java.lang.reflect.Type;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.beans.Introspector;
+import javax.servlet.ServletRequest;
+import javax.swing.text.html.ListView;
+import net.sf.json.JSONObject;
 
 /**
  * Metadata about a configurable instance.
@@ -105,7 +108,6 @@ public abstract class DescriptorExt<T extends Describable<T>> implements Saveabl
         // as field initializers in derived types will override values.
         // load();
     }
-    
     /**
      * Up to HudsonExt 1.61 this was used as the primary persistence mechanism.
      * Going forward HudsonExt simply persists all the non-transient fields
@@ -195,7 +197,6 @@ public abstract class DescriptorExt<T extends Describable<T>> implements Saveabl
             return HudsonExt.getInstance().getDescriptorList(clazz);
         }
     }
-
 
     /**
      * Infers the type of the corresponding {@link Describable} from the outer class.
@@ -315,6 +316,27 @@ public abstract class DescriptorExt<T extends Describable<T>> implements Saveabl
      */
     public final String getJsonSafeClassName() {
         return getId().replace('.', '-');
+    }
+
+    /**
+     * Creates a instance  
+     *
+     */
+    public T newInstance(ServletRequest req, JSONObject formData) {
+        try {
+            Method m = getClass().getMethod("newInstance", ServletRequest.class);
+
+            return verifyNewInstance(clazz.newInstance());
+
+        } catch (NoSuchMethodException e) {
+            throw new AssertionError(e); // impossible
+        } catch (InstantiationException e) {
+            throw new Error("Failed to instantiate " + clazz + " from " + formData, e);
+        } catch (IllegalAccessException e) {
+            throw new Error("Failed to instantiate " + clazz + " from " + formData, e);
+        } catch (RuntimeException e) {
+            throw new RuntimeException("Failed to instantiate " + clazz + " from " + formData, e);
+        }
     }
 
     /**

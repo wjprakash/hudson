@@ -44,7 +44,7 @@ import java.util.logging.Logger;
  */
 public class ResponseTimeMonitorExt extends NodeMonitorExt {
     @Extension
-    public static final AbstractNodeMonitorDescriptorExt<Data> DESCRIPTOR = new AbstractNodeMonitorDescriptorExt<Data>() {
+    public static final AbstractNodeMonitorDescriptor<Data> DESCRIPTOR = new AbstractNodeMonitorDescriptor<Data>() {
         protected Data monitor(ComputerExt c) throws IOException, InterruptedException {
             Data old = get(c);
             Data d;

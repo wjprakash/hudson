@@ -24,29 +24,19 @@
 package hudson.security;
 
 import hudson.model.AbstractProjectExt;
-import hudson.model.ItemExt;
 import hudson.model.JobExt;
 import hudson.model.JobPropertyExt;
-import hudson.model.HudsonExt;
-import hudson.model.RunExt;
 import hudson.Extension;
 import hudson.util.FormValidation;
 
-import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Map.Entry;
 import java.io.IOException;
 
-import net.sf.json.JSONObject;
 
-import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.AncestorInPath;
 
-import hudson.model.Descriptor.FormException;
-import hudson.model.JobPropertyDescriptor;
 
 import javax.servlet.ServletException;
 
@@ -61,51 +51,9 @@ public class AuthorizationMatrixProperty extends AuthorizationMatrixPropertyExt 
     public AuthorizationMatrixProperty(Map<Permission, Set<String>> grantedPermissions) {
         super(grantedPermissions);
     }
-
      
     @Extension
-    public static class DescriptorImpl extends JobPropertyDescriptor {
-
-        @Override
-        public JobPropertyExt<?> newInstance(StaplerRequest req, JSONObject formData) throws FormException {
-            formData = formData.getJSONObject("useProjectSecurity");
-            if (formData.isNullObject()) {
-                return null;
-            }
-
-            AuthorizationMatrixPropertyExt amp = new AuthorizationMatrixPropertyExt();
-            for (Map.Entry<String, Object> r : (Set<Map.Entry<String, Object>>) formData.getJSONObject("data").entrySet()) {
-                String sid = r.getKey();
-                if (r.getValue() instanceof JSONObject) {
-                    for (Map.Entry<String, Boolean> e : (Set<Map.Entry<String, Boolean>>) ((JSONObject) r.getValue()).entrySet()) {
-                        if (e.getValue()) {
-                            Permission p = Permission.fromId(e.getKey());
-                            amp.add(p, sid);
-                        }
-                    }
-                }
-            }
-            return amp;
-        }
-
-        @Override
-        public boolean isApplicable(Class<? extends JobExt> jobType) {
-            // only applicable when ProjectMatrixAuthorizationStrategy is in charge
-            return HudsonExt.getInstance().getAuthorizationStrategy() instanceof ProjectMatrixAuthorizationStrategyExt;
-        }
-
-        @Override
-        public String getDisplayName() {
-            return "Authorization Matrix";
-        }
-
-        public List<PermissionGroup> getAllGroups() {
-            return Arrays.asList(PermissionGroup.get(ItemExt.class), PermissionGroup.get(RunExt.class));
-        }
-
-        public boolean showPermission(Permission p) {
-            return p.getEnabled() && p != ItemExt.CREATE;
-        }
+    public static class DescriptorImpl extends DescriptorImplExt {
 
         public FormValidation doCheckName(@AncestorInPath JobExt project, @QueryParameter String value) throws IOException, ServletException {
             return GlobalMatrixAuthorizationStrategy.DESCRIPTOR.doCheckName(value, project, AbstractProjectExt.CONFIGURE);

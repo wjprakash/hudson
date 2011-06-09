@@ -30,25 +30,18 @@ import hudson.model.AbstractBuildExt;
 import hudson.model.AbstractProjectExt;
 import hudson.model.BuildListener;
 import hudson.model.DependencyGraph;
-import hudson.model.Descriptor.FormException;
 import hudson.model.HudsonExt;
 import hudson.model.ItemExt;
 import hudson.model.Items;
-import hudson.model.ProjectExt;
 import hudson.model.ResultExt;
-import hudson.model.listeners.ItemListener;
 import hudson.util.FormValidation;
-import net.sf.json.JSONObject;
 import org.kohsuke.stapler.DataBoundConstructor;
-import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.AncestorInPath;
 import org.kohsuke.stapler.QueryParameter;
 
-import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 import java.util.StringTokenizer;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -88,32 +81,7 @@ public class BuildTrigger extends BuildTriggerExt {
     }
 
     @Extension
-    public static class DescriptorImpl extends BuildStepDescriptor<Publisher> {
-
-        public String getDisplayName() {
-            return Messages.BuildTrigger_DisplayName();
-        }
-
-        @Override
-        public String getHelpFile() {
-            return "/help/project-config/downstream.html";
-        }
-
-        public Publisher newInstance(StaplerRequest req, JSONObject formData) throws FormException {
-            return new BuildTrigger(
-                    formData.getString("childProjects"),
-                    formData.has("evenIfUnstable") && formData.getBoolean("evenIfUnstable"));
-        }
-
-        @Override
-        public boolean isApplicable(Class<? extends AbstractProjectExt> jobType) {
-            return true;
-        }
-
-        public boolean showEvenIfUnstableOption(Class<? extends AbstractProjectExt> jobType) {
-            // UGLY: for promotion process, this option doesn't make sense. 
-            return !jobType.getName().contains("PromotionProcess");
-        }
+    public static class DescriptorImpl extends DescriptorImplExt {
 
         /**
          * Form validation method.
@@ -137,28 +105,6 @@ public class BuildTrigger extends BuildTriggerExt {
             }
 
             return FormValidation.ok();
-        }
-
-        @Extension
-        public static class ItemListenerImpl extends ItemListener {
-
-            @Override
-            public void onRenamed(ItemExt item, String oldName, String newName) {
-                // update BuildTrigger of other projects that point to this object.
-                // can't we generalize this?
-                for (ProjectExt<?, ?> p : HudsonExt.getInstance().getProjects()) {
-                    BuildTrigger t = p.getPublishersList().get(BuildTrigger.class);
-                    if (t != null) {
-                        if (t.onJobRenamed(oldName, newName)) {
-                            try {
-                                p.save();
-                            } catch (IOException e) {
-                                LOGGER.log(Level.WARNING, "Failed to persist project setting during rename from " + oldName + " to " + newName, e);
-                            }
-                        }
-                    }
-                }
-            }
         }
     }
 }

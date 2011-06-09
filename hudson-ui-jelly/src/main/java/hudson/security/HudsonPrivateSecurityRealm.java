@@ -263,7 +263,7 @@ public class HudsonPrivateSecurityRealm extends HudsonPrivateSecurityRealmExt {
      * is sent to the hidden input field by using {@link Protector}, so that
      * the same password can be retained but without leaking information to the browser.
      */
-    public static final class Details extends HudsonPrivateSecurityRealmExt.Details {
+    public static final class Details extends DetailsExt {
 
         
         private transient String password;
@@ -289,16 +289,7 @@ public class HudsonPrivateSecurityRealm extends HudsonPrivateSecurityRealmExt {
         }
 
         @Extension
-        public static final class DescriptorImpl extends UserPropertyDescriptor {
-
-            public String getDisplayName() {
-                // this feature is only when HudsonPrivateSecurityRealm is enabled
-                if (isEnabled()) {
-                    return Messages.HudsonPrivateSecurityRealm_Details_DisplayName();
-                } else {
-                    return null;
-                }
-            }
+        public static final class DescriptorImpl extends DescriptorImplExt {
 
             public Details newInstance(StaplerRequest req, JSONObject formData) throws FormException {
                 String pwd = UtilExt.fixEmpty(req.getParameter("user.password"));
@@ -318,9 +309,6 @@ public class HudsonPrivateSecurityRealm extends HudsonPrivateSecurityRealmExt {
                 return Details.fromPlainPassword(UtilExt.fixNull(pwd));
             }
 
-            public UserPropertyExt newInstance(UserExt user) {
-                return null;
-            }
         }
     }
 }

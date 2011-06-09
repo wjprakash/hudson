@@ -29,13 +29,12 @@ import groovy.lang.GroovyShell;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import hudson.FilePathExt;
 import hudson.model.HudsonExt;
 import static hudson.init.InitMilestone.JOB_LOADED;
 import hudson.init.Initializer;
-import org.apache.commons.io.FileUtils;
 
 /**
  * Run the initialization script, if it exists.
@@ -43,17 +42,18 @@ import org.apache.commons.io.FileUtils;
  * @author Kohsuke Kawaguchi
  */
 public class GroovyInitScript {
-    @Initializer(after=JOB_LOADED)
+
+    @Initializer(after = JOB_LOADED)
     public static void init(HudsonExt h) throws IOException {
         URL bundledInitScript = h.servletContext.getResource("/WEB-INF/init.groovy");
-        if (bundledInitScript!=null) {
-            LOGGER.info("Executing bundled init script: "+bundledInitScript);
+        if (bundledInitScript != null) {
+            LOGGER.log(Level.INFO, "Executing bundled init script: {0}", bundledInitScript);
             execute(new GroovyCodeSource(bundledInitScript));
         }
 
-        File initScript = new File(h.getRootDir(),"init.groovy");
-        if(initScript.exists()) {
-            LOGGER.info("Executing "+initScript);
+        File initScript = new File(h.getRootDir(), "init.groovy");
+        if (initScript.exists()) {
+            LOGGER.log(Level.INFO, "Executing {0}", initScript);
             execute(new GroovyCodeSource(initScript));
         }
     }
@@ -62,6 +62,5 @@ public class GroovyInitScript {
         GroovyShell shell = new GroovyShell(HudsonExt.getInstance().getPluginManager().uberClassLoader);
         shell.evaluate(initScript);
     }
-
     private static final Logger LOGGER = Logger.getLogger(GroovyInitScript.class.getName());
 }

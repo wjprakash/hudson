@@ -28,7 +28,9 @@ import com.thoughtworks.xstream.converters.MarshallingContext;
 import com.thoughtworks.xstream.converters.UnmarshallingContext;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
+import hudson.Extension;
 import hudson.diagnosis.OldDataMonitorExt;
+import hudson.model.DescriptorExt;
 import hudson.model.HudsonExt;
 import hudson.model.ItemExt;
 import hudson.util.VersionNumber;
@@ -48,6 +50,8 @@ import java.util.logging.Logger;
 import java.util.Collections;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import javax.servlet.ServletRequest;
+import net.sf.json.JSONObject;
 
 /**
  * Role-based authorization via a matrix.
@@ -230,6 +234,52 @@ public class GlobalMatrixAuthorizationStrategyExt extends AuthorizationStrategyE
 
         protected GlobalMatrixAuthorizationStrategyExt create() {
             return new GlobalMatrixAuthorizationStrategyExt();
+        }
+    }
+    @Extension
+    public static final DescriptorImplExt DESCRIPTOR = new DescriptorImplExt();
+
+    public static class DescriptorImplExt extends DescriptorExt<AuthorizationStrategyExt> {
+
+        protected DescriptorImplExt(Class<? extends GlobalMatrixAuthorizationStrategyExt> clazz) {
+            super(clazz);
+        }
+
+        public DescriptorImplExt() {
+            super();
+        }
+
+        public String getDisplayName() {
+            return Messages.GlobalMatrixAuthorizationStrategy_DisplayName();
+        }
+
+        @Override
+        public AuthorizationStrategyExt newInstance(ServletRequest req, JSONObject formData) {
+            GlobalMatrixAuthorizationStrategyExt gmas = create();
+            for (Map.Entry<String, JSONObject> r : (Set<Map.Entry<String, JSONObject>>) formData.getJSONObject("data").entrySet()) {
+                String sid = r.getKey();
+                for (Map.Entry<String, Boolean> e : (Set<Map.Entry<String, Boolean>>) r.getValue().entrySet()) {
+                    if (e.getValue()) {
+                        Permission p = Permission.fromId(e.getKey());
+                        gmas.add(p, sid);
+                    }
+                }
+            }
+            return gmas;
+        }
+
+        protected GlobalMatrixAuthorizationStrategyExt create() {
+            return new GlobalMatrixAuthorizationStrategyExt();
+        }
+
+        public List<PermissionGroup> getAllGroups() {
+            List<PermissionGroup> groups = new ArrayList<PermissionGroup>(PermissionGroup.getAll());
+            groups.remove(PermissionGroup.get(Permission.class));
+            return groups;
+        }
+
+        public boolean showPermission(Permission p) {
+            return p.getEnabled();
         }
     }
 }

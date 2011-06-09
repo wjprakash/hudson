@@ -47,6 +47,13 @@ import com.thoughtworks.xstream.converters.MarshallingContext;
 import com.thoughtworks.xstream.converters.UnmarshallingContext;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
+import hudson.Extension;
+import hudson.model.HudsonExt;
+import hudson.model.ItemExt;
+import hudson.model.JobPropertyDescriptor;
+import hudson.model.RunExt;
+import javax.servlet.ServletRequest;
+import net.sf.json.JSONObject;
 
 /**
  * {@link JobPropertyExt} to associate ACL for each project.
@@ -167,6 +174,51 @@ public class AuthorizationMatrixPropertyExt extends JobPropertyExt<JobExt<?, ?>>
             throw new IllegalArgumentException("Failed to parse '" + shortForm + "' --- no such permission");
         }
         add(p, shortForm.substring(idx + 1));
+    }
+
+    @Extension
+    public static class DescriptorImplExt extends JobPropertyDescriptor {
+
+        @Override
+        public JobPropertyExt<?> newInstance(ServletRequest req, JSONObject formData) {
+            formData = formData.getJSONObject("useProjectSecurity");
+            if (formData.isNullObject()) {
+                return null;
+            }
+
+            AuthorizationMatrixPropertyExt amp = new AuthorizationMatrixPropertyExt();
+            for (Map.Entry<String, Object> r : (Set<Map.Entry<String, Object>>) formData.getJSONObject("data").entrySet()) {
+                String sid = r.getKey();
+                if (r.getValue() instanceof JSONObject) {
+                    for (Map.Entry<String, Boolean> e : (Set<Map.Entry<String, Boolean>>) ((JSONObject) r.getValue()).entrySet()) {
+                        if (e.getValue()) {
+                            Permission p = Permission.fromId(e.getKey());
+                            amp.add(p, sid);
+                        }
+                    }
+                }
+            }
+            return amp;
+        }
+
+        @Override
+        public boolean isApplicable(Class<? extends JobExt> jobType) {
+            // only applicable when ProjectMatrixAuthorizationStrategy is in charge
+            return HudsonExt.getInstance().getAuthorizationStrategy() instanceof ProjectMatrixAuthorizationStrategyExt;
+        }
+
+        @Override
+        public String getDisplayName() {
+            return "Authorization Matrix";
+        }
+
+        public List<PermissionGroup> getAllGroups() {
+            return Arrays.asList(PermissionGroup.get(ItemExt.class), PermissionGroup.get(RunExt.class));
+        }
+
+        public boolean showPermission(Permission p) {
+            return p.getEnabled() && p != ItemExt.CREATE;
+        }
     }
 
     /**

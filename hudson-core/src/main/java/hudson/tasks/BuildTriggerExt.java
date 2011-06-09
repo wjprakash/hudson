@@ -23,6 +23,7 @@
  */
 package hudson.tasks;
 
+import hudson.Extension;
 import hudson.Launcher;
 import hudson.model.AbstractBuildExt;
 import hudson.model.AbstractProjectExt;
@@ -36,7 +37,12 @@ import hudson.model.Items;
 import hudson.model.ResultExt;
 import hudson.model.RunExt;
 import hudson.model.CauseExt.UpstreamCause;
+import hudson.model.ItemExt;
+import hudson.model.ProjectExt;
 import hudson.model.TaskListener;
+import hudson.model.listeners.ItemListener;
+import hudson.tasks.BuildTriggerExt.DescriptorImplExt.ItemListenerImpl;
+import java.io.IOException;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
@@ -44,7 +50,10 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.servlet.ServletRequest;
+import net.sf.json.JSONObject;
 
 /**
  * Triggers builds of other projects.
@@ -67,7 +76,6 @@ public class BuildTriggerExt extends Recorder implements DependecyDeclarer {
      * Comma-separated list of other projects to be scheduled.
      */
     private String childProjects;
-
     /**
      * Threshold status to trigger other builds.
      *
@@ -77,22 +85,23 @@ public class BuildTriggerExt extends Recorder implements DependecyDeclarer {
     private final ResultExt threshold;
 
     public BuildTriggerExt(String childProjects, boolean evenIfUnstable) {
-        this(childProjects,evenIfUnstable ? ResultExt.UNSTABLE : ResultExt.SUCCESS);
+        this(childProjects, evenIfUnstable ? ResultExt.UNSTABLE : ResultExt.SUCCESS);
     }
 
     public BuildTriggerExt(String childProjects, ResultExt threshold) {
-        if(childProjects==null)
+        if (childProjects == null) {
             throw new IllegalArgumentException();
+        }
         this.childProjects = childProjects;
         this.threshold = threshold;
     }
 
     public BuildTriggerExt(List<AbstractProjectExt> childProjects, ResultExt threshold) {
-        this((Collection<AbstractProjectExt>)childProjects,threshold);
+        this((Collection<AbstractProjectExt>) childProjects, threshold);
     }
 
     public BuildTriggerExt(Collection<? extends AbstractProjectExt> childProjects, ResultExt threshold) {
-        this(Items.toNameList(childProjects),threshold);
+        this(Items.toNameList(childProjects), threshold);
     }
 
     public String getChildProjectsValue() {
@@ -100,26 +109,27 @@ public class BuildTriggerExt extends Recorder implements DependecyDeclarer {
     }
 
     public ResultExt getThreshold() {
-        if(threshold==null)
+        if (threshold == null) {
             return ResultExt.SUCCESS;
-        else
+        } else {
             return threshold;
+        }
     }
 
     public List<AbstractProjectExt> getChildProjects() {
-        return Items.fromNameList(childProjects,AbstractProjectExt.class);
+        return Items.fromNameList(childProjects, AbstractProjectExt.class);
     }
 
     public BuildStepMonitor getRequiredMonitorService() {
         return BuildStepMonitor.NONE;
     }
-    
+
     /**
      * Checks if this trigger has the exact same set of children as the given list.
      */
     public boolean hasSame(Collection<? extends AbstractProjectExt> projects) {
         List<AbstractProjectExt> children = getChildProjects();
-        return children.size()==projects.size() && children.containsAll(projects);
+        return children.size() == projects.size() && children.containsAll(projects);
     }
 
     @Override
@@ -151,6 +161,7 @@ public class BuildTriggerExt extends Recorder implements DependecyDeclarer {
                 graph.getDownstreamDependencies(build.getProject()));
         // Sort topologically
         Collections.sort(downstreamProjects, new Comparator<Dependency>() {
+
             public int compare(Dependency lhs, Dependency rhs) {
                 // Swapping lhs/rhs to get reverse sort:
                 return graph.compare(rhs.getDownstreamProject(), lhs.getDownstreamProject());
@@ -167,9 +178,9 @@ public class BuildTriggerExt extends Recorder implements DependecyDeclarer {
             if (dep.shouldTriggerBuild(build, listener, buildActions)) {
                 // this is not completely accurate, as a new build might be triggered
                 // between these calls
-                String name = p.getName()+" #"+p.getNextBuildNumber();
-                if(p.scheduleBuild(p.getQuietPeriod(), new UpstreamCause((RunExt)build),
-                                   buildActions.toArray(new Action[buildActions.size()]))) {
+                String name = p.getName() + " #" + p.getNextBuildNumber();
+                if (p.scheduleBuild(p.getQuietPeriod(), new UpstreamCause((RunExt) build),
+                        buildActions.toArray(new Action[buildActions.size()]))) {
                     logger.println(Messages.BuildTrigger_Triggering(name));
                 } else {
                     logger.println(Messages.BuildTrigger_InQueue(name));
@@ -181,14 +192,16 @@ public class BuildTriggerExt extends Recorder implements DependecyDeclarer {
     }
 
     public void buildDependencyGraph(AbstractProjectExt owner, DependencyGraph graph) {
-        for (AbstractProjectExt p : getChildProjects())
+        for (AbstractProjectExt p : getChildProjects()) {
             graph.addDependency(new Dependency(owner, p) {
+
                 @Override
                 public boolean shouldTriggerBuild(AbstractBuildExt build, TaskListener listener,
-                                                  List<Action> actions) {
+                        List<Action> actions) {
                     return build.getResult().isBetterOrEqualTo(threshold);
                 }
             });
+        }
     }
 
     @Override
@@ -203,24 +216,27 @@ public class BuildTriggerExt extends Recorder implements DependecyDeclarer {
      */
     public boolean onJobRenamed(String oldName, String newName) {
         // quick test
-        if(!childProjects.contains(oldName))
+        if (!childProjects.contains(oldName)) {
             return false;
+        }
 
         boolean changed = false;
 
         // we need to do this per string, since old ProjectExt object is already gone.
         String[] projects = childProjects.split(",");
-        for( int i=0; i<projects.length; i++ ) {
-            if(projects[i].trim().equals(oldName)) {
+        for (int i = 0; i < projects.length; i++) {
+            if (projects[i].trim().equals(oldName)) {
                 projects[i] = newName;
                 changed = true;
             }
         }
 
-        if(changed) {
+        if (changed) {
             StringBuilder b = new StringBuilder();
             for (String p : projects) {
-                if(b.length()>0)    b.append(',');
+                if (b.length() > 0) {
+                    b.append(',');
+                }
                 b.append(p);
             }
             childProjects = b.toString();
@@ -229,14 +245,66 @@ public class BuildTriggerExt extends Recorder implements DependecyDeclarer {
         return changed;
     }
 
+    @Extension
+    public static class DescriptorImplExt extends BuildStepDescriptor<Publisher> {
+
+        public String getDisplayName() {
+            return Messages.BuildTrigger_DisplayName();
+        }
+
+        @Override
+        public String getHelpFile() {
+            return "/help/project-config/downstream.html";
+        }
+
+        @Override
+        public Publisher newInstance(ServletRequest req, JSONObject formData) {
+            return new BuildTriggerExt(
+                    formData.getString("childProjects"),
+                    formData.has("evenIfUnstable") && formData.getBoolean("evenIfUnstable"));
+        }
+
+        @Override
+        public boolean isApplicable(Class<? extends AbstractProjectExt> jobType) {
+            return true;
+        }
+
+        public boolean showEvenIfUnstableOption(Class<? extends AbstractProjectExt> jobType) {
+            // UGLY: for promotion process, this option doesn't make sense. 
+            return !jobType.getName().contains("PromotionProcess");
+        }
+
+        @Extension
+        public static class ItemListenerImpl extends ItemListener {
+
+            @Override
+            public void onRenamed(ItemExt item, String oldName, String newName) {
+                // update BuildTrigger of other projects that point to this object.
+                // can't we generalize this?
+                for (ProjectExt<?, ?> p : HudsonExt.getInstance().getProjects()) {
+                    BuildTriggerExt t = p.getPublishersList().get(BuildTriggerExt.class);
+                    if (t != null) {
+                        if (t.onJobRenamed(oldName, newName)) {
+                            try {
+                                p.save();
+                            } catch (IOException e) {
+                                LOGGER.log(Level.WARNING, "Failed to persist project setting during rename from " + oldName + " to " + newName, e);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     /**
      * Correct broken data gracefully (#1537)
      */
     private Object readResolve() {
-        if(childProjects==null)
-            return childProjects="";
+        if (childProjects == null) {
+            return childProjects = "";
+        }
         return this;
     }
-
     private static final Logger LOGGER = Logger.getLogger(BuildTriggerExt.class.getName());
 }

@@ -274,7 +274,7 @@ public class Functions extends FunctionsExt {
         String url = "";
         while (true) {
             ItemGroup ig = i.getParent();
-            url = i.getShortUrl() + url;
+            url = StaplerUtils.getShortUrl(i) + url;
 
             if (ig == HudsonExt.getInstance()) {
                 assert i instanceof TopLevelItem;
@@ -283,7 +283,7 @@ public class Functions extends FunctionsExt {
                     return ancestors.get(view) + '/' + url;
                 } else {
                     // otherwise return a path from the root HudsonExt
-                    return request.getContextPath() + '/' + p.getUrl();
+                    return request.getContextPath() + '/' + StaplerUtils.getUrl(p);
                 }
             }
 
@@ -321,7 +321,7 @@ public class Functions extends FunctionsExt {
     public static Collection<hudson.model.DescriptorExt> getSortedDescriptorsForGlobalConfig() {
         Map<String,DescriptorExt> r = new TreeMap<String, DescriptorExt>();
         for (DescriptorExt<?> d : HudsonExt.getInstance().getExtensionList(DescriptorExt.class)) {
-            if (d.getGlobalConfigPage()==null)  continue;
+            if (d.getGlobalConfigPage() == null)  continue;
             r.put(buildSuperclassHierarchy(d.clazz, new StringBuilder()).toString(),d);
         }
         return r.values();

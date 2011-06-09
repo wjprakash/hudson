@@ -54,6 +54,7 @@ public class MatrixBuild extends MatrixBuildExt{
         } catch (IllegalArgumentException _) {
             // failed to parse the token as Combination. Must be something else
         }
-        return super.getDynamic(token,req,rsp);
+        return null;
+        //return super.getDynamic(token,req,rsp);
     }
 }

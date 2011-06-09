@@ -23,52 +23,24 @@
  */
 package hudson.scm;
 
-import hudson.model.AbstractProjectExt;
-import hudson.model.Descriptor.FormException;
 import hudson.util.DescriptorListExt;
 import hudson.Extension;
 
 import java.util.List;
 
-import org.kohsuke.stapler.StaplerRequest;
 
-import javax.servlet.ServletException;
 
 /**
  * List of all installed SCMs.
  * 
  * @author Kohsuke Kawaguchi
  */
-public class SCMS {
+public class SCMSExt {
     /**
      * List of all installed SCMs.
      * @deprecated as of 1.286
      *      Use {@link SCM#all()} for read access and {@link Extension} for registration.
      */
     public static final List<SCMDescriptor<?>> SCMS = (List)new DescriptorListExt<SCMExt>(SCMExt.class);
-
-    /**
-     * Parses {@link SCM} configuration from the submitted form.
-     *
-     * @param target
-     *      The project for which this SCM is configured to.
-     */
-    public static SCMExt parseSCM(StaplerRequest req, AbstractProjectExt target) throws FormException, ServletException {
-        String scm = req.getParameter("scm");
-        if(scm==null)   return new NullSCMExt();
-
-        int scmidx = Integer.parseInt(scm);
-        SCMDescriptor<?> d = SCMExt._for(target).get(scmidx);
-        d.generation++;
-        return d.newInstance(req, req.getSubmittedForm().getJSONObject("scm"));
-    }
-
-    /**
-     * @deprecated as of 1.294
-     *      Use {@link #parseSCM(StaplerRequest, AbstractProjectExt)} and pass in the caller's project type.
-     */
-    public static SCMExt parseSCM(StaplerRequest req) throws FormException, ServletException {
-        return parseSCM(req,null);
-    }
 
 }

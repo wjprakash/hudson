@@ -23,11 +23,7 @@
  */
 package hudson.tasks;
 
-import hudson.Extension;
-import hudson.model.AbstractProjectExt;
-import net.sf.json.JSONObject;
 import org.kohsuke.stapler.DataBoundConstructor;
-import org.kohsuke.stapler.StaplerRequest;
 
 /**
  * Executes commands by using Windows batch file.
@@ -38,27 +34,5 @@ public class BatchFile extends BatchFileExt {
     @DataBoundConstructor
     public BatchFile(String command) {
         super(command);
-    }
-
-    @Extension
-    public static final class DescriptorImpl extends BuildStepDescriptor<Builder> {
-        @Override
-        public String getHelpFile() {
-            return "/help/project-config/batch.html";
-        }
-
-        @Override
-        public String getDisplayName() {
-            return Messages.BatchFile_DisplayName();
-        }
-
-        public Builder newInstance(StaplerRequest req, JSONObject data) {
-            return new BatchFile(data.getString("command"));
-        }
-
-        @Override
-        public boolean isApplicable(Class<? extends AbstractProjectExt> jobType) {
-            return true;
-        }
     }
 }

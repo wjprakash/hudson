@@ -28,21 +28,28 @@ import hudson.remoting.Callable;
 import hudson.Extension;
 
 import java.io.IOException;
+import javax.servlet.ServletRequest;
+import net.sf.json.JSONObject;
 
 /**
  * Discovers the architecture of the system to display in the slave list page.
  *
  * @author Kohsuke Kawaguchi
  */
-public class ArchitectureMonitorExt extends NodeMonitorExt {
+public class ArchitectureMonitor extends NodeMonitorExt {
     @Extension
-    public static final class DescriptorImpl extends AbstractNodeMonitorDescriptorExt<String> {
+    public static final class DescriptorImpl extends AbstractNodeMonitorDescriptor<String> {
         protected String monitor(ComputerExt c) throws IOException, InterruptedException {
             return c.getChannel().call(new GetArchTask());
         }
 
         public String getDisplayName() {
             return Messages.ArchitectureMonitor_DisplayName();
+        }
+        
+        @Override
+        public NodeMonitorExt newInstance(ServletRequest req, JSONObject formData) {
+            return new ArchitectureMonitor();
         }
     }
 

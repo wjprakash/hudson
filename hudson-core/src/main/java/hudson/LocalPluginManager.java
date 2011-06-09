@@ -21,7 +21,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-
 package hudson;
 
 import hudson.model.HudsonExt;
@@ -42,9 +41,11 @@ import java.util.logging.Logger;
  * @author Kohsuke Kawaguchi
  */
 public class LocalPluginManager extends PluginManagerExt {
+
     private final HudsonExt hudson;
+
     public LocalPluginManager(HudsonExt hudson) {
-        super(hudson.servletContext, new File(hudson.getRootDir(),"plugins"));
+        super(hudson.servletContext, new File(hudson.getRootDir(), "plugins"));
         this.hudson = hudson;
     }
 
@@ -63,9 +64,9 @@ public class LocalPluginManager extends PluginManagerExt {
 
         Set<String> names = new HashSet<String>();
 
-        for( String path : UtilExt.fixNull((Set<String>)hudson.servletContext.getResourcePaths("/WEB-INF/plugins"))) {
-            String fileName = path.substring(path.lastIndexOf('/')+1);
-            if(fileName.length()==0) {
+        for (String path : UtilExt.fixNull((Set<String>) hudson.servletContext.getResourcePaths("/WEB-INF/plugins"))) {
+            String fileName = path.substring(path.lastIndexOf('/') + 1);
+            if (fileName.length() == 0) {
                 // see http://www.nabble.com/404-Not-Found-error-when-clicking-on-help-td24508544.html
                 // I suspect some containers are returning directory names.
                 continue;
@@ -76,12 +77,11 @@ public class LocalPluginManager extends PluginManagerExt {
                 URL url = hudson.servletContext.getResource(path);
                 copyBundledPlugin(url, fileName);
             } catch (IOException e) {
-                LOGGER.log(Level.SEVERE, "Failed to extract the bundled plugin "+fileName,e);
+                LOGGER.log(Level.SEVERE, "Failed to extract the bundled plugin " + fileName, e);
             }
         }
 
         return names;
     }
-
     private static final Logger LOGGER = Logger.getLogger(LocalPluginManager.class.getName());
 }

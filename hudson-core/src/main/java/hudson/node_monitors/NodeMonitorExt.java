@@ -75,8 +75,8 @@ public abstract class NodeMonitorExt implements ExtensionPoint, Describable<Node
         return getDescriptor().getDisplayName();
     }
 
-    public AbstractNodeMonitorDescriptorExt<?> getDescriptor() {
-        return (AbstractNodeMonitorDescriptorExt<?>)HudsonExt.getInstance().getDescriptorOrDie(getClass());
+    public AbstractNodeMonitorDescriptor<?> getDescriptor() {
+        return (AbstractNodeMonitorDescriptor<?>)HudsonExt.getInstance().getDescriptorOrDie(getClass());
     }
 
     public Object data(ComputerExt c) {

@@ -48,32 +48,31 @@ public class MatrixRun extends MatrixRunExt {
     public MatrixRun(MatrixConfiguration project, File buildDir) throws IOException {
         super(project, buildDir);
     }
-    
-    @Override
+
     public String getUpUrl() {
         StaplerRequest req = Stapler.getCurrentRequest();
-        if(req!=null) {
+        if (req != null) {
             List<Ancestor> ancs = req.getAncestors();
-            for( int i=1; i<ancs.size(); i++) {
-                if(ancs.get(i).getObject()==this) {
-                    Object parentObj = ancs.get(i-1).getObject();
-                    if(parentObj instanceof MatrixBuildExt || parentObj instanceof MatrixConfiguration) {
-                        return ancs.get(i-1).getUrl()+'/';
+            for (int i = 1; i < ancs.size(); i++) {
+                if (ancs.get(i).getObject() == this) {
+                    Object parentObj = ancs.get(i - 1).getObject();
+                    if (parentObj instanceof MatrixBuildExt || parentObj instanceof MatrixConfiguration) {
+                        return ancs.get(i - 1).getUrl() + '/';
                     }
                 }
             }
         }
         return super.getDisplayName();
     }
-    
+
     @Override
     public String getDisplayName() {
         StaplerRequest req = Stapler.getCurrentRequest();
-        if(req!=null) {
+        if (req != null) {
             List<Ancestor> ancs = req.getAncestors();
-            for( int i=1; i<ancs.size(); i++) {
-                if(ancs.get(i).getObject()==this) {
-                    if(ancs.get(i-1).getObject() instanceof MatrixBuildExt) {
+            for (int i = 1; i < ancs.size(); i++) {
+                if (ancs.get(i).getObject() == this) {
+                    if (ancs.get(i - 1).getObject() instanceof MatrixBuildExt) {
                         return getParent().getCombination().toCompactString(getParent().getParent().getAxes());
                     }
                 }

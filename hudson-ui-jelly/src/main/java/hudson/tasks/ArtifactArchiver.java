@@ -50,23 +50,11 @@ public class ArtifactArchiver extends ArtifactArchiverExt {
          super(artifacts, excludes, latestOnly);
     }
 
-    
-    /**
-     * @deprecated as of 1.286
-     *      Some plugin depends on this, so this field is left here and points to the last created instance.
-     *      Use {@link HudsonExt#getDescriptorByType(Class)} instead.
-     */
-    public static volatile DescriptorImpl DESCRIPTOR;
 
     @Extension
-    public static class DescriptorImpl extends BuildStepDescriptor<Publisher> {
+    public static class DescriptorImpl extends DescriptorImplExt {
         public DescriptorImpl() {
-            DESCRIPTOR = this; // backward compatibility
-        }
-
-        @Override
-        public String getDisplayName() {
-            return Messages.ArtifactArchiver_DisplayName();
+            super();
         }
 
         /**
@@ -78,10 +66,6 @@ public class ArtifactArchiver extends ArtifactArchiverExt {
 
         public ArtifactArchiver newInstance(StaplerRequest req, JSONObject formData) throws FormException {
             return req.bindJSON(ArtifactArchiver.class,formData);
-        }
-
-        public boolean isApplicable(Class<? extends AbstractProjectExt> jobType) {
-            return true;
         }
     }
 }

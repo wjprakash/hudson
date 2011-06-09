@@ -23,7 +23,6 @@
  */
 package hudson.node_monitors;
 
-import hudson.FunctionsExt.ThreadGroupMap;
 import hudson.model.ComputerExt;
 import hudson.model.DescriptorExt;
 import hudson.model.HudsonExt;
@@ -50,21 +49,21 @@ import java.util.logging.Logger;
  *
  * @author Kohsuke Kawaguchi
  */
-public abstract class   AbstractNodeMonitorDescriptorExt<T> extends DescriptorExt<NodeMonitorExt> {
-    protected AbstractNodeMonitorDescriptorExt() {
+public abstract class   AbstractNodeMonitorDescriptor<T> extends DescriptorExt<NodeMonitorExt> {
+    protected AbstractNodeMonitorDescriptor() {
         this(HOUR);
     }
 
-    protected AbstractNodeMonitorDescriptorExt(long interval) {
+    protected AbstractNodeMonitorDescriptor(long interval) {
         schedule(interval);
 
     }
 
-    protected AbstractNodeMonitorDescriptorExt(Class<? extends NodeMonitorExt> clazz) {
+    protected AbstractNodeMonitorDescriptor(Class<? extends NodeMonitorExt> clazz) {
         this(clazz,HOUR);
     }
 
-    protected AbstractNodeMonitorDescriptorExt(Class<? extends NodeMonitorExt> clazz, long interval) {
+    protected AbstractNodeMonitorDescriptor(Class<? extends NodeMonitorExt> clazz, long interval) {
         super(clazz);
 
         schedule(interval);
@@ -178,7 +177,7 @@ public abstract class   AbstractNodeMonitorDescriptorExt<T> extends DescriptorEx
 
         public Record() {
             super("Monitoring thread for "+getDisplayName()+" started on "+new Date());
-            synchronized(AbstractNodeMonitorDescriptorExt.this) {
+            synchronized(AbstractNodeMonitorDescriptor.this) {
                 if(inProgress!=null) {
                     // maybe it got stuck?
                     LOGGER.warning("Previous "+getDisplayName()+" monitoring activity still in progress. Interrupting");
@@ -209,7 +208,7 @@ public abstract class   AbstractNodeMonitorDescriptorExt<T> extends DescriptorEx
             }
             setName(oldName);
 
-            synchronized(AbstractNodeMonitorDescriptorExt.this) {
+            synchronized(AbstractNodeMonitorDescriptor.this) {
                 assert inProgress==this;
                 inProgress = null;
                 record = this;

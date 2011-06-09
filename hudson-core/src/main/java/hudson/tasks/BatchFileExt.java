@@ -23,7 +23,11 @@
  */
 package hudson.tasks;
 
+import hudson.Extension;
 import hudson.FilePathExt;
+import hudson.model.AbstractProjectExt;
+import javax.servlet.ServletRequest;
+import net.sf.json.JSONObject;
 /**
  * Executes commands by using Windows batch file.
  *
@@ -44,5 +48,28 @@ public class BatchFileExt extends CommandInterpreter {
 
     protected String getFileExtension() {
         return ".bat";
+    }
+    
+     @Extension
+    public static final class DescriptorImpl extends BuildStepDescriptor<Builder> {
+        @Override
+        public String getHelpFile() {
+            return "/help/project-config/batch.html";
+        }
+
+        @Override
+        public String getDisplayName() {
+            return Messages.BatchFile_DisplayName();
+        }
+
+        @Override
+        public Builder newInstance(ServletRequest req, JSONObject data) {
+            return new BatchFileExt(data.getString("command"));
+        }
+
+        @Override
+        public boolean isApplicable(Class<? extends AbstractProjectExt> jobType) {
+            return true;
+        }
     }
 }

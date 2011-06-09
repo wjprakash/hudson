@@ -111,6 +111,44 @@ public interface ItemExt extends PersistenceRoot, SearchableModelObject, AccessC
      * of {@link #getParent() ancestor items}.
      */
     String getDisplayName();
+    
+//    /**
+//     * Returns the URL of this item relative to the context root of the application.
+//     *
+//     * @see AbstractItem#getUrl() for how to implement this.
+//     *
+//     * @return
+//     *      URL that ends with '/'.
+//     */
+//    String getUrl();
+//
+//    /**
+//     * Returns the URL of this item relative to the parent {@link ItemGroup}.
+//     * @see AbstractItem#getShortUrl() for how to implement this.
+//     *
+//     * @return
+//     *      URL that ends with '/'.
+//     */
+//    String getShortUrl();
+//
+//    /**
+//     * Returns the absolute URL of this item. This relies on the current
+//     * {@link StaplerRequest} to figure out what the host name is,
+//     * so can be used only during processing client requests.
+//     *
+//     * @return
+//     *      absolute URL.
+//     * @throws IllegalStateException
+//     *      if the method is invoked outside the HTTP request processing.
+//     *
+//     * @deprecated
+//     *      This method shall <b>NEVER</b> be used during HTML page rendering, as it won't work with
+//     *      network set up like Apache reverse proxy.
+//     *      This method is only intended for the remote API clients who cannot resolve relative references
+//     *      (even this won't work for the same reason, which should be fixed.)
+//     */
+//    String getAbsoluteUrl();
+//    
 
     /**
      * Works like {@link #getDisplayName()} but return

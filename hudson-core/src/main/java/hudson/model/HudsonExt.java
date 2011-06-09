@@ -64,8 +64,6 @@ import hudson.remoting.LocalChannel;
 import hudson.remoting.VirtualChannel;
 import hudson.scm.RepositoryBrowserExt;
 import hudson.scm.SCMExt;
-import hudson.search.CollectionSearchIndex;
-import hudson.search.SearchIndexBuilder;
 import hudson.security.ACL;
 import hudson.security.AccessControlled;
 import hudson.security.AuthorizationStrategyExt;
@@ -161,7 +159,6 @@ import java.util.Stack;
 import java.util.StringTokenizer;
 import java.util.Timer;
 import java.util.TreeSet;
-import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -179,6 +176,7 @@ import static java.util.logging.Level.SEVERE;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
+import javax.management.Descriptor;
 
 /**
  * Root object of the system.

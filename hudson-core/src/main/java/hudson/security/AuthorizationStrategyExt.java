@@ -33,6 +33,8 @@ import hudson.util.DescriptorListExt;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Collections;
+import javax.servlet.ServletRequest;
+import net.sf.json.JSONObject;
 
 import org.acegisecurity.Authentication;
 
@@ -197,5 +199,23 @@ public abstract class AuthorizationStrategyExt extends AbstractDescribableImpl<A
             }
         };
 
+        @Extension
+        public static final class DescriptorImpl extends DescriptorExt<AuthorizationStrategyExt> {
+
+            @Override
+            public String getDisplayName() {
+                return Messages.AuthorizationStrategy_DisplayName();
+            }
+
+            @Override
+            public AuthorizationStrategyExt newInstance(ServletRequest req, JSONObject formData) {
+                return UNSECURED;
+            }
+
+            @Override
+            public String getHelpFile() {
+                return "/help/security/no-authorization.html";
+            }
+        }
     }
 }

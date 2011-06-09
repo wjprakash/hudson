@@ -41,14 +41,14 @@ import org.kohsuke.stapler.export.Exported;
  *
  * @author Winston Prakash
  */
-public abstract class AbstractBuild extends AbstractBuildExt{
-    
-    @Exported(name="builtOn")
+public abstract class AbstractBuild extends AbstractBuildExt {
+
+    @Exported(name = "builtOn")
     @Override
     public String getBuiltOnStr() {
         return super.getBuiltOnStr();
     }
-    
+
     /**
      * Used to render the side panel "Back to project" link.
      *
@@ -62,10 +62,10 @@ public abstract class AbstractBuild extends AbstractBuildExt{
      * {@link #getDisplayName()}.
      */
     public String getUpUrl() {
-        return Functions.getNearestAncestorUrl(Stapler.getCurrentRequest(),getParent())+'/';
+        return Functions.getNearestAncestorUrl(Stapler.getCurrentRequest(), getParent()) + '/';
     }
-    
-     /**
+
+    /**
      * List of users who committed a change since the last non-broken build till now.
      *
      * <p>
@@ -80,7 +80,7 @@ public abstract class AbstractBuild extends AbstractBuildExt{
     public Set<UserExt> getCulprits() {
         return super.getCulprits();
     }
-    
+
     /**
      * Gets the changes incorporated into this build.
      *
@@ -91,35 +91,35 @@ public abstract class AbstractBuild extends AbstractBuildExt{
     public ChangeLogSetExt<? extends Entry> getChangeSet() {
         return super.getChangeSet();
     }
-    
+
     protected abstract class AbstractRunner extends AbstractRunnerExt {
+
         @Override
-         public ResultExt run(BuildListener listener) throws Exception {
-             ResultExt result = super.run(listener);
-             NodeExt node = getCurrentNode();
-             ComputerExt c = node.toComputer();
-                if (c==null || c.isOffline()) {
-                    // As can be seen in HUDSON-5073, when a build fails because of the slave connectivity problem,
-                    // error message doesn't point users to the slave. So let's do it here.
-                    listener.hyperlink("/computer/" + builtOn +"/log","Looks like the node went offline during the build. Check the slave log for the details.");
+        public ResultExt run(BuildListener listener) throws Exception {
+            ResultExt result = super.run(listener);
+            NodeExt node = getCurrentNode();
+            ComputerExt c = node.toComputer();
+            if (c == null || c.isOffline()) {
+                // As can be seen in HUDSON-5073, when a build fails because of the slave connectivity problem,
+                // error message doesn't point users to the slave. So let's do it here.
+                listener.hyperlink("/computer/" + builtOn + "/log", "Looks like the node went offline during the build. Check the slave log for the details.");
 
-                    // grab the end of the log file. This might not work very well if the slave already
-                    // starts reconnecting. Fixing this requires a ring buffer in slave logs.
-                    AnnotatedLargeText<ComputerExt> log = c.getLogText();
-                    StringWriter w = new StringWriter();
-                    log.writeHtmlTo(Math.max(0,c.getLogFile().length()-10240),w);
+                // grab the end of the log file. This might not work very well if the slave already
+                // starts reconnecting. Fixing this requires a ring buffer in slave logs.
+                AnnotatedLargeText<ComputerExt> log = c.getLogText();
+                StringWriter w = new StringWriter();
+                log.writeHtmlTo(Math.max(0, c.getLogFile().length() - 10240), w);
 
-                    listener.getLogger().print(ExpandableDetailsNote.encodeTo("details",w.toString()));
-                    listener.getLogger().println();
-                }
-             return super.run(listener);
-         }
+                listener.getLogger().print(ExpandableDetailsNote.encodeTo("details", w.toString()));
+                listener.getLogger().println();
+            }
+            return super.run(listener);
+        }
     }
-    
+
     //
     // web methods
     //
-
     /**
      * Stops this build if it's still going.
      *
@@ -128,11 +128,11 @@ public abstract class AbstractBuild extends AbstractBuildExt{
      */
     public synchronized void doStop(StaplerRequest req, StaplerResponse rsp) throws IOException, ServletException {
         ExecutorExt e = getExecutor();
-        if (e!=null)
-            e.doStop(req,rsp);
-        else
-            // nothing is building
+        if (e != null) {
+            Executor.doStop(e, req, rsp);
+        } else // nothing is building
+        {
             rsp.forwardToPreviousPage(req);
+        }
     }
-    
 }

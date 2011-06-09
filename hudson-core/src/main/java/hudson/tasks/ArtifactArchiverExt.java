@@ -23,11 +23,14 @@
  */
 package hudson.tasks;
 
+import hudson.Extension;
 import hudson.FilePathExt;
 import hudson.Launcher;
 import hudson.UtilExt;
 import hudson.model.AbstractBuildExt;
+import hudson.model.AbstractProjectExt;
 import hudson.model.BuildListener;
+import hudson.model.HudsonExt;
 import hudson.model.ResultExt;
 
 import java.io.File;
@@ -160,5 +163,28 @@ public class ArtifactArchiverExt extends Recorder {
 
     public BuildStepMonitor getRequiredMonitorService() {
         return BuildStepMonitor.NONE;
+    }
+    
+     /**
+     * @deprecated as of 1.286
+     *      Some plugin depends on this, so this field is left here and points to the last created instance.
+     *      Use {@link HudsonExt#getDescriptorByType(Class)} instead.
+     */
+    public static volatile DescriptorImplExt DESCRIPTOR;
+    
+    @Extension
+    public static class DescriptorImplExt extends BuildStepDescriptor<Publisher> {
+        public DescriptorImplExt() {
+            DESCRIPTOR = this; // backward compatibility
+        }
+
+        @Override
+        public String getDisplayName() {
+            return Messages.ArtifactArchiver_DisplayName();
+        }
+
+        public boolean isApplicable(Class<? extends AbstractProjectExt> jobType) {
+            return true;
+        }
     }
 }

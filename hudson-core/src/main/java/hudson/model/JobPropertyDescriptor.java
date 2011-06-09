@@ -23,8 +23,6 @@
  */
 package hudson.model;
 
-import hudson.model.Descriptor.FormException;
-import org.kohsuke.stapler.StaplerRequest;
 import org.jvnet.tiger_types.Types;
 
 import java.util.List;
@@ -32,6 +30,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.lang.reflect.Type;
 import java.lang.reflect.ParameterizedType;
+import javax.servlet.ServletRequest;
 
 import net.sf.json.JSONObject;
 
@@ -41,7 +40,7 @@ import net.sf.json.JSONObject;
  * @author Kohsuke Kawaguchi
  * @since 1.72
  */
-public abstract class JobPropertyDescriptor extends Descriptor<JobPropertyExt<?>> {
+public abstract class JobPropertyDescriptor extends DescriptorExt<JobPropertyExt<?>> {
     
     protected JobPropertyDescriptor(Class<? extends JobPropertyExt<?>> clazz) {
         super(clazz);
@@ -64,7 +63,7 @@ public abstract class JobPropertyDescriptor extends Descriptor<JobPropertyExt<?>
      *      null to avoid setting an instance of {@link JobPropertyExt} to the target project.
      */
     @Override
-    public JobPropertyExt<?> newInstance(StaplerRequest req, JSONObject formData) throws FormException {
+    public JobPropertyExt<?> newInstance(ServletRequest req, JSONObject formData) {
         // JobPropertyDescriptors are bit different in that we allow them even without any user-visible configuration parameter,
         // so replace the lack of form data by an empty one. 
         if(formData.isNullObject()) formData=new JSONObject();
